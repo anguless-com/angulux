@@ -71,7 +71,13 @@ closes a class of failure that has already happened in this repository.
 npm run check     # all seven, ~3 seconds
 ```
 
-Two of them — `check:license` and `check:catalog` — **also run daily on a schedule**, and
+An eighth gate, `check:publishable`, runs after the build rather than in that suite: it
+packs every package and reads `package.json` back **out of the tarball**, so what gets
+inspected is the exact bytes npm would receive. It exists because a guard that read the
+source tree instead once passed while three packages were about to publish an
+uninstallable `workspace:` dependency.
+
+Two of the seven — `check:license` and `check:catalog` — **also run daily on a schedule**, and
 that is not redundancy. A pull-request run only proves the tree was clean *at our last
 commit*, while the boundary those two enforce lives outside this repository: PrimeTek
 decides which of their releases is the last MIT one, and that can change on a day when

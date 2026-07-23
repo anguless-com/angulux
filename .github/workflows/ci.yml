@@ -123,6 +123,14 @@ jobs:
             - name: Unit tests
               run: corepack pnpm --filter angulux run test:unit
 
+            # Needs a completed build, which is why it is here rather than in `npm run check`
+            # — that suite is seven gates in about three seconds and stays that way.
+            # It packs each package and reads package.json back out of the TARBALL, because
+            # three of the forked packages once passed a guard that inspected the wrong path
+            # while carrying `workspace:^` into a published dependency.
+            - name: The tarballs would be safe to publish
+              run: npm run check:publishable
+
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
 
