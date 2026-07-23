@@ -27,3 +27,9 @@ provenance/tarballs/
 # Build output of the forked primeuix packages (tsup)
 packages/angulux-*/dist/
 plans/
+
+# Local secrets — npm publish tokens etc. Never committed. A bypass-2FA token
+# lived here during the BL-11 publish; keep it out of the index for good.
+.env
+.env.*
+!.env.example
