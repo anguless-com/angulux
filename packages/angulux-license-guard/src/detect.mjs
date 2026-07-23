@@ -7,11 +7,30 @@ import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, isPrimeTekPackage } from './bounda
  * `22.0.0-rc.1` is a release candidate OF the commercial major and must not be waved
  * through by the semver rule that a prerelease precedes its release.
  */
+function release(version) {
+    // Strip BOTH the prerelease suffix and the build metadata. Dropping only `-` left
+    // `Number('0+build')` === NaN, every comparison with NaN false, and a commercial version
+    // reported as clean — a false green on precisely what this package exists to catch.
+    return String(version).split('+')[0].split('-')[0].split('.');
+}
+
+/**
+ * Compare two versions on their release triple.
+ *
+ * A segment that is not a number yields `null`, and the caller treats an incomparable
+ * version as unverified rather than as below the boundary. "I could not read this" must never
+ * collapse into "this is fine".
+ *
+ * @returns {number|null} null when either version cannot be read
+ */
 function cmp(a, b) {
-    const pa = a.split('-')[0].split('.').map(Number);
-    const pb = b.split('-')[0].split('.').map(Number);
+    const pa = release(a);
+    const pb = release(b);
     for (let i = 0; i < 3; i++) {
-        if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+        const na = pa[i] === undefined ? 0 : Number(pa[i]);
+        const nb = pb[i] === undefined ? 0 : Number(pb[i]);
+        if (Number.isNaN(na) || Number.isNaN(nb)) return null;
+        if (na !== nb) return na - nb;
     }
     return 0;
 }
@@ -63,8 +82,19 @@ export function detect(packages) {
             continue;
         }
 
+        const order = cmp(version, floor);
+        if (order === null) {
+            violations.push({
+                name,
+                version,
+                kind: 'unverified',
+                reason: `could not be compared against the ${floor} boundary — the version is not readable`
+            });
+            continue;
+        }
+
         seen.push({ name, version });
-        if (cmp(version, floor) >= 0) {
+        if (order >= 0) {
             violations.push({ name, version, kind: 'commercial', reason: `>= ${floor} is the commercial PrimeUI licence` });
         }
     }

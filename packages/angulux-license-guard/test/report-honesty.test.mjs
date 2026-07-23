@@ -76,3 +76,17 @@ test('a mixed tree reports both kinds, each in its own terms', () => {
         rmSync(dir, { recursive: true, force: true });
     }
 });
+
+test('an unreadable lockfile reports the tool\'s own message, not a Node stack trace', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'badlock-'));
+    writeFileSync(join(dir, 'package-lock.json'), '{ broken');
+    try {
+        const { code, lines } = run(dir);
+        assert.equal(code, 1);
+        const text = lines.join('\n');
+        assert.match(text, /LOCKFILE COULD NOT BE READ/);
+        assert.doesNotMatch(text, /at Object\.|node:internal/);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});

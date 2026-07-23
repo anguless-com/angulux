@@ -20,8 +20,9 @@ test('an unrecognised package under any PrimeTek namespace fails closed', () => 
     assert.equal(r.violations.length, 2);
 });
 
-test('a future PrimeTek product name fails closed', () => {
-    const r = detect([{ name: 'primeblock', version: '1.0.0' }]);
+test('a real PrimeTek package with no boundary recorded fails closed', () => {
+    // primefaces is published by PrimeTek and has no entry in the table.
+    const r = detect([{ name: 'primefaces', version: '14.0.0' }]);
     assert.equal(r.violations.length, 1);
 });
 

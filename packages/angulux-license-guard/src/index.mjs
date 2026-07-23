@@ -34,7 +34,16 @@ export function run(projectRoot = process.cwd()) {
             lines.push('✗ NO LOCKFILE', `  ${e.message}`, footer);
             return { code: EXIT_VIOLATION, lines };
         }
-        throw e;
+        // An unreadable lockfile is an unverifiable tree, not a crash. Letting this escape
+        // printed a raw Node stack trace — for a tool whose output IS the product, that is a
+        // failure even though the exit code happened to be right.
+        lines.push(
+            '✗ LOCKFILE COULD NOT BE READ',
+            `  ${e.message}`,
+            '  The licence cannot be verified without a readable lockfile.',
+            footer
+        );
+        return { code: EXIT_VIOLATION, lines };
     }
 
     const { entries, errors } = loadAcknowledgements(root);

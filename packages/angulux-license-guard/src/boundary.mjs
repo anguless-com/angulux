@@ -47,8 +47,12 @@ export const TABLE_VERIFIED = '2026-07-23';
  * PrimeTek's and must not turn someone's build red.
  */
 export function isPrimeTekPackage(name) {
+    // Every unscoped name here was checked against the registry. `primeblock` was in this
+    // list and is a 404 — invented while writing the matcher, then "confirmed" by a test
+    // written to the same invention. Enumerate what exists; a broad /^prime/ would catch
+    // GitHub's `primer` and any consumer's own `prime-*`.
     return (
-        /^prime(ng|vue|react|icons|flex|block)$/.test(name) ||
+        /^prime(ng|vue|react|icons|flex|faces)$/.test(name) ||
         name.startsWith('@primeuix/') ||
         name.startsWith('@primeui/') ||
         name.startsWith('@primeicons/')
