@@ -1,0 +1,32 @@
+name: angulux CodeQL config
+
+# What is deliberately NOT scanned, and why.
+#
+# attic/ holds 53 modules of verbatim upstream PrimeNG 21.1.9 source. They are not built
+# and not published, so nothing in them can reach a user through this project — SECURITY.md
+# says the same thing to reporters. Scanning them would produce findings nobody can act on,
+# in code we have deliberately not modified, and a results list that is mostly noise is a
+# results list nobody reads carefully.
+#
+# ref/ and provenance/tarballs/ are gitignored and never present in CI; listed anyway so
+# the intent survives a future change to the ignore rules.
+
+paths-ignore:
+    - packages/angulux/attic
+    - '**/dist'
+    - '**/node_modules'
+    - ref
+    - provenance/tarballs
+    - e2e
+
+paths:
+    - packages/angulux/src
+    - packages/angulux-motion/src
+    - packages/angulux-styled/src
+    - packages/angulux-styles/src
+    - packages/angulux-utils/src
+    - apps/verify/src
+    - tools
+    # The workflows are in scope for the `actions` language: on a project whose release
+    # path holds a publishing credential, the pipeline is part of the attack surface.
+    - .github

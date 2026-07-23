@@ -1,0 +1,40 @@
+{
+    "$schema": "../../node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "projects": {
+        "verify": {
+            "projectType": "application",
+            "root": "",
+            "sourceRoot": "src",
+            "architect": {
+                "build": {
+                    "builder": "@angular/build:application",
+                    "options": {
+                        "browser": "src/main.ts",
+                        "index": "src/index.html",
+                        "tsConfig": "tsconfig.json",
+                        "styles": ["src/styles.css"],
+                        "assets": []
+                    },
+                    "configurations": {
+                        "production": {
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false
+                        },
+                        "development": {
+                            "optimization": false,
+                            "sourceMap": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve": {
+                    "builder": "@angular/build:dev-server",
+                    "options": { "buildTarget": "verify:build:development" }
+                }
+            }
+        }
+    },
+    "cli": { "analytics": false }
+}

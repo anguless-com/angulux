@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        /* The `test` target used to share tsconfig.json, which exists for ng-packagr and
+           therefore declares no test-runner types. Result: all 96 spec files reported
+           "Cannot find name 'beforeEach' / 'it' / 'expect'".
+           This is the test-only tsconfig, per Angular's own convention. */
+        "types": ["jasmine", "node"],
+        "outDir": "../../out-tsc/spec"
+    },
+    "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+}

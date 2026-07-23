@@ -1,0 +1,63 @@
+# CodeQL static analysis.
+#
+# Scoped to the code that actually ships plus the tooling that decides what ships. The
+# attic is excluded in the config below: those 53 modules are verbatim upstream source that
+# is not built and not published, so a finding there is noise that would train us to skim
+# the results — and skimmed security results are worse than none.
+
+name: CodeQL
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    schedule:
+        # Weekly. A scheduled run catches new queries against unchanged code, which is
+        # most of what CodeQL is actually good for on a low-churn repository.
+        - cron: '0 3 * * 1'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: codeql-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+    analyze:
+        name: Analyze (${{ matrix.language }})
+        runs-on: ubuntu-latest
+        permissions:
+            security-events: write
+            actions: read
+            contents: read
+
+        strategy:
+            fail-fast: false
+            matrix:
+                # javascript-typescript covers the library source, the gates in tools/,
+                # and the workflow-adjacent scripts. There is no compiled language here.
+                language: ['javascript-typescript']
+                # 'actions' analyses the workflows themselves — worth having on a project
+                # whose release path is a publishing credential.
+                include:
+                    - language: 'actions'
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  languages: ${{ matrix.language }}
+                  config-file: ./.github/codeql/codeql-config.yml
+                  queries: security-and-quality
+
+            # No build step: this is analysed as an interpreted-language repository, which
+            # keeps the scan independent of whether the Angular build happens to be green.
+            - name: Analyze
+              uses: github/codeql-action/analyze@v3
+              with:
+                  category: '/language:${{ matrix.language }}'

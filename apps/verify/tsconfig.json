@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "lib": ["dom", "dom.iterable", "ES2022"],
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "strict": false,
+        /* The verification app points at `dist/`, deliberately NOT at `src/`.
+           Pointing at src would only prove "the code compiles". Pointing at dist proves the
+           thing a user actually installs — including how ng-packagr lays out secondary
+           entrypoints and emits type declarations. It is also the rehearsal for installing
+           the published package into an empty app. */
+        "paths": {
+            "angulux/types/*": ["../../packages/angulux/dist/types/*"],
+            "angulux/*": ["../../packages/angulux/dist/*"]
+        }
+    },
+    "angularCompilerOptions": {
+        "strictTemplates": true
+    },
+    "files": ["src/main.ts"],
+    "include": ["src/**/*.d.ts"]
+}

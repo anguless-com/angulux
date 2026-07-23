@@ -1,0 +1,133 @@
+# Enforce the provenance attestation mechanically.
+#
+# CONTRIBUTING.md asks every contributor to attest that their change carries no post-MIT
+# PrimeNG code. Until this workflow existed, that request lived only in prose — and this
+# project's entire history says the same thing about prose: six separate incidents were
+# caused by a rule everyone agreed with and nobody could enforce, and each was closed by
+# writing a scanner instead of by asking people to remember harder.
+#
+# An unticked box does not prove contamination, and a ticked one does not prove innocence.
+# What this buys is that nobody can merge while claiming later they never saw the rule.
+# That is the same thing a DCO buys, and it is worth having for the same reason.
+#
+# Runs on `pull_request`, deliberately NOT `pull_request_target`: it needs nothing but the
+# PR body, so it should not run with a privileged token near a fork's contents.
+
+name: PR provenance
+
+on:
+    pull_request:
+        types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: pr-provenance-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
+jobs:
+    attestation:
+        name: Provenance attestation
+        runs-on: ubuntu-latest
+        steps:
+            - name: Every attestation box is ticked
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const body = context.payload.pull_request.body || '';
+
+                      // Each entry: a stable fragment of the checkbox label, and what it means.
+                      // Matched on a fragment rather than the full sentence so that editing the
+                      // wording of the template does not silently disable the check.
+                      const REQUIRED = [
+                          { needle: 'no code, documentation, test fixtures or generated',
+                            what:   'no post-MIT PrimeNG / @primeuix / primeicons material' },
+                          { needle: 'no content copied from primeng.dev',
+                            what:   'no content copied from primeng.dev or primefaces.org' },
+                          { needle: 'AI coding assistant',
+                            what:   'AI-assistant output reviewed and owned' },
+                          { needle: 'signed off',
+                            what:   'commits signed off (DCO)' }
+                      ];
+
+                      const lines = body.split('\n');
+                      // Only checkbox-shaped lines are considered. Matching any line would let
+                      // prose in the description ("all commits are signed off, promise") shadow
+                      // the real checkbox and produce a baffling failure — or, worse, a pass.
+                      const CHECKBOX = /^\s*[-*]\s*\[( |x|X)\]/;
+                      const boxes = lines.filter(l => CHECKBOX.test(l));
+
+                      const missing = [];
+                      const absent = [];
+
+                      for (const { needle, what } of REQUIRED) {
+                          const box = boxes.find(l => l.toLowerCase().includes(needle.toLowerCase()));
+                          if (!box) {
+                              absent.push(what);
+                              continue;
+                          }
+                          // A ticked box is `- [x]` or `- [X]`; `- [ ]` is not.
+                          if (!/^\s*[-*]\s*\[[xX]\]/.test(box)) missing.push(what);
+                      }
+
+                      if (absent.length) {
+                          core.setFailed(
+                              'The provenance attestation section is missing from this pull request.\n\n' +
+                              'Not found:\n' + absent.map(a => `  • ${a}`).join('\n') + '\n\n' +
+                              'The pull request template was probably deleted rather than filled in. ' +
+                              'Restore it from .github/pull_request_template.md and tick the boxes. ' +
+                              'See CONTRIBUTING.md for why this one is not a formality.'
+                          );
+                          return;
+                      }
+
+                      if (missing.length) {
+                          core.setFailed(
+                              'The provenance attestation is not complete.\n\n' +
+                              'Not yet confirmed:\n' + missing.map(m => `  • ${m}`).join('\n') + '\n\n' +
+                              'Tick the boxes in the pull request description once each statement is true ' +
+                              'of your change. If one of them is NOT true, say so in a comment instead of ' +
+                              'ticking it — an honest "I derived this from X, is that acceptable?" is a ' +
+                              'welcome question and costs a day. A contaminated merge costs the project ' +
+                              'its entire argument.\n\n' +
+                              'See CONTRIBUTING.md.'
+                          );
+                          return;
+                      }
+
+                      core.info('provenance attestation complete');
+
+            # Two mechanical checks that need no diff analysis, and that catch the specific
+            # mistakes this project has actually seen people make.
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: No commercially licensed source pasted into the description
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const body = context.payload.pull_request.body || '';
+
+                      // Distinctive markers of the LTS / commercial license text. Pasting that
+                      // text into a public pull request republishes it, which is exactly the
+                      // thing this project takes care not to do (see .gitignore on
+                      // provenance/tarballs/).
+                      const MARKERS = [
+                          'PRIMENG LTS VERSIONS LICENSE',
+                          'PrimeNG LTS Versions License',
+                          'PrimeFaces Elite',
+                          'PRIMETEK COMMERCIAL'
+                      ];
+
+                      const hit = MARKERS.find(m => body.toUpperCase().includes(m.toUpperCase()));
+                      if (hit) {
+                          core.setFailed(
+                              `The pull request description appears to contain commercially licensed ` +
+                              `text ("${hit}"). Please remove it and reference the source by file and ` +
+                              `version instead. Quoting it here would republish it from this repository.`
+                          );
+                      } else {
+                          core.info('no commercial license text in the description');
+                      }

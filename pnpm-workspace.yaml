@@ -1,0 +1,51 @@
+packages:
+    - 'packages/*'
+    - 'apps/*'
+
+# ---------------------------------------------------------------------------
+# Default catalog — external packages that actually get installed into node_modules.
+# Pinned EXACTLY: no ^, no ~. This is the license risk surface — every version above the
+# boundaries recorded here carries the commercial PrimeUI license (see PROVENANCE.md).
+# The first-party angulux-* packages are deliberately absent: they are workspace members,
+# referenced through the workspace: protocol, not resolved from a registry.
+# ---------------------------------------------------------------------------
+catalog:
+    '@primeuix/themes': 2.0.3
+    'primeicons': 7.0.0
+    'tailwindcss-primeui': 0.6.1
+    'chart.js': 4.5.1
+
+# ---------------------------------------------------------------------------
+# angular22 catalog — two groups, two opposite rules:
+#
+#   • Peer-bound (@angular/*): these values flow straight into the published package's
+#     peerDependencies. They MUST be ranges — pinning 22.0.8 would break every consumer
+#     who moves to Angular 22.1. peerDependencies are never installed, so they are not
+#     part of the license risk surface the exact-pinning rule targets.
+#
+#   • Dev-only (typescript, ng-packagr, build tooling): pinned EXACTLY, so the build is
+#     reproducible.
+#
+# typescript MUST stay on 6.0.x — @angular/compiler-cli@22 requires ">=6.0 <6.1", while
+#   typescript@latest is already 7.x. Moving to 7 breaks the build.
+# No @angular/cdk — this peer was dropped on purpose. Nothing in the warranted closure
+#   needs it; only listbox/orderlist/picklist did, and all three are out of scope.
+# ---------------------------------------------------------------------------
+catalogs:
+    angular22:
+        '@angular/animations': ^22.0.0
+        '@angular/common': ^22.0.0
+        '@angular/compiler': ^22.0.0
+        '@angular/core': ^22.0.0
+        '@angular/forms': ^22.0.0
+        '@angular/platform-browser': ^22.0.0
+        '@angular/router': ^22.0.0
+        '@angular/compiler-cli': 22.0.8
+        '@angular/cli': 22.0.7
+        '@angular-devkit/build-angular': 22.0.7
+        '@angular/build': 22.0.7
+        'ng-packagr': 22.0.1
+        'typescript': 6.0.3
+        'rxjs': 7.8.2
+        'zone.js': 0.15.1
+        'tslib': 2.8.1

@@ -1,0 +1,38 @@
+# Code owners — a review from an owner is required before merge on protected paths.
+# See GOVERNANCE.md: the project currently has one maintainer, so this file is short
+# by necessity. It gets more interesting the moment a second maintainer joins.
+
+# Default owner for everything in the repository.
+*                       @trungnghia112
+
+# ---------------------------------------------------------------------------
+# Paths where a mistake is not just a bug.
+#
+# These are called out separately not because a different person reviews them today —
+# nobody else does — but so that when maintainers are added, the list of "things that
+# still need the provenance-aware reviewer" already exists and does not have to be
+# reconstructed from memory.
+# ---------------------------------------------------------------------------
+
+# Licensing, provenance and trademark text. Changing a word here can invalidate the
+# project's entire MIT argument, and MIT requires the notices to travel with the code.
+/LICENSE                @trungnghia112
+/NOTICE                 @trungnghia112
+/PROVENANCE.md          @trungnghia112
+/provenance/            @trungnghia112
+
+# The gates. They are the product — weakening one silently is the failure mode that
+# every one of them exists to prevent.
+/tools/                 @trungnghia112
+
+# Release and CI configuration: the path from a commit to a published artifact.
+/.github/               @trungnghia112
+/.releaserc.json        @trungnghia112
+/release/               @trungnghia112
+/commitlint.config.mjs  @trungnghia112
+
+# Dependency and version surface. This is the license risk surface: an unreviewed bump
+# across the MIT boundary is a licensing incident, not a chore.
+/package.json           @trungnghia112
+/pnpm-workspace.yaml    @trungnghia112
+/pnpm-lock.yaml         @trungnghia112

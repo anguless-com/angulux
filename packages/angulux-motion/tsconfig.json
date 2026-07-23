@@ -1,0 +1,41 @@
+{
+    "compilerOptions": {
+        "ignoreDeprecations": "6.0",
+        "target": "ES2022",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "ES2022"
+        ],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "paths": {
+            "angulux-motion": [
+                "./src/index.ts"
+            ],
+            "angulux-motion/*": [
+                "./src/*"
+            ],
+            "angulux-utils": [
+                "../angulux-utils/src/index.ts"
+            ],
+            "angulux-utils/*": [
+                "../angulux-utils/src/*"
+            ]
+        },
+        "declarationMap": false,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/**/*",
+        "types/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "name": "angulux-motion",
+    "version": "1.0.0",
+    "author": "PrimeTek Informatics",
+    "description": "Transition and animation primitives used by angulux.",
+    "keywords": [
+        "motion",
+        "animation",
+        "transition",
+        "composition utilities",
+        "primeng",
+        "primereact",
+        "primevue",
+        "primeuix"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux-motion"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "main": "./dist/index.mjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.mjs"
+        }
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "sideEffects": false,
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "cross-env NODE_ENV=production tsup",
+        "build:dev": "tsup --watch"
+    },
+    "dependencies": {
+        "angulux-utils": "workspace:^"
+    },
+    "engines": {
+        "node": ">=12.11.0"
+    },
+    "private": false
+}

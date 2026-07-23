@@ -1,0 +1,198 @@
+# The gate that runs on every push and every pull request.
+#
+# Structure mirrors the evidence ladder the project actually uses: the cheap gates run
+# first and alone (3 seconds — if a name or a license boundary is wrong, nothing else is
+# worth building), then build and unit tests, then the browser gate. The browser gate is
+# last because it is slow, and mandatory because a green type-check cannot see a render bug.
+
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+    workflow_dispatch:
+
+# A superseded run on the same branch is wasted compute. main is exempt: those runs are
+# the record of what was green at each commit.
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+    contents: read
+
+env:
+    NODE_VERSION: '22'
+
+jobs:
+    gates:
+        name: Gates (7)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # check-public-tree and check-language read the git index, and
+                  # check-language's allowlist reasoning depends on seeing real history.
+                  fetch-depth: 0
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            # Runs all seven: catalog, scope, license, names, risk-coverage, language,
+            # public-tree. Deliberately not split into seven jobs — it takes ~3 seconds
+            # total, and one failing gate should not hide the others behind a red cross.
+            - name: npm run check
+              run: npm run check
+
+    dco:
+        name: DCO sign-off
+        runs-on: ubuntu-latest
+        if: github.event_name == 'pull_request'
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Every commit carries Signed-off-by
+              env:
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: |
+                  set -euo pipefail
+                  missing=0
+                  while read -r sha; do
+                      [ -z "$sha" ] && continue
+                      if ! git log -1 --format='%B' "$sha" | grep -qiE '^Signed-off-by: .+ <.+@.+>'; then
+                          echo "::error::missing Signed-off-by: $sha $(git log -1 --format='%s' "$sha")"
+                          missing=1
+                      fi
+                  done < <(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA")
+
+                  if [ "$missing" -ne 0 ]; then
+                      echo ''
+                      echo 'Every commit must certify the DCO (https://developercertificate.org/).'
+                      echo 'Fix the most recent commit:   git commit --amend -s'
+                      echo 'Fix a whole branch:           git rebase --signoff main'
+                      echo 'See CONTRIBUTING.md — the provenance attestation rests on this.'
+                      exit 1
+                  fi
+                  echo "all commits signed off"
+
+    build:
+        name: Build and unit tests
+        runs-on: ubuntu-latest
+        needs: gates
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            # Dependency order is real: the library imports from all four. Building them
+            # in the wrong order fails in a way that reads like a missing dependency.
+            - name: Build the forked packages
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      echo "::group::angulux-$p"
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      echo "::endgroup::"
+                  done
+
+            # build:package re-runs check:license and check:names itself, and postbuild
+            # refuses to emit a package that is missing LICENSE/NOTICE, still contains a
+            # catalog:/workspace: specifier, or carries wrong publish metadata.
+            - name: Build the library
+              run: corepack pnpm --filter angulux run build
+
+            - name: Unit tests
+              run: corepack pnpm --filter angulux run test:unit
+
+            - name: Build the verification app
+              run: corepack pnpm --filter @angulux/verify run build
+
+            - name: Upload the built package
+              uses: actions/upload-artifact@v4
+              with:
+                  name: angulux-dist
+                  path: packages/angulux/dist
+                  retention-days: 7
+
+    browser-gate:
+        name: Browser gate
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Build the forked packages
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                  done
+
+            - name: Build the library
+              run: corepack pnpm --filter angulux run build
+
+            - name: Install Chromium
+              run: corepack pnpm exec playwright install --with-deps chromium
+
+            # Playwright starts and stops the verification app itself (webServer in the
+            # config). It deliberately does not reuse a running server under CI: a
+            # mandatory gate that depends on ambient state can go green for the wrong
+            # reason.
+            - name: Run the browser gate
+              run: corepack pnpm exec playwright test --config e2e/playwright.config.ts
+
+            - name: Upload evidence
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: browser-gate-evidence
+                  path: test-results/
+                  retention-days: 14
+                  if-no-files-found: ignore
+
+    # A single required status check to protect the branch on, so that adding or renaming
+    # a job later does not silently leave main unprotected.
+    ci-ok:
+        name: CI
+        runs-on: ubuntu-latest
+        # dco is skipped on push (it only has meaning for a pull request); a skipped
+        # dependency is not a failure, so this stays correct on both event types.
+        needs: [gates, dco, build, browser-gate]
+        if: always()
+        steps:
+            - name: Fail if anything upstream failed or was cancelled
+              run: |
+                  if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+                      echo "::error::a required job did not succeed"
+                      exit 1
+                  fi
+                  echo "all required jobs succeeded"

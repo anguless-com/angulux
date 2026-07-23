@@ -1,0 +1,103 @@
+{
+    "_comment": "Offline record of the upstream MIT artifacts. primefaces/primeng is archived; a registry tarball (carrying the registry's own publish timestamp and integrity hash) is stronger evidence than a shallow clone. See PROVENANCE.md.",
+    "archivedAt": "2026-07-23T09:39:32.938Z",
+    "note": "Moi ban cao hon cac version duoi day deu da chuyen sang giay phep thuong mai PrimeUI.",
+    "artifacts": [
+        {
+            "name": "primeng",
+            "version": "21.1.9",
+            "file": "primeng-21.1.9.tgz",
+            "license": "SEE LICENSE IN LICENSE.md",
+            "tarball": "https://registry.npmjs.org/primeng/-/primeng-21.1.9.tgz",
+            "publishedAt": "2026-06-04T09:15:33.640Z",
+            "sha256": "0c4b8fdf2a33d284ce53fc6ed8828c2a25f22e608483e27fcb363c9bc9c829f0",
+            "registryIntegrity": "sha512-Z76PtF08X0PNSTCNMobao8Qm71vC56mtZSdUtX/gsn4+q4x0NbUUtkeK1pc33a+kxVm2zkmOwzUIEGmb9VdoIA==",
+            "registryShasum": "0bc3bc2f0ad71faa244c858f0968515a117f7cf0",
+            "bytes": 1925410
+        },
+        {
+            "name": "@primeuix/utils",
+            "version": "0.7.2",
+            "file": "primeuix-utils-0.7.2.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/@primeuix/utils/-/utils-0.7.2.tgz",
+            "publishedAt": "2026-05-18T11:41:39.423Z",
+            "sha256": "ed1e149a417156fc2a670fdd206609c2a48f7df050fdb75e4d9684a4d5adda9b",
+            "registryIntegrity": "sha512-pmEbSfP0Phf9W9RweiM66zXnkn73ZeKyYINElbX3uZ2+stzzaba2svLAl3B1pHVcRw5t43O0VciaGe4ye2EXKw==",
+            "registryShasum": "0ded7f74bddf191f0e16aea34b593a7fcffa94b5",
+            "bytes": 47969
+        },
+        {
+            "name": "@primeuix/styled",
+            "version": "0.7.4",
+            "file": "primeuix-styled-0.7.4.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/@primeuix/styled/-/styled-0.7.4.tgz",
+            "publishedAt": "2025-10-05T09:07:22.535Z",
+            "sha256": "d2c73f64b0cdb7a9f4f3374fd2ae388f2f5a966757e3b891b4e7ccc57fbef43d",
+            "registryIntegrity": "sha512-QSO/NpOQg8e9BONWRBx9y8VGMCMYz0J/uKfNJEya/RGEu7ARx0oYW0ugI1N3/KB1AAvyGxzKBzGImbwg0KUiOQ==",
+            "registryShasum": "d2108a7fad297dea60d549b2c10ed744dc0cbc0e",
+            "bytes": 28976
+        },
+        {
+            "name": "@primeuix/styles",
+            "version": "2.0.3",
+            "file": "primeuix-styles-2.0.3.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/@primeuix/styles/-/styles-2.0.3.tgz",
+            "publishedAt": "2026-01-19T14:41:59.978Z",
+            "sha256": "e4f6ef614d2412c223560403c8b0c1bebe6ab07d8242470572310f3e23423403",
+            "registryIntegrity": "sha512-2ykAB6BaHzR/6TwF8ShpJTsZrid6cVIEBVlookSdvOdmlWuevGu5vWOScgIwqWwlZcvkFYAGR/SUV3OHCTBMdw==",
+            "registryShasum": "e42d14c138fe092683228d65a3f6de17de70d6a0",
+            "bytes": 98323
+        },
+        {
+            "name": "@primeuix/motion",
+            "version": "0.0.10",
+            "file": "primeuix-motion-0.0.10.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/@primeuix/motion/-/motion-0.0.10.tgz",
+            "publishedAt": "2025-11-24T23:52:16.538Z",
+            "sha256": "24f98f141735c0d8835e2027ea87c42bfc2757d9940992c594583fbc549c62d3",
+            "registryIntegrity": "sha512-PsZwOPq79Scp7/ionshRcQ5xKVf9+zuLcyY5mf6onK8chHT5C9JGphmcIZ4CzcqxuGEpsm8AIbTGy+zS3RtzLA==",
+            "registryShasum": "9af4238226042d80518dd343c6481d03582e374a",
+            "bytes": 9996
+        },
+        {
+            "name": "@primeuix/themes",
+            "version": "2.0.3",
+            "file": "primeuix-themes-2.0.3.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/@primeuix/themes/-/themes-2.0.3.tgz",
+            "publishedAt": "2026-01-19T14:42:03.964Z",
+            "sha256": "e8989698e5f5036767c4fecb93e09c8bb8681d479d95bee86b2254f27fd10e99",
+            "registryIntegrity": "sha512-3fS1883mtCWhgUgNf/feiaaDSOND4EBIOu9tZnzJlJ8QtYyL6eFLcA6V3ymCWqLVXQ1+lTVEZv1gl47FIdXReg==",
+            "registryShasum": "c3919d49e818b3bbac611ab8d89a52d4ffed6815",
+            "bytes": 440645
+        },
+        {
+            "name": "primeicons",
+            "version": "7.0.0",
+            "file": "primeicons-7.0.0.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/primeicons/-/primeicons-7.0.0.tgz",
+            "publishedAt": "2024-03-29T10:15:33.543Z",
+            "sha256": "74fa5e13924747d4d99bbfcc2b4944b7f806f23dc5b24cf9e5fbd8c99ad4afcf",
+            "registryIntegrity": "sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw==",
+            "registryShasum": "6b25c3fdcb29bb745a3035bdc1ed5902f4a419cf",
+            "bytes": 338119
+        },
+        {
+            "name": "tailwindcss-primeui",
+            "version": "0.6.1",
+            "file": "tailwindcss-primeui-0.6.1.tgz",
+            "license": "MIT",
+            "tarball": "https://registry.npmjs.org/tailwindcss-primeui/-/tailwindcss-primeui-0.6.1.tgz",
+            "publishedAt": "2025-03-26T13:06:49.913Z",
+            "sha256": "9419d31b729d17a331527dee2db1fb0792a67abc7d20684ecec684ed82b7a387",
+            "registryIntegrity": "sha512-T69Rylcrmnt8zy9ik+qZvsLuRIrS9/k6rYJSIgZ1trnbEzGDDQSCIdmfyZknevqiHwpSJHSmQ9XT2C+S/hJY4A==",
+            "registryShasum": "fcb74738e80d4253c14521114773f5ce638c6ee8",
+            "bytes": 14972
+        }
+    ]
+}

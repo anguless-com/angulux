@@ -1,0 +1,96 @@
+name: Feature request
+description: Propose a change to an existing component, the build, or the tooling.
+title: 'feat: '
+labels: ['enhancement', 'needs triage']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Two things to check first, because they redirect most requests:
+
+              - **A missing component** is not a feature request — use the
+                *Module promotion* form. 53 modules are already in the repository, unbuilt.
+              - **Public API changes are frozen on `22.x`.** The major version is locked to
+                Angular's major, so a breaking change can only ship with **Angular 23
+                (expected around November 2026)**. Proposals are welcome *now* — they get
+                labelled `api-v23` so the design is settled before the window, not during
+                it. See
+                [GOVERNANCE.md](https://github.com/anguless-com/angulux/blob/main/GOVERNANCE.md).
+
+    - type: checkboxes
+      id: prerequisites
+      attributes:
+          label: Prerequisites
+          options:
+              - label: I searched existing issues and discussions.
+                required: true
+              - label: This is not a request for a missing component (that is the *Module promotion* form).
+                required: true
+
+    - type: textarea
+      id: problem
+      attributes:
+          label: The problem
+          description: >-
+              What are you unable to do today? Describe the situation, not the solution —
+              the best fix is often not the one that was asked for.
+      validations:
+          required: true
+
+    - type: textarea
+      id: proposal
+      attributes:
+          label: Proposed change
+          description: Sketch the API or behaviour you have in mind. Code is welcome.
+      validations:
+          required: true
+
+    - type: dropdown
+      id: breaking
+      attributes:
+          label: Does this change existing public API?
+          description: >-
+              Renaming or removing an input, output, selector, exported symbol, or changing
+              observable behaviour — all count as breaking.
+          options:
+              - 'No — purely additive, could ship in a minor'
+              - 'Yes — this is breaking, queue it for Angular 23'
+              - 'Not sure'
+      validations:
+          required: true
+
+    - type: textarea
+      id: workaround
+      attributes:
+          label: Current workaround
+          description: >-
+              How are you coping today? "There is none, we are blocked" is a strong signal;
+              so is "we patch it in a wrapper component" — say which.
+
+    - type: dropdown
+      id: contribute
+      attributes:
+          label: Would you implement it?
+          options:
+              - 'Yes'
+              - 'With guidance'
+              - 'No'
+      validations:
+          required: true
+
+    - type: markdown
+      attributes:
+          value: |
+              ---
+              Some things will be declined on principle, and it is fairer to say so up front
+              than after you have written the code:
+
+              - **Feature parity with current PrimeNG as a goal.** That is
+                [Optimus UI](https://github.com/openng-org/optimus-ui)'s aim, not this
+                project's.
+              - **Anything derived from a post-MIT PrimeNG release** — including "I looked at
+                how PrimeNG 22 does it". Not negotiable at any level.
+              - **Weakening a gate to unblock a change.** If a gate is wrong, fix the gate on
+                purpose, in its own pull request.
+              - **A new runtime dependency**, unless there is a written decision. The
+                dependency surface is this project's license risk surface.

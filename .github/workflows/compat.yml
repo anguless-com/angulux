@@ -1,0 +1,122 @@
+# Angular compatibility nightly.
+#
+# This workflow IS the project's one public promise: a green build within 14 days of every
+# Angular major RC (GOVERNANCE.md). A promise verified by a nightly job is worth something;
+# a promise in a README is worth nothing, which is why this exists and why its result is
+# public whether it is green or red.
+#
+# It deliberately does NOT gate anything. @angular/core@next breaks for reasons that are
+# not our fault and get fixed upstream within days; blocking merges on it would train
+# everyone to ignore a red cross, which is how a canary dies.
+
+name: Angular compatibility
+
+on:
+    schedule:
+        # 04:00 UTC daily, before the license cron so a bad morning has one cause per hour.
+        - cron: '0 4 * * *'
+    workflow_dispatch:
+        inputs:
+            angular-tag:
+                description: 'npm dist-tag or version for @angular/* (next, rc, latest, 23.0.0-rc.0)'
+                required: false
+                default: 'next'
+
+permissions:
+    contents: read
+    issues: write
+
+jobs:
+    next:
+        name: Build against @angular/${{ github.event.inputs.angular-tag || 'next' }}
+        runs-on: ubuntu-latest
+        # Informational by design — see the header. Failure opens an issue instead.
+        continue-on-error: true
+        outputs:
+            result: ${{ steps.build.outcome }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install the pinned tree first
+              run: corepack pnpm install --frozen-lockfile
+
+            # The catalog pins Angular for reproducibility, so this job has to step outside
+            # it on purpose. --no-frozen-lockfile is correct here and only here: the whole
+            # point is to resolve versions that are not in the lockfile yet.
+            - name: Overlay the candidate Angular
+              env:
+                  TAG: ${{ github.event.inputs.angular-tag || 'next' }}
+              run: |
+                  set -euo pipefail
+                  corepack pnpm add -w --no-frozen-lockfile \
+                      "@angular/common@$TAG" \
+                      "@angular/compiler@$TAG" \
+                      "@angular/compiler-cli@$TAG" \
+                      "@angular/core@$TAG" \
+                      "@angular/forms@$TAG" \
+                      "@angular/platform-browser@$TAG" \
+                      "@angular/router@$TAG" \
+                      "@angular/animations@$TAG" \
+                      "@angular/build@$TAG" \
+                      "@angular/cli@$TAG"
+
+            - name: Record what we actually resolved
+              run: |
+                  echo '### Resolved versions' >> "$GITHUB_STEP_SUMMARY"
+                  echo '```' >> "$GITHUB_STEP_SUMMARY"
+                  node -p "require('./node_modules/@angular/core/package.json').version" \
+                      | sed 's/^/@angular\/core  /' | tee -a "$GITHUB_STEP_SUMMARY"
+                  node -p "require('./node_modules/typescript/package.json').version" \
+                      | sed 's/^/typescript     /' | tee -a "$GITHUB_STEP_SUMMARY"
+                  echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Build and test
+              id: build
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                  done
+                  corepack pnpm --filter angulux run build
+                  corepack pnpm --filter angulux run test:unit
+
+            - name: Open or update the compatibility issue
+              if: steps.build.outcome == 'failure'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const tag = '${{ github.event.inputs.angular-tag || 'next' }}';
+                      const title = `Angular compatibility: build fails against @angular/${tag}`;
+                      const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+                      const existing = await github.rest.issues.listForRepo({
+                          owner: context.repo.owner, repo: context.repo.repo,
+                          state: 'open', labels: 'angular-compat'
+                      });
+                      const open = existing.data.find(i => i.title === title);
+                      const body = [
+                          `The nightly build against \`@angular/${tag}\` failed.`,
+                          '',
+                          `Run: ${run}`,
+                          '',
+                          'This does not block anything and is often an upstream problem that clears on its own.',
+                          'It matters when it **stays** red: the project commits to a green build within 14 days',
+                          'of every Angular major RC (GOVERNANCE.md), and this job is how that is verified.'
+                      ].join('\n');
+                      if (open) {
+                          await github.rest.issues.createComment({
+                              owner: context.repo.owner, repo: context.repo.repo,
+                              issue_number: open.number, body: `Still failing.\n\n${run}`
+                          });
+                      } else {
+                          await github.rest.issues.create({
+                              owner: context.repo.owner, repo: context.repo.repo,
+                              title, labels: ['angular-compat'], body
+                          });
+                      }

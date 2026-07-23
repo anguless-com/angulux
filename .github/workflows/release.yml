@@ -1,0 +1,319 @@
+# Release: two independent trains, one repository.
+#
+#   angulux        22.x  — major locked to Angular's major, tag `angulux-v*`
+#   the fork family 1.x  — angulux-{styled,utils,styles,motion}, tag `angulux-forks-v*`
+#
+# The trains are separate because binding the forked primeuix packages to Angular's major
+# would state a compatibility constraint that does not exist: they do not depend on Angular.
+#
+# Each train is gated on paths. semantic-release on its own would compute a bump from every
+# commit since its last tag, so a `feat(table)` would bump the fork family too. The path gate
+# below stops that: if no file under the train's packages changed, the train does not run.
+#
+# PUBLISHING: npm Trusted Publishing (OIDC). No NPM_TOKEN. See release/README.md for the
+# one-time setup — and for why the FIRST publish of a package cannot use OIDC.
+
+name: Release
+
+on:
+    workflow_dispatch:
+        inputs:
+            dry-run:
+                description: 'Compute the release without publishing anything'
+                type: boolean
+                default: true
+            train:
+                description: 'Which train to release'
+                type: choice
+                options: [both, angulux, forks]
+                default: both
+
+# Releases are never concurrent. Two runs racing to move the same tags is not a situation
+# worth being clever about.
+concurrency:
+    group: release
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+env:
+    NODE_VERSION: '22'
+    # semantic-release and its plugins are run through npx rather than added to
+    # devDependencies on purpose: this repository's dependency tree IS its license risk
+    # surface (see SECURITY.md), and release tooling has no business inside it.
+    SR_VERSION: '24'
+
+jobs:
+    # ---------------------------------------------------------------------------
+    # Never release something that is not green. This repeats CI deliberately —
+    # a release is exactly the moment not to trust a status check from an older commit.
+    # ---------------------------------------------------------------------------
+    verify:
+        name: Verify
+        runs-on: ubuntu-latest
+        outputs:
+            angulux-changed: ${{ steps.paths.outputs.angulux }}
+            forks-changed: ${{ steps.paths.outputs.forks }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Gates (7)
+              run: npm run check
+
+            - name: Build the forked packages
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                  done
+
+            - name: Build the library
+              run: corepack pnpm --filter angulux run build
+
+            - name: Unit tests
+              run: corepack pnpm --filter angulux run test:unit
+
+            - name: Browser gate
+              run: |
+                  corepack pnpm --filter @angulux/verify run build
+                  corepack pnpm exec playwright install --with-deps chromium
+                  corepack pnpm exec playwright test --config e2e/playwright.config.ts
+
+            # The last line of defence before an irreversible action. postbuild already
+            # checks this, but publishing cannot be undone: a version, once used, is
+            # burned even after `npm unpublish`.
+            - name: No unresolved workspace specifiers in the artifacts
+              run: |
+                  set -euo pipefail
+                  found=0
+                  for dir in packages/angulux/dist packages/angulux-*/dist; do
+                      [ -d "$dir" ] || continue
+                      for f in $(find "$dir" -name package.json); do
+                          if grep -qE '"(catalog:|workspace:)' "$f"; then
+                              echo "::error file=$f::unresolved catalog:/workspace: specifier"
+                              grep -nE '"(catalog:|workspace:)' "$f" || true
+                              found=1
+                          fi
+                      done
+                  done
+                  if [ "$found" -ne 0 ]; then
+                      echo "Publishing is irreversible — refusing to continue."
+                      exit 1
+                  fi
+                  echo "artifacts are clean"
+
+            - name: Which trains have changes
+              id: paths
+              run: |
+                  set -euo pipefail
+
+                  since() {
+                      # Last tag of this train, or the root commit on a first release.
+                      git describe --tags --match "$1" --abbrev=0 2>/dev/null \
+                          || git rev-list --max-parents=0 HEAD | tail -1
+                  }
+
+                  a_base=$(since 'angulux-v*')
+                  f_base=$(since 'angulux-forks-v*')
+
+                  if [ -n "$(git diff --name-only "$a_base"..HEAD -- packages/angulux/)" ]; then
+                      echo "angulux=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "angulux=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+                  if [ -n "$(git diff --name-only "$f_base"..HEAD -- packages/angulux-styled/ packages/angulux-utils/ packages/angulux-styles/ packages/angulux-motion/)" ]; then
+                      echo "forks=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "forks=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+                  {
+                      echo "### Trains with changes"
+                      echo ""
+                      echo "| train | base | changed |"
+                      echo "|---|---|---|"
+                      echo "| angulux | \`$a_base\` | $( [ -n "$(git diff --name-only "$a_base"..HEAD -- packages/angulux/)" ] && echo yes || echo no ) |"
+                      echo "| forks | \`$f_base\` | $( [ -n "$(git diff --name-only "$f_base"..HEAD -- packages/angulux-styled/ packages/angulux-utils/ packages/angulux-styles/ packages/angulux-motion/)" ] && echo yes || echo no ) |"
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+    # ---------------------------------------------------------------------------
+    # The fork family goes first: `angulux` depends on all four, so a release that
+    # bumped both trains must have the dependency published before the dependent.
+    # ---------------------------------------------------------------------------
+    forks:
+        name: Release the fork family (1.x)
+        runs-on: ubuntu-latest
+        needs: verify
+        if: |
+            needs.verify.outputs.forks-changed == 'true' &&
+            (github.event.inputs.train == 'both' || github.event.inputs.train == 'forks')
+        permissions:
+            contents: write
+            issues: write
+            pull-requests: write
+            # Required for npm Trusted Publishing (OIDC) and for provenance attestations.
+            id-token: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Enable corepack
+              run: corepack enable
+
+            # Trusted Publishing needs npm >= 11.5.1; the npm bundled with Node 22 is older.
+            - name: Update npm
+              run: npm install -g npm@latest
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Build
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                  done
+
+            # Computes the version, stamps it into all four package.json files (via
+            # release/set-fork-versions.mjs), writes the changelog, commits, tags, and
+            # creates the GitHub release. It does NOT publish — npmPublish is false and
+            # the publish step below runs under OIDC.
+            - name: semantic-release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  npx --yes \
+                      -p semantic-release@${SR_VERSION} \
+                      -p @semantic-release/commit-analyzer \
+                      -p @semantic-release/release-notes-generator \
+                      -p @semantic-release/changelog \
+                      -p @semantic-release/exec \
+                      -p @semantic-release/git \
+                      -p @semantic-release/github \
+                      -p conventional-changelog-conventionalcommits@8 \
+                      semantic-release --extends ./release/forks.releaserc.json \
+                      ${{ github.event.inputs.dry-run == 'true' && '--dry-run' || '' }}
+
+            - name: Publish to npm
+              if: github.event.inputs.dry-run != 'true'
+              run: |
+                  set -euo pipefail
+                  for p in styled utils styles motion; do
+                      dir="packages/angulux-$p"
+                      version=$(node -p "require('./$dir/package.json').version")
+                      name=$(node -p "require('./$dir/package.json').name")
+
+                      if npm view "$name@$version" version >/dev/null 2>&1; then
+                          echo "$name@$version is already published — skipping"
+                          continue
+                      fi
+
+                      echo "::group::publish $name@$version"
+                      npm publish --provenance --access public "./$dir"
+                      echo "::endgroup::"
+                  done
+
+    angulux:
+        name: Release angulux (22.x)
+        runs-on: ubuntu-latest
+        needs: [verify, forks]
+        # `always()` so this still runs when the fork train was skipped (no fork changes)
+        # — but not when it actually failed.
+        if: |
+            always() &&
+            needs.verify.result == 'success' &&
+            needs.forks.result != 'failure' &&
+            needs.forks.result != 'cancelled' &&
+            needs.verify.outputs.angulux-changed == 'true' &&
+            (github.event.inputs.train == 'both' || github.event.inputs.train == 'angulux')
+        permissions:
+            contents: write
+            issues: write
+            pull-requests: write
+            id-token: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+                  # Pick up the commit the fork train may have just pushed.
+                  ref: main
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Update npm
+              run: npm install -g npm@latest
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Build
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                  done
+                  corepack pnpm --filter angulux run build
+
+            - name: semantic-release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  npx --yes \
+                      -p semantic-release@${SR_VERSION} \
+                      -p @semantic-release/commit-analyzer \
+                      -p @semantic-release/release-notes-generator \
+                      -p @semantic-release/changelog \
+                      -p @semantic-release/npm \
+                      -p @semantic-release/git \
+                      -p @semantic-release/github \
+                      -p conventional-changelog-conventionalcommits@8 \
+                      semantic-release --extends ./release/angulux.releaserc.json \
+                      ${{ github.event.inputs.dry-run == 'true' && '--dry-run' || '' }}
+
+            # semantic-release bumped packages/angulux/package.json; the publishable
+            # artifact is packages/angulux/dist, which was produced from it. Rebuild so the
+            # dist metadata carries the new version rather than the previous one.
+            - name: Rebuild at the released version
+              if: github.event.inputs.dry-run != 'true'
+              run: corepack pnpm --filter angulux run build
+
+            - name: Publish to npm
+              if: github.event.inputs.dry-run != 'true'
+              run: |
+                  set -euo pipefail
+                  version=$(node -p "require('./packages/angulux/dist/package.json').version")
+
+                  if npm view "angulux@$version" version >/dev/null 2>&1; then
+                      echo "angulux@$version is already published — nothing to do"
+                      exit 0
+                  fi
+
+                  npm publish --provenance --access public ./packages/angulux/dist

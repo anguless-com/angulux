@@ -1,0 +1,122 @@
+name: Bug report
+description: Something in a published angulux package behaves incorrectly.
+title: 'fix: '
+labels: ['bug', 'needs triage']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Before filing, three answers that resolve most reports faster than this form will:
+
+              - **`p-button` does not work** → selectors were renamed to `agl-*` / `agl*`
+                (`agl-button`, `[aglTooltip]`). CSS class names `p-*` were kept deliberately;
+                [NOTICE](https://github.com/anguless-com/angulux/blob/main/NOTICE) explains why.
+              - **A component is missing** → 53 modules sit unbuilt in `attic/`. Use the
+                *Module promotion* form instead.
+              - **A security issue** → do not file it here. See
+                [SECURITY.md](https://github.com/anguless-com/angulux/blob/main/SECURITY.md).
+
+    - type: checkboxes
+      id: prerequisites
+      attributes:
+          label: Prerequisites
+          options:
+              - label: I searched existing issues and this is not a duplicate.
+                required: true
+              - label: This is not a security vulnerability (those go to SECURITY.md).
+                required: true
+              - label: This is about a **published** package, not about code in `attic/` (attic modules are not built or published, so they cannot affect a user).
+                required: true
+
+    - type: input
+      id: version
+      attributes:
+          label: angulux version
+          description: Exact version from your lockfile, not "latest".
+          placeholder: angulux@22.0.0-rc.0
+      validations:
+          required: true
+
+    - type: input
+      id: angular-version
+      attributes:
+          label: Angular version
+          description: '`ng version` output line for @angular/core. angulux@22.x supports ^22.0.0 only.'
+          placeholder: '@angular/core 22.0.8'
+      validations:
+          required: true
+
+    - type: input
+      id: module
+      attributes:
+          label: Component or entrypoint
+          placeholder: angulux/table, angulux/datepicker, angulux/config
+      validations:
+          required: true
+
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happens, and what should happen instead
+          description: Two sentences is fine. Be concrete about the observed behaviour.
+      validations:
+          required: true
+
+    - type: textarea
+      id: reproduction
+      attributes:
+          label: Reproduction
+          description: >-
+              A StackBlitz link, or a minimal failing spec. This is the field that decides
+              whether the issue gets fixed — with one maintainer, an unreproducible report
+              is usually a closed report. If you genuinely cannot reproduce it in
+              isolation, say so and describe the setup as precisely as you can.
+          placeholder: |
+              https://stackblitz.com/edit/...
+
+              or:
+
+              it('keeps the overlay open on a same-day reselect', () => { ... });
+      validations:
+          required: true
+
+    - type: dropdown
+      id: browsers
+      attributes:
+          label: Browsers where you see this
+          multiple: true
+          options:
+              - Chrome / Edge (Chromium)
+              - Firefox
+              - Safari
+              - Not browser-specific
+              - Server-side rendering / build time
+      validations:
+          required: true
+
+    - type: dropdown
+      id: regression
+      attributes:
+          label: Did this work in PrimeNG 21.1.9?
+          description: >-
+              This distinguishes an inherited bug from one this fork introduced, and the
+              two get handled very differently.
+          options:
+              - 'Yes — it worked in PrimeNG 21.1.9, so this fork broke it'
+              - 'No — it was already broken upstream'
+              - "Don't know / didn't check"
+              - 'Not applicable — this is not inherited code'
+      validations:
+          required: true
+
+    - type: textarea
+      id: logs
+      attributes:
+          label: Console output or stack trace
+          render: shell
+
+    - type: textarea
+      id: context
+      attributes:
+          label: Anything else
+          description: 'Zoneless? SSR? Custom theme preset? Odd build setup? Say so here.'

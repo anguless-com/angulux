@@ -1,0 +1,36 @@
+import { Injectable } from '@angular/core';
+import { BaseStyle } from 'angulux/base';
+
+const classes = {
+    root: ({ instance }) => [
+        'p-tab',
+        {
+            'p-tab-active': instance.active(),
+            'p-disabled': instance.disabled()
+        }
+    ]
+};
+
+@Injectable()
+export class TabStyle extends BaseStyle {
+    name = 'tab';
+
+    classes = classes;
+}
+
+/**
+ *
+ * Tabs facilitates seamless switching between different views.
+ *
+ * @module tabsstyle
+ *
+ */
+
+export enum TabClasses {
+    /**
+     * Class name of the tab list element
+     */
+    tab = 'p-tab'
+}
+
+export interface TabStyle extends BaseStyle {}

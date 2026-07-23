@@ -1,0 +1,58 @@
+{
+    "name": "angulux-workspace",
+    "version": "22.0.0-rc.0",
+    "private": true,
+    "license": "MIT",
+    "author": "Anguless",
+    "homepage": "https://github.com/anguless-com/angulux",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "packageManager": "pnpm@9.6.0",
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "check:catalog": "node tools/check-catalog.mjs",
+        "check:license": "node tools/check-prime-license.mjs",
+        "check:scope": "node tools/scope/gen-closure.mjs --check",
+        "check:names": "node tools/codemod/scan-prime-names.mjs",
+        "check:risk-coverage": "node tools/scope/check-risk-coverage.mjs",
+        "check:language": "node tools/check-language.mjs",
+        "check:public-tree": "node tools/check-public-tree.mjs",
+        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree",
+        "build:lib": "pnpm --filter angulux run build",
+        "test:lib": "pnpm --filter angulux run test:unit"
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "catalog:angular22",
+        "@angular/animations": "catalog:angular22",
+        "@angular/build": "catalog:angular22",
+        "@angular/cli": "catalog:angular22",
+        "@angular/common": "catalog:angular22",
+        "@angular/compiler": "catalog:angular22",
+        "@angular/compiler-cli": "catalog:angular22",
+        "@angular/core": "catalog:angular22",
+        "@angular/forms": "catalog:angular22",
+        "@angular/platform-browser": "catalog:angular22",
+        "@angular/router": "catalog:angular22",
+        "@playwright/test": "1.61.1",
+        "@types/jasmine": "6.0.0",
+        "@types/node": "26.1.1",
+        "chart.js": "catalog:",
+        "cross-env": "^10.1.0",
+        "fs-extra": "^11.3.2",
+        "glob": "^11.0.3",
+        "jasmine-core": "6.3.0",
+        "ng-packagr": "catalog:angular22",
+        "rxjs": "catalog:angular22",
+        "tslib": "catalog:angular22",
+        "tsup": "^8.5.0",
+        "typescript": "catalog:angular22",
+        "zone.js": "catalog:angular22"
+    }
+}
