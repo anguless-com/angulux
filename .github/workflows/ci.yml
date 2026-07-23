@@ -110,7 +110,7 @@ jobs:
                   set -euo pipefail
                   for p in utils styled motion styles; do
                       echo "::group::angulux-$p"
-                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
                       echo "::endgroup::"
                   done
 
@@ -162,7 +162,7 @@ jobs:
               run: |
                   set -euo pipefail
                   for p in utils styled motion styles; do
-                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
 
             - name: Build the library

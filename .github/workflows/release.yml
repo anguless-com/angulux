@@ -77,7 +77,7 @@ jobs:
               run: |
                   set -euo pipefail
                   for p in utils styled motion styles; do
-                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
 
             - name: Build the library
@@ -183,7 +183,7 @@ jobs:
               run: |
                   set -euo pipefail
                   for p in utils styled motion styles; do
-                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
 
             # Computes the version, stamps it into all four package.json files (via
@@ -335,7 +335,7 @@ jobs:
               run: |
                   set -euo pipefail
                   for p in utils styled motion styles; do
-                      (cd "packages/angulux-$p" && corepack pnpm exec tsup)
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
                   corepack pnpm --filter angulux run build
 
