@@ -49,9 +49,9 @@ jobs:
         steps:
             - uses: actions/first-interaction@v3
               with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+                  repo_token: ${{ secrets.GITHUB_TOKEN }}
 
-                  issue-message: |
+                  issue_message: |
                       Thanks for the first issue — genuinely.
 
                       Two things worth knowing so nothing surprises you:
@@ -66,7 +66,7 @@ jobs:
                         That is documented behaviour, not a bug — and promoting one is the most
                         useful contribution this project can receive.
 
-                  pr-message: |
+                  pr_message: |
                       Thanks for the first pull request.
 
                       One thing here is stricter than in most repositories, and it is better to
