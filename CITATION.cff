@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+message: 'If you reference angulux in research or in a licensing review, please cite it as below.'
+title: 'angulux: a machine-verified MIT fork of PrimeNG 21.1.9 for Angular 22'
+abstract: >-
+  angulux is an Angular UI component library forked from PrimeNG 21.1.9, the final release
+  PrimeTek published under the MIT license. Its distinguishing property is that the MIT
+  provenance is enforced mechanically rather than asserted: seven automated gates run on
+  every commit and on a schedule, covering dependency-version drift, the transitive module
+  closure, the PrimeTek MIT/commercial licensing boundary, residual upstream trademarks in
+  selector and API positions, browser-gate coverage of risk-flagged decorators, repository
+  language, and internal-only paths in the git index. Archived upstream artifacts are
+  recorded with SHA-256 checksums and registry publish timestamps so third parties can
+  verify the provenance claim independently.
+type: software
+license: MIT
+repository-code: 'https://github.com/anguless-com/angulux'
+url: 'https://github.com/anguless-com/angulux'
+keywords:
+    - angular
+    - ui-components
+    - software-provenance
+    - open-source-licensing
+    - supply-chain-integrity
+    - fork
+authors:
+    # `name` (the entity form) is given rather than only `alias`, because the CFF person
+    # schema wants at least one name field and GitHub's "Cite this repository" panel simply
+    # does not render when the file fails validation.
+    - name: 'angulux contributors'
+      alias: trungnghia112
+      website: 'https://github.com/anguless-com/angulux'
+
+references:
+    - type: software
+      title: PrimeNG
+      version: 21.1.9
+      license: MIT
+      notes: >-
+          Upstream work by PrimeTek from which angulux is derived. The final MIT-licensed
+          release; subsequent releases are commercially licensed. See NOTICE and
+          PROVENANCE.md.
+      repository-code: 'https://github.com/primefaces/primeng'
+      authors:
+          - name: PrimeTek
+            website: 'https://www.primetek.com.tr/'
+    - type: software
+      title: primeuix
+      license: MIT
+      notes: >-
+          Upstream style, utility, animation and theming packages by PrimeTek, forked here
+          as angulux-styled, angulux-utils, angulux-styles and angulux-motion.
+      repository-code: 'https://github.com/primefaces/primeuix'
+      authors:
+          - name: PrimeTek
+            website: 'https://www.primetek.com.tr/'

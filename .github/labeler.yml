@@ -1,0 +1,74 @@
+# Path-based labels for pull requests (actions/labeler v5 syntax).
+#
+# The load-bearing one is `licensing`. CODEOWNERS already requires an owner review on those
+# paths, but a label is what makes a licensing-relevant change VISIBLE in a list of twenty
+# open pull requests — review requirements protect the merge, labels protect the attention.
+
+licensing:
+    - changed-files:
+          - any-glob-to-any-file:
+                - LICENSE
+                - NOTICE
+                - PROVENANCE.md
+                - provenance/**
+                - tools/check-prime-license.mjs
+                - tools/provenance/**
+
+# The gates are the product. A change to one is never routine.
+gates:
+    - changed-files:
+          - any-glob-to-any-file:
+                - tools/**
+
+ci:
+    - changed-files:
+          - any-glob-to-any-file:
+                - .github/**
+
+release:
+    - changed-files:
+          - any-glob-to-any-file:
+                - release/**
+                - commitlint.config.mjs
+
+dependencies:
+    - changed-files:
+          - any-glob-to-any-file:
+                - package.json
+                - pnpm-lock.yaml
+                - pnpm-workspace.yaml
+                - packages/*/package.json
+
+# A module leaving the attic changes the warranted closure, so it is never a small diff
+# even when it looks like one.
+attic-promotion:
+    - changed-files:
+          - any-glob-to-any-file:
+                - packages/angulux/attic/**
+                - tools/scope/closure.json
+
+library:
+    - changed-files:
+          - any-glob-to-any-file:
+                - packages/angulux/src/**
+
+forked-packages:
+    - changed-files:
+          - any-glob-to-any-file:
+                - packages/angulux-styled/**
+                - packages/angulux-utils/**
+                - packages/angulux-styles/**
+                - packages/angulux-motion/**
+
+browser-gate:
+    - changed-files:
+          - any-glob-to-any-file:
+                - e2e/**
+                - apps/verify/**
+                - e2e/risk-coverage.json
+
+documentation:
+    - changed-files:
+          - any-glob-to-any-file:
+                - '**/*.md'
+                - .github/ISSUE_TEMPLATE/**

@@ -1,0 +1,86 @@
+{
+    "//": [
+        "The version is written to the ROOT package.json, not to packages/angulux/package.json.",
+        "That is not a stylistic choice: tools/build/build-helper.mjs updatePackageJson() assigns",
+        "`pkg.version = <root>.version` on every build, so a version written into the package",
+        "manifest is silently reverted by the next prebuild. Targeting packages/angulux here",
+        "produced a pipeline that tagged a release and published nothing, with a green run.",
+        "Root is private:true, so npmPublish stays false and nothing is published from here —",
+        "the workflow publishes packages/angulux/dist explicitly, under OIDC."
+    ],
+    "$schema": "https://json.schemastore.org/semantic-release.json",
+    "branches": [
+        "main",
+        { "name": "next", "prerelease": "rc" }
+    ],
+    "tagFormat": "angulux-v${version}",
+    "plugins": [
+        [
+            "@semantic-release/commit-analyzer",
+            {
+                "preset": "conventionalcommits",
+                "releaseRules": [
+                    { "type": "docs", "release": false },
+                    { "type": "test", "release": false },
+                    { "type": "ci", "release": false },
+                    { "type": "chore", "release": false },
+                    { "type": "refactor", "release": "patch" },
+                    { "type": "perf", "release": "patch" },
+                    { "type": "build", "release": "patch" },
+                    { "type": "revert", "release": "patch" }
+                ],
+                "parserOpts": {
+                    "noteKeywords": ["BREAKING CHANGE", "BREAKING-CHANGE"]
+                }
+            }
+        ],
+        [
+            "@semantic-release/release-notes-generator",
+            {
+                "preset": "conventionalcommits",
+                "presetConfig": {
+                    "types": [
+                        { "type": "feat", "section": "Features" },
+                        { "type": "fix", "section": "Bug fixes" },
+                        { "type": "perf", "section": "Performance" },
+                        { "type": "refactor", "section": "Refactoring" },
+                        { "type": "build", "section": "Build" },
+                        { "type": "revert", "section": "Reverts" },
+                        { "type": "docs", "hidden": true },
+                        { "type": "test", "hidden": true },
+                        { "type": "ci", "hidden": true },
+                        { "type": "chore", "hidden": true }
+                    ]
+                }
+            }
+        ],
+        [
+            "@semantic-release/changelog",
+            {
+                "changelogFile": "CHANGELOG.md",
+                "changelogTitle": "# Changelog\n\nGenerated from Conventional Commits by semantic-release. Do not edit by hand."
+            }
+        ],
+        [
+            "@semantic-release/npm",
+            {
+                "npmPublish": false
+            }
+        ],
+        [
+            "@semantic-release/git",
+            {
+                "assets": ["CHANGELOG.md", "package.json"],
+                "message": "chore(release): angulux ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+            }
+        ],
+        [
+            "@semantic-release/github",
+            {
+                "successComment": false,
+                "failComment": false,
+                "releasedLabels": ["released"]
+            }
+        ]
+    ]
+}

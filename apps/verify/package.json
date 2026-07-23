@@ -1,0 +1,28 @@
+{
+    "name": "@angulux/verify",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Verification app: not a demo, not a showcase. Its only job is to be the substrate for the browser gate — it renders every risk-flagged decorator so an automated run can prove the built package works in a real browser.",
+    "scripts": {
+        "build": "ng build verify",
+        "serve": "ng serve verify --port 4210"
+    },
+    "dependencies": {
+        "@angular/common": "catalog:angular22",
+        "@angular/compiler": "catalog:angular22",
+        "@angular/core": "catalog:angular22",
+        "@angular/forms": "catalog:angular22",
+        "@angular/platform-browser": "catalog:angular22",
+        "@angular/router": "catalog:angular22",
+        "@primeuix/themes": "catalog:",
+        "rxjs": "catalog:angular22",
+        "tslib": "catalog:angular22",
+        "zone.js": "catalog:angular22"
+    },
+    "devDependencies": {
+        "@angular/build": "catalog:angular22",
+        "@angular/cli": "catalog:angular22",
+        "@angular/compiler-cli": "catalog:angular22",
+        "typescript": "catalog:angular22"
+    }
+}

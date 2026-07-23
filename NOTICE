@@ -1,0 +1,40 @@
+angulux — NOTICE
+================
+
+This product includes software developed by PrimeTek (https://www.primetek.com.tr/),
+originally released as:
+
+  • PrimeNG 21.1.9  — https://github.com/primefaces/primeng  — MIT License
+  • primeuix        — https://github.com/primefaces/primeuix — MIT License
+
+Copyright (c) 2016-2026 PrimeTek. The original MIT license is retained in LICENSE.
+
+Exact upstream commit SHAs, plus SHA-256 checksums and registry publish timestamps
+for every archived MIT artifact, are recorded in PROVENANCE.md. You can verify them
+yourself; see that file for the command.
+
+
+TRADEMARKS
+----------
+
+angulux is NOT affiliated with, endorsed by, or sponsored by PrimeTek Bilişim.
+
+"PrimeNG", "PrimeFaces", "PrimeReact", "PrimeVue", "PrimeUI" and "PrimeTek" are
+trademarks of their respective owners. They appear in this project only in a
+nominative sense — to state factually where this code came from — and never as a
+name for, or endorsement of, angulux.
+
+"Angular" is a trademark of Google LLC. angulux is an independent library for
+Angular and is not affiliated with, endorsed by, or sponsored by Google.
+
+
+A NOTE ON CSS CLASS NAMES
+-------------------------
+
+angulux deliberately keeps the `p-*` CSS class names inherited from PrimeNG 21.1.9.
+This is a compatibility decision, not a branding one: it is what allows themes built
+for the MIT releases of @primeuix/themes to keep working, and it gives projects
+migrating from PrimeNG 21 a path that does not require restyling everything.
+
+Element and attribute selectors are NOT inherited — those were renamed to `agl-*`
+and `agl*` respectively.

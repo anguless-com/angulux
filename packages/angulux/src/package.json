@@ -1,0 +1,50 @@
+{
+    "name": "angulux",
+    "version": "22.0.0-rc.0",
+    "description": "Angular 22 UI component library — a curated community fork of the last MIT release of PrimeNG.",
+    "license": "MIT",
+    "private": false,
+    "keywords": [
+        "angular",
+        "angular22",
+        "ui",
+        "components",
+        "component-library",
+        "datatable",
+        "mit",
+        "primeng-fork"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "peerDependencies": {
+        "@angular/common": "catalog:angular22",
+        "@angular/core": "catalog:angular22",
+        "@angular/forms": "catalog:angular22",
+        "@angular/router": "catalog:angular22",
+        "@angular/platform-browser": "catalog:angular22",
+        "rxjs": "^6.0.0 || ^7.8.1",
+        "chart.js": "^4.0.0"
+    },
+    "dependencies": {
+        "angulux-styled": "workspace:^",
+        "angulux-utils": "workspace:^",
+        "angulux-styles": "workspace:^",
+        "angulux-motion": "workspace:^"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "peerDependenciesMeta": {
+        "chart.js": {
+            "optional": true
+        }
+    },
+    "author": "Anguless",
+    "homepage": "https://github.com/anguless-com/angulux"
+}

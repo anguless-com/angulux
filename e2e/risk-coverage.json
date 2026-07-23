@@ -1,0 +1,71 @@
+{
+    "agl-header": {
+        "via": "template",
+        "note": "header facet of agl-card and agl-multiselect; the 'facet card' and 'multiselect' scenarios assert it projects into the slot"
+    },
+    "agl-footer": {
+        "via": "template",
+        "note": "footer facet of agl-card; asserted by the 'facet card' scenario"
+    },
+    "agl-motion": {
+        "via": "transitive",
+        "renderedBy": "agl-dialog, agl-select, agl-multiselect",
+        "note": "the transition wrapper of every overlay; the 'facet dialog' scenario opens a dialog, so it is constructed and torn down"
+    },
+    "[aglMenuItemContent]": {
+        "via": "transitive",
+        "renderedBy": "agl-menu",
+        "note": "menu constructs one per item; the 'menu' scenario clicks an item and therefore goes through it"
+    },
+    "agl-tieredMenuSub": {
+        "via": "transitive",
+        "renderedBy": "agl-tieredmenu",
+        "note": "each submenu level is one instance; the 'tieredmenu' scenario opens a branch and clicks a nested item"
+    },
+    "agl-selectItem": {
+        "via": "transitive",
+        "renderedBy": "agl-select",
+        "note": "one per option in the overlay; the 'select' scenario opens the overlay and picks one"
+    },
+    "li[aglMultiSelectItem]": {
+        "via": "transitive",
+        "renderedBy": "agl-multiselect",
+        "note": "one per option in the overlay; the 'multiselect' scenario selects two items"
+    },
+    "agl-cellEditor": {
+        "via": "template",
+        "note": "in the #sec-table-adv block; the 'table advanced' scenario clicks a cell to switch it from display to input mode"
+    },
+    "agl-columnFilter": {
+        "via": "template",
+        "note": "in the #sec-table-adv block; the 'table advanced' scenario types then presses Enter, taking the row count from 3 to 1"
+    },
+    "agl-columnFilterFormElement": {
+        "via": "transitive",
+        "renderedBy": "agl-columnFilter",
+        "note": "the real filter input when display=row; it is the field the 'table advanced' scenario types into"
+    },
+    "agl-treeTable": {
+        "via": "template",
+        "note": "both the #sec-treetable and #sec-treetable-scroll blocks"
+    },
+    "[aglTreeTableBody]": {
+        "via": "transitive",
+        "renderedBy": "agl-treetable",
+        "note": "treetable constructs it to render the table body; every visible row goes through it"
+    },
+    "agl-treeTableToggler": {
+        "via": "transitive",
+        "renderedBy": "agl-treetable",
+        "note": "the expand/collapse control; the 'treetable' scenario clicks it, taking 1 row to 3"
+    },
+    "agl-treeTableCellEditor": {
+        "via": "template",
+        "note": "in the #sec-treetable-scroll block; the 'treetable scroll + cell edit' scenario clicks a cell and edits the value"
+    },
+    "[ttScrollableView]": {
+        "via": "transitive",
+        "renderedBy": "agl-treetable when scrollable=true",
+        "note": "the #sec-treetable-scroll block enables scrollable; the scenario asserts .p-treetable-scrollable-view exists"
+    }
+}

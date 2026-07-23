@@ -1,0 +1,84 @@
+name: Module promotion (attic → shipped)
+description: Ask for one of the 53 unported modules to be built and published, or claim it to do yourself.
+title: 'feat(attic): promote '
+labels: ['attic-promotion', 'needs triage']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              angulux ships **64 of PrimeNG's 117 modules**. The other 53 are carried
+              **verbatim, MIT, unmodified** in
+              [`packages/angulux/attic/`](https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic)
+              — present in the repository, but not built and not published.
+
+              This is deliberate: every shipped module is inside the closure that the gates
+              cover. "64 modules with a warranty" is the offer; "117 modules nobody checks"
+              is not.
+
+              **The best outcome of this issue is that you promote it yourself.**
+              The work is well-defined, the source is already here, and
+              [CONTRIBUTING.md](https://github.com/anguless-com/angulux/blob/main/CONTRIBUTING.md)
+              states exactly what "done" means. With one maintainer, a request is a queue
+              entry; a pull request is a release.
+
+    - type: input
+      id: module
+      attributes:
+          label: Which module
+          description: Directory name as it appears under `attic/`.
+          placeholder: tree, editor, listbox, orderlist, picklist, organizationchart, ...
+      validations:
+          required: true
+
+    - type: checkboxes
+      id: verified
+      attributes:
+          label: Checks
+          options:
+              - label: I confirmed this module is in `attic/` and not already shipped in `src/`.
+                required: true
+              - label: I searched for an existing promotion issue for this module.
+                required: true
+
+    - type: dropdown
+      id: who
+      attributes:
+          label: Are you offering to do this?
+          options:
+              - 'Yes — assign it to me, I will open the pull request'
+              - 'Maybe — I could try it with some guidance'
+              - 'No — I am requesting it'
+      validations:
+          required: true
+
+    - type: textarea
+      id: use-case
+      attributes:
+          label: What are you building that needs it?
+          description: >-
+              Real use cases order the queue. "For completeness" ranks below "our internal
+              admin needs Tree for a permissions view and we are blocked on it".
+      validations:
+          required: true
+
+    - type: markdown
+      attributes:
+          value: |
+              ---
+              ### What a promotion involves, so you can judge the size
+
+              1. Move `attic/<name>/` → `src/<name>/`.
+              2. Rename selectors to the `agl-*` / `agl*` convention. **CSS class names
+                 `p-*` stay** — that distinction is deliberate, see
+                 [NOTICE](https://github.com/anguless-com/angulux/blob/main/NOTICE).
+              3. Regenerate the closure (`node tools/scope/gen-closure.mjs`) and include the
+                 diff — promoting a module changes the warranted set, and `check:scope`
+                 fails if the two disagree.
+              4. `npm run check` green (7/7), and the module's inherited specs passing.
+              5. If the module carries a risk-flagged decorator, extend the browser gate —
+                 otherwise `check:risk-coverage` fails, correctly.
+
+              Watch for dependencies: some attic modules pull in others (`picklist` and
+              `orderlist` both want `listbox`), and a few needed `@angular/cdk`, which this
+              project deliberately dropped as a peer. Say so in the pull request if you hit
+              that — it is a design decision, not a blocker to route around quietly.

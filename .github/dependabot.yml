@@ -1,0 +1,65 @@
+# Dependabot configuration.
+#
+# The important part of this file is what it REFUSES to update.
+#
+# PrimeTek moved their packages to a commercial license after a specific version of each.
+# Every release at or below the boundary recorded in PROVENANCE.md is MIT, permanently.
+# Every release above it is not. An automated bump across that boundary would open a
+# licensing incident on this project's behalf, filed by a bot, with a green diff — which
+# is exactly the sort of quiet failure the gates in tools/ exist to prevent.
+#
+# `check:license` would fail such a pull request. This file stops it being opened at all,
+# so nobody spends a morning deciding whether to merge something that can never be merged.
+
+version: 2
+
+updates:
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 5
+      versioning-strategy: increase
+      labels:
+          - dependencies
+      commit-message:
+          prefix: chore
+          include: scope
+
+      ignore:
+          # --- The MIT boundary. Never automate a crossing. -------------------
+          - dependency-name: '@primeuix/*'
+          - dependency-name: 'primeicons'
+          - dependency-name: 'tailwindcss-primeui'
+
+          # --- Angular: majors are a deliberate, planned migration ------------
+          # angulux's major is locked to Angular's major, so an Angular major bump is a
+          # release-line decision (see GOVERNANCE.md), not a dependency update. Minor and
+          # patch updates are welcome and are still proposed.
+          - dependency-name: '@angular/*'
+            update-types: ['version-update:semver-major']
+          - dependency-name: '@angular-devkit/*'
+            update-types: ['version-update:semver-major']
+          - dependency-name: 'ng-packagr'
+            update-types: ['version-update:semver-major']
+          - dependency-name: 'zone.js'
+            update-types: ['version-update:semver-major']
+
+          # typescript MUST stay on 6.0.x: @angular/compiler-cli@22 requires ">=6.0 <6.1"
+          # while typescript@latest is already 7.x. A minor bump here breaks the build.
+          - dependency-name: 'typescript'
+            update-types:
+                - 'version-update:semver-major'
+                - 'version-update:semver-minor'
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+      labels:
+          - dependencies
+          - ci
+      commit-message:
+          prefix: ci

@@ -1,0 +1,52 @@
+# Blank issues are disabled on purpose.
+#
+# A bug report without a version, a reproduction and a browser is not actionable, and
+# collecting those one round-trip at a time costs a week. With one maintainer that is the
+# difference between a fixed bug and an abandoned thread.
+
+blank_issues_enabled: false
+
+contact_links:
+    - name: Question, or "how do I ...?"
+      url: https://github.com/anguless-com/angulux/discussions/categories/q-a
+      about: Usage questions belong in Discussions. Issues are for defects and tracked work.
+
+    - name: Component X is missing
+      url: https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic
+      about: >-
+          angulux ships 64 of PrimeNG's 117 modules. The other 53 are carried verbatim in
+          attic/ — not built, not published. That is documented, not a bug. Check here
+          first, then open a "Module promotion" issue.
+
+    - name: Security vulnerability
+      url: https://github.com/anguless-com/angulux/security/advisories/new
+      about: >-
+          Report privately, never as a public issue. See SECURITY.md for scope and for
+          what to expect.
+
+    - name: Legal claim from a rights holder
+      url: https://github.com/anguless-com/angulux/security/advisories/new
+      about: >-
+          If you represent a rights holder and are making a legal claim, use the private
+          channel — so it can be verified before it is public. The outcome gets published
+          either way. For a technical provenance observation, use the "Provenance concern"
+          form instead; public is preferable there.
+
+    - name: How do I verify the MIT provenance myself?
+      url: https://github.com/anguless-com/angulux/blob/main/PROVENANCE.md
+      about: >-
+          PROVENANCE.md records the upstream commits, the archived MIT artifacts with their
+          SHA-256 checksums and publish timestamps, and the command to check them. You are
+          not asked to trust the claim — read this and test it.
+
+    - name: What happens after I file an issue?
+      url: https://github.com/anguless-com/angulux/blob/main/TRIAGE.md
+      about: >-
+          Priority order, response targets, what each label means, how issues get closed,
+          and what silence means. Written down so it can be held to.
+
+    - name: I need guaranteed support or an SLA
+      url: https://github.com/anguless-com/angulux/blob/main/SUPPORT.md
+      about: >-
+          angulux is MIT, best-effort, one maintainer, no SLA. If that is disqualifying,
+          SUPPORT.md says so plainly and points at the alternatives.

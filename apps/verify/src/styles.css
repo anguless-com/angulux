@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    padding: 1.5rem;
+}
+
+section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+h2 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+}
+
+/* State probes. The browser gate reads these rather than raw DOM, so that a passing test
+   means an interaction actually changed component state — not merely that some element
+   appeared. */
+.probe {
+    font-family: ui-monospace, monospace;
+    font-size: 0.8rem;
+    background: #f3f4f6;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 0.5rem;
+}

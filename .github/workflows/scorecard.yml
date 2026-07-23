@@ -1,0 +1,60 @@
+# OpenSSF Scorecard.
+#
+# Why a supply-chain scorecard matters more than usual here: this project's entire pitch is
+# "you do not have to take our provenance claim on trust". A third-party, automatically
+# generated score of the release pipeline is that argument applied to ourselves. If the
+# score is bad, that is worth knowing publicly — an unverifiable claim about verifiability
+# is the one failure mode this project cannot survive.
+#
+# The badge is intentionally published. See README.md.
+
+name: Scorecard
+
+on:
+    branch_protection_rule:
+    schedule:
+        - cron: '0 5 * * 1'
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+    analysis:
+        name: Scorecard analysis
+        runs-on: ubuntu-latest
+        permissions:
+            # Needed to upload the results to the code-scanning dashboard.
+            security-events: write
+            # Needed to publish the results and get a badge.
+            id-token: write
+            contents: read
+            actions: read
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Run analysis
+              uses: ossf/scorecard-action@v2.4.3
+              with:
+                  results_file: results.sarif
+                  results_format: sarif
+                  # Publishes the result so the badge resolves and anyone can audit the
+                  # score without running it themselves. That is the point.
+                  publish_results: true
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v7
+              with:
+                  name: scorecard-results
+                  path: results.sarif
+                  retention-days: 5
+
+            - name: Upload to code scanning
+              uses: github/codeql-action/upload-sarif@v4
+              with:
+                  sarif_file: results.sarif

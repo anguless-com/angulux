@@ -1,0 +1,136 @@
+name: Provenance concern
+description: You believe some code, text or dependency here is not covered by the MIT grant it claims.
+title: 'provenance: '
+labels: ['licensing', 'P0', 'needs triage']
+body:
+    - type: markdown
+      attributes:
+          value: |
+              **This is the most valuable report this project can receive, and it is treated as P0.**
+
+              angulux's entire argument is that its MIT provenance can be checked rather than
+              trusted. A report that the argument is wrong somewhere is not an attack on the
+              project — it is the project working. It will not be argued down, and you will not
+              be asked to justify why you care.
+
+              ### First, decide which door to use
+
+              - **You have a technical observation** — "this file looks like it came from
+                PrimeNG 22", "this dependency is above the MIT boundary", "this doc text
+                appears on primeng.dev" → **use this form.** Public is fine and preferable:
+                the reasoning should be auditable.
+
+              - **You are, or represent, a rights holder** making a legal claim (PrimeTek,
+                Google, or anyone else) → please use the private channel instead:
+                [open a private advisory](https://github.com/anguless-com/angulux/security/advisories/new).
+                Not because the matter would be hidden — the outcome will be published either
+                way — but so a claim can be verified before it is public, and so you are not
+                forced to litigate in an issue thread.
+
+              ### Before you file, two things that are deliberate and not findings
+
+              - **CSS class names `p-*` are kept on purpose** (1361 of them). Element and
+                attribute selectors were renamed to `agl-*` / `agl*`; class names were not.
+                [NOTICE](https://github.com/anguless-com/angulux/blob/main/NOTICE) explains
+                the reasoning. Disagreement with that reasoning is welcome — file it as a
+                *feature request*, not as a provenance defect.
+              - **`packages/angulux/attic/` is verbatim PrimeNG 21.1.9 source**, unmodified
+                and unbuilt, and it is supposed to be. Finding PrimeNG code there is the
+                expected state. Finding PrimeNG **22** code there is not, and is very much
+                this form.
+
+    - type: dropdown
+      id: kind
+      attributes:
+          label: What kind of concern
+          options:
+              - 'Code appears to derive from a post-MIT PrimeNG release (22+, or an LTS release)'
+              - 'A dependency is above the MIT boundary recorded in PROVENANCE.md'
+              - 'Text or examples appear to be copied from primeng.dev / primefaces.org'
+              - 'A trademark is used in a way that is not merely nominative'
+              - 'A provenance checksum or attestation does not match'
+              - 'A gate can be defeated while CI stays green'
+              - 'Something else about licensing or attribution'
+      validations:
+          required: true
+
+    - type: textarea
+      id: where
+      attributes:
+          label: Where
+          description: >-
+              File paths and line numbers if you have them, or the package and version if this
+              is about a dependency. A permalink to the exact lines is ideal.
+          placeholder: |
+              packages/angulux/src/table/table.ts:2140-2190
+              or: angulux-styled@1.0.0 depends on @primeuix/styled@1.2.0
+      validations:
+          required: true
+
+    - type: textarea
+      id: basis
+      attributes:
+          label: What makes you think so
+          description: >-
+              The reasoning matters more than the conclusion. A diff against a known source, a
+              distinctive comment or variable name, a publish date, a checksum — anything that
+              lets someone else reach the same conclusion independently.
+
+              **Please do not paste commercially licensed source code into this issue.** Point
+              at it (file, version, line range) instead. Quoting it here would put the very
+              thing under discussion into a public repository.
+      validations:
+          required: true
+
+    - type: input
+      id: upstream
+      attributes:
+          label: Which upstream source, and which version
+          description: 'Being specific about the version is what makes this checkable.'
+          placeholder: 'PrimeNG 22.0.1, packages/primeng/src/app/components/table/table.ts'
+
+    - type: dropdown
+      id: reproducible
+      attributes:
+          label: Can this be reproduced mechanically?
+          description: >-
+              If a gate should have caught it, say so — a missing gate is a second, separate
+              defect, and usually the more important of the two.
+          options:
+              - 'Yes — a gate should have caught this and did not'
+              - 'Yes — but no existing gate covers this class of problem'
+              - 'No — it needs human judgement'
+              - "Don't know"
+      validations:
+          required: true
+
+    - type: checkboxes
+      id: ack
+      attributes:
+            label: Acknowledgements
+            options:
+                - label: I have not pasted commercially licensed source code into this issue.
+                  required: true
+                - label: >-
+                      I understand this is a public issue, and that if I am making a legal claim
+                      on behalf of a rights holder I should use the private advisory channel
+                      instead.
+                  required: true
+
+    - type: markdown
+      attributes:
+          value: |
+              ---
+              ### What happens next
+
+              1. **Acknowledged within 5 working days.** Labelled `licensing` + `P0`.
+              2. **The claim is checked, not defended.** If it holds, the affected code is
+                 removed or replaced — reputation is not a reason to keep contaminated code,
+                 and a fork that argues with a valid provenance report has no argument left.
+              3. **If a gate should have caught it, a gate gets written**, in its own commit.
+                 That is how every other class of error in this repository was closed.
+              4. **The outcome is published either way**, including if the report turns out to
+                 be wrong. Silently closing a provenance issue would be the worst possible
+                 signal from a project like this one.
+
+              Credit is given unless you ask otherwise.

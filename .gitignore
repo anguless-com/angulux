@@ -1,0 +1,27 @@
+# Upstream reference checkouts — 137MB, with nested .git directories.
+# Never committed: reproducible from the commit SHAs recorded in PROVENANCE.md.
+#   git clone --depth 1 --branch 21.1.9 git@github.com:primefaces/primeng.git ref/primeng
+#   git clone --depth 1 git@github.com:primefaces/primeuix.git ref/primeuix
+ref/
+
+# Maintainer working notes. Never published.
+.agl/
+
+node_modules/
+dist/
+.angular/
+*.log
+.DS_Store
+pnpm-lock.yaml.bak
+# E2E evidence screenshots — regenerable, no binaries in the tree
+test-results/
+
+# Provenance tarballs: kept locally / in a private evidence store, never published.
+# primeng-21.1.9.tgz ships proprietary "PRIMENG LTS VERSIONS LICENSE" text inside its
+# LICENSE.md. provenance/manifest.json holds the SHA-256 checksums — that is the proof.
+# Reproduce: node tools/provenance/archive-mit.mjs && node tools/provenance/archive-mit.mjs --verify
+provenance/tarballs/
+
+# Build output of the forked primeuix packages (tsup)
+packages/angulux-*/dist/
+plans/

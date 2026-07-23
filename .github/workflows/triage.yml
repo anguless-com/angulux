@@ -1,0 +1,132 @@
+# Triage automation.
+#
+# The point is not tidiness. This project has one maintainer and an argument that invites
+# scrutiny, so two things have to happen without anyone being awake:
+#
+#   1. a licensing-relevant pull request must be VISIBLE as one, immediately;
+#   2. a first-time contributor must meet the provenance rule before they spend a weekend
+#      writing something that cannot be merged.
+#
+# Uses pull_request_target because labelling and commenting need write access that the
+# `pull_request` event does not grant to forks. It therefore NEVER checks out or executes
+# the pull request's code — only .github/labeler.yml from the base branch is read.
+
+name: Triage
+
+on:
+    pull_request_target:
+        types: [opened, reopened, synchronize]
+    issues:
+        types: [opened]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: triage-${{ github.event.pull_request.number || github.event.issue.number }}
+    cancel-in-progress: true
+
+jobs:
+    label:
+        name: Label by path
+        if: github.event_name == 'pull_request_target'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - uses: actions/labeler@v7
+              with:
+                  configuration-path: .github/labeler.yml
+                  sync-labels: true
+
+    welcome:
+        name: Welcome a first-time contributor
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+            pull-requests: write
+        steps:
+            - uses: actions/first-interaction@v3
+              with:
+                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+                  issue-message: |
+                      Thanks for the first issue — genuinely.
+
+                      Two things worth knowing so nothing surprises you:
+
+                      - **One maintainer, MIT, best-effort, no SLA.** Issues are read; they are
+                        not guaranteed to be answered quickly, and "won't fix, here is why" is a
+                        normal outcome rather than a brush-off. [SUPPORT.md](https://github.com/anguless-com/angulux/blob/main/SUPPORT.md)
+                        says what to expect, and [TRIAGE.md](https://github.com/anguless-com/angulux/blob/main/TRIAGE.md)
+                        says what happens to this issue next.
+                      - **If a component seems missing**, it is probably one of the 53 modules
+                        sitting unbuilt in [`packages/angulux/attic/`](https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic).
+                        That is documented behaviour, not a bug — and promoting one is the most
+                        useful contribution this project can receive.
+
+                  pr-message: |
+                      Thanks for the first pull request.
+
+                      One thing here is stricter than in most repositories, and it is better to
+                      hear it now than in review:
+
+                      **The provenance attestation in the description is a hard requirement.**
+                      This project's whole value proposition is that its MIT provenance can be
+                      verified rather than trusted, so a single contribution carrying code from
+                      a post-MIT PrimeNG release would invalidate the entire argument. A CI job
+                      checks that every box is ticked, and commits must be signed off
+                      (`git commit -s`).
+
+                      If any statement is **not** true of your change — including "I used an AI
+                      assistant and I am not certain where part of this came from" — say so in a
+                      comment instead of ticking the box. That question is welcome and costs a
+                      day. Nobody will be annoyed with you for asking it; the opposite.
+
+                      Details: [CONTRIBUTING.md](https://github.com/anguless-com/angulux/blob/main/CONTRIBUTING.md).
+
+    guidance:
+        name: Point at the right channel
+        if: github.event_name == 'issues'
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+        steps:
+            # A provenance report is the highest-value issue this project can receive, and the
+            # one most likely to be filed by someone who has never opened an issue here. Make
+            # sure it is acknowledged in writing immediately, whatever the maintainer's
+            # timezone happens to be.
+            - name: Acknowledge a provenance report immediately
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      const labels = (context.payload.issue.labels || []).map(l => l.name);
+                      if (!labels.includes('licensing')) return;
+
+                      await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.issue.number,
+                          body: [
+                              'Thanks — this is logged as **P0**.',
+                              '',
+                              'A provenance report is the most valuable thing this project can receive, so',
+                              'to be explicit about how it will be handled:',
+                              '',
+                              '- the claim gets **checked, not defended**;',
+                              '- if it holds, the affected code is removed or replaced — reputation is not a',
+                              '  reason to keep contaminated code;',
+                              '- if a gate should have caught it, **a gate gets written**, in its own commit;',
+                              '- the outcome is **published either way**, including if the report turns out',
+                              '  to be wrong.',
+                              '',
+                              // Absolute URLs: relative links do not resolve reliably inside
+                              // issue comments, and every other document link here is absolute.
+                              'Target for a substantive first response is 5 working days',
+                              '([SUPPORT.md](https://github.com/anguless-com/angulux/blob/main/SUPPORT.md)',
+                              'explains why that is a target and not an SLA). If you are a rights holder making',
+                              'a legal claim, the private channel is',
+                              '[here](https://github.com/anguless-com/angulux/security/advisories/new).'
+                          ].join('\n')
+                      });
