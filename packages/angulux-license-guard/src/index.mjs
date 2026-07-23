@@ -49,16 +49,36 @@ export function run(projectRoot = process.cwd()) {
     const remaining = applyAcknowledgements(violations, entries);
 
     if (remaining.length) {
-        lines.push('✗ COMMERCIALLY LICENSED PRIMETEK PACKAGE DETECTED', '');
-        for (const v of remaining) {
-            lines.push(`   ${v.name}@${v.version}`, `      → ${v.reason}`);
+        // The two findings are NOT the same claim, and reporting them under one headline
+        // would assert more than the evidence supports. "We know this is commercial" and
+        // "we could not check this" have different fixes and different weight — on a
+        // licensing question, overstating the first is the one mistake this tool must not make.
+        const commercial = remaining.filter((v) => v.kind === 'commercial');
+        const unverified = remaining.filter((v) => v.kind !== 'commercial');
+
+        if (commercial.length) {
+            lines.push('✗ COMMERCIALLY LICENSED PRIMETEK PACKAGE DETECTED', '');
+            for (const v of commercial) lines.push(`   ${v.name}@${v.version}`, `      → ${v.reason}`);
+            lines.push(
+                '',
+                '  These versions are NOT MIT. Using them requires a PrimeUI licence.',
+                '  Fix: downgrade to the last MIT release and pin it exactly (drop the ^).'
+            );
         }
-        lines.push(
-            '',
-            '  These versions are NOT MIT. Using them requires a PrimeUI licence.',
-            '  Fix: downgrade to the last MIT release and pin it exactly (drop the ^).',
-            footer
-        );
+
+        if (unverified.length) {
+            if (commercial.length) lines.push('');
+            lines.push('✗ UNVERIFIED PRIMETEK PACKAGE — licence could not be determined', '');
+            for (const v of unverified) lines.push(`   ${v.name}@${v.version}`, `      → ${v.reason}`);
+            lines.push(
+                '',
+                '  This is not a claim that these are commercial — it is a refusal to guess.',
+                '  Fix: check the package LICENSE yourself, then either pin a version this tool',
+                `  knows, or record what you found in ${CONFIG_FILENAME}.`
+            );
+        }
+
+        lines.push(footer);
         return { code: EXIT_VIOLATION, lines };
     }
 

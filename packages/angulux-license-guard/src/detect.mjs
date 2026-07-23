@@ -32,7 +32,7 @@ export function detect(packages) {
 
     for (const { name, version, raw } of packages) {
         if (ALWAYS_COMMERCIAL.includes(name)) {
-            violations.push({ name, version: version ?? raw, reason: 'commercial in every version' });
+            violations.push({ name, version: version ?? raw, kind: 'commercial', reason: 'commercial in every version' });
             continue;
         }
 
@@ -46,6 +46,7 @@ export function detect(packages) {
                 violations.push({
                     name,
                     version: version ?? raw,
+                    kind: 'unverified',
                     reason: 'not recorded in the boundary table — the licence could not be verified'
                 });
             }
@@ -56,6 +57,7 @@ export function detect(packages) {
             violations.push({
                 name,
                 version: raw,
+                kind: 'unverified',
                 reason: 'not a semver version — the licence could not be verified automatically'
             });
             continue;
@@ -63,7 +65,7 @@ export function detect(packages) {
 
         seen.push({ name, version });
         if (cmp(version, floor) >= 0) {
-            violations.push({ name, version, reason: `>= ${floor} is the commercial PrimeUI licence` });
+            violations.push({ name, version, kind: 'commercial', reason: `>= ${floor} is the commercial PrimeUI licence` });
         }
     }
 
