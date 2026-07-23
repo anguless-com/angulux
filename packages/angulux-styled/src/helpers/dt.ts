@@ -1,4 +1,4 @@
-import { isEmpty, matchRegex } from 'angulux-utils/object';
+import { isEmpty, matchRegex } from '@anguless/angulux-utils/object';
 import Theme from '../config/index';
 import { EXPR_REGEX, getVariableValue } from '../utils/index';
 

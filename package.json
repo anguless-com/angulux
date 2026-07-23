@@ -25,9 +25,10 @@
         "check:language": "node tools/check-language.mjs",
         "check:public-tree": "node tools/check-public-tree.mjs",
         "check:publishable": "node tools/check-publishable.mjs",
-        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree",
-        "build:lib": "pnpm --filter angulux run build",
-        "test:lib": "pnpm --filter angulux run test:unit"
+        "check:scope-names": "node tools/codemod/scan-anguless-scope.mjs",
+        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names",
+        "build:lib": "pnpm --filter @anguless/angulux run build",
+        "test:lib": "pnpm --filter @anguless/angulux run test:unit"
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "catalog:angular22",

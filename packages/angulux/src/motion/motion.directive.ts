@@ -1,6 +1,6 @@
 import { afterRenderEffect, computed, Directive, effect, inject, InjectionToken, input, output, untracked } from '@angular/core';
-import { createMotion, resolveDuration, type ClassNameOptions, type MotionEvent, type MotionInstance, type MotionOptions, type MotionPhase } from 'angulux-motion';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
+import { createMotion, resolveDuration, type ClassNameOptions, type MotionEvent, type MotionInstance, type MotionOptions, type MotionPhase } from '@anguless/angulux-motion';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { applyHiddenStyles, resetStyles } from './motion.utils';
 import { MotionStyle } from './style/motion.style';
 

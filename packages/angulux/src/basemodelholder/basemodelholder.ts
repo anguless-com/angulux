@@ -1,6 +1,6 @@
 import { computed, Directive, signal } from '@angular/core';
-import { isNotEmpty } from 'angulux-utils';
-import { BaseComponent } from 'angulux/basecomponent';
+import { isNotEmpty } from '@anguless/angulux-utils';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 
 @Directive({ standalone: true })
 export class BaseModelHolder<PT = any> extends BaseComponent<PT> {

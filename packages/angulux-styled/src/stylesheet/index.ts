@@ -1,4 +1,4 @@
-import { createStyleMarkup, isNotEmpty } from 'angulux-utils';
+import { createStyleMarkup, isNotEmpty } from '@anguless/angulux-utils';
 
 export interface StyleSheetProps {
     attrs?: Record<string, unknown>;

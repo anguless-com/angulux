@@ -1,4 +1,4 @@
-import { addClass, removeClass } from 'angulux-utils';
+import { addClass, removeClass } from '@anguless/angulux-utils';
 import type { MotionClassNamesWithPhase, MotionHooksWithPhase, MotionInstance, MotionOptions, MotionPhase, MotionType } from '../../types';
 import { getMotionHooks, getMotionMetadata, mergeOptions, removeMotionPhase, removeMotionState, resolveClassNames, resolveDuration, setAutoDimensionVariables, setMotionPhase, setMotionState, shouldSkipMotion } from '../utils';
 

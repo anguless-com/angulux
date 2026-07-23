@@ -4,8 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { provideAngulux } from 'angulux/config';
-import type { InputNumberInputEvent } from 'angulux/types/inputnumber';
+import { provideAngulux } from '@anguless/angulux/config';
+import type { InputNumberInputEvent } from '@anguless/angulux/types/inputnumber';
 import { InputNumber, InputNumberModule } from './inputnumber';
 
 // Test Components

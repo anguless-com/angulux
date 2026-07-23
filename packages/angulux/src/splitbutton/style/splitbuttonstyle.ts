@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/splitbutton';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/splitbutton';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const classes = {
     root: ({ instance }) => [

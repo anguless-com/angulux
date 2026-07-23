@@ -118,10 +118,10 @@ jobs:
             # refuses to emit a package that is missing LICENSE/NOTICE, still contains a
             # catalog:/workspace: specifier, or carries wrong publish metadata.
             - name: Build the library
-              run: corepack pnpm --filter angulux run build
+              run: corepack pnpm --filter @anguless/angulux run build
 
             - name: Unit tests
-              run: corepack pnpm --filter angulux run test:unit
+              run: corepack pnpm --filter @anguless/angulux run test:unit
 
             # Needs a completed build, which is why it is here rather than in `npm run check`
             # — that suite is seven gates in about three seconds and stays that way.
@@ -166,7 +166,7 @@ jobs:
                   done
 
             - name: Build the library
-              run: corepack pnpm --filter angulux run build
+              run: corepack pnpm --filter @anguless/angulux run build
 
             - name: Install Chromium
               run: corepack pnpm exec playwright install --with-deps chromium

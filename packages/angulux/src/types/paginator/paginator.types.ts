@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import { InputNumberPassThrough } from 'angulux/types/inputnumber';
-import { SelectPassThrough } from 'angulux/types/select';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import { InputNumberPassThrough } from '@anguless/angulux/types/inputnumber';
+import { SelectPassThrough } from '@anguless/angulux/types/select';
 
 /**
  * Custom pass-through(pt) options.

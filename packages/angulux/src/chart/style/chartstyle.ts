@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseStyle } from 'angulux/base';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const inlineStyles = {
     root: ({ instance }) => ({ display: 'block', position: 'relative', width: instance.width, height: instance.height })

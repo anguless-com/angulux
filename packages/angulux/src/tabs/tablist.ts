@@ -1,14 +1,14 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, ContentChild, ContentChildren, effect, ElementRef, forwardRef, inject, InjectionToken, QueryList, signal, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
-import { findSingle, getOffset, getOuterWidth, getWidth, isRTL } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { ChevronLeftIcon, ChevronRightIcon } from 'angulux/icons';
-import { RippleModule } from 'angulux/ripple';
+import { findSingle, getOffset, getOuterWidth, getWidth, isRTL } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { ChevronLeftIcon, ChevronRightIcon } from '@anguless/angulux/icons';
+import { RippleModule } from '@anguless/angulux/ripple';
 import { TabListStyle } from './style/tabliststyle';
 import { Tabs } from './tabs';
-import { TabListPassThrough } from 'angulux/types/tabs';
+import { TabListPassThrough } from '@anguless/angulux/types/tabs';
 
 const TABLIST_INSTANCE = new InjectionToken<TabList>('TABLIST_INSTANCE');
 

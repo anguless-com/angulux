@@ -84,8 +84,8 @@ jobs:
                   for p in utils styled motion styles; do
                       (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
-                  corepack pnpm --filter angulux run build
-                  corepack pnpm --filter angulux run test:unit
+                  corepack pnpm --filter @anguless/angulux run build
+                  corepack pnpm --filter @anguless/angulux run test:unit
 
             - name: Open or update the compatibility issue
               if: steps.build.outcome == 'failure'

@@ -1,5 +1,5 @@
 {
-    "name": "angulux-styled",
+    "name": "@anguless/angulux-styled",
     "version": "1.0.0",
     "author": "PrimeTek Informatics",
     "description": "Design-token and CSS-variable engine used by angulux.",
@@ -45,7 +45,7 @@
         "build:dev": "tsup --watch"
     },
     "dependencies": {
-        "angulux-utils": "workspace:^"
+        "@anguless/angulux-utils": "workspace:^"
     },
     "engines": {
         "node": ">=12.11.0"

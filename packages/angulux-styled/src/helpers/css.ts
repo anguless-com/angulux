@@ -1,4 +1,4 @@
-import { resolve } from 'angulux-utils';
+import { resolve } from '@anguless/angulux-utils';
 import { evaluateDtExpressions, type StyleType } from '..';
 import { dt } from './dt';
 

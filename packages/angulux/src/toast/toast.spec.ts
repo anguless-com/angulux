@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
+import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
 import { Toast, ToastItem } from './toast';
 
 // Test Components for different scenarios

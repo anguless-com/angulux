@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { booleanAttribute, Directive, inject, Input, NgModule, PLATFORM_ID, SimpleChanges } from '@angular/core';
-import { createElement, focus, getFirstFocusableElement, getLastFocusableElement } from 'angulux-utils';
-import { BaseComponent } from 'angulux/basecomponent';
+import { createElement, focus, getFirstFocusableElement, getLastFocusableElement } from '@anguless/angulux-utils';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 
 /**
  * Focus Trap keeps focus within a certain DOM element while tabbing.

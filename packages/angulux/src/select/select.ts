@@ -28,23 +28,23 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MotionOptions } from 'angulux-motion';
-import { deepEquals, equals, findLastIndex, findSingle, focus, getFirstFocusableElement, getFocusableElements, getLastFocusableElement, isEmpty, isNotEmpty, isPrintableCharacter, resolveFieldData, scrollInView, uuid } from 'angulux-utils';
-import { FilterService, OverlayOptions, AglTemplate, ScrollerOptions, SharedModule, TranslationKeys } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseInput } from 'angulux/baseinput';
-import { Bind, BindModule } from 'angulux/bind';
-import { unblockBodyScroll } from 'angulux/dom';
-import { IconField } from 'angulux/iconfield';
-import { BlankIcon, CheckIcon, ChevronDownIcon, SearchIcon, SpinnerIcon, TimesIcon } from 'angulux/icons';
-import { InputIcon } from 'angulux/inputicon';
-import { InputText } from 'angulux/inputtext';
-import { Overlay } from 'angulux/overlay';
-import { Ripple } from 'angulux/ripple';
-import { Scroller } from 'angulux/scroller';
-import { Tooltip } from 'angulux/tooltip';
-import { Nullable } from 'angulux/ts-helpers';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { deepEquals, equals, findLastIndex, findSingle, focus, getFirstFocusableElement, getFocusableElements, getLastFocusableElement, isEmpty, isNotEmpty, isPrintableCharacter, resolveFieldData, scrollInView, uuid } from '@anguless/angulux-utils';
+import { FilterService, OverlayOptions, AglTemplate, ScrollerOptions, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseInput } from '@anguless/angulux/baseinput';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { unblockBodyScroll } from '@anguless/angulux/dom';
+import { IconField } from '@anguless/angulux/iconfield';
+import { BlankIcon, CheckIcon, ChevronDownIcon, SearchIcon, SpinnerIcon, TimesIcon } from '@anguless/angulux/icons';
+import { InputIcon } from '@anguless/angulux/inputicon';
+import { InputText } from '@anguless/angulux/inputtext';
+import { Overlay } from '@anguless/angulux/overlay';
+import { Ripple } from '@anguless/angulux/ripple';
+import { Scroller } from '@anguless/angulux/scroller';
+import { Tooltip } from '@anguless/angulux/tooltip';
+import { Nullable } from '@anguless/angulux/ts-helpers';
 import {
     SelectChangeEvent,
     SelectFilterEvent,
@@ -57,7 +57,7 @@ import {
     SelectLoaderTemplateContext,
     SelectPassThrough,
     SelectSelectedItemTemplateContext
-} from 'angulux/types/select';
+} from '@anguless/angulux/types/select';
 import { SelectStyle } from './style/selectstyle';
 
 const SELECT_INSTANCE = new InjectionToken<Select>('SELECT_INSTANCE');

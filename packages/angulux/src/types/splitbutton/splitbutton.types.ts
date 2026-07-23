@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { ButtonPassThrough } from 'angulux/types/button';
-import { MenuPassThrough } from 'angulux/types/menu';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
+import { MenuPassThrough } from '@anguless/angulux/types/menu';
 
 /**
  * Custom pass-through(pt) options.

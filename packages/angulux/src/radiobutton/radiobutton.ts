@@ -21,15 +21,15 @@ import {
     ViewChild
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { SharedModule } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind } from 'angulux/bind';
-import { BindModule } from 'angulux/bind';
-import { Nullable } from 'angulux/ts-helpers';
-import { RadioButtonPassThrough } from 'angulux/types/radiobutton';
-import type { RadioButtonClickEvent } from 'angulux/types/radiobutton';
+import { SharedModule } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind } from '@anguless/angulux/bind';
+import { BindModule } from '@anguless/angulux/bind';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { RadioButtonPassThrough } from '@anguless/angulux/types/radiobutton';
+import type { RadioButtonClickEvent } from '@anguless/angulux/types/radiobutton';
 import { RadioButtonStyle } from './style/radiobuttonstyle';
 
 const RADIOBUTTON_INSTANCE = new InjectionToken<RadioButton>('RADIOBUTTON_INSTANCE');

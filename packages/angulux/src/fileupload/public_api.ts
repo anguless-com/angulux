@@ -1,3 +1,3 @@
-export * from 'angulux/types/fileupload';
+export * from '@anguless/angulux/types/fileupload';
 export * from './fileupload';
 export * from './style/fileuploadstyle';

@@ -1,10 +1,10 @@
 import { booleanAttribute, computed, Directive, effect, HostListener, inject, InjectionToken, input, Input, NgModule } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseModelHolder } from 'angulux/basemodelholder';
-import { Bind } from 'angulux/bind';
-import { Fluid } from 'angulux/fluid';
-import { InputTextPassThrough } from 'angulux/types/inputtext';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseModelHolder } from '@anguless/angulux/basemodelholder';
+import { Bind } from '@anguless/angulux/bind';
+import { Fluid } from '@anguless/angulux/fluid';
+import { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
 import { InputTextStyle } from './style/inputtextstyle';
 
 const INPUTTEXT_INSTANCE = new InjectionToken<InputText>('INPUTTEXT_INSTANCE');

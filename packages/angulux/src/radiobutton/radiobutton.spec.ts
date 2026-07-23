@@ -4,7 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { By } from '@angular/platform-browser';
 import { RadioButton } from './radiobutton';
 
-import { provideAngulux } from 'angulux/config';
+import { provideAngulux } from '@anguless/angulux/config';
 
 // Basic RadioButton test component
 @Component({

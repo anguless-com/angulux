@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { equals, removeAccents, resolveFieldData } from 'angulux-utils';
+import { equals, removeAccents, resolveFieldData } from '@anguless/angulux-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FilterService {

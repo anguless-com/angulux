@@ -10,22 +10,22 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "paths": {
-            "angulux-styles": [
+            "@anguless/angulux-styles": [
                 "./src/index.ts"
             ],
-            "angulux-styles/*": [
+            "@anguless/angulux-styles/*": [
                 "./src/*"
             ],
-            "angulux-styled": [
+            "@anguless/angulux-styled": [
                 "../angulux-styled/src/index.ts"
             ],
-            "angulux-styled/*": [
+            "@anguless/angulux-styled/*": [
                 "../angulux-styled/src/*"
             ],
-            "angulux-utils": [
+            "@anguless/angulux-utils": [
                 "../angulux-utils/src/index.ts"
             ],
-            "angulux-utils/*": [
+            "@anguless/angulux-utils/*": [
                 "../angulux-utils/src/*"
             ]
         },

@@ -1,11 +1,11 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import { ScrollerOptions, TreeNode } from 'angulux/api';
-import type { CheckboxPassThrough } from 'angulux/types/checkbox';
-import type { IconFieldPassThrough } from 'angulux/types/iconfield';
-import type { InputIconPassThrough } from 'angulux/types/inputicon';
-import type { InputTextPassThrough } from 'angulux/types/inputtext';
-import type { VirtualScrollerPassThrough } from 'angulux/types/scroller';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import { ScrollerOptions, TreeNode } from '@anguless/angulux/api';
+import type { CheckboxPassThrough } from '@anguless/angulux/types/checkbox';
+import type { IconFieldPassThrough } from '@anguless/angulux/types/iconfield';
+import type { InputIconPassThrough } from '@anguless/angulux/types/inputicon';
+import type { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
+import type { VirtualScrollerPassThrough } from '@anguless/angulux/types/scroller';
 
 /**
  * Custom pass-through(pt) options.

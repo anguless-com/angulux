@@ -1,5 +1,5 @@
 import { TemplateRef } from '@angular/core';
-import type { MenuItem, PassThrough, PassThroughOption } from 'angulux/api';
+import type { MenuItem, PassThrough, PassThroughOption } from '@anguless/angulux/api';
 
 /**
  * Custom pass-through(pt) options.

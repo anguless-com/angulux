@@ -21,18 +21,18 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { MotionOptions } from 'angulux-motion';
-import { uuid } from 'angulux-utils';
-import { MenuItem, AglTemplate, SharedModule, TooltipOptions } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { ButtonDirective } from 'angulux/button';
-import { ChevronDownIcon } from 'angulux/icons';
-import { Ripple } from 'angulux/ripple';
-import { TieredMenu } from 'angulux/tieredmenu';
-import { TooltipModule } from 'angulux/tooltip';
-import { ButtonProps, MenuButtonProps, SplitButtonPassThrough } from 'angulux/types/splitbutton';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { uuid } from '@anguless/angulux-utils';
+import { MenuItem, AglTemplate, SharedModule, TooltipOptions } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { ButtonDirective } from '@anguless/angulux/button';
+import { ChevronDownIcon } from '@anguless/angulux/icons';
+import { Ripple } from '@anguless/angulux/ripple';
+import { TieredMenu } from '@anguless/angulux/tieredmenu';
+import { TooltipModule } from '@anguless/angulux/tooltip';
+import { ButtonProps, MenuButtonProps, SplitButtonPassThrough } from '@anguless/angulux/types/splitbutton';
 import { SplitButtonStyle } from './style/splitbuttonstyle';
 
 const SPLITBUTTON_INSTANCE = new InjectionToken<SplitButton>('SPLITBUTTON_INSTANCE');

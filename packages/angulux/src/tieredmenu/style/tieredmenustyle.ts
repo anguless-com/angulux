@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/tieredmenu';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/tieredmenu';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const inlineStyles = {
     submenu: ({ instance, processedItem }) => ({ display: instance.isItemActive(processedItem) ? 'flex' : 'none' })

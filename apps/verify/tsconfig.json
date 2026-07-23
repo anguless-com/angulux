@@ -15,8 +15,8 @@
            entrypoints and emits type declarations. It is also the rehearsal for installing
            the published package into an empty app. */
         "paths": {
-            "angulux/types/*": ["../../packages/angulux/dist/types/*"],
-            "angulux/*": ["../../packages/angulux/dist/*"]
+            "@anguless/angulux/types/*": ["../../packages/angulux/dist/types/*"],
+            "@anguless/angulux/*": ["../../packages/angulux/dist/*"]
         }
     },
     "angularCompilerOptions": {

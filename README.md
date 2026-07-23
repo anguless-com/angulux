@@ -8,11 +8,11 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/anguless-com/angulux/badge)](https://scorecard.dev/viewer/?uri=github.com/anguless-com/angulux)
 
 ```bash
-npm install angulux @primeuix/themes
+npm install @anguless/angulux @primeuix/themes
 ```
 
 ```ts
-import { provideAngulux } from 'angulux/config';
+import { provideAngulux } from '@anguless/angulux/config';
 import Aura from '@primeuix/themes/aura';
 
 bootstrapApplication(App, {

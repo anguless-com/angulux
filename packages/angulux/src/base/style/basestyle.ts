@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { css as Css, dt, Theme } from 'angulux-styled';
-import { style as base_style } from 'angulux-styles/base';
-import { minifyCSS, resolve } from 'angulux-utils';
-import { UseStyle } from 'angulux/usestyle';
+import { css as Css, dt, Theme } from '@anguless/angulux-styled';
+import { style as base_style } from '@anguless/angulux-styles/base';
+import { minifyCSS, resolve } from '@anguless/angulux-utils';
+import { UseStyle } from '@anguless/angulux/usestyle';
 
 const css = /*css*/ `
 .p-hidden-accessible {

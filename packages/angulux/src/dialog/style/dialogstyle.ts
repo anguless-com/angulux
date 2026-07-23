@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/dialog';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/dialog';
+import { BaseStyle } from '@anguless/angulux/base';
 
 /* Position */
 const inlineStyles = {

@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DebugElement, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
 import { Message } from './message';
 
 @Component({

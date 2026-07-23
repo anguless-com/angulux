@@ -1,4 +1,4 @@
-import { mergeKeys } from 'angulux-utils/object';
+import { mergeKeys } from '@anguless/angulux-utils/object';
 import Theme from '../config/index';
 
 export const $t = (theme: any = {}) => {

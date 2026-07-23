@@ -17,11 +17,11 @@ import {
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
-import { AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { TimesCircleIcon } from 'angulux/icons';
-import { ChipProps, ChipPassThrough } from 'angulux/types/chip';
+import { AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { TimesCircleIcon } from '@anguless/angulux/icons';
+import { ChipProps, ChipPassThrough } from '@anguless/angulux/types/chip';
 import { ChipStyle } from './style/chipstyle';
 
 const CHIP_INSTANCE = new InjectionToken<Chip>('CHIP_INSTANCE');

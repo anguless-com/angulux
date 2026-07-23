@@ -81,10 +81,10 @@ jobs:
                   done
 
             - name: Build the library
-              run: corepack pnpm --filter angulux run build
+              run: corepack pnpm --filter @anguless/angulux run build
 
             - name: Unit tests
-              run: corepack pnpm --filter angulux run test:unit
+              run: corepack pnpm --filter @anguless/angulux run test:unit
 
             - name: Browser gate
               run: |
@@ -337,7 +337,7 @@ jobs:
                   for p in utils styled motion styles; do
                       (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
-                  corepack pnpm --filter angulux run build
+                  corepack pnpm --filter @anguless/angulux run build
 
             # Recorded BEFORE semantic-release so the next step can tell "no release was
             # warranted" apart from "a release happened". Those two need opposite handling
@@ -382,7 +382,7 @@ jobs:
             # the artifact carry the released version.
             - name: Rebuild at the released version
               if: steps.after.outputs.released == 'true'
-              run: corepack pnpm --filter angulux run build
+              run: corepack pnpm --filter @anguless/angulux run build
 
             # The gate that would have caught the bug this whole arrangement exists to avoid.
             #

@@ -27,19 +27,19 @@ import {
     ViewRef
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { absolutePosition, addStyle, appendChild, findLastIndex, findSingle, focus, getOuterWidth, isEmpty, isNotEmpty, isPrintableCharacter, isTouchDevice, nestedPosition, relativePosition, resolve, uuid } from 'angulux-utils';
-import { MenuItem, OverlayService, AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler } from 'angulux/dom';
-import { AngleRightIcon } from 'angulux/icons';
-import { MotionModule } from 'angulux/motion';
-import { Ripple } from 'angulux/ripple';
-import { TooltipModule } from 'angulux/tooltip';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import { TieredMenuItemTemplateContext, TieredMenuPassThrough } from 'angulux/types/tieredmenu';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { absolutePosition, addStyle, appendChild, findLastIndex, findSingle, focus, getOuterWidth, isEmpty, isNotEmpty, isPrintableCharacter, isTouchDevice, nestedPosition, relativePosition, resolve, uuid } from '@anguless/angulux-utils';
+import { MenuItem, OverlayService, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
+import { AngleRightIcon } from '@anguless/angulux/icons';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Ripple } from '@anguless/angulux/ripple';
+import { TooltipModule } from '@anguless/angulux/tooltip';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import { TieredMenuItemTemplateContext, TieredMenuPassThrough } from '@anguless/angulux/types/tieredmenu';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { TieredMenuStyle } from './style/tieredmenustyle';
 
 const TIEREDMENU_INSTANCE = new InjectionToken<TieredMenu>('TIEREDMENU_INSTANCE');

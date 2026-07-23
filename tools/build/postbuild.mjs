@@ -115,7 +115,10 @@ const unresolved = [];
  *   workspace:^ → ^<version>   ·   workspace:~ → ~<version>   ·   workspace:* → <version>
  */
 function resolveWorkspaceSpec(name, spec) {
-    const local = path.resolve(__workspace, 'packages', name, 'package.json');
+    // The dep is keyed by its published name (`@anguless/angulux-utils`), but the workspace
+    // directory stays unscoped (`packages/angulux-utils/`). Strip the org scope to find it.
+    const dir = name.replace(/^@anguless\//, '');
+    const local = path.resolve(__workspace, 'packages', dir, 'package.json');
     if (!fs.existsSync(local)) return null;
     const { version } = fs.readJsonSync(local);
     if (!version) return null;

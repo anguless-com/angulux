@@ -190,16 +190,16 @@ importers:
 
   packages/angulux:
     dependencies:
-      angulux-motion:
+      '@anguless/angulux-motion':
         specifier: workspace:^
         version: link:../angulux-motion
-      angulux-styled:
+      '@anguless/angulux-styled':
         specifier: workspace:^
         version: link:../angulux-styled
-      angulux-styles:
+      '@anguless/angulux-styles':
         specifier: workspace:^
         version: link:../angulux-styles
-      angulux-utils:
+      '@anguless/angulux-utils':
         specifier: workspace:^
         version: link:../angulux-utils
     devDependencies:
@@ -231,19 +231,19 @@ importers:
 
   packages/angulux-motion:
     dependencies:
-      angulux-utils:
+      '@anguless/angulux-utils':
         specifier: workspace:^
         version: link:../angulux-utils
 
   packages/angulux-styled:
     dependencies:
-      angulux-utils:
+      '@anguless/angulux-utils':
         specifier: workspace:^
         version: link:../angulux-utils
 
   packages/angulux-styles:
     dependencies:
-      angulux-styled:
+      '@anguless/angulux-styled':
         specifier: workspace:^
         version: link:../angulux-styled
 

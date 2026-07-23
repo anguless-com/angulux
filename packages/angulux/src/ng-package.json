@@ -5,5 +5,5 @@
     "lib": {
         "entryFile": "public_api.ts"
     },
-    "allowedNonPeerDependencies": ["angulux-styled", "angulux-utils", "angulux-styles", "angulux-motion"]
+    "allowedNonPeerDependencies": ["@anguless/angulux-styled", "@anguless/angulux-utils", "@anguless/angulux-styles", "@anguless/angulux-motion"]
 }

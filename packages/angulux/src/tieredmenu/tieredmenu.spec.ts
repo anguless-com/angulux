@@ -4,9 +4,9 @@ import { By } from '@angular/platform-browser';
 
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MenuItem } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
-import { Tooltip } from 'angulux/tooltip';
+import { MenuItem } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
+import { Tooltip } from '@anguless/angulux/tooltip';
 import { TieredMenu } from './tieredmenu';
 
 @Component({

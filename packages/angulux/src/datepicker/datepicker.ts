@@ -23,20 +23,20 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { absolutePosition, addClass, addStyle, appendChild, find, findSingle, getFocusableElements, getIndex, getOuterWidth, hasClass, isDate, isNotEmpty, isTouchDevice, relativePosition, setAttribute, uuid } from 'angulux-utils';
-import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseInput } from 'angulux/baseinput';
-import { Bind, BindModule } from 'angulux/bind';
-import { Button } from 'angulux/button';
-import { blockBodyScroll, ConnectedOverlayScrollHandler, unblockBodyScroll } from 'angulux/dom';
-import { CalendarIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, TimesIcon } from 'angulux/icons';
-import { InputText } from 'angulux/inputtext';
-import { MotionModule } from 'angulux/motion';
-import { Ripple } from 'angulux/ripple';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { absolutePosition, addClass, addStyle, appendChild, find, findSingle, getFocusableElements, getIndex, getOuterWidth, hasClass, isDate, isNotEmpty, isTouchDevice, relativePosition, setAttribute, uuid } from '@anguless/angulux-utils';
+import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseInput } from '@anguless/angulux/baseinput';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { Button } from '@anguless/angulux/button';
+import { blockBodyScroll, ConnectedOverlayScrollHandler, unblockBodyScroll } from '@anguless/angulux/dom';
+import { CalendarIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, TimesIcon } from '@anguless/angulux/icons';
+import { InputText } from '@anguless/angulux/inputtext';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Ripple } from '@anguless/angulux/ripple';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     DatePickerButtonBarTemplateContext,
     DatePickerDateTemplateContext,
@@ -51,8 +51,8 @@ import {
     LocaleSettings,
     Month,
     NavigationState
-} from 'angulux/types/datepicker';
-import { ZIndexUtils } from 'angulux/utils';
+} from '@anguless/angulux/types/datepicker';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { Subscription } from 'rxjs';
 import { DatePickerStyle } from './style/datepickerstyle';
 

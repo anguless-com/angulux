@@ -7,7 +7,7 @@ export default defineConfig({
     format: ['esm'],
     outDir: 'dist',
     dts: true,
-    external: [/^angulux-(.*)$/],
+    external: [/^@anguless\/angulux-(.*)$/],
     minify: isProduction,
     sourcemap: isProduction,
     splitting: false,

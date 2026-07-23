@@ -1,10 +1,10 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import { ScrollerOptions } from 'angulux/api';
-import type { ChipPassThrough } from 'angulux/types/chip';
-import type { InputTextPassThrough } from 'angulux/types/inputtext';
-import type { OverlayPassThrough } from 'angulux/types/overlay';
-import type { VirtualScrollerPassThrough } from 'angulux/types/scroller';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import { ScrollerOptions } from '@anguless/angulux/api';
+import type { ChipPassThrough } from '@anguless/angulux/types/chip';
+import type { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
+import type { OverlayPassThrough } from '@anguless/angulux/types/overlay';
+import type { VirtualScrollerPassThrough } from '@anguless/angulux/types/scroller';
 
 /**
  * Custom pass-through(pt) options.

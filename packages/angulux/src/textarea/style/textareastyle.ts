@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as textarea_style } from 'angulux-styles/textarea';
-import { BaseStyle } from 'angulux/base';
+import { style as textarea_style } from '@anguless/angulux-styles/textarea';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${textarea_style}

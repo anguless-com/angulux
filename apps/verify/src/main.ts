@@ -1,7 +1,7 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import Aura from '@primeuix/themes/aura';
-import { provideAngulux } from 'angulux/config';
+import { provideAngulux } from '@anguless/angulux/config';
 import { AppComponent } from './app';
 
 /* Zoneless — the same mode the inherited spec suite runs in, and the one Angular 22 is

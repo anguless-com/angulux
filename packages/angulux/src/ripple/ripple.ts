@@ -1,8 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Directive, effect, inject, NgModule, NgZone } from '@angular/core';
-import { addClass, getHeight, getOffset, getOuterHeight, getOuterWidth, getWidth, removeClass, remove as utils_remove } from 'angulux-utils';
-import { BaseComponent } from 'angulux/basecomponent';
-import { VoidListener } from 'angulux/ts-helpers';
+import { addClass, getHeight, getOffset, getOuterHeight, getOuterWidth, getWidth, removeClass, remove as utils_remove } from '@anguless/angulux-utils';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
+import { VoidListener } from '@anguless/angulux/ts-helpers';
 import { RippleStyle } from './style/ripplestyle';
 
 /**

@@ -1,14 +1,14 @@
 import { TemplateRef } from '@angular/core';
-import type { FilterMetadata, LazyLoadMeta, PassThrough, PassThroughOption } from 'angulux/api';
-import type { ButtonPassThrough, ButtonProps } from 'angulux/types/button';
-import type { CheckboxPassThrough } from 'angulux/types/checkbox';
-import type { PaginatorPassThrough } from 'angulux/types/paginator';
-import type { VirtualScrollerPassThrough } from 'angulux/types/scroller';
-import type { InputTextPassThrough } from 'angulux/types/inputtext';
-import type { SelectPassThrough } from 'angulux/types/select';
-import type { InputNumberPassThrough } from 'angulux/types/inputnumber';
-import type { DatePickerPassThrough } from 'angulux/types/datepicker';
-import type { MotionOptions } from 'angulux-motion';
+import type { FilterMetadata, LazyLoadMeta, PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ButtonPassThrough, ButtonProps } from '@anguless/angulux/types/button';
+import type { CheckboxPassThrough } from '@anguless/angulux/types/checkbox';
+import type { PaginatorPassThrough } from '@anguless/angulux/types/paginator';
+import type { VirtualScrollerPassThrough } from '@anguless/angulux/types/scroller';
+import type { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
+import type { SelectPassThrough } from '@anguless/angulux/types/select';
+import type { InputNumberPassThrough } from '@anguless/angulux/types/inputnumber';
+import type { DatePickerPassThrough } from '@anguless/angulux/types/datepicker';
+import type { MotionOptions } from '@anguless/angulux-motion';
 
 /**
  * Custom pass-through(pt) options for ColumnFilter.

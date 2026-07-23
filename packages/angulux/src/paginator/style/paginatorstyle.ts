@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/paginator';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/paginator';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const classes = {
     paginator: ({ instance }) => ['p-paginator p-component'],

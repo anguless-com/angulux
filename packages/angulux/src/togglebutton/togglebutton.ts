@@ -19,14 +19,14 @@ import {
     TemplateRef
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind } from 'angulux/bind';
-import { BindModule } from 'angulux/bind';
-import { Ripple } from 'angulux/ripple';
-import { Nullable } from 'angulux/ts-helpers';
-import { ToggleButtonChangeEvent, ToggleButtonContentTemplateContext, ToggleButtonIconTemplateContext, ToggleButtonPassThrough } from 'angulux/types/togglebutton';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind } from '@anguless/angulux/bind';
+import { BindModule } from '@anguless/angulux/bind';
+import { Ripple } from '@anguless/angulux/ripple';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { ToggleButtonChangeEvent, ToggleButtonContentTemplateContext, ToggleButtonIconTemplateContext, ToggleButtonPassThrough } from '@anguless/angulux/types/togglebutton';
 import { ToggleButtonStyle } from './style/togglebuttonstyle';
 
 const TOGGLEBUTTON_INSTANCE = new InjectionToken<ToggleButton>('TOGGLEBUTTON_INSTANCE');

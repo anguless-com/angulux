@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BindModule } from 'angulux/bind';
+import { BindModule } from '@anguless/angulux/bind';
 import { Tab } from './tab';
 import { TabList } from './tablist';
 import { TabPanel } from './tabpanel';

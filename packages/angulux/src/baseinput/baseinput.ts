@@ -1,6 +1,6 @@
 import { booleanAttribute, computed, Directive, inject, input } from '@angular/core';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Fluid } from 'angulux/fluid';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Fluid } from '@anguless/angulux/fluid';
 
 @Directive({ standalone: true })
 export class BaseInput<PT = any> extends BaseEditableHolder<PT> {

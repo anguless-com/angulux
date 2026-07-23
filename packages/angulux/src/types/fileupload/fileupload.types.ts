@@ -1,10 +1,10 @@
 import { HttpEvent } from '@angular/common/http';
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { BadgePassThrough } from 'angulux/types/badge';
-import type { ButtonPassThrough } from 'angulux/types/button';
-import type { MessagePassThrough } from 'angulux/types/message';
-import type { ProgressBarPassThrough } from 'angulux/types/progressbar';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { BadgePassThrough } from '@anguless/angulux/types/badge';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
+import type { MessagePassThrough } from '@anguless/angulux/types/message';
+import type { ProgressBarPassThrough } from '@anguless/angulux/types/progressbar';
 
 /**
  * Custom pass-through(pt) options.

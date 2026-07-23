@@ -1,8 +1,8 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption, TreeNode } from 'angulux/api';
-import { ChipPassThrough } from 'angulux/types/chip';
-import { OverlayPassThrough } from 'angulux/types/overlay';
-import { TreePassThrough } from 'angulux/types/tree';
+import type { PassThrough, PassThroughOption, TreeNode } from '@anguless/angulux/api';
+import { ChipPassThrough } from '@anguless/angulux/types/chip';
+import { OverlayPassThrough } from '@anguless/angulux/types/overlay';
+import { TreePassThrough } from '@anguless/angulux/types/tree';
 
 /**
  * Custom pass-through(pt) options.

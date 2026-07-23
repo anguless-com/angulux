@@ -23,14 +23,14 @@ import {
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
-import { findSingle, setAttribute, uuid } from 'angulux-utils';
-import { Confirmation, ConfirmationService, ConfirmEventType, Footer, AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Button } from 'angulux/button';
-import { Dialog } from 'angulux/dialog';
-import { Nullable } from 'angulux/ts-helpers';
-import { ConfirmDialogHeadlessTemplateContext, ConfirmDialogMessageTemplateContext, ConfirmDialogPassThrough } from 'angulux/types/confirmdialog';
+import { findSingle, setAttribute, uuid } from '@anguless/angulux-utils';
+import { Confirmation, ConfirmationService, ConfirmEventType, Footer, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Button } from '@anguless/angulux/button';
+import { Dialog } from '@anguless/angulux/dialog';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { ConfirmDialogHeadlessTemplateContext, ConfirmDialogMessageTemplateContext, ConfirmDialogPassThrough } from '@anguless/angulux/types/confirmdialog';
 import { Subscription } from 'rxjs';
 import { ConfirmDialogStyle } from './style/confirmdialogstyle';
 

@@ -1,6 +1,6 @@
 import { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
-import type { MenuItem, PassThrough, PassThroughOption } from 'angulux/api';
+import type { MotionOptions } from '@anguless/angulux-motion';
+import type { MenuItem, PassThrough, PassThroughOption } from '@anguless/angulux/api';
 
 /**
  * Custom pass-through(pt) options.

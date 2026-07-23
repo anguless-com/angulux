@@ -1,5 +1,5 @@
 {
-    "name": "angulux",
+    "name": "@anguless/angulux",
     "version": "22.0.0-rc.0",
     "description": "Angular 22 UI component library — a curated community fork of the last MIT release of PrimeNG.",
     "license": "MIT",
@@ -28,10 +28,10 @@
         "@primeuix/themes": "^2.0.0"
     },
     "dependencies": {
-        "angulux-styled": "workspace:^",
-        "angulux-utils": "workspace:^",
-        "angulux-styles": "workspace:^",
-        "angulux-motion": "workspace:^"
+        "@anguless/angulux-styled": "workspace:^",
+        "@anguless/angulux-utils": "workspace:^",
+        "@anguless/angulux-styles": "workspace:^",
+        "@anguless/angulux-motion": "workspace:^"
     },
     "repository": {
         "type": "git",

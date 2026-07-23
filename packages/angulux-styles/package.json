@@ -1,5 +1,5 @@
 {
-    "name": "angulux-styles",
+    "name": "@anguless/angulux-styles",
     "version": "1.0.0",
     "author": "PrimeTek Informatics",
     "description": "Per-component base stylesheets used by angulux.",
@@ -50,7 +50,7 @@
         "build:dev": "tsup --watch"
     },
     "dependencies": {
-        "angulux-styled": "workspace:^"
+        "@anguless/angulux-styled": "workspace:^"
     },
     "private": false
 }

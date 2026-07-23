@@ -1,10 +1,10 @@
 import { DOCUMENT, isPlatformServer } from '@angular/common';
 import { ChangeDetectorRef, computed, Directive, effect, ElementRef, inject, InjectionToken, Injector, input, PLATFORM_ID, Renderer2, signal, SimpleChanges } from '@angular/core';
-import { Theme, ThemeService } from 'angulux-styled';
-import { cn, getKeyValue, isArray, isFunction, isNotEmpty, isString, mergeProps, resolve, toFlatCase, uuid } from 'angulux-utils';
-import type { Lifecycle, PassThroughOptions } from 'angulux/api';
-import { Base, BaseStyle } from 'angulux/base';
-import { AnguluxConfig } from 'angulux/config';
+import { Theme, ThemeService } from '@anguless/angulux-styled';
+import { cn, getKeyValue, isArray, isFunction, isNotEmpty, isString, mergeProps, resolve, toFlatCase, uuid } from '@anguless/angulux-utils';
+import type { Lifecycle, PassThroughOptions } from '@anguless/angulux/api';
+import { Base, BaseStyle } from '@anguless/angulux/base';
+import { AnguluxConfig } from '@anguless/angulux/config';
 import { BaseComponentStyle } from './style/basecomponentstyle';
 
 export const PARENT_INSTANCE = new InjectionToken<BaseComponent>('PARENT_INSTANCE');

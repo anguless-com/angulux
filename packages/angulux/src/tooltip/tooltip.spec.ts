@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, TemplateRef, ViewChild,
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { TooltipOptions } from 'angulux/api';
+import { TooltipOptions } from '@anguless/angulux/api';
 import { Tooltip } from './tooltip';
 
 @Component({

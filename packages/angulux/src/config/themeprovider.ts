@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { effect, inject, Injectable, signal, untracked } from '@angular/core';
-import { Theme, ThemeService } from 'angulux-styled';
-import { BaseStyle } from 'angulux/base';
+import { Theme, ThemeService } from '@anguless/angulux-styled';
+import { BaseStyle } from '@anguless/angulux/base';
 import type { ThemeConfigType } from './anguluxconfig.types';
 
 @Injectable({ providedIn: 'root' })

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as select_style } from 'angulux-styles/select';
-import { BaseStyle } from 'angulux/base';
+import { style as select_style } from '@anguless/angulux-styles/select';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${select_style}

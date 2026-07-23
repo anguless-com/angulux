@@ -1,10 +1,10 @@
 import { booleanAttribute, computed, Directive, effect, EventEmitter, HostListener, inject, InjectionToken, input, Input, NgModule, Output } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseModelHolder } from 'angulux/basemodelholder';
-import { Bind } from 'angulux/bind';
-import { Fluid } from 'angulux/fluid';
-import { TextareaPassThrough } from 'angulux/types/textarea';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseModelHolder } from '@anguless/angulux/basemodelholder';
+import { Bind } from '@anguless/angulux/bind';
+import { Fluid } from '@anguless/angulux/fluid';
+import { TextareaPassThrough } from '@anguless/angulux/types/textarea';
 import { Subscription } from 'rxjs';
 import { TextareaStyle } from './style/textareastyle';
 

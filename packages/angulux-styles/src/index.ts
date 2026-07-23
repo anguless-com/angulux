@@ -1,278 +1,278 @@
 // Accordion
-export * as AccordionStyle from 'angulux-styles/accordion';
+export * as AccordionStyle from '@anguless/angulux-styles/accordion';
 
 // AutoComplete
-export * as AutoCompleteStyle from 'angulux-styles/autocomplete';
+export * as AutoCompleteStyle from '@anguless/angulux-styles/autocomplete';
 
 // Avatar
-export * as AvatarStyle from 'angulux-styles/avatar';
+export * as AvatarStyle from '@anguless/angulux-styles/avatar';
 
 // Badge
-export * as BadgeStyle from 'angulux-styles/badge';
+export * as BadgeStyle from '@anguless/angulux-styles/badge';
 
 // Base
-export * as BaseStyle from 'angulux-styles/base';
+export * as BaseStyle from '@anguless/angulux-styles/base';
 
 // BlockUI
-export * as BlockUIStyle from 'angulux-styles/blockui';
+export * as BlockUIStyle from '@anguless/angulux-styles/blockui';
 
 // Breadcrumb
-export * as BreadcrumbStyle from 'angulux-styles/breadcrumb';
+export * as BreadcrumbStyle from '@anguless/angulux-styles/breadcrumb';
 
 // Button
-export * as ButtonStyle from 'angulux-styles/button';
+export * as ButtonStyle from '@anguless/angulux-styles/button';
 
 // ButtonGroup
-export * as ButtonGroupStyle from 'angulux-styles/buttongroup';
+export * as ButtonGroupStyle from '@anguless/angulux-styles/buttongroup';
 
 // Card
-export * as CardStyle from 'angulux-styles/card';
+export * as CardStyle from '@anguless/angulux-styles/card';
 
 // Carousel
-export * as CarouselStyle from 'angulux-styles/carousel';
+export * as CarouselStyle from '@anguless/angulux-styles/carousel';
 
 // CascadeSelect
-export * as CascadeSelectStyle from 'angulux-styles/cascadeselect';
+export * as CascadeSelectStyle from '@anguless/angulux-styles/cascadeselect';
 
 // Checkbox
-export * as CheckboxStyle from 'angulux-styles/checkbox';
+export * as CheckboxStyle from '@anguless/angulux-styles/checkbox';
 
 // CheckboxGroup
-export * as CheckboxGroupStyle from 'angulux-styles/checkboxgroup';
+export * as CheckboxGroupStyle from '@anguless/angulux-styles/checkboxgroup';
 
 // Chip
-export * as ChipStyle from 'angulux-styles/chip';
+export * as ChipStyle from '@anguless/angulux-styles/chip';
 
 // ColorPicker
-export * as ColorPickerStyle from 'angulux-styles/colorpicker';
+export * as ColorPickerStyle from '@anguless/angulux-styles/colorpicker';
 
 // ConfirmDialog
-export * as ConfirmDialogStyle from 'angulux-styles/confirmdialog';
+export * as ConfirmDialogStyle from '@anguless/angulux-styles/confirmdialog';
 
 // ConfirmPopup
-export * as ConfirmPopupStyle from 'angulux-styles/confirmpopup';
+export * as ConfirmPopupStyle from '@anguless/angulux-styles/confirmpopup';
 
 // ContextMenu
-export * as ContextMenuStyle from 'angulux-styles/contextmenu';
+export * as ContextMenuStyle from '@anguless/angulux-styles/contextmenu';
 
 // DataTable
-export * as DataTableStyle from 'angulux-styles/datatable';
+export * as DataTableStyle from '@anguless/angulux-styles/datatable';
 
 // DataView
-export * as DataViewStyle from 'angulux-styles/dataview';
+export * as DataViewStyle from '@anguless/angulux-styles/dataview';
 
 // DatePicker
-export * as DatePickerStyle from 'angulux-styles/datepicker';
+export * as DatePickerStyle from '@anguless/angulux-styles/datepicker';
 
 // Dialog
-export * as DialogStyle from 'angulux-styles/dialog';
+export * as DialogStyle from '@anguless/angulux-styles/dialog';
 
 // Divider
-export * as DividerStyle from 'angulux-styles/divider';
+export * as DividerStyle from '@anguless/angulux-styles/divider';
 
 // Dock
-export * as DockStyle from 'angulux-styles/dock';
+export * as DockStyle from '@anguless/angulux-styles/dock';
 
 // Drawer
-export * as DrawerStyle from 'angulux-styles/drawer';
+export * as DrawerStyle from '@anguless/angulux-styles/drawer';
 
 // Editor
-export * as EditorStyle from 'angulux-styles/editor';
+export * as EditorStyle from '@anguless/angulux-styles/editor';
 
 // Fieldset
-export * as FieldsetStyle from 'angulux-styles/fieldset';
+export * as FieldsetStyle from '@anguless/angulux-styles/fieldset';
 
 // FileUpload
-export * as FileUploadStyle from 'angulux-styles/fileupload';
+export * as FileUploadStyle from '@anguless/angulux-styles/fileupload';
 
 // FloatLabel
-export * as FloatLabelStyle from 'angulux-styles/floatlabel';
+export * as FloatLabelStyle from '@anguless/angulux-styles/floatlabel';
 
 // Galleria
-export * as GalleriaStyle from 'angulux-styles/galleria';
+export * as GalleriaStyle from '@anguless/angulux-styles/galleria';
 
 // IconField
-export * as IconFieldStyle from 'angulux-styles/iconfield';
+export * as IconFieldStyle from '@anguless/angulux-styles/iconfield';
 
 // IftaLabel
-export * as IftaLabelStyle from 'angulux-styles/iftalabel';
+export * as IftaLabelStyle from '@anguless/angulux-styles/iftalabel';
 
 // Image
-export * as ImageStyle from 'angulux-styles/image';
+export * as ImageStyle from '@anguless/angulux-styles/image';
 
 // ImageCompare
-export * as ImageCompareStyle from 'angulux-styles/imagecompare';
+export * as ImageCompareStyle from '@anguless/angulux-styles/imagecompare';
 
 // InlineMessage
-export * as InlineMessageStyle from 'angulux-styles/inlinemessage';
+export * as InlineMessageStyle from '@anguless/angulux-styles/inlinemessage';
 
 // Inplace
-export * as InplaceStyle from 'angulux-styles/inplace';
+export * as InplaceStyle from '@anguless/angulux-styles/inplace';
 
 // InputChips
-export * as InputChipsStyle from 'angulux-styles/inputchips';
+export * as InputChipsStyle from '@anguless/angulux-styles/inputchips';
 
 // InputGroup
-export * as InputGroupStyle from 'angulux-styles/inputgroup';
+export * as InputGroupStyle from '@anguless/angulux-styles/inputgroup';
 
 // InputNumber
-export * as InputNumberStyle from 'angulux-styles/inputnumber';
+export * as InputNumberStyle from '@anguless/angulux-styles/inputnumber';
 
 // InputOtp
-export * as InputOtpStyle from 'angulux-styles/inputotp';
+export * as InputOtpStyle from '@anguless/angulux-styles/inputotp';
 
 // InputText
-export * as InputTextStyle from 'angulux-styles/inputtext';
+export * as InputTextStyle from '@anguless/angulux-styles/inputtext';
 
 // Knob
-export * as KnobStyle from 'angulux-styles/knob';
+export * as KnobStyle from '@anguless/angulux-styles/knob';
 
 // Listbox
-export * as ListboxStyle from 'angulux-styles/listbox';
+export * as ListboxStyle from '@anguless/angulux-styles/listbox';
 
 // MegaMenu
-export * as MegaMenuStyle from 'angulux-styles/megamenu';
+export * as MegaMenuStyle from '@anguless/angulux-styles/megamenu';
 
 // Menu
-export * as MenuStyle from 'angulux-styles/menu';
+export * as MenuStyle from '@anguless/angulux-styles/menu';
 
 // Menubar
-export * as MenubarStyle from 'angulux-styles/menubar';
+export * as MenubarStyle from '@anguless/angulux-styles/menubar';
 
 // Message
-export * as MessageStyle from 'angulux-styles/message';
+export * as MessageStyle from '@anguless/angulux-styles/message';
 
 // MeterGroup
-export * as MeterGroupStyle from 'angulux-styles/metergroup';
+export * as MeterGroupStyle from '@anguless/angulux-styles/metergroup';
 
 // MultiSelect
-export * as MultiSelectStyle from 'angulux-styles/multiselect';
+export * as MultiSelectStyle from '@anguless/angulux-styles/multiselect';
 
 // OrderList
-export * as OrderListStyle from 'angulux-styles/orderlist';
+export * as OrderListStyle from '@anguless/angulux-styles/orderlist';
 
 // OrganizationChart
-export * as OrganizationChartStyle from 'angulux-styles/organizationchart';
+export * as OrganizationChartStyle from '@anguless/angulux-styles/organizationchart';
 
 // OverlayBadge
-export * as OverlayBadgeStyle from 'angulux-styles/overlaybadge';
+export * as OverlayBadgeStyle from '@anguless/angulux-styles/overlaybadge';
 
 // Paginator
-export * as PaginatorStyle from 'angulux-styles/paginator';
+export * as PaginatorStyle from '@anguless/angulux-styles/paginator';
 
 // Panel
-export * as PanelStyle from 'angulux-styles/panel';
+export * as PanelStyle from '@anguless/angulux-styles/panel';
 
 // PanelMenu
-export * as PanelMenuStyle from 'angulux-styles/panelmenu';
+export * as PanelMenuStyle from '@anguless/angulux-styles/panelmenu';
 
 // Password
-export * as PasswordStyle from 'angulux-styles/password';
+export * as PasswordStyle from '@anguless/angulux-styles/password';
 
 // PickList
-export * as PickListStyle from 'angulux-styles/picklist';
+export * as PickListStyle from '@anguless/angulux-styles/picklist';
 
 // Popover
-export * as PopoverStyle from 'angulux-styles/popover';
+export * as PopoverStyle from '@anguless/angulux-styles/popover';
 
 // ProgressBar
-export * as ProgressBarStyle from 'angulux-styles/progressbar';
+export * as ProgressBarStyle from '@anguless/angulux-styles/progressbar';
 
 // ProgressSpinner
-export * as ProgressSpinnerStyle from 'angulux-styles/progressspinner';
+export * as ProgressSpinnerStyle from '@anguless/angulux-styles/progressspinner';
 
 // RadioButton
-export * as RadioButtonStyle from 'angulux-styles/radiobutton';
+export * as RadioButtonStyle from '@anguless/angulux-styles/radiobutton';
 
 // RadioButtonGroup
-export * as RadioButtonGroupStyle from 'angulux-styles/radiobuttongroup';
+export * as RadioButtonGroupStyle from '@anguless/angulux-styles/radiobuttongroup';
 
 // Rating
-export * as RatingStyle from 'angulux-styles/rating';
+export * as RatingStyle from '@anguless/angulux-styles/rating';
 
 // Ripple
-export * as RippleStyle from 'angulux-styles/ripple';
+export * as RippleStyle from '@anguless/angulux-styles/ripple';
 
 // ScrollPanel
-export * as ScrollPanelStyle from 'angulux-styles/scrollpanel';
+export * as ScrollPanelStyle from '@anguless/angulux-styles/scrollpanel';
 
 // ScrollTop
-export * as ScrollTopStyle from 'angulux-styles/scrolltop';
+export * as ScrollTopStyle from '@anguless/angulux-styles/scrolltop';
 
 // Select
-export * as SelectStyle from 'angulux-styles/select';
+export * as SelectStyle from '@anguless/angulux-styles/select';
 
 // SelectButton
-export * as SelectButtonStyle from 'angulux-styles/selectbutton';
+export * as SelectButtonStyle from '@anguless/angulux-styles/selectbutton';
 
 // Skeleton
-export * as SkeletonStyle from 'angulux-styles/skeleton';
+export * as SkeletonStyle from '@anguless/angulux-styles/skeleton';
 
 // Slider
-export * as SliderStyle from 'angulux-styles/slider';
+export * as SliderStyle from '@anguless/angulux-styles/slider';
 
 // SpeedDial
-export * as SpeedDialStyle from 'angulux-styles/speeddial';
+export * as SpeedDialStyle from '@anguless/angulux-styles/speeddial';
 
 // SplitButton
-export * as SplitButtonStyle from 'angulux-styles/splitbutton';
+export * as SplitButtonStyle from '@anguless/angulux-styles/splitbutton';
 
 // Splitter
-export * as SplitterStyle from 'angulux-styles/splitter';
+export * as SplitterStyle from '@anguless/angulux-styles/splitter';
 
 // Stepper
-export * as StepperStyle from 'angulux-styles/stepper';
+export * as StepperStyle from '@anguless/angulux-styles/stepper';
 
 // Steps
-export * as StepsStyle from 'angulux-styles/steps';
+export * as StepsStyle from '@anguless/angulux-styles/steps';
 
 // TabMenu
-export * as TabMenuStyle from 'angulux-styles/tabmenu';
+export * as TabMenuStyle from '@anguless/angulux-styles/tabmenu';
 
 // Tabs
-export * as TabsStyle from 'angulux-styles/tabs';
+export * as TabsStyle from '@anguless/angulux-styles/tabs';
 
 // TabView
-export * as TabViewStyle from 'angulux-styles/tabview';
+export * as TabViewStyle from '@anguless/angulux-styles/tabview';
 
 // Tag
-export * as TagStyle from 'angulux-styles/tag';
+export * as TagStyle from '@anguless/angulux-styles/tag';
 
 // Terminal
-export * as TerminalStyle from 'angulux-styles/terminal';
+export * as TerminalStyle from '@anguless/angulux-styles/terminal';
 
 // Textarea
-export * as TextareaStyle from 'angulux-styles/textarea';
+export * as TextareaStyle from '@anguless/angulux-styles/textarea';
 
 // TieredMenu
-export * as TieredMenuStyle from 'angulux-styles/tieredmenu';
+export * as TieredMenuStyle from '@anguless/angulux-styles/tieredmenu';
 
 // Timeline
-export * as TimelineStyle from 'angulux-styles/timeline';
+export * as TimelineStyle from '@anguless/angulux-styles/timeline';
 
 // Toast
-export * as ToastStyle from 'angulux-styles/toast';
+export * as ToastStyle from '@anguless/angulux-styles/toast';
 
 // ToggleButton
-export * as ToggleButtonStyle from 'angulux-styles/togglebutton';
+export * as ToggleButtonStyle from '@anguless/angulux-styles/togglebutton';
 
 // ToggleSwitch
-export * as ToggleSwitchStyle from 'angulux-styles/toggleswitch';
+export * as ToggleSwitchStyle from '@anguless/angulux-styles/toggleswitch';
 
 // Toolbar
-export * as ToolbarStyle from 'angulux-styles/toolbar';
+export * as ToolbarStyle from '@anguless/angulux-styles/toolbar';
 
 // Tooltip
-export * as TooltipStyle from 'angulux-styles/tooltip';
+export * as TooltipStyle from '@anguless/angulux-styles/tooltip';
 
 // Tree
-export * as TreeStyle from 'angulux-styles/tree';
+export * as TreeStyle from '@anguless/angulux-styles/tree';
 
 // TreeSelect
-export * as TreeSelectStyle from 'angulux-styles/treeselect';
+export * as TreeSelectStyle from '@anguless/angulux-styles/treeselect';
 
 // TreeTable
-export * as TreeTableStyle from 'angulux-styles/treetable';
+export * as TreeTableStyle from '@anguless/angulux-styles/treetable';
 
 // VirtualScroller
-export * as VirtualScrollerStyle from 'angulux-styles/virtualscroller';
+export * as VirtualScrollerStyle from '@anguless/angulux-styles/virtualscroller';

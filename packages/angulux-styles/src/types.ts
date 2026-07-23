@@ -1,4 +1,4 @@
-import type { StyleType } from 'angulux-styled';
+import type { StyleType } from '@anguless/angulux-styled';
 
 export declare const style: StyleType;
 

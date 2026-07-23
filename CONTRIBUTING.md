@@ -67,8 +67,8 @@ for p in utils styled motion styles; do
   (cd packages/angulux-$p && corepack pnpm run build)
 done
 
-corepack pnpm --filter angulux run build        # → 210 entrypoints
-corepack pnpm --filter angulux run test:unit    # → 3765 specs
+corepack pnpm --filter @anguless/angulux run build        # → 210 entrypoints
+corepack pnpm --filter @anguless/angulux run test:unit    # → 3765 specs
 corepack pnpm --filter @angulux/verify run build
 npx playwright test --config e2e/playwright.config.ts   # browser gate → 13/13
 ```
@@ -96,7 +96,7 @@ git commit -s -m "fix(datepicker): stop the overlay closing on a same-day resele
 
 # 4. Before pushing, run what CI will run.
 npm run check
-corepack pnpm --filter angulux run test:unit
+corepack pnpm --filter @anguless/angulux run test:unit
 # ...and for anything that renders, the browser gate:
 npx playwright test --config e2e/playwright.config.ts
 
