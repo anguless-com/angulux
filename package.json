@@ -24,6 +24,7 @@
         "check:risk-coverage": "node tools/scope/check-risk-coverage.mjs",
         "check:language": "node tools/check-language.mjs",
         "check:public-tree": "node tools/check-public-tree.mjs",
+        "check:publishable": "node tools/check-publishable.mjs",
         "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree",
         "build:lib": "pnpm --filter angulux run build",
         "test:lib": "pnpm --filter angulux run test:unit"

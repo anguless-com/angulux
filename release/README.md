@@ -24,9 +24,24 @@ Inputs:
 
 The workflow re-runs the full evidence ladder before releasing anything — seven gates,
 build, 3765 specs, the browser gate — rather than trusting a status check from an older
-commit. Then it checks the built artifacts for unresolved `catalog:` / `workspace:`
-specifiers, because publishing cannot be undone and `postbuild` catching it later is too
-late.
+commit. Then `check:publishable` packs every package and reads `package.json` back **out of
+the tarball**, because publishing cannot be undone.
+
+That last gate exists because of a specific near-miss. `postbuild` resolves the
+`workspace:` protocol for the main package, which publishes from `dist/`. The four forked
+packages publish from their own directory, and nothing resolved theirs — so
+`angulux-styled@1.0.0` would have reached the registry declaring
+`"angulux-utils": "workspace:^"`, and every consumer install would have failed with
+`EUNSUPPORTEDPROTOCOL`. It was caught by installing the packed tarballs into an empty
+project, not by any check that read the source tree.
+
+Hence two rules the workflow now follows:
+
+- **Pack with pnpm, publish with npm.** `pnpm pack` resolves the workspace protocol;
+  `npm publish <directory>` does not. npm still performs the publish, because that is what
+  carries OIDC and `--provenance`.
+- **Publish the tarball, not the directory**, so the artifact that ships is the same one the
+  gate inspected rather than a second build of it.
 
 The fork train runs **before** the angulux train: `angulux` depends on all four, so the
 dependency has to be on the registry before the dependent is.

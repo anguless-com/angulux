@@ -92,28 +92,19 @@ jobs:
                   corepack pnpm exec playwright install --with-deps chromium
                   corepack pnpm exec playwright test --config e2e/playwright.config.ts
 
-            # The last line of defence before an irreversible action. postbuild already
-            # checks this, but publishing cannot be undone: a version, once used, is
-            # burned even after `npm unpublish`.
-            - name: No unresolved workspace specifiers in the artifacts
-              run: |
-                  set -euo pipefail
-                  found=0
-                  for dir in packages/angulux/dist packages/angulux-*/dist; do
-                      [ -d "$dir" ] || continue
-                      for f in $(find "$dir" -name package.json); do
-                          if grep -qE '"(catalog:|workspace:)' "$f"; then
-                              echo "::error file=$f::unresolved catalog:/workspace: specifier"
-                              grep -nE '"(catalog:|workspace:)' "$f" || true
-                              found=1
-                          fi
-                      done
-                  done
-                  if [ "$found" -ne 0 ]; then
-                      echo "Publishing is irreversible — refusing to continue."
-                      exit 1
-                  fi
-                  echo "artifacts are clean"
+            # The last line of defence before an irreversible action.
+            #
+            # This replaced a guard that globbed `packages/angulux-*/dist/**/package.json`.
+            # tsup emits no package.json into dist, so that guard read zero files and passed
+            # — while three of the four forked packages were about to publish
+            # `"angulux-utils": "workspace:^"` and break every consumer's install with
+            # EUNSUPPORTEDPROTOCOL. A check aimed at the wrong path does not report "nothing
+            # found"; it reports success.
+            #
+            # check-publishable packs each package and reads package.json back OUT of the
+            # tarball, so it inspects the exact bytes npm would receive.
+            - name: The tarballs are safe to publish
+              run: npm run check:publishable
 
             - name: Which trains have changes
               id: paths
@@ -258,6 +249,8 @@ jobs:
               run: |
                   set -euo pipefail
                   version="${{ steps.after.outputs.version }}"
+                  staging=$(mktemp -d)
+
                   for p in styled utils styles motion; do
                       dir="packages/angulux-$p"
                       name=$(node -p "require('./$dir/package.json').name")
@@ -271,8 +264,30 @@ jobs:
                           exit 1
                       fi
 
+                      # Packed with pnpm, published with npm, and deliberately so.
+                      #
+                      # `pnpm pack` resolves the workspace: protocol into a real range;
+                      # `npm publish <directory>` does not, which is how three of these
+                      # packages nearly shipped an uninstallable dependency. npm still does
+                      # the publishing, because that is what carries OIDC and --provenance.
+                      # Publishing the tarball also means the artifact that ships is the same
+                      # one check:publishable inspected, rather than a second build of it.
                       echo "::group::publish $name@$version"
-                      npm publish --provenance --access public "./$dir"
+                      (cd "$dir" && corepack pnpm pack --pack-destination "$staging" >/dev/null)
+                      tarball="$staging/$name-$version.tgz"
+                      [ -f "$tarball" ] || { echo "::error::expected $tarball"; ls -la "$staging"; exit 1; }
+
+                      node -e "
+                        const {execFileSync}=require('child_process');
+                        const p=JSON.parse(execFileSync('tar',['xzOf','$tarball','package/package.json'],{encoding:'utf8'}));
+                        for (const f of ['dependencies','peerDependencies','optionalDependencies'])
+                          for (const [d,r] of Object.entries(p[f]||{}))
+                            if (/^(workspace|catalog):/.test(r)) {
+                              console.error('unresolved '+f+'.'+d+' = '+r); process.exit(1);
+                            }
+                      "
+
+                      npm publish --provenance --access public "$tarball"
                       echo "::endgroup::"
                   done
 
@@ -408,4 +423,12 @@ jobs:
                       exit 1
                   fi
 
-                  npm publish --provenance --access public ./packages/angulux/dist
+                  # Packed first, then published, so the artifact that ships is the same one
+                  # check:publishable inspected — not a second build of it. See the fork job
+                  # for why packing with pnpm rather than npm is load-bearing.
+                  staging=$(mktemp -d)
+                  (cd packages/angulux/dist && corepack pnpm pack --pack-destination "$staging" >/dev/null)
+                  tarball="$staging/angulux-$version.tgz"
+                  [ -f "$tarball" ] || { echo "::error::expected $tarball"; ls -la "$staging"; exit 1; }
+
+                  npm publish --provenance --access public "$tarball"
