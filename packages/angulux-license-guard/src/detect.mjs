@@ -1,4 +1,4 @@
-import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL } from './boundary.mjs';
+import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, isPrimeTekPackage } from './boundary.mjs';
 
 /**
  * Compare two versions on their release triple.
@@ -37,7 +37,20 @@ export function detect(packages) {
         }
 
         const floor = FIRST_COMMERCIAL[name];
-        if (!floor) continue;
+        if (!floor) {
+            // Fail closed. A PrimeTek package this table has never seen is UNVERIFIED, and
+            // unverified is not clean. Skipping it here is how a package published after
+            // this table was written would be reported as "all clear" — the report would be
+            // confident and wrong, about a legal question.
+            if (isPrimeTekPackage(name)) {
+                violations.push({
+                    name,
+                    version: version ?? raw,
+                    reason: 'not recorded in the boundary table — the licence could not be verified'
+                });
+            }
+            continue;
+        }
 
         if (version === null || version === undefined) {
             violations.push({
