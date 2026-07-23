@@ -100,7 +100,7 @@ jobs:
 
             # Two mechanical checks that need no diff analysis, and that catch the specific
             # mistakes this project has actually seen people make.
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
               with:
                   fetch-depth: 0
 
