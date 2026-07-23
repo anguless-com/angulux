@@ -204,8 +204,8 @@ importers:
         version: link:../angulux-utils
     devDependencies:
       '@types/jasmine':
-        specifier: 5.1.13
-        version: 5.1.13
+        specifier: 6.0.0
+        version: 6.0.0
       jasmine-core:
         specifier: 5.13.0
         version: 5.13.0
@@ -2366,9 +2366,6 @@ packages:
 
   '@types/http-proxy@1.17.17':
     resolution: {integrity: sha512-ED6LB+Z1AVylNTu7hdzuBqOgMnvG/ld6wGCG8wFnAzKX5uyW2K3WD52v0gnLCTK/VLpXtKckgWuyScYK6cSPaw==}
-
-  '@types/jasmine@5.1.13':
-    resolution: {integrity: sha512-MYCcDkruFc92LeYZux5BC0dmqo2jk+M5UIZ4/oFnAPCXN9mCcQhLyj7F3/Za7rocVyt5YRr1MmqJqFlvQ9LVcg==}
 
   '@types/jasmine@6.0.0':
     resolution: {integrity: sha512-18lgGsLmEh3VJk9eZ5wAjTISxdqzl6YOwu8UdMpolajN57QOCNbl+AbHUd+Yu9ItrsFdB+c8LSZSGNg8nHaguw==}
@@ -7473,8 +7470,6 @@ snapshots:
   '@types/http-proxy@1.17.17':
     dependencies:
       '@types/node': 26.1.1
-
-  '@types/jasmine@5.1.13': {}
 
   '@types/jasmine@6.0.0': {}
 
