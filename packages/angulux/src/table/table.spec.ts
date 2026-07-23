@@ -4,8 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { SharedModule } from 'angulux/api';
-import { Select } from 'angulux/select';
+import { SharedModule } from '@anguless/angulux/api';
+import { Select } from '@anguless/angulux/select';
 import { Table, TableModule, TableService } from './table';
 
 describe('Table', () => {

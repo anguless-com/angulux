@@ -1,9 +1,9 @@
 import { TemplateRef } from '@angular/core';
-import type { FilterMetadata, LazyLoadMeta, PassThrough, PassThroughOption, SortMeta, TreeNode, TreeTableNode } from 'angulux/api';
-import type { BadgePassThrough } from 'angulux/types/badge';
-import type { CheckboxPassThrough } from 'angulux/types/checkbox';
-import type { PaginatorPassThrough } from 'angulux/types/paginator';
-import type { VirtualScrollerPassThrough } from 'angulux/types/scroller';
+import type { FilterMetadata, LazyLoadMeta, PassThrough, PassThroughOption, SortMeta, TreeNode, TreeTableNode } from '@anguless/angulux/api';
+import type { BadgePassThrough } from '@anguless/angulux/types/badge';
+import type { CheckboxPassThrough } from '@anguless/angulux/types/checkbox';
+import type { PaginatorPassThrough } from '@anguless/angulux/types/paginator';
+import type { VirtualScrollerPassThrough } from '@anguless/angulux/types/scroller';
 
 /**
  * Custom pass-through(pt) options.

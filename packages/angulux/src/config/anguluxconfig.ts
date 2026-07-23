@@ -1,5 +1,5 @@
 import { ElementRef, inject, Injectable, PLATFORM_ID, signal, TemplateRef } from '@angular/core';
-import { FilterMatchMode, OverlayOptions, Translation } from 'angulux/api';
+import { FilterMatchMode, OverlayOptions, Translation } from '@anguless/angulux/api';
 import { Subject } from 'rxjs';
 import type { AnguluxConfigType, ThemeConfigType, ZIndex } from './anguluxconfig.types';
 import { ThemeProvider } from './themeprovider';

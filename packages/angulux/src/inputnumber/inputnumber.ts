@@ -22,16 +22,16 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { getSelection } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseInput } from 'angulux/baseinput';
-import { Bind, BindModule } from 'angulux/bind';
-import { AngleDownIcon, AngleUpIcon, TimesIcon } from 'angulux/icons';
-import { InputText } from 'angulux/inputtext';
-import { Nullable } from 'angulux/ts-helpers';
-import type { InputNumberInputEvent, InputNumberPassThrough } from 'angulux/types/inputnumber';
+import { getSelection } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseInput } from '@anguless/angulux/baseinput';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { AngleDownIcon, AngleUpIcon, TimesIcon } from '@anguless/angulux/icons';
+import { InputText } from '@anguless/angulux/inputtext';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import type { InputNumberInputEvent, InputNumberPassThrough } from '@anguless/angulux/types/inputnumber';
 import { InputNumberStyle } from './style/inputnumberstyle';
 
 const INPUTNUMBER_INSTANCE = new InjectionToken<InputNumber>('INPUTNUMBER_INSTANCE');

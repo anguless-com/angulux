@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/fileupload';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/fileupload';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const classes = {
     root: ({ instance }) => `p-fileupload p-fileupload-${instance.mode} p-component`,

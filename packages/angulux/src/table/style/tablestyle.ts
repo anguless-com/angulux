@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as datatable_style } from 'angulux-styles/datatable';
-import { BaseStyle } from 'angulux/base';
+import { style as datatable_style } from '@anguless/angulux-styles/datatable';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
 ${datatable_style}

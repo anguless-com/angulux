@@ -20,17 +20,17 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { absolutePosition, addClass, appendChild, focus, getOuterWidth, getTargetElement, isTouchDevice, relativePosition, removeClass } from 'angulux-utils';
-import { OverlayModeType, OverlayOnBeforeHideEvent, OverlayOnBeforeShowEvent, OverlayOnHideEvent, OverlayOnShowEvent, OverlayOptions, OverlayService, AglTemplate, ResponsiveOverlayOptions, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler } from 'angulux/dom';
-import { MotionModule } from 'angulux/motion';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { absolutePosition, addClass, appendChild, focus, getOuterWidth, getTargetElement, isTouchDevice, relativePosition, removeClass } from '@anguless/angulux-utils';
+import { OverlayModeType, OverlayOnBeforeHideEvent, OverlayOnBeforeShowEvent, OverlayOnHideEvent, OverlayOnShowEvent, OverlayOptions, OverlayService, AglTemplate, ResponsiveOverlayOptions, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
+import { MotionModule } from '@anguless/angulux/motion';
 import { Subscription } from 'rxjs';
-import { VoidListener } from 'angulux/ts-helpers';
-import { ObjectUtils, ZIndexUtils } from 'angulux/utils';
-import { OverlayContentTemplateContext } from 'angulux/types/overlay';
+import { VoidListener } from '@anguless/angulux/ts-helpers';
+import { ObjectUtils, ZIndexUtils } from '@anguless/angulux/utils';
+import { OverlayContentTemplateContext } from '@anguless/angulux/types/overlay';
 import { OverlayStyle } from './style/overlaystyle';
 
 const OVERLAY_INSTANCE = new InjectionToken<Overlay>('OVERLAY_INSTANCE');

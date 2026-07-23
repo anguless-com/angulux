@@ -1,4 +1,4 @@
-import { getCSSVariableByRegex } from 'angulux-utils';
+import { getCSSVariableByRegex } from '@anguless/angulux-utils';
 /**
  * @dynamic is for runtime initializing DomHandler.browser
  *
@@ -853,8 +853,8 @@ export class DomHandler {
     }
 }
 
-import { $dt } from 'angulux-styled';
-import * as utils from 'angulux-utils';
+import { $dt } from '@anguless/angulux-styled';
+import * as utils from '@anguless/angulux-utils';
 
 // @todo: update this when we remove the old domhandler
 export function blockBodyScroll() {

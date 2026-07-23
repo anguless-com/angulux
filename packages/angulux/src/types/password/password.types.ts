@@ -1,8 +1,8 @@
 import { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { InputTextPassThrough } from 'angulux/types/inputtext';
-import type { OverlayPassThrough } from 'angulux/types/overlay';
+import type { MotionOptions } from '@anguless/angulux-motion';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
+import type { OverlayPassThrough } from '@anguless/angulux/types/overlay';
 
 /**
  * Custom pass-through(pt) options.

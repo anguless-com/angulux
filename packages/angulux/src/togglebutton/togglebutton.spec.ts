@@ -4,9 +4,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { SharedModule } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
-import { ToggleButtonChangeEvent } from 'angulux/types/togglebutton';
+import { SharedModule } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
+import { ToggleButtonChangeEvent } from '@anguless/angulux/types/togglebutton';
 import { ToggleButton } from './togglebutton';
 
 @Component({

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DebugElement, provideZonelessChange
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { provideAngulux } from 'angulux/config';
+import { provideAngulux } from '@anguless/angulux/config';
 import { Divider, DividerModule } from './divider';
 
 @Component({

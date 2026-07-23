@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as togglebutton_style } from 'angulux-styles/togglebutton';
-import { BaseStyle } from 'angulux/base';
+import { style as togglebutton_style } from '@anguless/angulux-styles/togglebutton';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${togglebutton_style}

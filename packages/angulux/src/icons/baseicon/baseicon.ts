@@ -1,6 +1,6 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, inject, Input, ViewEncapsulation } from '@angular/core';
-import { cn } from 'angulux-utils';
-import { BaseComponent } from 'angulux/basecomponent';
+import { cn } from '@anguless/angulux-utils';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 import { BaseIconStyle } from './style/baseiconstyle';
 
 @Component({

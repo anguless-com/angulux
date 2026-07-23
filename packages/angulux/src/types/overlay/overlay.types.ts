@@ -1,6 +1,6 @@
 import type { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
-import type { OverlayModeType, PassThrough, PassThroughOption } from 'angulux/api';
+import type { MotionOptions } from '@anguless/angulux-motion';
+import type { OverlayModeType, PassThrough, PassThroughOption } from '@anguless/angulux/api';
 
 /**
  * Custom content template context.

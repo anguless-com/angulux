@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/colorpicker';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/colorpicker';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const classes = {
     root: ({ instance }) => ['p-colorpicker p-component', { 'p-colorpicker-overlay': !instance.inline, 'p-colorpicker-dragging': instance.colorDragging || instance.hueDragging }],

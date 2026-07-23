@@ -1,11 +1,11 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, inject, InjectionToken, Input, NgModule, NgZone, Output, ViewEncapsulation } from '@angular/core';
 import Chart from 'chart.js/auto';
-import { SharedModule } from 'angulux/api';
-import { BaseComponent } from 'angulux/basecomponent';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 import { ChartStyle } from './style/chartstyle';
-import { Bind, BindModule } from 'angulux/bind';
-import type { ChartPassThrough } from 'angulux/types/chart';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import type { ChartPassThrough } from '@anguless/angulux/types/chart';
 
 const CHART_INSTANCE = new InjectionToken<UIChart>('CHART_INSTANCE');
 

@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, inject, InjectionToken, Input, NgModule, ViewEncapsulation } from '@angular/core';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { IconFieldPassThrough } from 'angulux/types/iconfield';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { IconFieldPassThrough } from '@anguless/angulux/types/iconfield';
 import { IconFieldStyle } from './style/iconfieldstyle';
 
 const ICONFIELD_INSTANCE = new InjectionToken<IconField>('ICONFIELD_INSTANCE');

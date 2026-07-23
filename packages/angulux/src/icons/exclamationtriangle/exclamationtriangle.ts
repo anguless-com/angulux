@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { uuid } from 'angulux-utils';
-import { BaseIcon } from 'angulux/icons/baseicon';
+import { uuid } from '@anguless/angulux-utils';
+import { BaseIcon } from '@anguless/angulux/icons/baseicon';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,

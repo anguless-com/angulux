@@ -23,16 +23,16 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { addClass, removeClass } from 'angulux-utils';
-import { BlockableUI, AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { Badge } from 'angulux/badge';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Button, ButtonProps } from 'angulux/button';
-import { PlusIcon, TimesIcon, UploadIcon } from 'angulux/icons';
-import { Message } from 'angulux/message';
-import { ProgressBar } from 'angulux/progressbar';
-import { VoidListener } from 'angulux/ts-helpers';
+import { addClass, removeClass } from '@anguless/angulux-utils';
+import { BlockableUI, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { Badge } from '@anguless/angulux/badge';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Button, ButtonProps } from '@anguless/angulux/button';
+import { PlusIcon, TimesIcon, UploadIcon } from '@anguless/angulux/icons';
+import { Message } from '@anguless/angulux/message';
+import { ProgressBar } from '@anguless/angulux/progressbar';
+import { VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     FileBeforeUploadEvent,
     FileProgressEvent,
@@ -47,7 +47,7 @@ import {
     FileUploadHeaderTemplateContext,
     FileUploadPassThrough,
     RemoveUploadedFileEvent
-} from 'angulux/types/fileupload';
+} from '@anguless/angulux/types/fileupload';
 import { Subscription } from 'rxjs';
 import { FileUploadStyle } from './style/fileuploadstyle';
 

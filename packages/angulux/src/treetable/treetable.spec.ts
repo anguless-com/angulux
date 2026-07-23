@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { TreeNode } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
+import { TreeNode } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
 import { of } from 'rxjs';
 import { TreeTable, TreeTableModule } from './treetable';
 

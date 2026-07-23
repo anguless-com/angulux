@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, provideZonelessChangeDe
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { OverlayService, AglTemplate } from 'angulux/api';
+import { OverlayService, AglTemplate } from '@anguless/angulux/api';
 import { Popover } from './popover';
 
 // function createMockAnimationEvent(toState: string, fromState: string = 'void'): AnimationEvent {

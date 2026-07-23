@@ -8,7 +8,7 @@
  * published from `dist/`, a directory the build writes. The four forked packages are
  * published from their own source directory, and nothing resolved theirs. So
  * `angulux-styled@1.0.0` would have gone to the registry declaring
- * `"angulux-utils": "workspace:^"`, and every consumer's install would have died with
+ * `"@anguless/angulux-utils": "workspace:^"`, and every consumer's install would have died with
  * `EUNSUPPORTEDPROTOCOL: Unsupported URL Type "workspace:"`. A published version cannot be
  * taken back.
  *
@@ -47,11 +47,11 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
  * publish from their own root.
  */
 const PUBLISHABLE = [
-    { name: 'angulux', dir: 'packages/angulux/dist' },
-    { name: 'angulux-styled', dir: 'packages/angulux-styled' },
-    { name: 'angulux-utils', dir: 'packages/angulux-utils' },
-    { name: 'angulux-styles', dir: 'packages/angulux-styles' },
-    { name: 'angulux-motion', dir: 'packages/angulux-motion' }
+    { name: '@anguless/angulux', dir: 'packages/angulux/dist' },
+    { name: '@anguless/angulux-styled', dir: 'packages/angulux-styled' },
+    { name: '@anguless/angulux-utils', dir: 'packages/angulux-utils' },
+    { name: '@anguless/angulux-styles', dir: 'packages/angulux-styles' },
+    { name: '@anguless/angulux-motion', dir: 'packages/angulux-motion' }
 ];
 
 const problems = [];

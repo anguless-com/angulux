@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, InjectionToken, Input, NgModule, ViewEncapsulation } from '@angular/core';
-import { SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { ProgressSpinnerPassThrough } from 'angulux/types/progressspinner';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { ProgressSpinnerPassThrough } from '@anguless/angulux/types/progressspinner';
 import { ProgressSpinnerStyle } from './style/progressspinnerstyle';
 
 const PROGRESSSPINNER_INSTANCE = new InjectionToken<ProgressSpinner>('PROGRESSSPINNER_INSTANCE');

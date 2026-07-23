@@ -1,5 +1,5 @@
 import { computed, Directive, effect, ElementRef, input, NgModule, Renderer2, signal } from '@angular/core';
-import { cn, equals } from 'angulux-utils';
+import { cn, equals } from '@anguless/angulux-utils';
 
 /**
  * Bind directive provides dynamic attribute, property, and event listener binding functionality.

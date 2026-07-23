@@ -1,3 +1,3 @@
-export * from 'angulux/types/toggleswitch';
+export * from '@anguless/angulux/types/toggleswitch';
 export * from './toggleswitch';
 export * from './style/toggleswitchstyle';

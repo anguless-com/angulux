@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, QueryList, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { BlockableUI, AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Nullable } from 'angulux/ts-helpers';
-import { TimelineItemTemplateContext, TimelinePassThrough } from 'angulux/types/timeline';
+import { BlockableUI, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { TimelineItemTemplateContext, TimelinePassThrough } from '@anguless/angulux/types/timeline';
 import { TimelineStyle } from './style/timelinestyle';
 
 const TIMELINE_INSTANCE = new InjectionToken<Timeline>('TIMELINE_INSTANCE');

@@ -20,19 +20,19 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { addClass, appendChild, removeClass, setAttribute } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Button, ButtonProps } from 'angulux/button';
-import { blockBodyScroll, unblockBodyScroll } from 'angulux/dom';
-import { FocusTrapModule } from 'angulux/focustrap';
-import { TimesIcon } from 'angulux/icons';
-import { MotionModule } from 'angulux/motion';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import { DrawerPassThrough } from 'angulux/types/drawer';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { addClass, appendChild, removeClass, setAttribute } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Button, ButtonProps } from '@anguless/angulux/button';
+import { blockBodyScroll, unblockBodyScroll } from '@anguless/angulux/dom';
+import { FocusTrapModule } from '@anguless/angulux/focustrap';
+import { TimesIcon } from '@anguless/angulux/icons';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import { DrawerPassThrough } from '@anguless/angulux/types/drawer';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { DrawerStyle } from './style/drawerstyle';
 
 const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');

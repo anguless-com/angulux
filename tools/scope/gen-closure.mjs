@@ -61,8 +61,8 @@ function depsOf(dir) {
             if (e.isDirectory()) { walk(p); continue; }
             if (!e.name.endsWith('.ts') || e.name.endsWith('.spec.ts')) continue;
             const t = fs.readFileSync(p, 'utf8');
-            // package-style import: 'primeng/<mod>' or 'angulux/<mod>'
-            for (const m of t.matchAll(/from\s+['"](?:primeng|angulux)\/([a-z0-9-]+)/g)) out.add(m[1]);
+            // package-style import: 'primeng/<mod>' (ref/) or '@anguless/angulux/<mod>' (own)
+            for (const m of t.matchAll(/from\s+['"](?:primeng|@anguless\/angulux)\/([a-z0-9-]+)/g)) out.add(m[1]);
             // relative import climbing into a sibling module: '../../<mod>'
             for (const m of t.matchAll(/from\s+['"](?:\.\.\/)+([a-z0-9-]+)(?:\/|['"])/g)) out.add(m[1]);
         }

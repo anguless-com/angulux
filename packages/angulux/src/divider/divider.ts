@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, InjectionToken, Input, NgModule, ViewEncapsulation } from '@angular/core';
-import { SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
 import { DividerStyle } from './style/dividerstyle';
-import { DividerPassThrough } from 'angulux/types/divider';
+import { DividerPassThrough } from '@anguless/angulux/types/divider';
 
 const DIVIDER_INSTANCE = new InjectionToken<Divider>('DIVIDER_INSTANCE');
 

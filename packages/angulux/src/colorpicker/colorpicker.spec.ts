@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { provideAngulux } from 'angulux/config';
-import { ColorPickerChangeEvent } from 'angulux/types/colorpicker';
+import { provideAngulux } from '@anguless/angulux/config';
+import { ColorPickerChangeEvent } from '@anguless/angulux/types/colorpicker';
 import { ColorPicker } from './colorpicker';
 
 @Component({

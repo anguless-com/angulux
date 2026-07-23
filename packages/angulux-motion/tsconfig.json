@@ -10,16 +10,16 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "paths": {
-            "angulux-motion": [
+            "@anguless/angulux-motion": [
                 "./src/index.ts"
             ],
-            "angulux-motion/*": [
+            "@anguless/angulux-motion/*": [
                 "./src/*"
             ],
-            "angulux-utils": [
+            "@anguless/angulux-utils": [
                 "../angulux-utils/src/index.ts"
             ],
-            "angulux-utils/*": [
+            "@anguless/angulux-utils/*": [
                 "../angulux-utils/src/*"
             ]
         },

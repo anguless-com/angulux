@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { MenuItem } from 'angulux/api';
-import { ButtonDirective } from 'angulux/button';
-import { TieredMenu } from 'angulux/tieredmenu';
+import { MenuItem } from '@anguless/angulux/api';
+import { ButtonDirective } from '@anguless/angulux/button';
+import { TieredMenu } from '@anguless/angulux/tieredmenu';
 import { SplitButton } from './splitbutton';
 
 // Basic SplitButton Test Component

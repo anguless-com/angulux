@@ -1,6 +1,6 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { ToggleButtonPassThrough } from 'angulux/types/togglebutton';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ToggleButtonPassThrough } from '@anguless/angulux/types/togglebutton';
 
 /**
  * Custom pass-through(pt) options.

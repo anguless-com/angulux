@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, DebugElement, input, provideZoneles
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { provideAngulux } from 'angulux/config';
-import type { ScrollerLazyLoadEvent, ScrollerScrollEvent, ScrollerScrollIndexChangeEvent } from 'angulux/types/scroller';
+import { provideAngulux } from '@anguless/angulux/config';
+import type { ScrollerLazyLoadEvent, ScrollerScrollEvent, ScrollerScrollIndexChangeEvent } from '@anguless/angulux/types/scroller';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Scroller } from './scroller';
 @Component({

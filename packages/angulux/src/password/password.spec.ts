@@ -4,8 +4,8 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { By } from '@angular/platform-browser';
 
 import { CommonModule } from '@angular/common';
-import { SharedModule } from 'angulux/api';
-import { provideAngulux } from 'angulux/config';
+import { SharedModule } from '@anguless/angulux/api';
+import { provideAngulux } from '@anguless/angulux/config';
 import { MapperPipe, Password, PasswordDirective, PasswordModule } from './password';
 
 // Test Components

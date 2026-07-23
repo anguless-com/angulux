@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as card_style } from 'angulux-styles/card';
-import { BaseStyle } from 'angulux/base';
+import { style as card_style } from '@anguless/angulux-styles/card';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${card_style}

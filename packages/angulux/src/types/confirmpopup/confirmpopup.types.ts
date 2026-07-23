@@ -1,7 +1,7 @@
-import type { Confirmation, PassThrough, PassThroughOption } from 'angulux/api';
-import type { ButtonPassThrough } from 'angulux/types/button';
+import type { Confirmation, PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
 import { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
+import type { MotionOptions } from '@anguless/angulux-motion';
 
 /**
  * Custom pass-through(pt) options.

@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { ButtonModule } from 'angulux/button';
-import { FocusTrap } from 'angulux/focustrap';
+import { ButtonModule } from '@anguless/angulux/button';
+import { FocusTrap } from '@anguless/angulux/focustrap';
 import { Dialog } from './dialog';
 
 // Basic Dialog Test Component

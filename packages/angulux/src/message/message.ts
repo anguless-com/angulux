@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, ContentChild, ContentChildren, EventEmitter, inject, InjectionToken, input, Input, NgModule, Output, QueryList, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { MotionOptions } from 'angulux-motion';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { TimesIcon } from 'angulux/icons';
-import { MotionModule } from 'angulux/motion';
-import { Ripple } from 'angulux/ripple';
-import { MessageContainerTemplateContext, MessagePassThrough } from 'angulux/types/message';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { TimesIcon } from '@anguless/angulux/icons';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Ripple } from '@anguless/angulux/ripple';
+import { MessageContainerTemplateContext, MessagePassThrough } from '@anguless/angulux/types/message';
 import { MessageStyle } from './style/messagestyle';
 
 const MESSAGE_INSTANCE = new InjectionToken<Message>('MESSAGE_INSTANCE');

@@ -91,12 +91,15 @@ for (const [p, v] of Object.entries(ws.catalog)) {
 }
 
 // ---- 2b. the forked family must live IN the workspace and be referenced by workspace: ----
-const FORKED = ['angulux-utils', 'angulux-styled', 'angulux-styles', 'angulux-motion'];
+// The dep is keyed by its published (scoped) name; the workspace directory stays unscoped.
+const FORKED = ['@anguless/angulux-utils', '@anguless/angulux-styled', '@anguless/angulux-styles', '@anguless/angulux-motion'];
+const dirOf = (name) => name.replace(/^@anguless\//, '');
 const libPkgPath = join(root, 'packages/angulux/package.json');
 const libDeps = existsSync(libPkgPath) ? (JSON.parse(readFileSync(libPkgPath, 'utf8')).dependencies ?? {}) : {};
 for (const p of FORKED) {
-  if (!existsSync(join(root, 'packages', p, 'package.json'))) {
-    fail.push(`forked package "packages/${p}" is missing — the library would fall back to a PrimeTek dependency`);
+  const dir = dirOf(p);
+  if (!existsSync(join(root, 'packages', dir, 'package.json'))) {
+    fail.push(`forked package "packages/${dir}" is missing — the library would fall back to a PrimeTek dependency`);
     continue;
   }
   const spec = libDeps[p];

@@ -1,6 +1,6 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { InputTextPassThrough } from 'angulux/types/inputtext';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { InputTextPassThrough } from '@anguless/angulux/types/inputtext';
 
 /**
  * Custom pass-through(pt) options.

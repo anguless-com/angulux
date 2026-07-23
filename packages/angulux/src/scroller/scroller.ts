@@ -19,12 +19,12 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { findSingle, getHeight, getWidth, isTouchDevice, isVisible } from 'angulux-utils';
-import { AglTemplate, ScrollerOptions, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { SpinnerIcon } from 'angulux/icons';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
+import { findSingle, getHeight, getWidth, isTouchDevice, isVisible } from '@anguless/angulux-utils';
+import { AglTemplate, ScrollerOptions, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { SpinnerIcon } from '@anguless/angulux/icons';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     ScrollerContentTemplateContext,
     ScrollerItemTemplateContext,
@@ -35,7 +35,7 @@ import {
     ScrollerScrollIndexChangeEvent,
     ScrollerToType,
     VirtualScrollerPassThrough
-} from 'angulux/types/scroller';
+} from '@anguless/angulux/types/scroller';
 import { ScrollerStyle } from './style/scrollerstyle';
 
 const SCROLLER_INSTANCE = new InjectionToken<Scroller>('SCROLLER_INSTANCE');

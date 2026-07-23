@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import { MenuItem } from 'angulux/api';
-import type { BadgePassThrough } from 'angulux/types/badge';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import { MenuItem } from '@anguless/angulux/api';
+import type { BadgePassThrough } from '@anguless/angulux/types/badge';
 
 /**
  * Custom pass-through(pt) options.

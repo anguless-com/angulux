@@ -22,17 +22,17 @@ import {
     ViewEncapsulation,
     ViewRef
 } from '@angular/core';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { $dt } from 'angulux-styled';
-import { absolutePosition, addClass, appendChild, findSingle, getOffset, isIOS, isTouchDevice } from 'angulux-utils';
-import { OverlayService, AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler } from 'angulux/dom';
-import { MotionModule } from 'angulux/motion';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import { PopoverContentTemplateContext, PopoverPassThrough } from 'angulux/types/popover';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { $dt } from '@anguless/angulux-styled';
+import { absolutePosition, addClass, appendChild, findSingle, getOffset, isIOS, isTouchDevice } from '@anguless/angulux-utils';
+import { OverlayService, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import { PopoverContentTemplateContext, PopoverPassThrough } from '@anguless/angulux/types/popover';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { Subscription } from 'rxjs';
 import { PopoverStyle } from './style/popoverstyle';
 

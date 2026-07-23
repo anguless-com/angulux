@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, InjectionToken, Input, NgModule, ViewEncapsulation } from '@angular/core';
-import { SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { InputIconPassThrough } from 'angulux/types/inputicon';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { InputIconPassThrough } from '@anguless/angulux/types/inputicon';
 import { InputIconStyle } from './style/inputiconstyle';
 
 const INPUTICON_INSTANCE = new InjectionToken<InputIcon>('INPUTICON_INSTANCE');

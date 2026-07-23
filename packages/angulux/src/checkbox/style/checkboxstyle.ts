@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as checkbox_style } from 'angulux-styles/checkbox';
-import { BaseStyle } from 'angulux/base';
+import { style as checkbox_style } from '@anguless/angulux-styles/checkbox';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${checkbox_style}

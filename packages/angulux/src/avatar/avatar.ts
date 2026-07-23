@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, inject, InjectionToken, Input, NgModule, Output, ViewEncapsulation } from '@angular/core';
-import { SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { AvatarPassThrough } from 'angulux/types/avatar';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { AvatarPassThrough } from '@anguless/angulux/types/avatar';
 import { AvatarStyle } from './style/avatarstyle';
 
 const AVATAR_INSTANCE = new InjectionToken<Avatar>('AVATAR_INSTANCE');

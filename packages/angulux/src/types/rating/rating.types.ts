@@ -1,4 +1,4 @@
-import type { PassThrough, PassThroughOption } from 'angulux/api';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
 import { TemplateRef } from '@angular/core';
 
 /**

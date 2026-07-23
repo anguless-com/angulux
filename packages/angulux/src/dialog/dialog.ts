@@ -26,19 +26,19 @@ import {
     ViewEncapsulation,
     ViewRef
 } from '@angular/core';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { addStyle, appendChild, getOuterHeight, getOuterWidth, getViewport, hasClass, removeClass, setAttribute, uuid } from 'angulux-utils';
-import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Button, ButtonProps } from 'angulux/button';
-import { blockBodyScroll, DomHandler, unblockBodyScroll } from 'angulux/dom';
-import { FocusTrap } from 'angulux/focustrap';
-import { TimesIcon, WindowMaximizeIcon, WindowMinimizeIcon } from 'angulux/icons';
-import { MotionModule } from 'angulux/motion';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import { DialogPassThrough } from 'angulux/types/dialog';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { addStyle, appendChild, getOuterHeight, getOuterWidth, getViewport, hasClass, removeClass, setAttribute, uuid } from '@anguless/angulux-utils';
+import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Button, ButtonProps } from '@anguless/angulux/button';
+import { blockBodyScroll, DomHandler, unblockBodyScroll } from '@anguless/angulux/dom';
+import { FocusTrap } from '@anguless/angulux/focustrap';
+import { TimesIcon, WindowMaximizeIcon, WindowMinimizeIcon } from '@anguless/angulux/icons';
+import { MotionModule } from '@anguless/angulux/motion';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import { DialogPassThrough } from '@anguless/angulux/types/dialog';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { DialogStyle } from './style/dialogstyle';
 
 const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');

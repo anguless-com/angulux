@@ -21,13 +21,13 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { equals, resolveFieldData } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind, BindModule } from 'angulux/bind';
-import { ToggleButton } from 'angulux/togglebutton';
-import { SelectButtonChangeEvent, SelectButtonItemTemplateContext, SelectButtonOptionClickEvent, SelectButtonPassThrough } from 'angulux/types/selectbutton';
+import { equals, resolveFieldData } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { ToggleButton } from '@anguless/angulux/togglebutton';
+import { SelectButtonChangeEvent, SelectButtonItemTemplateContext, SelectButtonOptionClickEvent, SelectButtonPassThrough } from '@anguless/angulux/types/selectbutton';
 import { SelectButtonStyle } from './style/selectbuttonstyle';
 
 const SELECTBUTTON_INSTANCE = new InjectionToken<SelectButton>('SELECTBUTTON_INSTANCE');

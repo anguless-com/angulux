@@ -1,14 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MenuItem, SharedModule, TreeNode } from 'angulux/api';
-import { CardModule } from 'angulux/card';
-import { DialogModule } from 'angulux/dialog';
-import { MenuModule } from 'angulux/menu';
-import { MultiSelectModule } from 'angulux/multiselect';
-import { SelectModule } from 'angulux/select';
-import { TableModule } from 'angulux/table';
-import { TieredMenuModule } from 'angulux/tieredmenu';
-import { TreeTableModule } from 'angulux/treetable';
+import { MenuItem, SharedModule, TreeNode } from '@anguless/angulux/api';
+import { CardModule } from '@anguless/angulux/card';
+import { DialogModule } from '@anguless/angulux/dialog';
+import { MenuModule } from '@anguless/angulux/menu';
+import { MultiSelectModule } from '@anguless/angulux/multiselect';
+import { SelectModule } from '@anguless/angulux/select';
+import { TableModule } from '@anguless/angulux/table';
+import { TieredMenuModule } from '@anguless/angulux/tieredmenu';
+import { TreeTableModule } from '@anguless/angulux/treetable';
 
 interface Product {
     code: string;

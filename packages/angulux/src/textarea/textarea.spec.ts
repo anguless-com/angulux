@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { provideAngulux } from 'angulux/config';
-import { TextareaPassThrough } from 'angulux/types/textarea';
+import { provideAngulux } from '@anguless/angulux/config';
+import { TextareaPassThrough } from '@anguless/angulux/types/textarea';
 import { Textarea } from './textarea';
 
 @Component({

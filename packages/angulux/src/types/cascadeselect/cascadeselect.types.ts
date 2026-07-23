@@ -1,5 +1,5 @@
 import { ElementRef, TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
 
 /**
  * Custom pass-through(pt) options.

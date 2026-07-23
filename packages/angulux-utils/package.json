@@ -1,5 +1,5 @@
 {
-    "name": "angulux-utils",
+    "name": "@anguless/angulux-utils",
     "version": "1.0.0",
     "author": "PrimeTek Informatics",
     "description": "Framework-agnostic DOM, object and type utilities used by angulux.",

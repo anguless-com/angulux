@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, QueryList, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { equals } from 'angulux-utils';
-import { BlockableUI, Footer, Header, AglTemplate, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
+import { equals } from '@anguless/angulux-utils';
+import { BlockableUI, Footer, Header, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
 import { CardStyle } from './style/cardstyle';
-import { CardPassThrough } from 'angulux/types/card';
+import { CardPassThrough } from '@anguless/angulux/types/card';
 
 const CARD_INSTANCE = new InjectionToken<Card>('CARD_INSTANCE');
 

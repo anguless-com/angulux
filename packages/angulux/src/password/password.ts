@@ -29,21 +29,21 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MotionOptions } from 'angulux-motion';
-import { absolutePosition, addClass, hasClass, isTouchDevice, removeClass } from 'angulux-utils';
-import { OverlayOptions, OverlayService, AglTemplate, SharedModule, TranslationKeys } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { BaseInput } from 'angulux/baseinput';
-import { Bind, BindModule } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler, DomHandler } from 'angulux/dom';
-import { Fluid } from 'angulux/fluid';
-import { EyeIcon, EyeSlashIcon, TimesIcon } from 'angulux/icons';
-import { InputText } from 'angulux/inputtext';
-import { Overlay } from 'angulux/overlay';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import type { PasswordIconTemplateContext, PasswordPassThrough } from 'angulux/types/password';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { absolutePosition, addClass, hasClass, isTouchDevice, removeClass } from '@anguless/angulux-utils';
+import { OverlayOptions, OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { BaseInput } from '@anguless/angulux/baseinput';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler, DomHandler } from '@anguless/angulux/dom';
+import { Fluid } from '@anguless/angulux/fluid';
+import { EyeIcon, EyeSlashIcon, TimesIcon } from '@anguless/angulux/icons';
+import { InputText } from '@anguless/angulux/inputtext';
+import { Overlay } from '@anguless/angulux/overlay';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import type { PasswordIconTemplateContext, PasswordPassThrough } from '@anguless/angulux/types/password';
 import { Subscription } from 'rxjs';
 import { PasswordStyle } from './style/passwordstyle';
 

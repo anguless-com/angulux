@@ -1,19 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, EventEmitter, forwardRef, inject, InjectionToken, input, Input, NgModule, Output, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MotionOptions } from 'angulux-motion';
-import { OverlayOptions, OverlayService, SharedModule, TranslationKeys } from 'angulux/api';
-import { AutoFocusModule } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler } from 'angulux/dom';
-import { MotionModule } from 'angulux/motion';
-import { OverlayModule } from 'angulux/overlay';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
-import type { ColorPickerChangeEvent } from 'angulux/types/colorpicker';
-import { ColorPickerPassThrough } from 'angulux/types/colorpicker';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { OverlayOptions, OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { AutoFocusModule } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
+import { MotionModule } from '@anguless/angulux/motion';
+import { OverlayModule } from '@anguless/angulux/overlay';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
+import type { ColorPickerChangeEvent } from '@anguless/angulux/types/colorpicker';
+import { ColorPickerPassThrough } from '@anguless/angulux/types/colorpicker';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { ColorPickerStyle } from './style/colorpickerstyle';
 
 export const COLORPICKER_VALUE_ACCESSOR: any = {

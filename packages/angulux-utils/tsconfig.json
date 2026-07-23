@@ -10,10 +10,10 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "paths": {
-            "angulux-utils": [
+            "@anguless/angulux-utils": [
                 "./src/index.ts"
             ],
-            "angulux-utils/*": [
+            "@anguless/angulux-utils/*": [
                 "./src/*"
             ]
         },

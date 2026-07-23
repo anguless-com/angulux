@@ -24,15 +24,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
-import { contains, equals } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind, BindModule } from 'angulux/bind';
-import { CheckIcon } from 'angulux/icons/check';
-import { MinusIcon } from 'angulux/icons/minus';
-import { Nullable } from 'angulux/ts-helpers';
-import { CheckboxChangeEvent, CheckboxIconTemplateContext, CheckboxPassThrough } from 'angulux/types/checkbox';
+import { contains, equals } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { CheckIcon } from '@anguless/angulux/icons/check';
+import { MinusIcon } from '@anguless/angulux/icons/minus';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { CheckboxChangeEvent, CheckboxIconTemplateContext, CheckboxPassThrough } from '@anguless/angulux/types/checkbox';
 import { CheckboxStyle } from './style/checkboxstyle';
 
 const CHECKBOX_INSTANCE = new InjectionToken<Checkbox>('CHECKBOX_INSTANCE');

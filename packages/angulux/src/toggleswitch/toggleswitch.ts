@@ -22,12 +22,12 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind, BindModule } from 'angulux/bind';
-import { ToggleSwitchChangeEvent, ToggleSwitchHandleTemplateContext, ToggleSwitchPassThrough } from 'angulux/types/toggleswitch';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { ToggleSwitchChangeEvent, ToggleSwitchHandleTemplateContext, ToggleSwitchPassThrough } from '@anguless/angulux/types/toggleswitch';
 import { ToggleSwitchStyle } from './style/toggleswitchstyle';
 
 const TOGGLESWITCH_INSTANCE = new InjectionToken<ToggleSwitch>('TOGGLESWITCH_INSTANCE');

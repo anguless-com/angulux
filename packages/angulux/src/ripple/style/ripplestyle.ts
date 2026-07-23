@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as ripple_style } from 'angulux-styles/ripple';
-import { BaseStyle } from 'angulux/base';
+import { style as ripple_style } from '@anguless/angulux-styles/ripple';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${ripple_style}

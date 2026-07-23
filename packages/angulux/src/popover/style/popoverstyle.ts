@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/popover';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/popover';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const inlineStyles = {
     root: () => ({ position: 'absolute' })

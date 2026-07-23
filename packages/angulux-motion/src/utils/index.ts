@@ -1,4 +1,4 @@
-import { getHiddenElementDimensions, isPrefersReducedMotion, setCSSProperty, toMs } from 'angulux-utils';
+import { getHiddenElementDimensions, isPrefersReducedMotion, setCSSProperty, toMs } from '@anguless/angulux-utils';
 import type { MotionClassNamesWithPhase, MotionHooksWithPhase, MotionMetadata, MotionOptions, MotionPhase, MotionState, MotionType } from '../../types';
 
 export const ANIMATION = 'animation';

@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { Confirmation, PassThrough, PassThroughOption } from 'angulux/api';
-import { DialogPassThrough } from 'angulux/types/dialog';
-import type { ButtonPassThrough } from 'angulux/types/button';
+import type { Confirmation, PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import { DialogPassThrough } from '@anguless/angulux/types/dialog';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
 
 /**
  * Custom pass-through(pt) options.

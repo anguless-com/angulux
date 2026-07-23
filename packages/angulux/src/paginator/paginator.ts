@@ -25,15 +25,15 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Aria, AglTemplate, SelectItem, SharedModule } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Select, SelectChangeEvent } from 'angulux/select';
-import { AngleDoubleLeftIcon, AngleDoubleRightIcon, AngleLeftIcon, AngleRightIcon } from 'angulux/icons';
-import { InputNumber } from 'angulux/inputnumber';
-import { Ripple } from 'angulux/ripple';
-import { Nullable } from 'angulux/ts-helpers';
-import { PaginatorDropdownItemTemplateContext, PaginatorPassThrough, PaginatorState, PaginatorTemplateContext } from 'angulux/types/paginator';
+import { Aria, AglTemplate, SelectItem, SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Select, SelectChangeEvent } from '@anguless/angulux/select';
+import { AngleDoubleLeftIcon, AngleDoubleRightIcon, AngleLeftIcon, AngleRightIcon } from '@anguless/angulux/icons';
+import { InputNumber } from '@anguless/angulux/inputnumber';
+import { Ripple } from '@anguless/angulux/ripple';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { PaginatorDropdownItemTemplateContext, PaginatorPassThrough, PaginatorState, PaginatorTemplateContext } from '@anguless/angulux/types/paginator';
 import { PaginatorStyle } from './style/paginatorstyle';
 
 const PAGINATOR_INSTANCE = new InjectionToken<Paginator>('PAGINATOR_INSTANCE');

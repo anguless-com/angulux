@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as drawer_style } from 'angulux-styles/drawer';
-import { BaseStyle } from 'angulux/base';
+import { style as drawer_style } from '@anguless/angulux-styles/drawer';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
 ${drawer_style}

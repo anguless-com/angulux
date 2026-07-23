@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as radiobutton_style } from 'angulux-styles/radiobutton';
-import { BaseStyle } from 'angulux/base';
+import { style as radiobutton_style } from '@anguless/angulux-styles/radiobutton';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${radiobutton_style}

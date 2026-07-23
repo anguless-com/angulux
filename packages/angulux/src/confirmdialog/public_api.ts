@@ -1,3 +1,3 @@
 export * from './confirmdialog';
-export * from 'angulux/types/confirmdialog';
+export * from '@anguless/angulux/types/confirmdialog';
 export * from './style/confirmdialogstyle';

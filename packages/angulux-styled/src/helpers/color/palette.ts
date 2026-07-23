@@ -1,4 +1,4 @@
-import { matchRegex } from 'angulux-utils';
+import { matchRegex } from '@anguless/angulux-utils';
 import type { ColorScale } from '../..';
 import { EXPR_REGEX } from '../../utils/index';
 import shade from './shade';

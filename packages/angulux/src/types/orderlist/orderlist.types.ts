@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { ButtonPassThrough } from 'angulux/types/button';
-import type { ListBoxPassThrough } from 'angulux/types/listbox';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
+import type { ListBoxPassThrough } from '@anguless/angulux/types/listbox';
 
 /**
  * Custom pass-through(pt) options.

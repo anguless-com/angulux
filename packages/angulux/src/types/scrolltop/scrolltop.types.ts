@@ -1,7 +1,7 @@
 import { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
-import type { PassThrough, PassThroughOption } from 'angulux/api';
-import type { ButtonPassThrough } from 'angulux/types/button';
+import type { MotionOptions } from '@anguless/angulux-motion';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
+import type { ButtonPassThrough } from '@anguless/angulux/types/button';
 
 /**
  * Custom pass-through(pt) options.

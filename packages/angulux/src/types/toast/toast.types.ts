@@ -1,6 +1,6 @@
 import { TemplateRef } from '@angular/core';
-import type { MotionOptions } from 'angulux-motion';
-import type { PassThrough, PassThroughOption, ToastMessageOptions } from 'angulux/api';
+import type { MotionOptions } from '@anguless/angulux-motion';
+import type { PassThrough, PassThroughOption, ToastMessageOptions } from '@anguless/angulux/api';
 
 /**
  * Custom pass-through(pt) options for Toast.

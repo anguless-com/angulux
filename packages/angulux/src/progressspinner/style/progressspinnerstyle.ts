@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style } from 'angulux-styles/progressspinner';
-import { BaseStyle } from 'angulux/base';
+import { style } from '@anguless/angulux-styles/progressspinner';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const classes = {
     root: () => ['p-progressspinner'],

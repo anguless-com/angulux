@@ -1,6 +1,6 @@
-import type { PassThrough, PassThroughOption } from 'angulux/api';
+import type { PassThrough, PassThroughOption } from '@anguless/angulux/api';
 import { TemplateRef } from '@angular/core';
-import { PaginatorPassThrough } from 'angulux/types/paginator';
+import { PaginatorPassThrough } from '@anguless/angulux/types/paginator';
 
 /**
  * Custom pass-through(pt) options.

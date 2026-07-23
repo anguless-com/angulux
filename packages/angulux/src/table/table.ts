@@ -29,36 +29,36 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { absolutePosition, addStyle, appendChild, find, findSingle, getAttribute, isClickable, setAttribute } from 'angulux-utils';
-import { BlockableUI, FilterMatchMode, FilterMetadata, FilterOperator, FilterService, LazyLoadMeta, OverlayService, AglTemplate, ScrollerOptions, SelectItem, SharedModule, SortMeta, TableState, TranslationKeys } from 'angulux/api';
-import { BadgeModule } from 'angulux/badge';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { Button, ButtonModule } from 'angulux/button';
-import { CheckboxChangeEvent, CheckboxModule } from 'angulux/checkbox';
-import { DatePickerModule } from 'angulux/datepicker';
-import { ConnectedOverlayScrollHandler, DomHandler } from 'angulux/dom';
-import { ArrowDownIcon } from 'angulux/icons/arrowdown';
-import { ArrowUpIcon } from 'angulux/icons/arrowup';
-import { FilterIcon } from 'angulux/icons/filter';
-import { FilterFillIcon } from 'angulux/icons/filterfill';
-import { FilterSlashIcon } from 'angulux/icons/filterslash';
-import { PlusIcon } from 'angulux/icons/plus';
-import { SortAltIcon } from 'angulux/icons/sortalt';
-import { SortAmountDownIcon } from 'angulux/icons/sortamountdown';
-import { SortAmountUpAltIcon } from 'angulux/icons/sortamountupalt';
-import { SpinnerIcon } from 'angulux/icons/spinner';
-import { TrashIcon } from 'angulux/icons/trash';
-import { InputNumberModule } from 'angulux/inputnumber';
-import { InputTextModule } from 'angulux/inputtext';
-import { MotionModule } from 'angulux/motion';
-import { PaginatorModule } from 'angulux/paginator';
-import { RadioButton, RadioButtonClickEvent, RadioButtonModule } from 'angulux/radiobutton';
-import { Scroller, ScrollerModule } from 'angulux/scroller';
-import { SelectModule } from 'angulux/select';
-import { SelectButtonModule } from 'angulux/selectbutton';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { absolutePosition, addStyle, appendChild, find, findSingle, getAttribute, isClickable, setAttribute } from '@anguless/angulux-utils';
+import { BlockableUI, FilterMatchMode, FilterMetadata, FilterOperator, FilterService, LazyLoadMeta, OverlayService, AglTemplate, ScrollerOptions, SelectItem, SharedModule, SortMeta, TableState, TranslationKeys } from '@anguless/angulux/api';
+import { BadgeModule } from '@anguless/angulux/badge';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { Button, ButtonModule } from '@anguless/angulux/button';
+import { CheckboxChangeEvent, CheckboxModule } from '@anguless/angulux/checkbox';
+import { DatePickerModule } from '@anguless/angulux/datepicker';
+import { ConnectedOverlayScrollHandler, DomHandler } from '@anguless/angulux/dom';
+import { ArrowDownIcon } from '@anguless/angulux/icons/arrowdown';
+import { ArrowUpIcon } from '@anguless/angulux/icons/arrowup';
+import { FilterIcon } from '@anguless/angulux/icons/filter';
+import { FilterFillIcon } from '@anguless/angulux/icons/filterfill';
+import { FilterSlashIcon } from '@anguless/angulux/icons/filterslash';
+import { PlusIcon } from '@anguless/angulux/icons/plus';
+import { SortAltIcon } from '@anguless/angulux/icons/sortalt';
+import { SortAmountDownIcon } from '@anguless/angulux/icons/sortamountdown';
+import { SortAmountUpAltIcon } from '@anguless/angulux/icons/sortamountupalt';
+import { SpinnerIcon } from '@anguless/angulux/icons/spinner';
+import { TrashIcon } from '@anguless/angulux/icons/trash';
+import { InputNumberModule } from '@anguless/angulux/inputnumber';
+import { InputTextModule } from '@anguless/angulux/inputtext';
+import { MotionModule } from '@anguless/angulux/motion';
+import { PaginatorModule } from '@anguless/angulux/paginator';
+import { RadioButton, RadioButtonClickEvent, RadioButtonModule } from '@anguless/angulux/radiobutton';
+import { Scroller, ScrollerModule } from '@anguless/angulux/scroller';
+import { SelectModule } from '@anguless/angulux/select';
+import { SelectButtonModule } from '@anguless/angulux/selectbutton';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     ColumnFilterPassThrough,
     ExportCSVOptions,
@@ -80,8 +80,8 @@ import {
     TableRowSelectEvent,
     TableRowUnSelectEvent,
     TableSelectAllChangeEvent
-} from 'angulux/types/table';
-import { ObjectUtils, UniqueComponentId, ZIndexUtils } from 'angulux/utils';
+} from '@anguless/angulux/types/table';
+import { ObjectUtils, UniqueComponentId, ZIndexUtils } from '@anguless/angulux/utils';
 import { Subject, Subscription } from 'rxjs';
 import { TableStyle } from './style/tablestyle';
 

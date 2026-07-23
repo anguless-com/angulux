@@ -22,15 +22,15 @@ import {
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
-import { MotionEvent, MotionOptions } from 'angulux-motion';
-import { isEmpty, setAttribute, uuid } from 'angulux-utils';
-import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { CheckIcon, ExclamationTriangleIcon, InfoCircleIcon, TimesCircleIcon, TimesIcon } from 'angulux/icons';
-import { MotionModule } from 'angulux/motion';
-import { ToastCloseEvent, ToastHeadlessTemplateContext, ToastItemCloseEvent, ToastMessageTemplateContext, ToastPassThrough, ToastPositionType } from 'angulux/types/toast';
-import { ZIndexUtils } from 'angulux/utils';
+import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
+import { isEmpty, setAttribute, uuid } from '@anguless/angulux-utils';
+import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { CheckIcon, ExclamationTriangleIcon, InfoCircleIcon, TimesCircleIcon, TimesIcon } from '@anguless/angulux/icons';
+import { MotionModule } from '@anguless/angulux/motion';
+import { ToastCloseEvent, ToastHeadlessTemplateContext, ToastItemCloseEvent, ToastMessageTemplateContext, ToastPassThrough, ToastPositionType } from '@anguless/angulux/types/toast';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { Subscription } from 'rxjs';
 import { ToastStyle } from './style/toaststyle';
 

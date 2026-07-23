@@ -4,11 +4,11 @@ import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Paginator, PaginatorModule } from './paginator';
-import { Select } from 'angulux/select';
-import { InputNumber } from 'angulux/inputnumber';
-import { Ripple } from 'angulux/ripple';
-import { SharedModule } from 'angulux/api';
-import { PaginatorState } from 'angulux/types/paginator';
+import { Select } from '@anguless/angulux/select';
+import { InputNumber } from '@anguless/angulux/inputnumber';
+import { Ripple } from '@anguless/angulux/ripple';
+import { SharedModule } from '@anguless/angulux/api';
+import { PaginatorState } from '@anguless/angulux/types/paginator';
 
 // Test component for basic paginator functionality
 @Component({

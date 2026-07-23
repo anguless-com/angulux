@@ -4,10 +4,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { By } from '@angular/platform-browser';
 
 import { CommonModule } from '@angular/common';
-import { SharedModule } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { provideAngulux } from 'angulux/config';
-import { ToggleSwitchChangeEvent } from 'angulux/types/toggleswitch';
+import { SharedModule } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { provideAngulux } from '@anguless/angulux/config';
+import { ToggleSwitchChangeEvent } from '@anguless/angulux/types/toggleswitch';
 import { ToggleSwitch, ToggleSwitchModule } from './toggleswitch';
 
 describe('ToggleSwitch', () => {

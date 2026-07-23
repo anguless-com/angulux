@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseStyle } from 'angulux/base';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const css = /*css*/ `
 .p-icon {

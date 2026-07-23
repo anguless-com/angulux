@@ -47,18 +47,18 @@ import {
     removeClass,
     reorderArray,
     resolveFieldData
-} from 'angulux-utils';
-import { BlockableUI, FilterMetadata, FilterService, AglTemplate, ScrollerOptions, SharedModule, SortMeta, TreeNode, TreeTableNode } from 'angulux/api';
-import { BadgeModule } from 'angulux/badge';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { Checkbox } from 'angulux/checkbox';
-import { DomHandler } from 'angulux/dom';
-import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, SortAltIcon, SortAmountDownIcon, SortAmountUpAltIcon, SpinnerIcon } from 'angulux/icons';
-import { PaginatorModule } from 'angulux/paginator';
-import { Ripple } from 'angulux/ripple';
-import { Scroller } from 'angulux/scroller';
-import { Nullable, VoidListener } from 'angulux/ts-helpers';
+} from '@anguless/angulux-utils';
+import { BlockableUI, FilterMetadata, FilterService, AglTemplate, ScrollerOptions, SharedModule, SortMeta, TreeNode, TreeTableNode } from '@anguless/angulux/api';
+import { BadgeModule } from '@anguless/angulux/badge';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { Checkbox } from '@anguless/angulux/checkbox';
+import { DomHandler } from '@anguless/angulux/dom';
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, SortAltIcon, SortAmountDownIcon, SortAmountUpAltIcon, SpinnerIcon } from '@anguless/angulux/icons';
+import { PaginatorModule } from '@anguless/angulux/paginator';
+import { Ripple } from '@anguless/angulux/ripple';
+import { Scroller } from '@anguless/angulux/scroller';
+import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     TreeTableBodyTemplateContext,
     TreeTableCheckboxIconTemplateContext,
@@ -81,7 +81,7 @@ import {
     TreeTableSortEvent,
     TreeTableSortIconTemplateContext,
     TreeTableTogglerIconTemplateContext
-} from 'angulux/types/treetable';
+} from '@anguless/angulux/types/treetable';
 import { Subject, Subscription } from 'rxjs';
 import { TreeTableStyle } from './style/treetablestyle';
 

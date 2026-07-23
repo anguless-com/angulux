@@ -1,15 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
 import { booleanAttribute, computed, Directive, effect, ElementRef, inject, InjectionToken, input, Input, NgModule, NgZone, numberAttribute, SimpleChanges, TemplateRef, ViewContainerRef } from '@angular/core';
-import { appendChild, createElement, fadeIn, findSingle, getOuterHeight, getOuterWidth, getViewport, getWindowScrollLeft, getWindowScrollTop, hasClass, removeChild, uuid } from 'angulux-utils';
-import { TooltipOptions } from 'angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BindModule } from 'angulux/bind';
-import { ConnectedOverlayScrollHandler } from 'angulux/dom';
-import { Nullable } from 'angulux/ts-helpers';
-import { TooltipPassThroughOptions } from 'angulux/types/tooltip';
-import { ZIndexUtils } from 'angulux/utils';
+import { appendChild, createElement, fadeIn, findSingle, getOuterHeight, getOuterWidth, getViewport, getWindowScrollLeft, getWindowScrollTop, hasClass, removeChild, uuid } from '@anguless/angulux-utils';
+import { TooltipOptions } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BindModule } from '@anguless/angulux/bind';
+import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
+import { Nullable } from '@anguless/angulux/ts-helpers';
+import { TooltipPassThroughOptions } from '@anguless/angulux/types/tooltip';
+import { ZIndexUtils } from '@anguless/angulux/utils';
 import { TooltipStyle } from './style/tooltipstyle';
-import type { TooltipPassThrough } from 'angulux/types/tooltip';
+import type { TooltipPassThrough } from '@anguless/angulux/types/tooltip';
 
 const TOOLTIP_INSTANCE = new InjectionToken<Tooltip>('TOOLTIP_INSTANCE');
 

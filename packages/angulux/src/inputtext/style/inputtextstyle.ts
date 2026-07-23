@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { style as inputtext_style } from 'angulux-styles/inputtext';
-import { BaseStyle } from 'angulux/base';
+import { style as inputtext_style } from '@anguless/angulux-styles/inputtext';
+import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
     ${inputtext_style}

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, inject, InjectionToken, input, model, numberAttribute, signal, ViewEncapsulation } from '@angular/core';
-import { uuid } from 'angulux-utils';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind, BindModule } from 'angulux/bind';
-import { TabsPassThrough } from 'angulux/types/tabs';
+import { uuid } from '@anguless/angulux-utils';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { TabsPassThrough } from '@anguless/angulux/types/tabs';
 import { TabsStyle } from './style/tabsstyle';
 
 const TABS_INSTANCE = new InjectionToken<Tabs>('TABS_INSTANCE');

@@ -26,25 +26,25 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MotionOptions } from 'angulux-motion';
-import { deepEquals, equals, findLastIndex, findSingle, focus, getFirstFocusableElement, getFocusableElements, getLastFocusableElement, isArray, isNotEmpty, isPrintableCharacter, resolveFieldData, uuid } from 'angulux-utils';
-import { FilterService, Footer, Header, OverlayOptions, OverlayService, AglTemplate, ScrollerOptions, SharedModule, TranslationKeys } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { BaseEditableHolder } from 'angulux/baseeditableholder';
-import { Bind, BindModule } from 'angulux/bind';
-import { Checkbox } from 'angulux/checkbox';
-import { Chip } from 'angulux/chip';
-import { DomHandler, unblockBodyScroll } from 'angulux/dom';
-import { Fluid } from 'angulux/fluid';
-import { IconField } from 'angulux/iconfield';
-import { CheckIcon, ChevronDownIcon, SearchIcon, SpinnerIcon, TimesIcon } from 'angulux/icons';
-import { InputIcon } from 'angulux/inputicon';
-import { InputText } from 'angulux/inputtext';
-import { Overlay } from 'angulux/overlay';
-import { Scroller } from 'angulux/scroller';
-import { Tooltip } from 'angulux/tooltip';
-import { Nullable } from 'angulux/ts-helpers';
+import { MotionOptions } from '@anguless/angulux-motion';
+import { deepEquals, equals, findLastIndex, findSingle, focus, getFirstFocusableElement, getFocusableElements, getLastFocusableElement, isArray, isNotEmpty, isPrintableCharacter, resolveFieldData, uuid } from '@anguless/angulux-utils';
+import { FilterService, Footer, Header, OverlayOptions, OverlayService, AglTemplate, ScrollerOptions, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { Checkbox } from '@anguless/angulux/checkbox';
+import { Chip } from '@anguless/angulux/chip';
+import { DomHandler, unblockBodyScroll } from '@anguless/angulux/dom';
+import { Fluid } from '@anguless/angulux/fluid';
+import { IconField } from '@anguless/angulux/iconfield';
+import { CheckIcon, ChevronDownIcon, SearchIcon, SpinnerIcon, TimesIcon } from '@anguless/angulux/icons';
+import { InputIcon } from '@anguless/angulux/inputicon';
+import { InputText } from '@anguless/angulux/inputtext';
+import { Overlay } from '@anguless/angulux/overlay';
+import { Scroller } from '@anguless/angulux/scroller';
+import { Tooltip } from '@anguless/angulux/tooltip';
+import { Nullable } from '@anguless/angulux/ts-helpers';
 import {
     MultiSelectBlurEvent,
     MultiSelectChangeEvent,
@@ -64,8 +64,8 @@ import {
     MultiSelectRemoveEvent,
     MultiSelectSelectAllChangeEvent,
     MultiSelectSelectedItemsTemplateContext
-} from 'angulux/types/multiselect';
-import { ObjectUtils } from 'angulux/utils';
+} from '@anguless/angulux/types/multiselect';
+import { ObjectUtils } from '@anguless/angulux/utils';
 import { MultiSelectStyle } from './style/multiselectstyle';
 
 const MULTISELECT_INSTANCE = new InjectionToken<MultiSelect>('MULTISELECT_INSTANCE');

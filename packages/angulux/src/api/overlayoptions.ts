@@ -1,4 +1,4 @@
-import { MotionOptions } from 'angulux-motion';
+import { MotionOptions } from '@anguless/angulux-motion';
 
 /**
  * Represents the type of overlay mode, which can be 'modal', 'overlay', or undefined.

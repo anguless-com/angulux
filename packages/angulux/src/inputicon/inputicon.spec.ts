@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { InputIcon } from './inputicon';
-import { IconField } from 'angulux/iconfield';
-import { InputText } from 'angulux/inputtext';
-import { provideAngulux } from 'angulux/config';
+import { IconField } from '@anguless/angulux/iconfield';
+import { InputText } from '@anguless/angulux/inputtext';
+import { provideAngulux } from '@anguless/angulux/config';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,

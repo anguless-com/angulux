@@ -21,16 +21,16 @@ import {
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
-import { addClass, createElement, findSingle, isEmpty } from 'angulux-utils';
-import { AglTemplate, SharedModule } from 'angulux/api';
-import { AutoFocus } from 'angulux/autofocus';
-import { BadgeModule } from 'angulux/badge';
-import { BaseComponent, PARENT_INSTANCE } from 'angulux/basecomponent';
-import { Bind } from 'angulux/bind';
-import { Fluid } from 'angulux/fluid';
-import { SpinnerIcon } from 'angulux/icons';
-import { Ripple } from 'angulux/ripple';
-import type { ButtonIconTemplateContext, ButtonLoadingIconTemplateContext, ButtonPassThrough, ButtonProps, ButtonSeverity } from 'angulux/types/button';
+import { addClass, createElement, findSingle, isEmpty } from '@anguless/angulux-utils';
+import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { AutoFocus } from '@anguless/angulux/autofocus';
+import { BadgeModule } from '@anguless/angulux/badge';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind } from '@anguless/angulux/bind';
+import { Fluid } from '@anguless/angulux/fluid';
+import { SpinnerIcon } from '@anguless/angulux/icons';
+import { Ripple } from '@anguless/angulux/ripple';
+import type { ButtonIconTemplateContext, ButtonLoadingIconTemplateContext, ButtonPassThrough, ButtonProps, ButtonSeverity } from '@anguless/angulux/types/button';
 import { ButtonStyle } from './style/buttonstyle';
 
 const BUTTON_INSTANCE = new InjectionToken<Button>('BUTTON_INSTANCE');

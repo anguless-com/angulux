@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DebugElement, provideZonelessChange
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { BaseComponent } from 'angulux/basecomponent';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 import { Skeleton, SkeletonModule } from './skeleton';
 
 @Component({
@@ -1288,7 +1288,7 @@ describe('Skeleton', () => {
 
     describe('PassThrough - Case 7: Test from AnguluxConfig', () => {
         it('should apply global pt configuration from AnguluxConfig', () => {
-            const { provideAngulux } = require('angulux/config');
+            const { provideAngulux } = require('@anguless/angulux/config');
 
             @Component({
                 changeDetection: ChangeDetectionStrategy.Eager,
@@ -1331,7 +1331,7 @@ describe('Skeleton', () => {
         });
 
         it('should merge local pt with global pt configuration', () => {
-            const { provideAngulux } = require('angulux/config');
+            const { provideAngulux } = require('@anguless/angulux/config');
 
             @Component({
                 changeDetection: ChangeDetectionStrategy.Eager,

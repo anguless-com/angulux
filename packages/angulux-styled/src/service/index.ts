@@ -1,4 +1,4 @@
-import { EventBus } from 'angulux-utils/eventbus';
+import { EventBus } from '@anguless/angulux-utils/eventbus';
 
 const ThemeService = EventBus();
 

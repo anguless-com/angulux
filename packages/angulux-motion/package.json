@@ -1,5 +1,5 @@
 {
-    "name": "angulux-motion",
+    "name": "@anguless/angulux-motion",
     "version": "1.0.0",
     "author": "PrimeTek Informatics",
     "description": "Transition and animation primitives used by angulux.",
@@ -46,7 +46,7 @@
         "build:dev": "tsup --watch"
     },
     "dependencies": {
-        "angulux-utils": "workspace:^"
+        "@anguless/angulux-utils": "workspace:^"
     },
     "engines": {
         "node": ">=12.11.0"
