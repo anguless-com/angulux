@@ -1,0 +1,47 @@
+{
+    "name": "angulux-license-guard",
+    "version": "1.0.0",
+    "description": "Fails your build when a commercially licensed PrimeTek package (PrimeNG, PrimeVue, PrimeReact, PrimeUIX) reaches your dependency tree. Zero dependencies.",
+    "keywords": [
+        "license",
+        "licence",
+        "primeng",
+        "primevue",
+        "primereact",
+        "primeuix",
+        "mit",
+        "compliance",
+        "lockfile"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux-license-guard"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "homepage": "https://github.com/anguless-com/angulux/tree/main/packages/angulux-license-guard#readme",
+    "type": "module",
+    "bin": {
+        "angulux-license-guard": "./bin/angulux-license-guard.mjs"
+    },
+    "exports": {
+        ".": "./src/index.mjs",
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "bin",
+        "src",
+        "README.md",
+        "LICENSE"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "private": false
+}
