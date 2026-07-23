@@ -4,10 +4,27 @@ Shows what migrating a PrimeNG project to [angulux](https://github.com/anguless-
 would change — imports, template selectors, the dependency — file by file, line by line.
 
 ```bash
-npx angulux-migrate
+npx angulux-migrate            # report only — writes nothing
+npx angulux-migrate --write    # apply it
 ```
 
-It **reports**. It does not write.
+Run without flags and it writes nothing at all: you get a list of every change it would
+make, with file and line, and your project is byte-for-byte as you left it.
+
+## Applying it
+
+`--write` requires a **clean git working tree**, and refuses outside a repository.
+
+That is not caution for its own sake. The only guarantee a codemod can honestly make is that
+you can throw its work away, and that requires something to revert to. So there is no
+`--force`: an escape hatch on a safety property is the safety property being optional.
+
+When it finishes:
+
+```
+✓ Applied 16 edit(s) across 3 file(s).
+Revert it all with: git checkout -- .
+```
 
 ## What actually changes in a migration
 
