@@ -150,7 +150,8 @@ dropped · PrimeTek trademarks removed from the public API surface.
 
 | Path | Role |
 |---|---|
-| `tools/check-prime-license.mjs` | the license guard — reads both `package-lock.json` and `pnpm-lock.yaml` |
+| `tools/check-prime-license.mjs` | the license guard — a thin delegate to `packages/angulux-license-guard/` |
+| `packages/angulux-license-guard/src/boundary.mjs` | **the boundary record itself** — `FIRST_COMMERCIAL`, `ALWAYS_COMMERCIAL`, `TABLE_VERIFIED`; declared exactly once, enforced by test |
 | `tools/check-catalog.mjs` | version discipline in the workspace catalogs |
 | `tools/check-language.mjs` | the English-only guard, accented and unaccented detectors |
 | `tools/scope/gen-closure.mjs` | transitive closure generator (BFS over the import graph) |
