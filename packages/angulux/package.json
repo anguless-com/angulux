@@ -47,7 +47,8 @@
         "@angular/router": "catalog:angular22",
         "@angular/platform-browser": "catalog:angular22",
         "rxjs": "^6.0.0 || ^7.8.1",
-        "chart.js": "^4.0.0"
+        "chart.js": "^4.0.0",
+        "@primeuix/themes": "^2.0.0"
     },
     "dependencies": {
         "angulux-styled": "workspace:^",
@@ -65,6 +66,9 @@
     },
     "peerDependenciesMeta": {
         "chart.js": {
+            "optional": true
+        },
+        "@primeuix/themes": {
             "optional": true
         }
     },

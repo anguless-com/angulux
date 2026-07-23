@@ -8,7 +8,7 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/anguless-com/angulux/badge)](https://scorecard.dev/viewer/?uri=github.com/anguless-com/angulux)
 
 ```bash
-npm install angulux
+npm install angulux @primeuix/themes
 ```
 
 ```ts
@@ -19,6 +19,20 @@ bootstrapApplication(App, {
     providers: [provideAngulux({ theme: { preset: Aura } })]
 });
 ```
+
+**Why the second package.** angulux ships no theme presets of its own, so the preset comes
+from `@primeuix/themes` — PrimeTek's, and MIT through `2.0.3`. angulux itself still installs
+with **zero PrimeTek packages** in its dependency tree; drop the second package and
+`provideAngulux()` runs unstyled but works.
+
+It is declared as an **optional** peer ranged `^2.0.0`, and the ceiling is deliberate:
+`3.0.0` is the first commercial release. Be clear about what that buys you — a peer range is
+a *warning*, not a lock. `npm install @primeuix/themes@3` still succeeds; it just prints an
+`ERESOLVE` warning naming the range it broke. That is enough for the case that actually
+happens (a routine `npm update`, or an agent bumping dependencies, sliding across a license
+boundary in silence) and it is not enough for anything else. If the boundary matters to you,
+pin the version exactly and run [`check:license`](tools/check-prime-license.mjs) in your own
+build — that is the gate, and it is MIT, so you can copy it.
 
 ---
 
