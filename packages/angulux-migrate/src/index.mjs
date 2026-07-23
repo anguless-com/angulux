@@ -1,7 +1,9 @@
 import { resolve } from 'node:path';
 import { scan } from './scan.mjs';
+import { checkWritable, apply } from './apply.mjs';
 
 export { scan } from './scan.mjs';
+export { checkWritable, apply, rewriteText, rewriteManifest } from './apply.mjs';
 export { ELEMENTS, ATTRIBUTES, IMPORT_FROM, IMPORT_TO } from './selector-map.mjs';
 
 export const EXIT_OK = 0;
@@ -20,7 +22,7 @@ const CATEGORIES = [
  *
  * @returns {{code: number, lines: string[], findings: Array}}
  */
-export function report(projectRoot = process.cwd()) {
+export function report(projectRoot = process.cwd(), { write = false } = {}) {
     const root = resolve(projectRoot);
     const findings = scan(root);
     const lines = [];
@@ -45,13 +47,25 @@ export function report(projectRoot = process.cwd()) {
         lines.push('');
     }
 
-    lines.push(
-        'Nothing was written. This run only reported what it found.',
+    const kept = [
         'Your .p-* CSS class names are NOT part of this list and are never changed —',
         'angulux keeps them so your theming and custom styles keep working.',
         'Your TypeScript symbols do not change either: Button, ButtonModule and the rest',
         'keep their names, so only import paths and template selectors move.'
-    );
+    ];
 
+    if (!write) {
+        lines.push('Nothing was written. This run only reported what it found.', ...kept, '', 'Re-run with --write to apply it.');
+        return { code: EXIT_OK, lines, findings };
+    }
+
+    const gate = checkWritable(root);
+    if (!gate.ok) {
+        lines.push(`✗ REFUSING TO WRITE — ${gate.reason}`, '', 'Nothing was written.');
+        return { code: EXIT_REFUSED, lines, findings };
+    }
+
+    const { filesChanged, edits } = apply(root, findings);
+    lines.push(`✓ Applied ${edits} edit(s) across ${filesChanged} file(s).`, ...kept, '', 'Revert it all with: git checkout -- .');
     return { code: EXIT_OK, lines, findings };
 }
