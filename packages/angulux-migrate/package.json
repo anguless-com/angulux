@@ -1,0 +1,43 @@
+{
+    "name": "angulux-migrate",
+    "version": "1.0.0",
+    "description": "Shows what migrating a PrimeNG project to angulux would change — imports, selectors, dependencies — file by file. Reports by default, never writes unless told to.",
+    "keywords": [
+        "primeng",
+        "angulux",
+        "migration",
+        "codemod",
+        "angular"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux-migrate"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "homepage": "https://github.com/anguless-com/angulux/tree/main/packages/angulux-migrate#readme",
+    "type": "module",
+    "bin": {
+        "angulux-migrate": "./bin/angulux-migrate.mjs"
+    },
+    "exports": {
+        ".": "./src/index.mjs",
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "bin",
+        "src",
+        "README.md",
+        "LICENSE"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "private": false
+}
