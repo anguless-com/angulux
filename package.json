@@ -28,7 +28,8 @@
         "check:scope-names": "node tools/codemod/scan-anguless-scope.mjs",
         "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names",
         "build:lib": "pnpm --filter @anguless/angulux run build",
-        "test:lib": "pnpm --filter @anguless/angulux run test:unit"
+        "test:lib": "pnpm --filter @anguless/angulux run test:unit",
+        "test:tools": "node --test \"packages/angulux-license-guard/test/**/*.test.mjs\" \"packages/angulux-migrate/test/**/*.test.mjs\""
     },
     "devDependencies": {
         "@angular-devkit/build-angular": "catalog:angular22",
