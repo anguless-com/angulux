@@ -123,6 +123,13 @@ jobs:
             - name: Unit tests
               run: corepack pnpm --filter @anguless/angulux run test:unit
 
+            # The standalone tool packages run on node:test, not the library's Angular
+            # harness, so they need their own invocation. Without this line CI is green
+            # while never executing a single one of their tests — the package would be
+            # published on the strength of a suite that only ever ran on a laptop.
+            - name: Tool package tests
+              run: npm run test:tools
+
             # Needs a completed build, which is why it is here rather than in `npm run check`
             # — that suite is seven gates in about three seconds and stays that way.
             # It packs each package and reads package.json back out of the TARBALL, because

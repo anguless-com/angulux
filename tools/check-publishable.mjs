@@ -51,7 +51,11 @@ const PUBLISHABLE = [
     { name: '@anguless/angulux-styled', dir: 'packages/angulux-styled' },
     { name: '@anguless/angulux-utils', dir: 'packages/angulux-utils' },
     { name: '@anguless/angulux-styles', dir: 'packages/angulux-styles' },
-    { name: '@anguless/angulux-motion', dir: 'packages/angulux-motion' }
+    { name: '@anguless/angulux-motion', dir: 'packages/angulux-motion' },
+    // Unscoped on purpose: its audience is PrimeNG/PrimeVue/PrimeReact users who have never
+    // heard of the anguless org. `zeroDeps` is a product claim, so it is checked on the
+    // tarball rather than trusted from the source manifest.
+    { name: 'angulux-license-guard', dir: 'packages/angulux-license-guard', zeroDeps: true }
 ];
 
 const problems = [];
@@ -69,7 +73,7 @@ function listTarball(tarball) {
 }
 
 try {
-    for (const { name, dir } of PUBLISHABLE) {
+    for (const { name, dir, zeroDeps } of PUBLISHABLE) {
         const abs = resolve(repoRoot, dir);
 
         if (!existsSync(abs)) {
@@ -129,6 +133,13 @@ try {
         }
         if (!pkg.repository?.url) problems.push([name, 'no repository.url — the npm page would be blank']);
         if (!pkg.version) problems.push([name, 'no version']);
+
+        // 4. A "zero dependencies" claim is part of what this package sells: a tool that
+        //    exists to prove a licence claim must not drag in a supply chain of its own.
+        //    Read off the tarball, because that is what a consumer installs.
+        if (zeroDeps && Object.keys(pkg.dependencies || {}).length) {
+            problems.push([name, `declares ${Object.keys(pkg.dependencies).length} runtime dependency(ies) but claims zero`]);
+        }
 
         if (!problems.some((p) => p[0] === name)) {
             const deps = Object.keys(pkg.dependencies || {}).length;

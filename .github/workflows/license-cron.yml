@@ -95,7 +95,7 @@ jobs:
                               '',
                               '**Do not relax the check to make this green.** Instead:',
                               '',
-                              '1. Read `tools/check-prime-license.mjs` — the `FIRST_COMMERCIAL` constant records the boundary.',
+                              '1. Read `packages/angulux-license-guard/src/boundary.mjs` — the `FIRST_COMMERCIAL` constant records the boundary, and `TABLE_VERIFIED` records when it was last checked. (`tools/check-prime-license.mjs` is a thin delegate to it.)',
                               '2. Confirm what actually changed upstream (a new PrimeTek major? a moved `latest` tag? drifted transitive resolution?).',
                               '3. Update the boundary deliberately, in its own commit, with the evidence in the message.',
                               '',

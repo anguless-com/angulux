@@ -31,8 +31,10 @@ a *warning*, not a lock. `npm install @primeuix/themes@3` still succeeds; it jus
 `ERESOLVE` warning naming the range it broke. That is enough for the case that actually
 happens (a routine `npm update`, or an agent bumping dependencies, sliding across a license
 boundary in silence) and it is not enough for anything else. If the boundary matters to you,
-pin the version exactly and run [`check:license`](tools/check-prime-license.mjs) in your own
-build — that is the gate, and it is MIT, so you can copy it.
+pin the version exactly and run a licence guard in your own build. That gate is published as
+its own MIT package, [`angulux-license-guard`](packages/angulux-license-guard) — it reads your
+lockfile, fails closed on any PrimeTek package it cannot verify, and has no dependencies of
+its own. It works in any project; it does not require angulux.
 
 ---
 
