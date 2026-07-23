@@ -50,7 +50,8 @@ licensing question is worse than no tool, because it produces confidence instead
 ## When you have checked something yourself
 
 If you have verified a package's licence — or you hold a PrimeUI licence and the dependency is
-legitimate — acknowledge it explicitly, by name **and exact version**:
+legitimate — acknowledge it explicitly, by name **and exact version**, in
+`.angulux-license-guard.json` at your project root:
 
 ```json
 {
@@ -59,6 +60,9 @@ legitimate — acknowledge it explicitly, by name **and exact version**:
   ]
 }
 ```
+
+Unknown fields are rejected rather than ignored, so a typo in a legal opt-out is loud rather
+than silently ineffective.
 
 There is no wildcard and no global off switch. An entry without a version is rejected. An
 acknowledgement is a statement about one artifact you looked at, and it stops being true when
