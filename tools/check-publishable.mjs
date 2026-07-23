@@ -55,7 +55,8 @@ const PUBLISHABLE = [
     // Unscoped on purpose: its audience is PrimeNG/PrimeVue/PrimeReact users who have never
     // heard of the anguless org. `zeroDeps` is a product claim, so it is checked on the
     // tarball rather than trusted from the source manifest.
-    { name: 'angulux-license-guard', dir: 'packages/angulux-license-guard', zeroDeps: true }
+    { name: 'angulux-license-guard', dir: 'packages/angulux-license-guard', zeroDeps: true },
+    { name: 'angulux-migrate', dir: 'packages/angulux-migrate', zeroDeps: true }
 ];
 
 const problems = [];
