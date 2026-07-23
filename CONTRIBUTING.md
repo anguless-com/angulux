@@ -64,7 +64,7 @@ Full build and test loop, in dependency order:
 
 ```bash
 for p in utils styled motion styles; do
-  (cd packages/angulux-$p && corepack pnpm exec tsup)
+  (cd packages/angulux-$p && corepack pnpm run build)
 done
 
 corepack pnpm --filter angulux run build        # → 210 entrypoints

@@ -171,7 +171,7 @@ npm run check                                   # the seven gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do
-  (cd packages/angulux-$p && corepack pnpm exec tsup)
+  (cd packages/angulux-$p && corepack pnpm run build)
 done
 
 corepack pnpm --filter angulux run build        # → 210 entrypoints
