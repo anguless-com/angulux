@@ -1,0 +1,3 @@
+/* Custom theming that must NOT be rewritten — .p-* class names are unchanged by the fork. */
+.p-button { font-weight: 600; }
+.p-datatable .p-datatable-header { padding: 0; }

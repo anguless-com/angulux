@@ -1,0 +1,9 @@
+{
+    "name": "fixture-primeng-app",
+    "version": "0.0.0",
+    "private": true,
+    "dependencies": {
+        "primeng": "21.1.9",
+        "@angular/core": "22.0.0"
+    }
+}
