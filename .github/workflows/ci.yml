@@ -27,7 +27,7 @@ env:
 
 jobs:
     gates:
-        name: Gates (7)
+        name: Gates (10)
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
