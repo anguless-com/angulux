@@ -57,7 +57,7 @@ sign-off is the whole ceremony. Missing sign-off fails CI.
 
 ```bash
 corepack pnpm install
-npm run check     # the seven gates, ~3 seconds — run this first, it should be green
+npm run check     # the 10 gates, ~3 seconds — run this first, it should be green
 ```
 
 Full build and test loop, in dependency order:

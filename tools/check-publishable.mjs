@@ -26,7 +26,7 @@
  * So this gate packs each package and reads `package/package.json` out of the tarball —
  * the exact bytes npm would receive. There is nothing left to be wrong about.
  *
- * It is deliberately NOT part of `npm run check`. That suite is seven gates in about three
+ * It is deliberately NOT part of `npm run check`. That suite is the fast gates in about three
  * seconds and stays that way; this one needs a completed build. It runs in CI after the
  * build, and in the release workflow before anything irreversible happens.
  *

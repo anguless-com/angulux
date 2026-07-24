@@ -53,7 +53,7 @@ PrimeNG.
 ## Answering your own question fastest
 
 ```bash
-npm run check     # seven gates, ~3 seconds — is the repository itself sane?
+npm run check     # 10 gates, ~3 seconds — is the repository itself sane?
 ```
 
 Most "is this a licensing problem?" and "did a dependency drift?" questions are answered by
