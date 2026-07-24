@@ -73,7 +73,7 @@ auto-closing it would only make the backlog look better than it is.
 
 ## How a pull request gets merged
 
-1. **CI green.** The aggregate `CI` check covers the 10 gates, DCO sign-off, the build,
+1. **CI green.** The aggregate `CI` check covers the 11 gates, DCO sign-off, the build,
    3765 specs, and the browser gate.
 2. **Provenance attestation complete** — checked mechanically, not read hopefully.
 3. **Review.** Expect questions about evidence rather than about style. The usual reasons a
