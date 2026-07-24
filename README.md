@@ -108,7 +108,7 @@ type-check cannot see a render bug.
 Current evidence, reproducible from a clean checkout:
 
 ```
-10/10 gates          exit 0
+11/11 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
 browser gate         13/13 passed
@@ -169,7 +169,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 10 gates
+npm run check                                   # the 11 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do
