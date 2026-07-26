@@ -4,9 +4,7 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     inject,
     InjectionToken,
@@ -17,14 +15,13 @@ import {
     numberAttribute,
     output,
     Output,
-    QueryList,
     TemplateRef,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { addClass, removeClass } from '@anguless/angulux-utils';
-import { BlockableUI, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { BlockableUI, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { Badge } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
@@ -129,7 +126,7 @@ export class FileContent extends BaseComponent {
         <div [class]="cn(cx('root'), styleClass)" [ngStyle]="style" *ngIf="mode === 'advanced'" [aglBind]="ptm('root')">
             <input [attr.aria-label]="browseFilesLabel" #advancedfileinput type="file" (change)="onFileSelect($event)" [multiple]="multiple" [accept]="accept" [disabled]="disabled || isChooseDisabled()" [attr.title]="''" [aglBind]="ptm('input')" />
             <div [class]="cx('header')" [aglBind]="ptm('header')">
-                <ng-container *ngIf="!headerTemplate && !_headerTemplate">
+                <ng-container *ngIf="!headerTemplate()">
                     <agl-button
                         [styleClass]="cn(cx('pcChooseButton'), chooseStyleClass)"
                         [disabled]="disabled || isChooseDisabled()"
@@ -156,9 +153,9 @@ export class FileContent extends BaseComponent {
                         <ng-template #icon>
                             <span *ngIf="chooseIcon" [class]="chooseIcon" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!chooseIcon">
-                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate && !_chooseIconTemplate" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon" />
-                                <span *ngIf="chooseIconTemplate || _chooseIconTemplate" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon">
-                                    <ng-template *ngTemplateOutlet="chooseIconTemplate || _chooseIconTemplate"></ng-template>
+                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate()" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon" />
+                                <span *ngIf="chooseIconTemplate()" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon">
+                                    <ng-template *ngTemplateOutlet="chooseIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
                         </ng-template>
@@ -177,9 +174,9 @@ export class FileContent extends BaseComponent {
                         <ng-template #icon>
                             <span *ngIf="uploadIcon" [ngClass]="uploadIcon" [attr.aria-hidden]="true" [aglBind]="ptm('pcUploadButton')?.icon"></span>
                             <ng-container *ngIf="!uploadIcon">
-                                <svg data-p-icon="upload" *ngIf="!uploadIconTemplate && !_uploadIconTemplate" [aglBind]="ptm('pcUploadButton')?.icon" />
-                                <span *ngIf="uploadIconTemplate || _uploadIconTemplate" [attr.aria-hidden]="true" [aglBind]="ptm('pcUploadButton')?.icon">
-                                    <ng-template *ngTemplateOutlet="uploadIconTemplate || _uploadIconTemplate"></ng-template>
+                                <svg data-p-icon="upload" *ngIf="!uploadIconTemplate()" [aglBind]="ptm('pcUploadButton')?.icon" />
+                                <span *ngIf="uploadIconTemplate()" [attr.aria-hidden]="true" [aglBind]="ptm('pcUploadButton')?.icon">
+                                    <ng-template *ngTemplateOutlet="uploadIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
                         </ng-template>
@@ -197,9 +194,9 @@ export class FileContent extends BaseComponent {
                         <ng-template #icon>
                             <span *ngIf="cancelIcon" [ngClass]="cancelIcon"></span>
                             <ng-container *ngIf="!cancelIcon">
-                                <svg data-p-icon="times" *ngIf="!cancelIconTemplate && !_cancelIconTemplate" [attr.aria-hidden]="true" />
-                                <span *ngIf="cancelIconTemplate || _cancelIconTemplate" [attr.aria-hidden]="true">
-                                    <ng-template *ngTemplateOutlet="cancelIconTemplate || _cancelIconTemplate"></ng-template>
+                                <svg data-p-icon="times" *ngIf="!cancelIconTemplate()" [attr.aria-hidden]="true" />
+                                <span *ngIf="cancelIconTemplate()" [attr.aria-hidden]="true">
+                                    <ng-template *ngTemplateOutlet="cancelIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
                         </ng-template>
@@ -207,7 +204,7 @@ export class FileContent extends BaseComponent {
                 </ng-container>
                 <ng-container
                     *ngTemplateOutlet="
-                        headerTemplate || _headerTemplate;
+                        headerTemplate();
                         context: {
                             $implicit: files,
                             uploadedFiles: uploadedFiles,
@@ -217,13 +214,13 @@ export class FileContent extends BaseComponent {
                         }
                     "
                 ></ng-container>
-                <ng-container *ngTemplateOutlet="toolbarTemplate || _toolbarTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="toolbarTemplate()"></ng-container>
             </div>
             <div #content [class]="cx('content')" (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [aglBind]="ptm('content')">
-                @if (contentTemplate || _contentTemplate) {
+                @if (contentTemplate()) {
                     <ng-container
                         *ngTemplateOutlet="
-                            contentTemplate || _contentTemplate;
+                            contentTemplate();
                             context: {
                                 $implicit: files,
                                 uploadedFiles: uploadedFiles,
@@ -244,8 +241,8 @@ export class FileContent extends BaseComponent {
 
                     @if (hasFiles()) {
                         <div [class]="cx('fileList')" [aglBind]="ptm('fileList')">
-                            <ng-template ngFor [ngForOf]="files" [ngForTemplate]="fileTemplate || _fileTemplate"></ng-template>
-                            @if (!fileTemplate && !_fileTemplate) {
+                            <ng-template ngFor [ngForOf]="files" [ngForTemplate]="fileTemplate()"></ng-template>
+                            @if (!fileTemplate()) {
                                 <div
                                     aglFileContent
                                     [unstyled]="unstyled()"
@@ -253,15 +250,15 @@ export class FileContent extends BaseComponent {
                                     (onRemove)="onRemoveClick($event)"
                                     [badgeValue]="pendingLabel"
                                     [previewWidth]="previewWidth"
-                                    [fileRemoveIconTemplate]="cancelIconTemplate || _cancelIconTemplate"
+                                    [fileRemoveIconTemplate]="cancelIconTemplate()"
                                 ></div>
                             }
                         </div>
                     }
                     @if (hasUploadedFiles()) {
                         <div [class]="cx('fileList')" [aglBind]="ptm('fileList')">
-                            <ng-template ngFor [ngForOf]="uploadedFiles" [ngForTemplate]="fileTemplate || _fileTemplate"></ng-template>
-                            @if (!fileTemplate && !_fileTemplate) {
+                            <ng-template ngFor [ngForOf]="uploadedFiles" [ngForTemplate]="fileTemplate()"></ng-template>
+                            @if (!fileTemplate()) {
                                 <div
                                     aglFileContent
                                     [unstyled]="unstyled()"
@@ -270,14 +267,14 @@ export class FileContent extends BaseComponent {
                                     [badgeValue]="completedLabel()"
                                     badgeSeverity="success"
                                     [previewWidth]="previewWidth"
-                                    [fileRemoveIconTemplate]="cancelIconTemplate || _cancelIconTemplate"
+                                    [fileRemoveIconTemplate]="cancelIconTemplate()"
                                 ></div>
                             }
                         </div>
                     }
                 }
-                @if ((emptyTemplate || _emptyTemplate) && !hasFiles() && !hasUploadedFiles()) {
-                    <ng-container *ngTemplateOutlet="emptyTemplate || _emptyTemplate" [aglBind]="ptm('empty')"></ng-container>
+                @if ((emptyTemplate()) && !hasFiles() && !hasUploadedFiles()) {
+                    <ng-container *ngTemplateOutlet="emptyTemplate()" [aglBind]="ptm('empty')"></ng-container>
                 }
             </div>
         </div>
@@ -302,28 +299,28 @@ export class FileContent extends BaseComponent {
                         @if (hasFiles() && !auto) {
                             <span *ngIf="uploadIcon" class="p-button-icon p-button-icon-left" [ngClass]="uploadIcon" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!uploadIcon">
-                                <svg data-p-icon="upload" *ngIf="!uploadIconTemplate && !_uploadIconTemplate" [class]="'p-button-icon p-button-icon-left'" [aglBind]="ptm('pcChooseButton')?.icon" />
-                                <span *ngIf="_uploadIconTemplate || uploadIconTemplate" class="p-button-icon p-button-icon-left" [aglBind]="ptm('pcChooseButton')?.icon">
-                                    <ng-template *ngTemplateOutlet="_uploadIconTemplate || uploadIconTemplate"></ng-template>
+                                <svg data-p-icon="upload" *ngIf="!uploadIconTemplate()" [class]="'p-button-icon p-button-icon-left'" [aglBind]="ptm('pcChooseButton')?.icon" />
+                                <span *ngIf="uploadIconTemplate()" class="p-button-icon p-button-icon-left" [aglBind]="ptm('pcChooseButton')?.icon">
+                                    <ng-template *ngTemplateOutlet="uploadIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
                         } @else {
                             <span *ngIf="chooseIcon" class="p-button-icon p-button-icon-left pi" [ngClass]="chooseIcon" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!chooseIcon">
-                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate && !_chooseIconTemplate" [aglBind]="ptm('pcChooseButton')?.icon" />
-                                <ng-template *ngTemplateOutlet="chooseIconTemplate || _chooseIconTemplate"></ng-template>
+                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate()" [aglBind]="ptm('pcChooseButton')?.icon" />
+                                <ng-template *ngTemplateOutlet="chooseIconTemplate()"></ng-template>
                             </ng-container>
                         }
                     </ng-template>
                     <input [attr.aria-label]="browseFilesLabel" #basicfileinput type="file" [accept]="accept" [multiple]="multiple" [disabled]="disabled" (change)="onFileSelect($event)" (focus)="onFocus()" (blur)="onBlur()" [aglBind]="ptm('input')" />
                 </agl-button>
                 @if (!auto) {
-                    @if (!fileLabelTemplate && !_fileLabelTemplate) {
+                    @if (!fileLabelTemplate()) {
                         <span>
                             {{ basicFileChosenLabel() }}
                         </span>
                     } @else {
-                        <ng-container *ngTemplateOutlet="fileLabelTemplate || _fileLabelTemplate; context: { $implicit: files }"></ng-container>
+                        <ng-container *ngTemplateOutlet="fileLabelTemplate(); context: { $implicit: files }"></ng-container>
                     }
                 }
             </div>
@@ -599,58 +596,58 @@ export class FileUpload extends BaseComponent<FileUploadPassThrough> implements 
      * Custom file template.
      * @group Templates
      */
-    @ContentChild('file', { descendants: false }) fileTemplate: TemplateRef<void> | undefined;
+    fileTemplate = contentChild<TemplateRef<void>>('file', { descendants: false });
 
     /**
      * Custom header template.
      * @param {FileUploadHeaderTemplateContext} context - header template context.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: TemplateRef<FileUploadHeaderTemplateContext> | undefined;
+    headerTemplate = contentChild<TemplateRef<FileUploadHeaderTemplateContext>>('header', { descendants: false });
 
     /**
      * Custom content template.
      * @param {FileUploadContentTemplateContext} context - content template context.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<FileUploadContentTemplateContext> | undefined;
+    contentTemplate = contentChild<TemplateRef<FileUploadContentTemplateContext>>('content', { descendants: false });
 
     /**
      * Custom toolbar template.
      * @group Templates
      */
-    @ContentChild('toolbar', { descendants: false }) toolbarTemplate: TemplateRef<void> | undefined;
+    toolbarTemplate = contentChild<TemplateRef<void>>('toolbar', { descendants: false });
 
     /**
      * Custom choose icon template.
      * @group Templates
      */
-    @ContentChild('chooseicon', { descendants: false }) chooseIconTemplate: TemplateRef<void> | undefined;
+    chooseIconTemplate = contentChild<TemplateRef<void>>('chooseicon', { descendants: false });
 
     /**
      * Custom file label template.
      * @param {FileUploadFileLabelTemplateContext} context - file label template context.
      * @group Templates
      */
-    @ContentChild('filelabel', { descendants: false }) fileLabelTemplate: TemplateRef<FileUploadFileLabelTemplateContext> | undefined;
+    fileLabelTemplate = contentChild<TemplateRef<FileUploadFileLabelTemplateContext>>('filelabel', { descendants: false });
 
     /**
      * Custom upload icon template.
      * @group Templates
      */
-    @ContentChild('uploadicon', { descendants: false }) uploadIconTemplate: TemplateRef<void> | undefined;
+    uploadIconTemplate = contentChild<TemplateRef<void>>('uploadicon', { descendants: false });
 
     /**
      * Custom cancel icon template.
      * @group Templates
      */
-    @ContentChild('cancelicon', { descendants: false }) cancelIconTemplate: TemplateRef<void> | undefined;
+    cancelIconTemplate = contentChild<TemplateRef<void>>('cancelicon', { descendants: false });
 
     /**
      * Custom empty state template.
      * @group Templates
      */
-    @ContentChild('empty', { descendants: false }) emptyTemplate: TemplateRef<void> | undefined;
+    emptyTemplate = contentChild<TemplateRef<void>>('empty', { descendants: false });
 
     @ViewChild('advancedfileinput') advancedFileInput: ElementRef | undefined | any;
 
@@ -732,72 +729,6 @@ export class FileUpload extends BaseComponent<FileUploadPassThrough> implements 
                 });
             }
         }
-    }
-
-    _headerTemplate: TemplateRef<FileUploadHeaderTemplateContext> | undefined;
-
-    _contentTemplate: TemplateRef<FileUploadContentTemplateContext> | undefined;
-
-    _toolbarTemplate: TemplateRef<void> | undefined;
-
-    _chooseIconTemplate: TemplateRef<void> | undefined;
-
-    _uploadIconTemplate: TemplateRef<void> | undefined;
-
-    _cancelIconTemplate: TemplateRef<void> | undefined;
-
-    _emptyTemplate: TemplateRef<void> | undefined;
-
-    _fileTemplate: TemplateRef<void> | undefined;
-
-    _fileLabelTemplate: TemplateRef<FileUploadFileLabelTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'file':
-                    this._fileTemplate = item.template;
-                    break;
-
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'toolbar':
-                    this._toolbarTemplate = item.template;
-                    break;
-
-                case 'chooseicon':
-                    this._chooseIconTemplate = item.template;
-                    break;
-
-                case 'uploadicon':
-                    this._uploadIconTemplate = item.template;
-                    break;
-
-                case 'cancelicon':
-                    this._cancelIconTemplate = item.template;
-                    break;
-
-                case 'empty':
-                    this._emptyTemplate = item.template;
-                    break;
-
-                case 'filelabel':
-                    this._fileLabelTemplate = item.template;
-                    break;
-
-                default:
-                    this._fileTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     basicFileChosenLabel() {

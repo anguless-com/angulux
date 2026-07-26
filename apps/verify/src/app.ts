@@ -176,11 +176,12 @@ interface Product {
         <!-- ── 6. multiselect ───────────────────────────────────────────── -->
         <section id="sec-multiselect">
             <h2>multiselect</h2>
-            <!-- Uses the agl-header facet, NOT ng-template #header: only a facet travels through
-                 ng-content select="agl-header", which is the path that broke silently before the
-                 fix. Going via the template route would exercise none of that fix. -->
+            <!-- multiselect has migrated to PA-1, so the agl-header facet route is gone and the
+                 guard watches the surviving one. The failure it protects against is unchanged —
+                 a slot that renders nothing into an overlay, with no error thrown — and the
+                 overlay is still the hard part: the header only exists once the panel opens. -->
             <agl-multiselect [options]="cities" [(ngModel)]="selectedCities" optionLabel="name" placeholder="Select several">
-                <agl-header><div class="ms-facet-header">FACET_HEADER_MULTISELECT</div></agl-header>
+                <ng-template #header><div class="ms-facet-header">FACET_HEADER_MULTISELECT</div></ng-template>
             </agl-multiselect>
             <div class="probe" id="probe-multiselect">count={{ selectedCities?.length ?? 0 }}</div>
         </section>

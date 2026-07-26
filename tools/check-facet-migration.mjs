@@ -51,7 +51,7 @@ const walk = (dir, out = []) => {
 
 /** Legacy markers — any one of these means the module still carries a retired mechanism. */
 const LEGACY = [
-    [/@ContentChild\('[a-z]+'/g, "@ContentChild('x') — decorator query, use contentChild('x')"],
+    [/@ContentChild\('[a-zA-Z]+'/g, "@ContentChild('x') — decorator query, use contentChild('x')"],
     [/@ContentChild\((?:Header|Footer)\)/g, '@ContentChild(Header|Footer) — the retired facet query'],
     [/@ContentChildren\(AglTemplate\)/g, '@ContentChildren(AglTemplate) — the retired aglTemplate switch'],
     // `_\w*[Tt]emplate`, not `_[a-zA-Z]+Template`: toast's slot is called `template`, with a
@@ -69,7 +69,11 @@ const LEGACY = [
     // Each new spelling passed the previous pattern in complete silence. The object prefix is
     // therefore `(?:\w+\.)?` — any receiver, not an enumerated list — because the next module
     // will name its receiver something nobody predicted.
-    [/\w*[Tt]emplate\s*(?:\|\||\?\?)\s*(?:\w+\.)?_\w*[Tt]emplate/g, '`xTemplate || _xTemplate` gate (any `||` / `??` / `<obj>._x` / lowercase spelling) — the silent-mismatch site'],
+    //   reversed        fileupload wrote `_uploadIconTemplate || uploadIconTemplate` — shadow
+    //                   FIRST. A pattern anchored on "shadow second" reads right past it.
+    //                   INV-5 caught this one instead, which is the argument for keeping both:
+    //                   the spellings keep arriving, the truthiness check does not care.
+    [/(?:(?:\w+\.)?_)?\w*[Tt]emplate\s*(?:\|\||\?\?)\s*(?:\w+\.)?_?\w*[Tt]emplate/g, '`xTemplate || _xTemplate` gate (any `||` / `??` / `<obj>._x` / lowercase / reversed spelling) — the silent-mismatch site'],
     [/<ng-content select="agl-(?:header|footer)"/g, '<ng-content select="agl-header|agl-footer"> — the retired facet slot']
 ];
 
@@ -83,7 +87,7 @@ const LEGACY = [
  * the very failure mode it was written to prevent. A generic can never contain `(`, so scanning
  * to the opening paren is both simpler and correct.
  */
-const MIGRATED_SLOT = /(\w+)\s*=\s*contentChild(?:\.required)?[^(\n]*\(\s*'([a-z]+)'/g;
+const MIGRATED_SLOT = /(\w+)\s*=\s*contentChild(?:\.required)?[^(\n]*\(\s*'([a-zA-Z]+)'/g;
 
 const modules = readdirSync(SRC, { withFileTypes: true })
     .filter((e) => e.isDirectory())
@@ -149,7 +153,13 @@ for (const mod of modules) {
     const shadowedByInput = (f) => new RegExp(`@(?:Input\\([^)]*\\)|ViewChild\\([^)]*\\))\\s*${f}\\b`).test(srcText);
     for (const { field } of slots) {
         if (shadowedByInput(field)) continue;
-        const boolRead = new RegExp(`(?:!\\s*|\\|\\|\\s*|&&\\s*)${field}\\b(?!\\s*\\()|\\b${field}\\s*(?:\\|\\||&&)`, 'g');
+        // The receiver is optional and unnamed on BOTH sides of the operator. `scroller`'s
+        // style file wrote `!instance.loaderTemplate` — the `!` is there, but `instance.` sits
+        // between it and the field, so a pattern expecting `!field` walked straight past. That
+        // one shipped in f744616 and left `p-virtualscroller-loader-mask` permanently off.
+        // style/*.ts files read component state too; they are not templates, and they were the
+        // last place anyone thought to look.
+        const boolRead = new RegExp(`!\\s*(?:\\w+\\.)?${field}\\b(?!\\s*\\()|(?:\\w+\\.)?${field}\\s*(?:\\|\\||&&)|(?:\\|\\||&&)\\s*(?:\\w+\\.)?${field}\\b(?!\\s*\\()`, 'g');
         for (const m of srcText.match(boolRead) ?? []) {
             problems.push([`packages/angulux/src/${mod}`, `\`${m.trim()}\` reads the slot without calling it — a signal is always truthy, so this branch silently never changes`]);
         }

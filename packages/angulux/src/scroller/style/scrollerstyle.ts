@@ -75,7 +75,7 @@ const classes = {
     loader: ({ instance }) => [
         'p-virtualscroller-loader',
         {
-            'p-virtualscroller-loader-mask': !instance.loaderTemplate
+            'p-virtualscroller-loader-mask': !instance.loaderTemplate()
         }
     ],
     loadingIcon: 'p-virtualscroller-loading-icon'

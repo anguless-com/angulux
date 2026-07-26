@@ -171,7 +171,13 @@ test('multiselect — selects several items and projects the header facet into t
     // travels via `<ng-content select="agl-header">` — the exact path that broke silently
     // before it was fixed. A wrong projection selector makes the facet vanish from the DOM
     // with NO error thrown.
-    await expect(page.locator('.p-multiselect-header .ms-facet-header')).toHaveText('FACET_HEADER_MULTISELECT');
+    // Scoped to the overlay, not to `.p-multiselect-header`. Before PA-1 the two routes rendered
+    // to two different places: the `<agl-header>` facet was projected as the first child INSIDE
+    // `.p-multiselect-header`, while a `#header` template rendered as a sibling just above it,
+    // outside the header div and unaffected by `showHeader`. Retiring the facet leaves the
+    // template route exactly where it has always rendered — PA-1 removes the second mechanism,
+    // it does not relocate the surviving one — so the guard follows it to the overlay.
+    await expect(page.locator('.p-multiselect-overlay .ms-facet-header')).toHaveText('FACET_HEADER_MULTISELECT');
 
     await page.locator('.p-multiselect-option', { hasText: 'Hanoi' }).click();
     await page.locator('.p-multiselect-option', { hasText: 'Ho Chi Minh City' }).click();

@@ -229,7 +229,7 @@ class TestFormMultiSelectComponent {
     standalone: false,
     template: `
         <agl-multiselect [options]="options" [(ngModel)]="selectedCities" optionLabel="name">
-            <ng-template aglTemplate="selectedItems" let-value let-removeChip="removeChip">
+            <ng-template #selectedItems let-value let-removeChip="removeChip">
                 <div class="custom-selected-items">
                     <div *ngFor="let city of value" class="custom-chip">
                         {{ city.name }}
@@ -238,26 +238,26 @@ class TestFormMultiSelectComponent {
                 </div>
             </ng-template>
 
-            <ng-template aglTemplate="item" let-option>
+            <ng-template #item let-option>
                 <div class="custom-item">
                     <span class="city-name">{{ option.name }}</span>
                     <span class="city-code">({{ option.code }})</span>
                 </div>
             </ng-template>
 
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">Select Your Cities</div>
             </ng-template>
 
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">{{ selectedCities?.length || 0 }} cities selected</div>
             </ng-template>
 
-            <ng-template aglTemplate="empty">
+            <ng-template #empty>
                 <div class="custom-empty">No cities found</div>
             </ng-template>
 
-            <ng-template aglTemplate="emptyfilter">
+            <ng-template #emptyfilter>
                 <div class="custom-empty-filter">No results found</div>
             </ng-template>
         </agl-multiselect>
@@ -1464,13 +1464,12 @@ describe('MultiSelect Content Child Templates', () => {
         fixture.detectChanges();
         await fixture.whenStable();
 
-        // After content init should process templates - check if they exist or component is initialized
-        const hasItemTemplate = !!(multiSelect.itemTemplate || multiSelect._itemTemplate);
-        const hasSelectedItemsTemplate = !!(multiSelect.selectedItemsTemplate || multiSelect._selectedItemsTemplate);
-        const hasHeaderTemplate = !!(multiSelect.headerTemplate || multiSelect._headerTemplate);
-        const hasFooterTemplate = !!(multiSelect.footerTemplate || multiSelect._footerTemplate);
-        const hasEmptyTemplate = !!(multiSelect.emptyTemplate || multiSelect._emptyTemplate);
-        const hasEmptyFilterTemplate = !!(multiSelect.emptyFilterTemplate || multiSelect._emptyFilterTemplate);
+        const hasItemTemplate = !!multiSelect.itemTemplate();
+        const hasSelectedItemsTemplate = !!multiSelect.selectedItemsTemplate();
+        const hasHeaderTemplate = !!multiSelect.headerTemplate();
+        const hasFooterTemplate = !!multiSelect.footerTemplate();
+        const hasEmptyTemplate = !!multiSelect.emptyTemplate();
+        const hasEmptyFilterTemplate = !!multiSelect.emptyFilterTemplate();
 
         // At least some templates should be processed, or component should be properly initialized
         expect(hasItemTemplate || hasSelectedItemsTemplate || hasHeaderTemplate || hasFooterTemplate || hasEmptyTemplate || hasEmptyFilterTemplate || multiSelect).toBeDefined();
@@ -2142,23 +2141,23 @@ class TestComprehensiveFormMultiSelectComponent {
     template: `
         <div class="viewchild-tests">
             <agl-multiselect #mainMultiSelect [options]="cities" [(ngModel)]="selectedCities" optionLabel="name" placeholder="Test ViewChild properties" [showClear]="true" [filter]="true" [virtualScroll]="false" class="main-multiselect">
-                <ng-template aglTemplate="selectedItems" let-value>
+                <ng-template #selectedItems let-value>
                     <div class="custom-selected-template">{{ value?.length || 0 }} selected</div>
                 </ng-template>
 
-                <ng-template aglTemplate="item" let-option>
+                <ng-template #item let-option>
                     <div class="custom-item-template">{{ option.name }} - {{ option.code }}</div>
                 </ng-template>
 
-                <ng-template aglTemplate="header">
+                <ng-template #header>
                     <div class="custom-header-template">Choose Cities</div>
                 </ng-template>
 
-                <ng-template aglTemplate="footer">
+                <ng-template #footer>
                     <div class="custom-footer-template">{{ cities.length }} total options</div>
                 </ng-template>
 
-                <ng-template aglTemplate="empty">
+                <ng-template #empty>
                     <div class="custom-empty-template">No cities available</div>
                 </ng-template>
             </agl-multiselect>

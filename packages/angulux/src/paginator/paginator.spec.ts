@@ -73,7 +73,7 @@ class TestBasicPaginatorComponent {
     }
 }
 
-// Test component for template testing with aglTemplate
+// Test component for content template slots
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
@@ -102,7 +102,7 @@ class TestBasicPaginatorComponent {
     `
 })
 class TestPTemplatePaginatorComponent {
-    // Component with aglTemplate templates
+    // Component with content templates
 }
 
 // Test component for ContentChild template references
@@ -543,7 +543,7 @@ describe('Paginator', () => {
     });
 
     describe('Template and Content Projection', () => {
-        describe('aglTemplate Approach', () => {
+        describe('Content template slots', () => {
             let pTemplateFixture: ComponentFixture<TestPTemplatePaginatorComponent>;
             let pTemplatePaginator: Paginator;
 
@@ -553,7 +553,7 @@ describe('Paginator', () => {
                 pTemplateFixture.detectChanges();
             });
 
-            it('should create component with aglTemplate templates', () => {
+            it('should create the component with content templates', () => {
                 expect(pTemplateFixture.componentInstance).toBeTruthy();
                 expect(pTemplatePaginator).toBeTruthy();
             });

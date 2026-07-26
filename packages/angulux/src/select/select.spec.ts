@@ -157,48 +157,48 @@ class TestGroupedSelectComponent {
     standalone: false,
     template: `
         <agl-select [options]="options" [(ngModel)]="selectedValue" optionLabel="name" optionValue="code" placeholder="Select with templates" [filter]="filter" [showClear]="showClear" [loading]="loading">
-            <ng-template aglTemplate="item" let-option>
+            <ng-template #item let-option>
                 <div class="custom-item">
                     <i class="pi pi-tag"></i>
                     <span class="item-label">{{ option.name }}</span>
                     <span class="item-code">({{ option.code }})</span>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="selectedItem" let-option>
+            <ng-template #selectedItem let-option>
                 <div class="custom-selected">
                     <strong>Selected: {{ option?.name }}</strong>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">Available Options</div>
             </ng-template>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">Total: {{ options.length }} options</div>
             </ng-template>
-            <ng-template aglTemplate="empty">
+            <ng-template #empty>
                 <div class="custom-empty">No options available</div>
             </ng-template>
-            <ng-template aglTemplate="emptyfilter">
+            <ng-template #emptyfilter>
                 <div class="custom-empty-filter">No results found</div>
             </ng-template>
-            <ng-template aglTemplate="filter" let-options="options">
+            <ng-template #filter let-options="options">
                 <div class="custom-filter">
                     <input type="text" class="custom-filter-input" (input)="onCustomFilter($event)" placeholder="Custom filter..." />
                 </div>
             </ng-template>
-            <ng-template aglTemplate="loader" let-options="options">
+            <ng-template #loader let-options="options">
                 <div class="custom-loader">Loading items...</div>
             </ng-template>
-            <ng-template aglTemplate="dropdownicon" let-class="class">
+            <ng-template #dropdownicon let-class="class">
                 <i [class]="'pi pi-chevron-down ' + class"></i>
             </ng-template>
-            <ng-template aglTemplate="clearicon" let-class="class">
+            <ng-template #clearicon let-class="class">
                 <i [class]="'pi pi-times ' + class"></i>
             </ng-template>
-            <ng-template aglTemplate="filtericon">
+            <ng-template #filtericon>
                 <i class="pi pi-search custom-filter-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="loadingicon">
+            <ng-template #loadingicon>
                 <i class="pi pi-spin pi-spinner custom-loading-icon"></i>
             </ng-template>
         </agl-select>
