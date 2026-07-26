@@ -54,15 +54,22 @@ const LEGACY = [
     [/@ContentChild\('[a-z]+'/g, "@ContentChild('x') — decorator query, use contentChild('x')"],
     [/@ContentChild\((?:Header|Footer)\)/g, '@ContentChild(Header|Footer) — the retired facet query'],
     [/@ContentChildren\(AglTemplate\)/g, '@ContentChildren(AglTemplate) — the retired aglTemplate switch'],
-    [/^\s+_[a-zA-Z]+Template[!:? ]/gm, '_xTemplate shadow field — the aglTemplate switch target'],
-    // Three spellings, all found the hard way during the first batch of six modules:
-    //   `||`      the common form
-    //   `??`      menu gated with this; treetable still does
-    //   `this.`   button's gate lives in a TypeScript getter, not a template:
-    //             `this.iconTemplate || this._iconTemplate`
-    // A pattern written for the first spelling alone passes the other two in silence, which is
-    // the same class of miss as a rename codemod that only knows one naming convention.
-    [/[a-zA-Z]+Template\s*(?:\|\||\?\?)\s*(?:this\.)?_[a-zA-Z]+Template/g, '`xTemplate || _xTemplate` gate (any of the `||` / `??` / `this._x` spellings) — the silent-mismatch site'],
+    // `_\w*[Tt]emplate`, not `_[a-zA-Z]+Template`: toast's slot is called `template`, with a
+    // shadow field named plainly `_template`. Every pattern here assumed the `xTemplate`
+    // suffix and was blind to it, so toast read as fully migrated while `_template` survived
+    // and `template || _template` silently compared a signal function — always truthy.
+    [/^\s+_\w*[Tt]emplate[!:? ]/gm, '_xTemplate shadow field — the aglTemplate switch target'],
+    // Five spellings, every one of them found by being bitten, not by being clever:
+    //   `||`             the common form
+    //   `??`             menu gated with this; treetable still does
+    //   `this._x`        button's gate lives in a TypeScript getter, not a template
+    //   `<obj>._x`       tieredmenu reads the parent through a child component:
+    //                    `tieredMenu.submenuIconTemplate || tieredMenu._submenuIconTemplate`
+    //   lowercase name   toast's slot is `template` / `_template`, no `xTemplate` suffix
+    // Each new spelling passed the previous pattern in complete silence. The object prefix is
+    // therefore `(?:\w+\.)?` — any receiver, not an enumerated list — because the next module
+    // will name its receiver something nobody predicted.
+    [/\w*[Tt]emplate\s*(?:\|\||\?\?)\s*(?:\w+\.)?_\w*[Tt]emplate/g, '`xTemplate || _xTemplate` gate (any `||` / `??` / `<obj>._x` / lowercase spelling) — the silent-mismatch site'],
     [/<ng-content select="agl-(?:header|footer)"/g, '<ng-content select="agl-header|agl-footer"> — the retired facet slot']
 ];
 
@@ -127,6 +134,27 @@ for (const mod of modules) {
         }
     }
 
+    // --- INV-5: a migrated slot must never be read in a boolean position without `()`
+    //
+    // togglebutton's template said `@if (!contentTemplate)` with no `_x` sibling, so no gate
+    // pattern touched it. Once the field became a signal that reads `!<function>` — always
+    // false — and the entire block, icons and labels included, stopped rendering. TypeScript
+    // is silent: a function is a perfectly good truthy value. INV-1 saw no legacy marker and
+    // INV-2 saw the slot read elsewhere, so both passed. Only the render tests caught it, and
+    // only because this component happened to have some.
+    //
+    // A name is skipped when the module also declares it as `@Input()` or `@ViewChild` — menu,
+    // tieredmenu and toast each pass a plain TemplateRef down to a child input of the same
+    // name, and those bare reads are correct.
+    const shadowedByInput = (f) => new RegExp(`@(?:Input\\([^)]*\\)|ViewChild\\([^)]*\\))\\s*${f}\\b`).test(srcText);
+    for (const { field } of slots) {
+        if (shadowedByInput(field)) continue;
+        const boolRead = new RegExp(`(?:!\\s*|\\|\\|\\s*|&&\\s*)${field}\\b(?!\\s*\\()|\\b${field}\\s*(?:\\|\\||&&)`, 'g');
+        for (const m of srcText.match(boolRead) ?? []) {
+            problems.push([`packages/angulux/src/${mod}`, `\`${m.trim()}\` reads the slot without calling it — a signal is always truthy, so this branch silently never changes`]);
+        }
+    }
+
     // --- INV-3: a migrated module's spec must not drive the retired routes
     for (const f of specs) {
         const t = readFileSync(f, 'utf8');
@@ -136,6 +164,14 @@ for (const mod of modules) {
         // counts.
         if (/<[a-zA-Z][\w-]*[^>]*\saglTemplate=/.test(t)) problems.push([rel(f), 'spec feeds `aglTemplate=` into a migrated component — it tests a route that no longer exists']);
         if (/<agl-(?:header|footer)[\s>]/.test(t)) problems.push([rel(f), 'spec feeds `<agl-header>`/`<agl-footer>` into a migrated component — the facet route is retired']);
+        // Reading a member the migration deleted. "TypeScript will catch it" is only true when
+        // the fixture is typed: password and scroller held `any`-typed instances, so
+        // `if (cmp.templates)` compiled into a branch that silently never runs, and
+        // `expect(a.templates || b._x || b.loaderIconTemplate)` passed on a signal function
+        // being truthy. Both were green and both tested nothing.
+        for (const m of t.matchAll(/\.(templates|_\w*[Tt]emplate)\b/g)) {
+            problems.push([rel(f), `spec still reads \`.${m[1]}\` — a member this module's migration deleted; on an \`any\`-typed fixture that compiles and passes while testing nothing`]);
+        }
     }
 }
 

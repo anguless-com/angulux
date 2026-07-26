@@ -91,16 +91,16 @@ class TestIconTemplatesComponent {}
     standalone: false,
     template: `
         <agl-message [closable]="true">
-            <ng-template aglTemplate="container" let-closeCallback="closeCallback">
+            <ng-template #container let-closeCallback="closeCallback">
                 <div class="ptemplate-container">
                     PTemplate Container
                     <button class="ptemplate-close" (click)="closeCallback($event)">Close</button>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="icon">
+            <ng-template #icon>
                 <i class="ptemplate-icon">📢</i>
             </ng-template>
-            <ng-template aglTemplate="closeicon">
+            <ng-template #closeicon>
                 <i class="ptemplate-close-icon">❌</i>
             </ng-template>
         </agl-message>
@@ -574,7 +574,7 @@ describe('Message', () => {
             const messageInstance = messageEl.componentInstance as Message;
 
             messageInstance.ngAfterContentInit();
-            expect(messageInstance._containerTemplate).toBeTruthy();
+            expect(messageInstance.containerTemplate()).toBeTruthy();
         });
 
         it('should process aglTemplate icon in ngAfterContentInit', () => {
@@ -582,7 +582,7 @@ describe('Message', () => {
             const messageInstance = messageEl.componentInstance as Message;
 
             messageInstance.ngAfterContentInit();
-            expect(messageInstance._iconTemplate).toBeTruthy();
+            expect(messageInstance.iconTemplate()).toBeTruthy();
         });
 
         it('should process aglTemplate closeicon in ngAfterContentInit', () => {
@@ -590,7 +590,7 @@ describe('Message', () => {
             const messageInstance = messageEl.componentInstance as Message;
 
             messageInstance.ngAfterContentInit();
-            expect(messageInstance._closeIconTemplate).toBeTruthy();
+            expect(messageInstance.closeIconTemplate()).toBeTruthy();
         });
 
         it('should render aglTemplate content correctly', async () => {

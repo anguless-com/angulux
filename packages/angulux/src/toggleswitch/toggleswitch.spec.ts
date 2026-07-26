@@ -280,14 +280,14 @@ describe('ToggleSwitch', () => {
             expect(templateTestComponent.checked).toBe(true);
         });
 
-        it('should handle template processing in ngAfterContentInit', () => {
+        it('should resolve the handle slot into its signal query', () => {
             const aglTemplateFixture = TestBed.createComponent(TestAglTemplateToggleSwitchComponent);
             const toggleSwitchInstance = aglTemplateFixture.debugElement.query(By.css('agl-toggleswitch')).componentInstance;
 
             aglTemplateFixture.detectChanges();
 
             expect(toggleSwitchInstance).toBeTruthy();
-            expect(toggleSwitchInstance._handleTemplate !== undefined || toggleSwitchInstance._handleTemplate === undefined).toBe(true);
+            expect(toggleSwitchInstance.handleTemplate()).toBeDefined();
         });
     });
 
@@ -678,7 +678,7 @@ class TestTemplateToggleSwitchComponent {
     standalone: false,
     template: `
         <agl-toggleswitch [(ngModel)]="checked">
-            <ng-template aglTemplate="handle" let-checked="checked">
+            <ng-template #handle let-checked="checked">
                 <div class="agl-template-handle">Agl Handle</div>
             </ng-template>
         </agl-toggleswitch>
@@ -714,7 +714,7 @@ class TestNamedToggleSwitchComponent {
     template: `
         <agl-toggleswitch [(ngModel)]="checked">
             <!-- Handle template with aglTemplate -->
-            <ng-template aglTemplate="handle" let-checked="checked">
+            <ng-template #handle let-checked="checked">
                 <span class="custom-template-handle" [attr.data-testid]="'ptemplate-handle-' + (checked ? 'on' : 'off')" [title]="checked ? 'Template Handle On' : 'Template Handle Off'">
                     <i [class]="checked ? 'pi pi-check' : 'pi pi-times'"></i>
                     {{ checked ? 'ON' : 'OFF' }}

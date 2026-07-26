@@ -3,9 +3,7 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     forwardRef,
     HostListener,
@@ -16,13 +14,12 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
@@ -67,8 +64,8 @@ export const TOGGLESWITCH_VALUE_ACCESSOR: any = {
         />
         <div [class]="cx('slider')" [aglBind]="ptm('slider')" [attr.data-p]="dataP">
             <div [class]="cx('handle')" [aglBind]="ptm('handle')" [attr.data-p]="dataP">
-                @if (handleTemplate || _handleTemplate) {
-                    <ng-container *ngTemplateOutlet="handleTemplate || _handleTemplate; context: { checked: checked() }" />
+                @if (handleTemplate()) {
+                    <ng-container *ngTemplateOutlet="handleTemplate(); context: { checked: checked() }" />
                 }
             </div>
         </div>
@@ -162,32 +159,15 @@ export class ToggleSwitch extends BaseEditableHolder<ToggleSwitchPassThrough> {
      * @see {@link ToggleSwitchHandleTemplateContext}
      * @group Templates
      */
-    @ContentChild('handle', { descendants: false }) handleTemplate: TemplateRef<ToggleSwitchHandleTemplateContext> | undefined;
-
-    _handleTemplate: TemplateRef<ToggleSwitchHandleTemplateContext> | undefined;
+    handleTemplate = contentChild<TemplateRef<ToggleSwitchHandleTemplateContext>>('handle', { descendants: false });
 
     focused: boolean = false;
 
     _componentStyle = inject(ToggleSwitchStyle);
 
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
-
     @HostListener('click', ['$event'])
     onHostClick(event: MouseEvent) {
         this.onClick(event);
-    }
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'handle':
-                    this._handleTemplate = item.template;
-                    break;
-                default:
-                    this._handleTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     onClick(event: Event) {

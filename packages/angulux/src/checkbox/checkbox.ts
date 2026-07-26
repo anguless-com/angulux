@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     forwardRef,
     inject,
@@ -16,7 +14,6 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     signal,
     SimpleChanges,
     TemplateRef,
@@ -25,7 +22,7 @@ import {
 } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { contains, equals } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -72,14 +69,14 @@ export const CHECKBOX_VALUE_ACCESSOR: any = {
             (change)="handleChange($event)"
         />
         <div [class]="cx('box')" [aglBind]="ptm('box')" [attr.data-p]="dataP">
-            <ng-container *ngIf="!checkboxIconTemplate && !_checkboxIconTemplate">
+            <ng-container *ngIf="!checkboxIconTemplate()">
                 <ng-container *ngIf="checked">
                     <span *ngIf="checkboxIcon" [class]="cx('icon')" [ngClass]="checkboxIcon" [aglBind]="ptm('icon')" [attr.data-p]="dataP"></span>
                     <svg data-p-icon="check" *ngIf="!checkboxIcon" [class]="cx('icon')" [aglBind]="ptm('icon')" [attr.data-p]="dataP" />
                 </ng-container>
                 <svg data-p-icon="minus" *ngIf="_indeterminate()" [class]="cx('icon')" [aglBind]="ptm('icon')" [attr.data-p]="dataP" />
             </ng-container>
-            <ng-template *ngTemplateOutlet="checkboxIconTemplate || _checkboxIconTemplate; context: { checked: checked, class: cx('icon'), dataP: dataP }"></ng-template>
+            <ng-template *ngTemplateOutlet="checkboxIconTemplate(); context: { checked: checked, class: cx('icon'), dataP: dataP }"></ng-template>
         </div>
     `,
     providers: [CHECKBOX_VALUE_ACCESSOR, CheckboxStyle, { provide: CHECKBOX_INSTANCE, useExisting: Checkbox }, { provide: PARENT_INSTANCE, useExisting: Checkbox }],
@@ -221,11 +218,7 @@ export class Checkbox extends BaseEditableHolder<CheckboxPassThrough> {
      * Custom checkbox icon template.
      * @group Templates
      */
-    @ContentChild('icon', { descendants: false }) checkboxIconTemplate: TemplateRef<CheckboxIconTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: Nullable<QueryList<AglTemplate>>;
-
-    _checkboxIconTemplate: TemplateRef<CheckboxIconTemplateContext> | undefined;
+    checkboxIconTemplate = contentChild<TemplateRef<CheckboxIconTemplateContext>>('icon', { descendants: false });
 
     focused: boolean = false;
 
@@ -236,19 +229,6 @@ export class Checkbox extends BaseEditableHolder<CheckboxPassThrough> {
     $pcCheckbox: Checkbox | undefined = inject(CHECKBOX_INSTANCE, { optional: true, skipSelf: true }) ?? undefined;
 
     $variant = computed(() => this.variant() || this.config.inputStyle() || this.config.inputVariant());
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'icon':
-                    this._checkboxIconTemplate = item.template;
-                    break;
-                case 'checkboxicon':
-                    this._checkboxIconTemplate = item.template;
-                    break;
-            }
-        });
-    }
 
     onChanges(changes: SimpleChanges) {
         if (changes.indeterminate) {

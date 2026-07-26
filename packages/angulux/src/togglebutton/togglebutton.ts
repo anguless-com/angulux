@@ -3,9 +3,7 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    EventEmitter,
+    contentChild, EventEmitter,
     forwardRef,
     HostListener,
     inject,
@@ -15,11 +13,10 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
 import { Bind } from '@anguless/angulux/bind';
@@ -58,14 +55,14 @@ export const TOGGLEBUTTON_VALUE_ACCESSOR: any = {
         '[attr.data-p]': 'dataP'
     },
     template: `<span [class]="cx('content')" [aglBind]="ptm('content')" [attr.data-p]="dataP">
-        <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { $implicit: checked }"></ng-container>
-        @if (!contentTemplate) {
-            @if (!iconTemplate) {
+        <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: checked }"></ng-container>
+        @if (!contentTemplate()) {
+            @if (!iconTemplate()) {
                 @if (onIcon || offIcon) {
                     <span [class]="cn(cx('icon'), checked ? this.onIcon : this.offIcon, iconPos === 'left' ? cx('iconLeft') : cx('iconRight'))" [aglBind]="ptm('icon')"></span>
                 }
             } @else {
-                <ng-container *ngTemplateOutlet="iconTemplate || _iconTemplate; context: { $implicit: checked }"></ng-container>
+                <ng-container *ngTemplateOutlet="iconTemplate(); context: { $implicit: checked }"></ng-container>
             }
             <span [class]="cx('label')" [aglBind]="ptm('label')">{{ checked ? (hasOnLabel ? onLabel : ' ') : hasOffLabel ? offLabel : ' ' }}</span>
         }
@@ -197,16 +194,14 @@ export class ToggleButton extends BaseEditableHolder<ToggleButtonPassThrough> {
      * @see {@link ToggleButtonIconTemplateContext}
      * @group Templates
      */
-    @ContentChild('icon', { descendants: false }) iconTemplate: Nullable<TemplateRef<ToggleButtonIconTemplateContext>>;
+    iconTemplate = contentChild<TemplateRef<ToggleButtonIconTemplateContext>>('icon', { descendants: false });
     /**
      * Custom content template.
      * @param {ToggleButtonContentTemplateContext} context - content context.
      * @see {@link ToggleButtonContentTemplateContext}
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: Nullable<TemplateRef<ToggleButtonContentTemplateContext>>;
-
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
+    contentTemplate = contentChild<TemplateRef<ToggleButtonContentTemplateContext>>('content', { descendants: false });
 
     checked: boolean = false;
 
@@ -232,26 +227,6 @@ export class ToggleButton extends BaseEditableHolder<ToggleButtonPassThrough> {
 
     get active() {
         return this.checked === true;
-    }
-
-    _iconTemplate: TemplateRef<ToggleButtonIconTemplateContext> | undefined;
-
-    _contentTemplate: TemplateRef<ToggleButtonContentTemplateContext> | undefined;
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'icon':
-                    this._iconTemplate = item.template;
-                    break;
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     /**

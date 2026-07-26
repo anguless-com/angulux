@@ -84,7 +84,7 @@ class TestReactiveToggleButtonComponent {
     standalone: false,
     template: `
         <agl-togglebutton [(ngModel)]="checked">
-            <ng-template aglTemplate="content" let-checked>
+            <ng-template #content let-checked>
                 <span class="custom-content">{{ checked ? 'Custom ON' : 'Custom OFF' }}</span>
             </ng-template>
         </agl-togglebutton>
@@ -99,7 +99,7 @@ class TestTemplateToggleButtonComponent {
     standalone: false,
     template: `
         <agl-togglebutton [(ngModel)]="checked">
-            <ng-template aglTemplate="icon" let-checked>
+            <ng-template #icon let-checked>
                 <i [class]="checked ? 'pi pi-check custom-on-icon' : 'pi pi-times custom-off-icon'"></i>
             </ng-template>
         </agl-togglebutton>
@@ -129,12 +129,12 @@ class TestIconToggleButtonComponent {
     template: `
         <agl-togglebutton [(ngModel)]="checked">
             <!-- Icon template with aglTemplate -->
-            <ng-template aglTemplate="icon" let-checked>
+            <ng-template #icon let-checked>
                 <i class="custom-template-icon" [ngClass]="checked ? 'pi pi-star-fill' : 'pi pi-star'" [attr.data-testid]="'ptemplate-icon-' + (checked ? 'on' : 'off')" [title]="checked ? 'Checked State Icon' : 'Unchecked State Icon'"></i>
             </ng-template>
 
             <!-- Content template with aglTemplate -->
-            <ng-template aglTemplate="content" let-checked>
+            <ng-template #content let-checked>
                 <span class="custom-template-content" [attr.data-testid]="'ptemplate-content-' + (checked ? 'on' : 'off')" [title]="checked ? 'Content On' : 'Content Off'">
                     {{ checked ? 'Template ON' : 'Template OFF' }}
                 </span>

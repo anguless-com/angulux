@@ -70,15 +70,15 @@ class TestTemplatesTimelineComponent {
     standalone: false,
     template: `
         <agl-timeline [value]="events">
-            <ng-template aglTemplate="content" let-event>
+            <ng-template #content let-event>
                 <div class="agl-content">{{ event.status }}</div>
             </ng-template>
 
-            <ng-template aglTemplate="opposite" let-event>
+            <ng-template #opposite let-event>
                 <div class="agl-opposite">{{ event.date }}</div>
             </ng-template>
 
-            <ng-template aglTemplate="marker" let-event>
+            <ng-template #marker let-event>
                 <div class="agl-marker">
                     <i [class]="event.icon"></i>
                 </div>

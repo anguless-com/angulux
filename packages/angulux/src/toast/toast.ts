@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    effect,
+    contentChild, effect,
     EventEmitter,
     inject,
     InjectionToken,
@@ -17,14 +15,13 @@ import {
     numberAttribute,
     output,
     Output,
-    QueryList,
     signal,
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { isEmpty, setAttribute, uuid } from '@anguless/angulux-utils';
-import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
+import { MessageService, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { CheckIcon, ExclamationTriangleIcon, InfoCircleIcon, TimesCircleIcon, TimesIcon } from '@anguless/angulux/icons';
@@ -266,8 +263,8 @@ export class ToastItem extends BaseComponent<ToastPassThrough> {
             (onClose)="onMessageClose($event)"
             (onAnimationEnd)="onAnimationEnd()"
             (onAnimationStart)="onAnimationStart()"
-            [template]="template || _template"
-            [headlessTemplate]="headlessTemplate || _headlessTemplate"
+            [template]="template()"
+            [headlessTemplate]="headlessTemplate()"
             [pt]="pt"
             [unstyled]="unstyled()"
             [motionOptions]="computedMotionOptions()"
@@ -395,14 +392,14 @@ export class Toast extends BaseComponent<ToastPassThrough> {
      * @see {@link ToastMessageTemplateContext}
      * @group Templates
      */
-    @ContentChild('message') template: TemplateRef<ToastMessageTemplateContext> | undefined;
+    template = contentChild<TemplateRef<ToastMessageTemplateContext>>('message');
     /**
      * Custom headless template.
      * @param {ToastHeadlessTemplateContext} context - headless context.
      * @see {@link ToastHeadlessTemplateContext}
      * @group Templates
      */
-    @ContentChild('headless') headlessTemplate: TemplateRef<ToastHeadlessTemplateContext> | undefined;
+    headlessTemplate = contentChild<TemplateRef<ToastHeadlessTemplateContext>>('headless');
 
     messageSubscription: Subscription | undefined;
 
@@ -421,8 +418,6 @@ export class Toast extends BaseComponent<ToastPassThrough> {
     styleElement: any;
 
     id: string = uuid('pn_id_');
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
 
     clearAllTrigger = signal<{} | null>(null);
 
@@ -458,27 +453,6 @@ export class Toast extends BaseComponent<ToastPassThrough> {
     clearAll() {
         // trigger signal to clear all messages
         this.clearAllTrigger.set({});
-    }
-
-    _template: TemplateRef<ToastMessageTemplateContext> | undefined;
-
-    _headlessTemplate: TemplateRef<ToastHeadlessTemplateContext> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'message':
-                    this._template = item.template;
-                    break;
-                case 'headless':
-                    this._headlessTemplate = item.template;
-                    break;
-
-                default:
-                    this._template = item.template;
-                    break;
-            }
-        });
     }
 
     onAfterViewInit() {

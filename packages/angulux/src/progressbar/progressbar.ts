@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { booleanAttribute, ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, numberAttribute, QueryList, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { booleanAttribute, ChangeDetectionStrategy, Component, contentChild, inject, InjectionToken, Input, NgModule, numberAttribute, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { ProgressBarContentTemplateContext, ProgressBarPassThrough } from '@anguless/angulux/types/progressbar';
@@ -19,8 +19,8 @@ const PROGRESSBAR_INSTANCE = new InjectionToken<ProgressBar>('PROGRESSBAR_INSTAN
     template: `
         <div *ngIf="mode === 'determinate'" [class]="cn(cx('value'), valueStyleClass)" [aglBind]="ptm('value')" [style.width]="value + '%'" [style.display]="'flex'" [style.background]="color" [attr.data-p]="dataP">
             <div [class]="cx('label')" [aglBind]="ptm('label')" [attr.data-p]="dataP">
-                <div *ngIf="showValue && !contentTemplate && !_contentTemplate" [style.display]="value != null && value !== 0 ? 'flex' : 'none'">{{ value }}{{ unit }}</div>
-                <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { $implicit: value }"></ng-container>
+                <div *ngIf="showValue && !contentTemplate()" [style.display]="value != null && value !== 0 ? 'flex' : 'none'">{{ value }}{{ unit }}</div>
+                <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: value }"></ng-container>
             </div>
         </div>
         <div *ngIf="mode === 'indeterminate'" [class]="cn(cx('value'), valueStyleClass)" [aglBind]="ptm('value')" [style.background]="color" [attr.data-p]="dataP"></div>
@@ -89,29 +89,13 @@ export class ProgressBar extends BaseComponent<ProgressBarPassThrough> {
      * @see {@link ProgressBarContentTemplateContext}
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<ProgressBarContentTemplateContext> | undefined;
+    contentTemplate = contentChild<TemplateRef<ProgressBarContentTemplateContext>>('content', { descendants: false });
 
     onAfterViewChecked(): void {
         this.bindDirectiveInstance.setAttrs(this.ptms(['host', 'root']));
     }
 
     _componentStyle = inject(ProgressBarStyle);
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    _contentTemplate: TemplateRef<ProgressBarContentTemplateContext> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-                default:
-                    this._contentTemplate = item.template;
-            }
-        });
-    }
 
     get dataP() {
         return this.cn({

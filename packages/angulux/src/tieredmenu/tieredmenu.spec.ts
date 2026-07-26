@@ -75,13 +75,13 @@ class TestPopupTieredMenuComponent {
     standalone: false,
     template: `
         <agl-tieredmenu [model]="model">
-            <ng-template aglTemplate="item" let-item let-hasSubmenu="hasSubmenu">
+            <ng-template #item let-item let-hasSubmenu="hasSubmenu">
                 <div class="custom-item">
                     <span class="custom-label">{{ item.label }}</span>
                     <span *ngIf="hasSubmenu" class="custom-arrow">→</span>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="submenuicon">
+            <ng-template #submenuicon>
                 <i class="pi pi-angle-right custom-submenu-icon"></i>
             </ng-template>
         </agl-tieredmenu>
@@ -456,7 +456,7 @@ describe('TieredMenu', () => {
             expect(() => tieredMenuInstance.ngAfterContentInit()).not.toThrow();
 
             // Test that templates property exists and is processed
-            expect(tieredMenuInstance.templates).toBeDefined();
+            expect(tieredMenuInstance.itemTemplate()).toBeDefined();
 
             // Verify aglTemplate item container is rendered
             const menuList = pTemplateFixture.debugElement.query(By.css('ul[role="menu"]'));
@@ -492,7 +492,7 @@ describe('TieredMenu', () => {
             await pTemplateFixture.whenStable();
 
             const pTemplateTieredMenu = pTemplateFixture.debugElement.query(By.directive(TieredMenu)).componentInstance;
-            expect(pTemplateTieredMenu.templates).toBeDefined();
+            expect(pTemplateTieredMenu.itemTemplate()).toBeDefined();
             expect(() => pTemplateTieredMenu.ngAfterContentInit()).not.toThrow();
 
             // Test #item template rendering
@@ -521,7 +521,7 @@ describe('TieredMenu', () => {
 
             // Test that submenu icon template is processed
             expect(() => tieredMenuInstance.ngAfterContentInit()).not.toThrow();
-            expect(tieredMenuInstance.templates).toBeDefined();
+            expect(tieredMenuInstance.itemTemplate()).toBeDefined();
 
             const customIcons = templateFixture.debugElement.queryAll(By.css('.custom-submenu-icon'));
             const angelIcons = templateFixture.debugElement.queryAll(By.css('.pi-angle-right'));

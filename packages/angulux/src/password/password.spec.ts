@@ -941,12 +941,8 @@ describe('Password', () => {
                 // Simulate template context processing
                 templatesFixture.detectChanges();
 
-                // Templates should be available for context binding
-                if (passwordComponent.templates) {
-                    passwordComponent.templates.forEach((template: any) => {
-                        expect(template).toBeTruthy();
-                    });
-                }
+                expect(passwordComponent.headerTemplate()).toBeTruthy();
+                expect(passwordComponent.footerTemplate()).toBeTruthy();
             }).not.toThrow();
         });
 

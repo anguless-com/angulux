@@ -202,7 +202,7 @@ class TestStyledCheckboxComponent {
     template: `
         <agl-checkbox [(ngModel)]="checked" [binary]="true" [value]="value">
             <!-- Icon template with aglTemplate directive -->
-            <ng-template aglTemplate="icon" let-checked>
+            <ng-template #icon let-checked>
                 <span class="custom-checkbox-icon" data-testid="ptemplate-icon">
                     <i *ngIf="checked" class="pi pi-check custom-check-icon"></i>
                     <i *ngIf="!checked" class="pi pi-times custom-uncheck-icon"></i>

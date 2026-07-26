@@ -99,7 +99,7 @@ class TestTemplatePopoverComponent {
     template: `
         <button #targetButton (click)="popover.toggle($event)">Toggle</button>
         <agl-popover #popover>
-            <ng-template aglTemplate="content" let-closeCallback="closeCallback">
+            <ng-template #content let-closeCallback="closeCallback">
                 <div class="ptemplate-content">
                     PTemplate content
                     <button class="close-button" (click)="closeCallback()">Close</button>
@@ -394,7 +394,7 @@ describe('Popover', () => {
 
             it('should process aglTemplate content in ngAfterContentInit', () => {
                 popoverInstance.ngAfterContentInit();
-                expect(popoverInstance._contentTemplate).toBeTruthy();
+                expect(popoverInstance.contentTemplate()).toBeTruthy();
             });
 
             it('should render aglTemplate content correctly', async () => {

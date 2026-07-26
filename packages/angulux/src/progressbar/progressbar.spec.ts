@@ -23,7 +23,7 @@ class TestBasicProgressBarComponent {
     standalone: false,
     template: `
         <agl-progressbar [value]="value">
-            <ng-template aglTemplate="content" let-value>
+            <ng-template #content let-value>
                 <div class="custom-template-content">Progress: {{ value }}%</div>
             </ng-template>
         </agl-progressbar>
@@ -302,7 +302,7 @@ describe('ProgressBar', () => {
 
             expect(() => templateProgressBar.ngAfterContentInit()).not.toThrow();
 
-            expect(templateProgressBar.templates).toBeDefined();
+            expect(templateProgressBar.contentTemplate()).toBeDefined();
 
             const content = templateFixture.debugElement.query(By.css('[data-pc-section="value"]'));
             expect(content).toBeTruthy();
@@ -625,7 +625,7 @@ describe('ProgressBar', () => {
             const templateProgressBar = templateFixture.debugElement.query(By.directive(ProgressBar)).componentInstance;
 
             expect(templateProgressBar).toBeTruthy();
-            expect(templateProgressBar.templates !== undefined || templateProgressBar.contentTemplate !== undefined).toBe(true);
+            expect(templateProgressBar.contentTemplate()).toBeDefined();
         });
     });
 

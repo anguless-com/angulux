@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    effect,
+    contentChild, effect,
     ElementRef,
     EventEmitter,
     forwardRef,
@@ -18,7 +16,6 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     Renderer2,
     signal,
     TemplateRef,
@@ -29,7 +26,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addStyle, appendChild, findLastIndex, findSingle, focus, getOuterWidth, isEmpty, isNotEmpty, isPrintableCharacter, isTouchDevice, nestedPosition, relativePosition, resolve, uuid } from '@anguless/angulux-utils';
-import { MenuItem, OverlayService, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { MenuItem, OverlayService, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
@@ -148,12 +145,12 @@ const TIEREDMENUSUB_INSTANCE = new InjectionToken<TieredMenuSub>('TIEREDMENUSUB_
                                     <ng-container *ngIf="isItemGroup(processedItem)">
                                         <svg
                                             data-p-icon="angle-right"
-                                            *ngIf="!tieredMenu.submenuIconTemplate && !tieredMenu._submenuIconTemplate"
+                                            *ngIf="!tieredMenu.submenuIconTemplate()"
                                             [class]="cx('submenuIcon')"
                                             [aglBind]="getPTOptions(processedItem, index, 'submenuIcon')"
                                             [attr.aria-hidden]="true"
                                         />
-                                        <ng-template *ngTemplateOutlet="tieredMenu.submenuIconTemplate || tieredMenu._submenuIconTemplate" [attr.aria-hidden]="true"></ng-template>
+                                        <ng-template *ngTemplateOutlet="tieredMenu.submenuIconTemplate()" [attr.aria-hidden]="true"></ng-template>
                                     </ng-container>
                                 </a>
                                 <a
@@ -207,12 +204,12 @@ const TIEREDMENUSUB_INSTANCE = new InjectionToken<TieredMenuSub>('TIEREDMENUSUB_
                                     <ng-container *ngIf="isItemGroup(processedItem)">
                                         <svg
                                             data-p-icon="angle-right"
-                                            *ngIf="!tieredMenu.submenuIconTemplate && !tieredMenu._submenuIconTemplate"
+                                            *ngIf="!tieredMenu.submenuIconTemplate()"
                                             [class]="cx('submenuIcon')"
                                             [aglBind]="getPTOptions(processedItem, index, 'submenuIcon')"
                                             [attr.aria-hidden]="true"
                                         />
-                                        <ng-template *ngTemplateOutlet="tieredMenu.submenuIconTemplate || tieredMenu._submenuIconTemplate" [attr.aria-hidden]="true"></ng-template>
+                                        <ng-template *ngTemplateOutlet="tieredMenu.submenuIconTemplate()" [attr.aria-hidden]="true"></ng-template>
                                     </ng-container>
                                 </a>
                             </ng-container>
@@ -461,7 +458,7 @@ export class TieredMenuSub extends BaseComponent<TieredMenuPassThrough> {
                     [root]="true"
                     [visible]="true"
                     [items]="processedItems"
-                    [itemTemplate]="itemTemplate || _itemTemplate"
+                    [itemTemplate]="itemTemplate()"
                     [menuId]="id"
                     [tabindex]="!disabled ? tabindex : -1"
                     [ariaLabel]="ariaLabel"
@@ -612,16 +609,14 @@ export class TieredMenu extends BaseComponent<TieredMenuPassThrough> {
      * Custom submenu icon template.
      * @group Templates
      */
-    @ContentChild('submenuicon', { descendants: false }) submenuIconTemplate: TemplateRef<void> | undefined;
+    submenuIconTemplate = contentChild<TemplateRef<void>>('submenuicon', { descendants: false });
     /**
      * Custom item template.
      * @param {TieredMenuItemTemplateContext} context - item context.
      * @see {@link TieredMenuItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('item', { descendants: false }) itemTemplate: TemplateRef<TieredMenuItemTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
+    itemTemplate = contentChild<TemplateRef<TieredMenuItemTemplateContext>>('item', { descendants: false });
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
@@ -669,9 +664,6 @@ export class TieredMenu extends BaseComponent<TieredMenuPassThrough> {
 
     public queryMatches = signal<boolean>(false);
 
-    _submenuIconTemplate: TemplateRef<void> | undefined;
-
-    _itemTemplate: TemplateRef<TieredMenuItemTemplateContext> | undefined;
 
     get visibleItems() {
         const processedItem = this.activeItemPath().find((p) => p.key === this.focusedItemInfo().parentKey);
@@ -712,24 +704,6 @@ export class TieredMenu extends BaseComponent<TieredMenuPassThrough> {
     onInit() {
         this.bindMatchMediaListener();
         this.id = this.id || uuid('pn_id_');
-    }
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'submenuicon':
-                    this._submenuIconTemplate = item.template;
-                    break;
-
-                case 'item':
-                    this._itemTemplate = item.template;
-                    break;
-
-                default:
-                    this._itemTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     bindMatchMediaListener() {

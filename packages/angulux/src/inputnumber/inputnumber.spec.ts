@@ -127,17 +127,17 @@ class TestFormInputNumberComponent {
     template: `
         <agl-inputNumber [(ngModel)]="value" [showButtons]="true" [showClear]="true" [mode]="'currency'" [currency]="'USD'" [locale]="'en-US'" [min]="min" [max]="max" [step]="step">
             <!-- Clear icon template with aglTemplate directive -->
-            <ng-template aglTemplate="clearicon">
+            <ng-template #clearicon>
                 <i class="pi pi-times custom-clear-icon" data-testid="ptemplate-clearicon"></i>
             </ng-template>
 
             <!-- Increment button icon template -->
-            <ng-template aglTemplate="incrementbuttonicon">
+            <ng-template #incrementbuttonicon>
                 <i class="pi pi-plus custom-increment-icon" data-testid="ptemplate-incrementicon"></i>
             </ng-template>
 
             <!-- Decrement button icon template -->
-            <ng-template aglTemplate="decrementbuttonicon">
+            <ng-template #decrementbuttonicon>
                 <i class="pi pi-minus custom-decrement-icon" data-testid="ptemplate-decrementicon"></i>
             </ng-template>
         </agl-inputNumber>

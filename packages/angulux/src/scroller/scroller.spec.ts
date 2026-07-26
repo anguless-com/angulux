@@ -3534,8 +3534,7 @@ describe('Scroller', () => {
                 expect(scroller._loading).toBe(true);
                 expect(scroller._showLoader).toBe(true);
 
-                // Test that component is configured for loader icon template
-                expect(scroller.templates || scroller._loaderIconTemplate || scroller.loaderIconTemplate).toBeTruthy();
+                expect(scroller.loaderIconTemplate()).toBeTruthy();
             });
         });
 
