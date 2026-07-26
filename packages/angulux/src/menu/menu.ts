@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     forwardRef,
     Inject,
@@ -20,7 +18,6 @@ import {
     Pipe,
     PipeTransform,
     PLATFORM_ID,
-    QueryList,
     signal,
     TemplateRef,
     viewChild,
@@ -31,7 +28,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addStyle, appendChild, find, findSingle, focus, isTouchDevice, uuid } from '@anguless/angulux-utils';
-import { MenuItem, OverlayService, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { MenuItem, OverlayService, SharedModule } from '@anguless/angulux/api';
 import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -182,8 +179,8 @@ export class MenuItemContent extends BaseComponent {
                 (aglMotionOnBeforeEnter)="onOverlayBeforeEnter($event)"
                 (aglMotionOnAfterLeave)="onOverlayAfterLeave()"
             >
-                <div *ngIf="startTemplate ?? _startTemplate" [class]="cx('start')" [aglBind]="ptm('start')" [attr.data-pc-section]="'start'">
-                    <ng-container *ngTemplateOutlet="startTemplate ?? _startTemplate"></ng-container>
+                <div *ngIf="startTemplate()" [class]="cx('start')" [aglBind]="ptm('start')" [attr.data-pc-section]="'start'">
+                    <ng-container *ngTemplateOutlet="startTemplate()"></ng-container>
                 </div>
                 <ul
                     #list
@@ -214,11 +211,11 @@ export class MenuItemContent extends BaseComponent {
                             [attr.id]="menuitemId(submenu, id, i)"
                             [attr.data-pc-section]="'submenulabel'"
                         >
-                            <ng-container *ngIf="!submenuHeaderTemplate && !_submenuHeaderTemplate">
+                            <ng-container *ngIf="!submenuHeaderTemplate()">
                                 <span *ngIf="submenu.escape !== false; else htmlSubmenuLabel">{{ submenu.label }}</span>
                                 <ng-template #htmlSubmenuLabel><span [innerHTML]="submenu.label | safeHtml"></span></ng-template>
                             </ng-container>
-                            <ng-container *ngTemplateOutlet="submenuHeaderTemplate ?? _submenuHeaderTemplate; context: { $implicit: submenu }"></ng-container>
+                            <ng-container *ngTemplateOutlet="submenuHeaderTemplate(); context: { $implicit: submenu }"></ng-container>
                         </li>
                         <ng-template ngFor let-item let-j="index" [ngForOf]="submenu.items">
                             <li [class]="cx('separator')" [aglBind]="ptm('separator')" *ngIf="item.separator && (item.visible !== false || submenu.visible !== false)" role="separator" [attr.data-pc-section]="'separator'"></li>
@@ -227,7 +224,7 @@ export class MenuItemContent extends BaseComponent {
                                 [aglBind]="ptm('item')"
                                 *ngIf="!item.separator && item.visible !== false && (item.visible !== undefined || submenu.visible !== false)"
                                 [aglMenuItemContent]="item"
-                                [itemTemplate]="itemTemplate ?? _itemTemplate"
+                                [itemTemplate]="itemTemplate()"
                                 [idx]="j"
                                 [menuitemId]="menuitemId(item, id, i, j)"
                                 [style]="item.style"
@@ -252,7 +249,7 @@ export class MenuItemContent extends BaseComponent {
                             [aglBind]="ptm('item')"
                             *ngIf="!item.separator && item.visible !== false"
                             [aglMenuItemContent]="item"
-                            [itemTemplate]="itemTemplate ?? _itemTemplate"
+                            [itemTemplate]="itemTemplate()"
                             [idx]="i"
                             [menuitemId]="menuitemId(item, id, i)"
                             [ngStyle]="item.style"
@@ -270,8 +267,8 @@ export class MenuItemContent extends BaseComponent {
                         ></li>
                     </ng-template>
                 </ul>
-                <div *ngIf="endTemplate ?? _endTemplate" [class]="cx('end')" [aglBind]="ptm('end')" [attr.data-pc-section]="'end'">
-                    <ng-container *ngTemplateOutlet="endTemplate ?? _endTemplate"></ng-container>
+                <div *ngIf="endTemplate()" [class]="cx('end')" [aglBind]="ptm('end')" [attr.data-pc-section]="'end'">
+                    <ng-container *ngTemplateOutlet="endTemplate()"></ng-container>
                 </div>
             </div>
         }
@@ -485,22 +482,13 @@ export class Menu extends BaseComponent<MenuPassThrough> {
      * Defines template option for start.
      * @group Templates
      */
-    @ContentChild('start', { descendants: false }) startTemplate: TemplateRef<void> | undefined;
-    _startTemplate: TemplateRef<void> | undefined;
+    startTemplate = contentChild<TemplateRef<void>>('start', { descendants: false });
 
     /**
      * Defines template option for end.
      * @group Templates
      */
-    @ContentChild('end', { descendants: false }) endTemplate: TemplateRef<void> | undefined;
-    _endTemplate: TemplateRef<void> | undefined;
-
-    /**
-     * Defines template option for header.
-     * @group Templates
-     */
-    @ContentChild('header', { descendants: false }) headerTemplate: TemplateRef<void> | undefined;
-    _headerTemplate: TemplateRef<void> | undefined;
+    endTemplate = contentChild<TemplateRef<void>>('end', { descendants: false });
 
     /**
      * Custom item template.
@@ -508,8 +496,7 @@ export class Menu extends BaseComponent<MenuPassThrough> {
      * @see {@link MenuItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('item', { descendants: false }) itemTemplate: TemplateRef<MenuItemTemplateContext> | undefined;
-    _itemTemplate: TemplateRef<MenuItemTemplateContext> | undefined;
+    itemTemplate = contentChild<TemplateRef<MenuItemTemplateContext>>('item', { descendants: false });
 
     /**
      * Custom submenu header template.
@@ -517,36 +504,7 @@ export class Menu extends BaseComponent<MenuPassThrough> {
      * @see {@link MenuSubmenuHeaderTemplateContext}
      * @group Templates
      */
-    @ContentChild('submenuheader', { descendants: false }) submenuHeaderTemplate: TemplateRef<MenuSubmenuHeaderTemplateContext> | undefined;
-    _submenuHeaderTemplate: TemplateRef<MenuSubmenuHeaderTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate>;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'start':
-                    this._startTemplate = item.template;
-                    break;
-
-                case 'end':
-                    this._endTemplate = item.template;
-                    break;
-
-                case 'item':
-                    this._itemTemplate = item.template;
-                    break;
-
-                case 'submenuheader':
-                    this._submenuHeaderTemplate = item.template;
-                    break;
-
-                default:
-                    this._itemTemplate = item.template;
-                    break;
-            }
-        });
-    }
+    submenuHeaderTemplate = contentChild<TemplateRef<MenuSubmenuHeaderTemplateContext>>('submenuheader', { descendants: false });
 
     getTabIndexValue(): string | null {
         return this.tabindex !== undefined ? this.tabindex.toString() : null;

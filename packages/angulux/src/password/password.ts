@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    Directive,
+    contentChild, Directive,
     effect,
     ElementRef,
     EventEmitter,
@@ -22,7 +20,6 @@ import {
     Output,
     Pipe,
     PipeTransform,
-    QueryList,
     signal,
     TemplateRef,
     ViewChild,
@@ -31,7 +28,7 @@ import {
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addClass, hasClass, isTouchDevice, removeClass } from '@anguless/angulux-utils';
-import { OverlayOptions, OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { OverlayOptions, OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
@@ -466,23 +463,23 @@ export const Password_VALUE_ACCESSOR: any = {
             [unstyled]="unstyled()"
         />
         <ng-container *ngIf="showClear && value != null">
-            <svg data-p-icon="times" *ngIf="!clearIconTemplate && !_clearIconTemplate" [class]="cx('clearIcon')" (click)="clear()" [aglBind]="ptm('clearIcon')" />
+            <svg data-p-icon="times" *ngIf="!clearIconTemplate()" [class]="cx('clearIcon')" (click)="clear()" [aglBind]="ptm('clearIcon')" />
             <span (click)="clear()" [class]="cx('clearIcon')" [aglBind]="ptm('clearIcon')">
-                <ng-template *ngTemplateOutlet="clearIconTemplate || _clearIconTemplate"></ng-template>
+                <ng-template *ngTemplateOutlet="clearIconTemplate()"></ng-template>
             </span>
         </ng-container>
 
         <ng-container *ngIf="toggleMask">
             <ng-container *ngIf="unmasked">
-                <svg data-p-icon="eyeslash" [class]="cx('maskIcon')" [aglBind]="ptm('maskIcon')" *ngIf="!hideIconTemplate && !_hideIconTemplate" (click)="onMaskToggle()" />
-                <span *ngIf="hideIconTemplate || _hideIconTemplate" (click)="onMaskToggle()" [aglBind]="ptm('maskIcon')">
-                    <ng-template *ngTemplateOutlet="hideIconTemplate || _hideIconTemplate; context: { class: cx('maskIcon') }"></ng-template>
+                <svg data-p-icon="eyeslash" [class]="cx('maskIcon')" [aglBind]="ptm('maskIcon')" *ngIf="!hideIconTemplate()" (click)="onMaskToggle()" />
+                <span *ngIf="hideIconTemplate()" (click)="onMaskToggle()" [aglBind]="ptm('maskIcon')">
+                    <ng-template *ngTemplateOutlet="hideIconTemplate(); context: { class: cx('maskIcon') }"></ng-template>
                 </span>
             </ng-container>
             <ng-container *ngIf="!unmasked">
-                <svg data-p-icon="eye" *ngIf="!showIconTemplate && !_showIconTemplate" [class]="cx('unmaskIcon')" [aglBind]="ptm('unmaskIcon')" (click)="onMaskToggle()" />
-                <span *ngIf="showIconTemplate || _showIconTemplate" (click)="onMaskToggle()" [aglBind]="ptm('unmaskIcon')">
-                    <ng-template *ngTemplateOutlet="showIconTemplate || _showIconTemplate; context: { class: cx('unmaskIcon') }"></ng-template>
+                <svg data-p-icon="eye" *ngIf="!showIconTemplate()" [class]="cx('unmaskIcon')" [aglBind]="ptm('unmaskIcon')" (click)="onMaskToggle()" />
+                <span *ngIf="showIconTemplate()" (click)="onMaskToggle()" [aglBind]="ptm('unmaskIcon')">
+                    <ng-template *ngTemplateOutlet="showIconTemplate(); context: { class: cx('unmaskIcon') }"></ng-template>
                 </span>
             </ng-container>
         </ng-container>
@@ -490,9 +487,9 @@ export const Password_VALUE_ACCESSOR: any = {
         <agl-overlay #overlay [hostAttrSelector]="$attrSelector" [(visible)]="overlayVisible" [options]="overlayOptions" [target]="'@parent'" [appendTo]="$appendTo()" [unstyled]="unstyled()" [pt]="ptm('pcOverlay')" [motionOptions]="motionOptions()">
             <ng-template #content>
                 <div [class]="cx('overlay')" [style]="sx('overlay')" (click)="onOverlayClick($event)" [aglBind]="ptm('overlay')" [attr.data-p]="overlayDataP">
-                    <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate"></ng-container>
-                    <ng-container *ngIf="contentTemplate || _contentTemplate; else defaultContent">
-                        <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate"></ng-container>
+                    <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
+                    <ng-container *ngIf="contentTemplate(); else defaultContent">
+                        <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
                     </ng-container>
                     <ng-template #defaultContent>
                         <div [class]="cx('content')" [aglBind]="ptm('content')">
@@ -502,7 +499,7 @@ export const Password_VALUE_ACCESSOR: any = {
                             <div [class]="cx('meterText')" [aglBind]="ptm('meterText')">{{ infoText }}</div>
                         </div>
                     </ng-template>
-                    <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate"></ng-container>
+                    <ng-container *ngTemplateOutlet="footerTemplate()"></ng-container>
                 </div>
             </ng-template>
         </agl-overlay>
@@ -689,25 +686,25 @@ export class Password extends BaseInput<PasswordPassThrough> {
      * Custom template of content.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: Nullable<TemplateRef<void>>;
+    contentTemplate = contentChild<TemplateRef<void>>('content', { descendants: false });
 
     /**
      * Custom template of footer.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: Nullable<TemplateRef<void>>;
+    footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
 
     /**
      * Custom template of header.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: Nullable<TemplateRef<void>>;
+    headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
 
     /**
      * Custom template of clear icon.
      * @group Templates
      */
-    @ContentChild('clearicon', { descendants: false }) clearIconTemplate: Nullable<TemplateRef<void>>;
+    clearIconTemplate = contentChild<TemplateRef<void>>('clearicon', { descendants: false });
 
     /**
      * Custom template of hide icon.
@@ -715,7 +712,7 @@ export class Password extends BaseInput<PasswordPassThrough> {
      * @see {@link PasswordIconTemplateContext}
      * @group Templates
      */
-    @ContentChild('hideicon', { descendants: false }) hideIconTemplate: Nullable<TemplateRef<PasswordIconTemplateContext>>;
+    hideIconTemplate = contentChild<TemplateRef<PasswordIconTemplateContext>>('hideicon', { descendants: false });
 
     /**
      * Custom template of show icon.
@@ -723,23 +720,14 @@ export class Password extends BaseInput<PasswordPassThrough> {
      * @see {@link PasswordIconTemplateContext}
      * @group Templates
      */
-    @ContentChild('showicon', { descendants: false }) showIconTemplate: Nullable<TemplateRef<PasswordIconTemplateContext>>;
-
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
+    showIconTemplate = contentChild<TemplateRef<PasswordIconTemplateContext>>('showicon', { descendants: false });
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
-    _contentTemplate: TemplateRef<void> | undefined;
 
-    _footerTemplate: TemplateRef<void> | undefined;
 
-    _headerTemplate: TemplateRef<void> | undefined;
 
-    _clearIconTemplate: TemplateRef<void> | undefined;
 
-    _hideIconTemplate: TemplateRef<PasswordIconTemplateContext> | undefined;
-
-    _showIconTemplate: TemplateRef<PasswordIconTemplateContext> | undefined;
 
     overlayVisible: boolean = false;
 
@@ -773,40 +761,6 @@ export class Password extends BaseInput<PasswordPassThrough> {
         this.strongCheckRegExp = new RegExp(this.strongRegex);
         this.translationSubscription = this.config.translationObserver.subscribe(() => {
             this.updateUI(this.value || '');
-        });
-    }
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-
-                case 'clearicon':
-                    this._clearIconTemplate = item.template;
-                    break;
-
-                case 'hideicon':
-                    this._hideIconTemplate = item.template;
-                    break;
-
-                case 'showicon':
-                    this._showIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
         });
     }
 

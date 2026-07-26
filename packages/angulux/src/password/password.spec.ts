@@ -103,7 +103,7 @@ class TestFormPasswordComponent {
     template: `
         <agl-password [(ngModel)]="value" [feedback]="feedback" [toggleMask]="toggleMask" [showClear]="showClear" [placeholder]="placeholder">
             <!-- Header template with aglTemplate directive -->
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header" data-testid="ptemplate-header">
                     <h6>Choose a password</h6>
                     <small>Security is our priority</small>
@@ -111,7 +111,7 @@ class TestFormPasswordComponent {
             </ng-template>
 
             <!-- Content template with strength indicators -->
-            <ng-template aglTemplate="content">
+            <ng-template #content>
                 <div class="custom-content" data-testid="ptemplate-content">
                     <div class="requirement">• At least one lowercase letter</div>
                     <div class="requirement">• At least one uppercase letter</div>
@@ -122,7 +122,7 @@ class TestFormPasswordComponent {
             </ng-template>
 
             <!-- Footer template -->
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer" data-testid="ptemplate-footer">
                     <small>Strong passwords save lives 🔐</small>
                     <div class="tips">
@@ -132,17 +132,17 @@ class TestFormPasswordComponent {
             </ng-template>
 
             <!-- Clear icon template -->
-            <ng-template aglTemplate="clearicon">
+            <ng-template #clearicon>
                 <i class="pi pi-times custom-clear-icon" data-testid="ptemplate-clearicon"></i>
             </ng-template>
 
             <!-- Hide password icon template -->
-            <ng-template aglTemplate="hideicon">
+            <ng-template #hideicon>
                 <i class="pi pi-eye-slash custom-hide-icon" data-testid="ptemplate-hideicon"></i>
             </ng-template>
 
             <!-- Show password icon template -->
-            <ng-template aglTemplate="showicon">
+            <ng-template #showicon>
                 <i class="pi pi-eye custom-show-icon" data-testid="ptemplate-showicon"></i>
             </ng-template>
         </agl-password>
@@ -790,7 +790,7 @@ describe('Password', () => {
         });
     });
 
-    describe('Password aglTemplate Tests', () => {
+    describe('Password content template slots', () => {
         let templatesFixture: ComponentFixture<TestPasswordPTemplateComponent>;
         let templatesComponent: TestPasswordPTemplateComponent;
         let templatesPasswordElement: any;
@@ -802,7 +802,7 @@ describe('Password', () => {
             templatesFixture.detectChanges();
         });
 
-        it('should create component with aglTemplate templates', () => {
+        it('should create the component with content templates', () => {
             expect(templatesComponent).toBeTruthy();
             expect(templatesPasswordElement).toBeTruthy();
         });
@@ -849,11 +849,12 @@ describe('Password', () => {
             expect(passwordComponent).toBeTruthy();
         });
 
-        it('should have template collection initialized', () => {
+        it('should resolve every declared slot into its signal query', () => {
             const passwordComponent = templatesPasswordElement.componentInstance;
 
-            // Verify that the component has template properties
-            expect(passwordComponent.templates).toBeDefined();
+            for (const slot of ['headerTemplate', 'contentTemplate', 'footerTemplate', 'clearIconTemplate', 'hideIconTemplate', 'showIconTemplate']) {
+                expect(passwordComponent[slot]()).withContext(slot).toBeDefined();
+            }
 
             // Test that we can access template-related properties without errors
             expect(() => {
@@ -888,11 +889,11 @@ describe('Password', () => {
             }).not.toThrow();
         });
 
-        it('should process templates through AglTemplate system', () => {
+        it('should expose the header slot as a signal query', () => {
             const passwordComponent = templatesPasswordElement.componentInstance;
 
             // Verify that templates can be processed
-            expect(passwordComponent.templates).toBeDefined();
+            expect(passwordComponent.headerTemplate()).toBeDefined();
 
             // Test that the template processing lifecycle works
             expect(() => {
@@ -900,7 +901,7 @@ describe('Password', () => {
             }).not.toThrow();
         });
 
-        it('should recognize both aglTemplate and #template structures', () => {
+        it('should resolve slots declared as #template references', () => {
             // Test that component can handle both aglTemplate directive and #template references
             const passwordComponent = templatesPasswordElement.componentInstance;
 
@@ -913,7 +914,7 @@ describe('Password', () => {
             }).not.toThrow();
 
             // Templates should be available for processing
-            expect(passwordComponent.templates).toBeDefined();
+            expect(passwordComponent.headerTemplate()).toBeDefined();
         });
 
         it('should verify #template references are accessible', () => {
@@ -1006,7 +1007,7 @@ describe('Password', () => {
             }).not.toThrow();
 
             // Templates should be properly initialized
-            expect(passwordComponent.templates).toBeDefined();
+            expect(passwordComponent.headerTemplate()).toBeDefined();
         });
     });
 

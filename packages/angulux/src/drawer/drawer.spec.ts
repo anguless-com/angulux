@@ -86,16 +86,16 @@ class TestDrawerBasicComponent {
     imports: [Drawer],
     template: `
         <agl-drawer [(visible)]="visible" [header]="header">
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">Custom Header Template</div>
             </ng-template>
-            <ng-template aglTemplate="content">
+            <ng-template #content>
                 <div class="custom-content">Custom Content Template</div>
             </ng-template>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">Custom Footer Template</div>
             </ng-template>
-            <ng-template aglTemplate="closeicon">
+            <ng-template #closeicon>
                 <i class="pi pi-times custom-close-icon"></i>
             </ng-template>
         </agl-drawer>
@@ -137,7 +137,7 @@ class TestDrawerTemplateRefsComponent {
     imports: [Drawer],
     template: `
         <agl-drawer [(visible)]="visible">
-            <ng-template aglTemplate="headless">
+            <ng-template #headless>
                 <div class="headless-template">
                     <div class="headless-header">Headless Header</div>
                     <div class="headless-content">Headless Content</div>

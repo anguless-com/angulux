@@ -55,7 +55,14 @@ const LEGACY = [
     [/@ContentChild\((?:Header|Footer)\)/g, '@ContentChild(Header|Footer) — the retired facet query'],
     [/@ContentChildren\(AglTemplate\)/g, '@ContentChildren(AglTemplate) — the retired aglTemplate switch'],
     [/^\s+_[a-zA-Z]+Template[!:? ]/gm, '_xTemplate shadow field — the aglTemplate switch target'],
-    [/[a-zA-Z]+Template\s*\|\|\s*_[a-zA-Z]+Template/g, '`xTemplate || _xTemplate` gate — the silent-mismatch site'],
+    // Three spellings, all found the hard way during the first batch of six modules:
+    //   `||`      the common form
+    //   `??`      menu gated with this; treetable still does
+    //   `this.`   button's gate lives in a TypeScript getter, not a template:
+    //             `this.iconTemplate || this._iconTemplate`
+    // A pattern written for the first spelling alone passes the other two in silence, which is
+    // the same class of miss as a rename codemod that only knows one naming convention.
+    [/[a-zA-Z]+Template\s*(?:\|\||\?\?)\s*(?:this\.)?_[a-zA-Z]+Template/g, '`xTemplate || _xTemplate` gate (any of the `||` / `??` / `this._x` spellings) — the silent-mismatch site'],
     [/<ng-content select="agl-(?:header|footer)"/g, '<ng-content select="agl-header|agl-footer"> — the retired facet slot']
 ];
 
@@ -123,7 +130,11 @@ for (const mod of modules) {
     // --- INV-3: a migrated module's spec must not drive the retired routes
     for (const f of specs) {
         const t = readFileSync(f, 'utf8');
-        if (/aglTemplate=/.test(t)) problems.push([rel(f), 'spec feeds `aglTemplate=` into a migrated component — it tests a route that no longer exists']);
+        // Positional, not textual. A bare /aglTemplate=/ also matches the prose it lives in —
+        // `it('should render aglTemplate="content" …')` — and a gate that fires on its own
+        // test names is a gate people learn to switch off. Only an attribute on a real element
+        // counts.
+        if (/<[a-zA-Z][\w-]*[^>]*\saglTemplate=/.test(t)) problems.push([rel(f), 'spec feeds `aglTemplate=` into a migrated component — it tests a route that no longer exists']);
         if (/<agl-(?:header|footer)[\s>]/.test(t)) problems.push([rel(f), 'spec feeds `<agl-header>`/`<agl-footer>` into a migrated component — the facet route is retired']);
     }
 }

@@ -180,13 +180,13 @@ class TestItemTemplateMenuComponent {
     selector: 'test-ptemplate-menu',
     template: `
         <agl-menu [model]="model">
-            <ng-template aglTemplate="item" let-item>
+            <ng-template #item let-item>
                 <span class="p-template-item">{{ item.label }}</span>
             </ng-template>
-            <ng-template aglTemplate="start">
+            <ng-template #start>
                 <div class="menu-start">Header Content</div>
             </ng-template>
-            <ng-template aglTemplate="end">
+            <ng-template #end>
                 <div class="menu-end">Footer Content</div>
             </ng-template>
         </agl-menu>
@@ -628,32 +628,29 @@ describe('Menu', () => {
             const itemTemplateMenu = itemTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
 
             expect(() => itemTemplateMenu.ngAfterContentInit()).not.toThrow();
-            expect(itemTemplateMenu.itemTemplate).toBeDefined();
+            expect(itemTemplateMenu.itemTemplate()).toBeDefined();
         });
 
-        it('should handle aglTemplate processing', async () => {
+        it('should resolve the start and end slots', async () => {
             const pTemplateFixture = TestBed.createComponent(TestPTemplateMenuComponent);
             pTemplateFixture.detectChanges();
             await pTemplateFixture.whenStable();
 
             const pTemplateMenu = pTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
 
-            expect(() => pTemplateMenu.ngAfterContentInit()).not.toThrow();
-            expect(pTemplateMenu.templates).toBeDefined();
+            expect(pTemplateMenu.startTemplate()).toBeDefined();
+            expect(pTemplateMenu.endTemplate()).toBeDefined();
         });
 
-        it('should process AglTemplate types correctly', async () => {
+        it('should resolve every declared slot into its signal query', async () => {
             const pTemplateFixture = TestBed.createComponent(TestPTemplateMenuComponent);
             pTemplateFixture.changeDetectorRef.markForCheck();
             await pTemplateFixture.whenStable();
 
             const pTemplateMenu = pTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
 
-            pTemplateMenu.ngAfterContentInit();
-
-            expect(pTemplateMenu.templates).toBeDefined();
-            expect(pTemplateMenu._startTemplate).toBeDefined();
-            expect(pTemplateMenu._endTemplate).toBeDefined();
+            expect(pTemplateMenu.startTemplate()).toBeDefined();
+            expect(pTemplateMenu.endTemplate()).toBeDefined();
         });
 
         it('should render start and end templates', () => {
@@ -669,16 +666,14 @@ describe('Menu', () => {
             expect(endContent.nativeElement.textContent).toContain('Footer Content');
         });
 
-        it('should prioritize itemTemplate over _itemTemplate', async () => {
+        it('should resolve the item slot into its signal query', async () => {
             const itemTemplateFixture = TestBed.createComponent(TestItemTemplateMenuComponent);
             itemTemplateFixture.changeDetectorRef.markForCheck();
             await itemTemplateFixture.whenStable();
 
             const itemTemplateMenu = itemTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
 
-            itemTemplateMenu.ngAfterContentInit();
-
-            expect(itemTemplateMenu.itemTemplate).toBeDefined();
+            expect(itemTemplateMenu.itemTemplate()).toBeDefined();
         });
 
         it('should render different template types correctly', async () => {
@@ -688,8 +683,7 @@ describe('Menu', () => {
             await pTemplateFixture.whenStable();
 
             const pTemplateMenu = pTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
-            expect(pTemplateMenu.templates).toBeDefined();
-            expect(() => pTemplateMenu.ngAfterContentInit()).not.toThrow();
+            expect(pTemplateMenu.startTemplate()).toBeDefined();
 
             // Test #item template rendering
             const itemTemplateFixture = TestBed.createComponent(TestItemTemplateMenuComponent);
@@ -697,7 +691,7 @@ describe('Menu', () => {
             await itemTemplateFixture.whenStable();
 
             const itemTemplateMenu = itemTemplateFixture.debugElement.query(By.directive(Menu)).componentInstance;
-            expect(itemTemplateMenu.itemTemplate).toBeDefined();
+            expect(itemTemplateMenu.itemTemplate()).toBeDefined();
         });
     });
 
