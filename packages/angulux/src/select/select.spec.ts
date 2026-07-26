@@ -8,6 +8,24 @@ import { BehaviorSubject, timer } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { Select } from './select';
 
+/**
+ * Wait until `predicate` holds, or the deadline passes — then return either way and let the
+ * caller's own `expect` decide the verdict.
+ *
+ * The overlay settles asynchronously (the motion component drives the enter/leave hooks), so a
+ * fixed sleep is a bet on machine speed rather than a statement about the component. This waits
+ * for the condition instead. Crucially it never *forces* the state it is waiting for: if the
+ * deadline expires the caller's assertion goes red, which is the whole point.
+ */
+async function waitUntil(predicate: () => boolean, fixture: ComponentFixture<any>, timeoutMs = 2000): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    while (!predicate() && Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        await fixture.whenStable();
+    }
+    fixture.detectChanges();
+}
+
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
@@ -1120,44 +1138,34 @@ describe('Select', () => {
         it('should handle hide event', async () => {
             // Ensure overlay is shown first
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
-            fixture.detectChanges();
+            await waitUntil(() => selectInstance.overlayVisible === true, fixture);
             expect(selectInstance.overlayVisible).toBe(true);
 
-            // Now hide it
+            // Now hide it.
+            //
+            // The previous version polled for two seconds and then, if the overlay was somehow
+            // still up, assigned `selectInstance.overlayVisible = false` itself before asserting
+            // it was false — an assertion that could not fail, so the test reported green
+            // whatever the component did. Wait for the state and assert it directly instead: if
+            // the overlay never closes, the deadline expires and this goes red, which is what a
+            // test is for.
             selectInstance.hide();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable(); // Process immediate hide
-            fixture.detectChanges();
-
-            // Wait for overlay hide animation to complete
-            // Overlay might use animation frames, so we need to wait longer
-            let attempts = 0;
-            while (selectInstance.overlayVisible && attempts < 20) {
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                await fixture.whenStable(); // Longer intervals
-                fixture.detectChanges();
-                attempts++;
-            }
-
-            // If still visible after reasonable wait, force the state
-            if (selectInstance.overlayVisible) {
-                // Manually trigger overlay close (as a last resort)
-                selectInstance.overlayVisible = false;
-                fixture.detectChanges();
-            }
-
-            // Overlay should now be hidden
+            await waitUntil(() => selectInstance.overlayVisible === false, fixture);
             expect(selectInstance.overlayVisible).toBe(false);
 
-            // Component event handler check
-            if (component.hideEvent) {
-                expect(component.hideEvent).toBeDefined();
-            } else {
-                // Fallback: just verify hide was called (component exists)
-                expect(selectInstance).toBeTruthy();
-            }
+            // And the (onHide) output really reaches the host — the event this test is named for.
+            //
+            // Select emits onHide from onOverlayAfterLeave, which the template binds to the
+            // overlay's (onAfterLeave). That hook is driven by the motion component's leave
+            // transition, and no such transition runs in this headless test bed — waiting for it
+            // times out (verified: hideEvent stays undefined after 2s). That is why the old test
+            // shrugged the check off behind `if (component.hideEvent)`. Drive the hook directly
+            // instead: it verifies the wiring this test is named for — after-leave reaches the
+            // host as (onHide) — without depending on an animation that never plays here.
+            selectInstance.onOverlayAfterLeave({ type: 'afterLeave' });
+            fixture.detectChanges();
+
+            expect(component.hideEvent).toBeDefined();
         });
     });
 
@@ -1226,21 +1234,26 @@ describe('Select', () => {
 
         it('should handle Tab key', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => selectInstance.overlayVisible === true, fixture);
+            expect(selectInstance.overlayVisible).toBe(true);
+
+            // onTabKey has two branches and this test used to hide that. Its body sat inside
+            // `if (selectInstance.overlayVisible)`, wrapped in a try/catch whose handler was
+            // `expect(true).toBe(true)` — so it could report green by never running, by throwing,
+            // or by actually passing, and the three were indistinguishable.
+            //
+            // Which branch runs depends on whether the panel has anything focusable to trap focus
+            // into. Assert that precondition explicitly: in this test bed the panel renders no
+            // focusable content, so Tab closes the overlay. Should the panel ever gain focusable
+            // content, this line goes red and names the reason instead of silently changing what
+            // the test means.
+            expect(selectInstance.hasFocusableElements()).toBe(false);
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'Tab' });
+            selectInstance.onKeyDown(keyEvent);
+            await waitUntil(() => selectInstance.overlayVisible === false, fixture);
 
-            if (selectInstance.overlayVisible) {
-                try {
-                    selectInstance.onKeyDown(keyEvent);
-                    await new Promise((resolve) => setTimeout(resolve, 100));
-                    await fixture.whenStable();
-                    expect(selectInstance.overlayVisible).not.toBe(true);
-                } catch (error) {
-                    expect(true).toBe(true);
-                }
-            }
+            expect(selectInstance.overlayVisible).toBe(false);
         });
 
         it('should handle Home key', async () => {
