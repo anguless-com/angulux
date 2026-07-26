@@ -58,7 +58,12 @@ const LEGACY = [
     // shadow field named plainly `_template`. Every pattern here assumed the `xTemplate`
     // suffix and was blind to it, so toast read as fully migrated while `_template` survived
     // and `template || _template` silently compared a signal function — always truthy.
-    [/^\s+_\w*[Tt]emplate[!:? ]/gm, '_xTemplate shadow field — the aglTemplate switch target'],
+    // A type annotation, not merely the name. `dialog` inverts the convention: its
+    // `@ContentChild('header')` target is *called* `_headerTemplate`, because the plain
+    // `headerTemplate` is taken by a programmatic `@Input()`. Migrating it in place produces
+    // `_headerTemplate = contentChild(…)`, which a name-only pattern would report as leftover
+    // legacy forever. A shadow field always declares a type; a migrated slot always assigns.
+    [/^\s+_\w*[Tt]emplate\s*!?\s*:/gm, '_xTemplate shadow field — the aglTemplate switch target'],
     // Five spellings, every one of them found by being bitten, not by being clever:
     //   `||`             the common form
     //   `??`             menu gated with this; treetable still does
@@ -179,7 +184,12 @@ for (const mod of modules) {
         // `if (cmp.templates)` compiled into a branch that silently never runs, and
         // `expect(a.templates || b._x || b.loaderIconTemplate)` passed on a signal function
         // being truthy. Both were green and both tested nothing.
+        // Only names the migration actually removed. `dialog` inverts the convention, so its
+        // slots are still called `_headerTemplate` after migrating — reading one there is
+        // correct, and flagging it would teach people the gate cries wolf.
+        const liveSlots = new Set(slots.map((s) => s.field));
         for (const m of t.matchAll(/\.(templates|_\w*[Tt]emplate)\b/g)) {
+            if (liveSlots.has(m[1])) continue;
             problems.push([rel(f), `spec still reads \`.${m[1]}\` — a member this module's migration deleted; on an \`any\`-typed fixture that compiles and passes while testing nothing`]);
         }
     }
