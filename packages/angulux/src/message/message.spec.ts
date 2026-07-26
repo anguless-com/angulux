@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DebugElement, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Message } from './message';
 
@@ -129,7 +129,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -194,7 +194,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -235,7 +235,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -287,7 +287,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -339,7 +339,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -388,7 +388,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -441,7 +441,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -483,7 +483,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestContainerTemplateComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -530,7 +530,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestIconTemplatesComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -559,7 +559,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestPTemplateComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -642,7 +642,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -713,7 +713,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestKeyboardNavigationComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -758,7 +758,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();
@@ -870,7 +870,7 @@ describe('Message', () => {
 
         beforeEach(async () => {
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Message, SharedModule, AglTemplate],
+                imports: [CommonModule, Message, SharedModule],
                 declarations: [TestBasicMessageComponent],
                 providers: [provideZonelessChangeDetection()]
             }).compileComponents();

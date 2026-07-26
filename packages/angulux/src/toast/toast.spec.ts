@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
+import { MessageService, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Toast, ToastItem } from './toast';
 
@@ -120,7 +120,7 @@ describe('Toast', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [CommonModule, Toast, SharedModule, AglTemplate],
+            imports: [CommonModule, Toast, SharedModule],
             declarations: [TestBasicToastComponent, TestMessageTemplateComponent, TestHeadlessTemplateComponent, TestPTemplateComponent, TestPositionComponent],
             providers: [MessageService, provideZonelessChangeDetection()]
         }).compileComponents();
@@ -679,7 +679,7 @@ describe('Toast', () => {
         beforeEach(async () => {
             await TestBed.resetTestingModule();
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Toast, SharedModule, AglTemplate],
+                imports: [CommonModule, Toast, SharedModule],
                 declarations: [TestBasicToastComponent],
                 providers: [MessageService, provideZonelessChangeDetection()]
             }).compileComponents();

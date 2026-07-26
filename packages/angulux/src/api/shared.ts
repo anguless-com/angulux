@@ -1,41 +1,20 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Directive, Input, NgModule, TemplateRef } from '@angular/core';
+import { NgModule } from '@angular/core';
 
-@Component({
-    changeDetection: ChangeDetectionStrategy.Eager,
-    selector: 'agl-header',
-    template: '<ng-content></ng-content>',
-    standalone: false
-})
-export class Header {}
-
-@Component({
-    changeDetection: ChangeDetectionStrategy.Eager,
-    selector: 'agl-footer',
-    template: '<ng-content></ng-content>',
-    standalone: false
-})
-export class Footer {}
-
-@Directive({
-    selector: '[aglTemplate]',
-    standalone: true
-})
-export class AglTemplate {
-    @Input() type: string | undefined;
-
-    @Input('aglTemplate') name: string | undefined;
-
-    constructor(public template: TemplateRef<any>) {}
-
-    getType(): string {
-        return this.name!;
-    }
-}
-
-@NgModule({
-    imports: [CommonModule, AglTemplate],
-    exports: [Header, Footer, AglTemplate],
-    declarations: [Header, Footer]
-})
+/**
+ * SharedModule once carried the three retired facet mechanisms: the `<agl-header>` and
+ * `<agl-footer>` projection components, and the `[aglTemplate]` directive whose `getType()`
+ * fed a per-component decorator query that switched on the slot name and wrote the result into
+ * a shadow `_xTemplate` field.
+ *
+ * BL-35 replaced all three with one route per slot — `<ng-template #x>` read by
+ * `contentChild('x')` — so the module now declares and exports nothing. Removing the three
+ * classes is the closing condition of that migration, and `tools/check-facet-migration.mjs`
+ * (INV-4) enforces it: it fails if they are deleted while any module still needs them, and
+ * equally if they survive once none does.
+ *
+ * The module itself is deliberately kept. It is public API that consumers import, and dropping
+ * an export is a breaking change that belongs to a major-version decision rather than to this
+ * migration. Importing it is now a no-op.
+ */
+@NgModule({})
 export class SharedModule {}

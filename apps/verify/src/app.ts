@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MenuItem, SharedModule, TreeNode } from '@anguless/angulux/api';
+import { MenuItem, TreeNode } from '@anguless/angulux/api';
 import { CardModule } from '@anguless/angulux/card';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { MenuModule } from '@anguless/angulux/menu';
@@ -34,7 +34,7 @@ interface Product {
 @Component({
     selector: 'agl-verify-root',
     standalone: true,
-    imports: [FormsModule, SharedModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule],
+    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule],
     template: `
         <h1>angulux — verification app</h1>
 

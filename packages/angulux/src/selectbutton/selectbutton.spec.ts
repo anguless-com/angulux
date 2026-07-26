@@ -15,7 +15,7 @@ describe('SelectButton', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [SelectButton, SelectButtonModule, FormsModule, ReactiveFormsModule, CommonModule, SharedModule, TestSelectButtonPTemplateComponent, TestSelectButtonRefTemplateComponent],
-            declarations: [TestFormSelectButtonComponent, TestAglTemplateSelectButtonComponent],
+            declarations: [TestFormSelectButtonComponent, TestItemSlotSelectButtonComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
 
@@ -253,13 +253,11 @@ describe('SelectButton', () => {
 
     describe('Template and Content Projection', () => {
         it('should resolve the item slot into its signal query', () => {
-            const templateComponent = TestBed.createComponent(TestAglTemplateSelectButtonComponent);
+            const templateComponent = TestBed.createComponent(TestItemSlotSelectButtonComponent);
             const selectButtonInstance = templateComponent.debugElement.query(By.css('agl-selectbutton')).componentInstance;
 
             templateComponent.detectChanges();
 
-            expect(selectButtonInstance).toBeTruthy();
-            // Test that the component has template processing capability
             expect(selectButtonInstance).toBeTruthy();
             expect(selectButtonInstance.itemTemplate()).toBeDefined();
         });
@@ -453,7 +451,7 @@ class TestFormSelectButtonComponent {
         </agl-selectbutton>
     `
 })
-class TestAglTemplateSelectButtonComponent {
+class TestItemSlotSelectButtonComponent {
     options = [
         { label: 'Option A', value: 'optionA' },
         { label: 'Option B', value: 'optionB' }

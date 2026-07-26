@@ -64,7 +64,7 @@ class TestTemplatesTimelineComponent {
     align: string = 'left';
 }
 
-// AglTemplate test component
+// template-slot test component
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
@@ -86,7 +86,7 @@ class TestTemplatesTimelineComponent {
         </agl-timeline>
     `
 })
-class TestAglTemplateTimelineComponent {
+class TestTemplateSlotsTimelineComponent {
     events: EventItem[] = [{ status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0' }];
 }
 
@@ -151,7 +151,7 @@ describe('Timeline', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [CommonModule, Timeline],
-            declarations: [TestBasicTimelineComponent, TestTemplatesTimelineComponent, TestAglTemplateTimelineComponent, TestEmptyTimelineComponent, TestComplexTimelineComponent],
+            declarations: [TestBasicTimelineComponent, TestTemplatesTimelineComponent, TestTemplateSlotsTimelineComponent, TestEmptyTimelineComponent, TestComplexTimelineComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
 
@@ -245,8 +245,8 @@ describe('Timeline', () => {
             expect(customMarker.length).toBe(2);
         });
 
-        it('should process AglTemplate directives correctly', () => {
-            const templateFixture = TestBed.createComponent(TestAglTemplateTimelineComponent);
+        it('should render one event per value through the #content slot', () => {
+            const templateFixture = TestBed.createComponent(TestTemplateSlotsTimelineComponent);
             const templateComponent = templateFixture.componentInstance;
             templateFixture.detectChanges();
 
@@ -617,7 +617,7 @@ describe('Timeline', () => {
 
     describe('Lifecycle and Cleanup', () => {
         it('should handle ngAfterContentInit correctly', () => {
-            const templateFixture = TestBed.createComponent(TestAglTemplateTimelineComponent);
+            const templateFixture = TestBed.createComponent(TestTemplateSlotsTimelineComponent);
             const templateTimeline = templateFixture.debugElement.query(By.directive(Timeline)).componentInstance;
             templateFixture.detectChanges();
 

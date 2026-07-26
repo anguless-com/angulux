@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { AglTemplate } from '@anguless/angulux/api';
 import { Drawer } from './drawer';
 
 @Component({
@@ -220,7 +219,7 @@ describe('Drawer', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [Drawer, AglTemplate],
+            imports: [Drawer],
             declarations: [
                 TestDrawerBasicComponent,
                 TestDrawerTemplatesComponent,

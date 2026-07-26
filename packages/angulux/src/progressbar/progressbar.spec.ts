@@ -618,7 +618,7 @@ describe('ProgressBar', () => {
             expect(typeof templateProgressBar.ngAfterContentInit).toBe('function');
         });
 
-        it('should set _contentTemplate when processing AglTemplate', () => {
+        it('should resolve the content slot into its signal query', () => {
             const templateFixture = TestBed.createComponent(TestPTemplateProgressBarComponent);
             templateFixture.detectChanges();
 

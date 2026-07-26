@@ -161,16 +161,15 @@ test('select — opens the overlay, picks an item, and the value flows back to t
     expect(errors).toEqual([]);
 });
 
-test('multiselect — selects several items and projects the header facet into the overlay', async ({ page }) => {
+test('multiselect — selects several items and renders the header slot into the overlay', async ({ page }) => {
     const errors = watchErrors(page);
     await expect(page.locator('#probe-multiselect')).toHaveText('count=0');
 
     await page.locator('#sec-multiselect .p-multiselect-label-container').click();
 
-    // The verification app supplies the header through the `<agl-header>` facet, so it
-    // travels via `<ng-content select="agl-header">` — the exact path that broke silently
-    // before it was fixed. A wrong projection selector makes the facet vanish from the DOM
-    // with NO error thrown.
+    // Guards the silently-empty-slot defect class: the header simply never appears in the DOM
+    // and nothing is thrown. The verification app now supplies it through `<ng-template #header>`,
+    // the single surviving route after PA-1.
     // Scoped to the overlay, not to `.p-multiselect-header`. Before PA-1 the two routes rendered
     // to two different places: the `<agl-header>` facet was projected as the first child INSIDE
     // `.p-multiselect-header`, while a `#header` template rendered as a sibling just above it,

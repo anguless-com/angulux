@@ -442,7 +442,7 @@ describe('Card', () => {
         });
     });
 
-    describe('AglTemplate Support', () => {
+    describe('Template Slots', () => {
         let templateFixture: ComponentFixture<TestTemplateCardComponent>;
 
         beforeEach(async () => {
