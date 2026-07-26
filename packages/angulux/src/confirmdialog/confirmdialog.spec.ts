@@ -95,33 +95,33 @@ class TestBasicConfirmDialogComponent {
     standalone: false,
     template: `
         <agl-confirmdialog>
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">
                     <i class="pi pi-info-circle custom-header-icon"></i>
                     <span class="custom-header-text">Custom Header</span>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="message" let-message>
+            <ng-template #message let-message>
                 <div class="custom-message">
                     <p class="custom-message-text">{{ message.message }}</p>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="icon">
+            <ng-template #icon>
                 <i class="pi pi-question-circle custom-template-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">
                     <button class="custom-reject-btn">Custom Cancel</button>
                     <button class="custom-accept-btn">Custom OK</button>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="rejecticon">
+            <ng-template #rejecticon>
                 <i class="pi pi-times custom-reject-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="accepticon">
+            <ng-template #accepticon>
                 <i class="pi pi-check custom-accept-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="headless" let-message let-onAccept="onAccept" let-onReject="onReject">
+            <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
                 <div class="custom-headless">
                     <h3>{{ message.header }}</h3>
                     <p>{{ message.message }}</p>
@@ -538,106 +538,6 @@ describe('ConfirmDialog', () => {
     });
 
     describe('Templates', () => {
-        describe('aglTemplate Approach Tests', () => {
-            it('should handle aglTemplate content processing', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // Test that component handles aglTemplate without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-
-                // Test that templates property exists and is processed
-                expect(confirmDialogInstance.templates).toBeDefined();
-            });
-
-            it('should process _headerTemplate from aglTemplate="header"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _messageTemplate from aglTemplate="message"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _iconTemplate from aglTemplate="icon"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _footerTemplate from aglTemplate="footer"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _rejectIconTemplate from aglTemplate="rejecticon"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _acceptIconTemplate from aglTemplate="accepticon"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _headlessTemplate from aglTemplate="headless"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
-                templateFixture.changeDetectorRef.markForCheck();
-                await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-
-                const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-            });
-        });
 
         describe('#template Approach Tests', () => {
             it('should handle #header template processing', async () => {
@@ -652,10 +552,10 @@ describe('ConfirmDialog', () => {
                 expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
 
                 // Test that headerTemplate property exists (ContentChild)
-                expect(confirmDialogInstance.headerTemplate).toBeDefined();
+                expect(confirmDialogInstance.headerTemplate()).toBeDefined();
             });
 
-            it("should process headerTemplate from @ContentChild('header')", async () => {
+            it("should resolve headerTemplate from the #header template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -663,12 +563,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('header') should set headerTemplate
-                expect(confirmDialogInstance.headerTemplate).toBeDefined();
-                expect(confirmDialogInstance.headerTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('header') should populate headerTemplate
+                expect(confirmDialogInstance.headerTemplate()).toBeDefined();
+                expect(confirmDialogInstance.headerTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process messageTemplate from @ContentChild('message')", async () => {
+            it("should resolve messageTemplate from the #message template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -676,12 +576,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('message') should set messageTemplate
-                expect(confirmDialogInstance.messageTemplate).toBeDefined();
-                expect(confirmDialogInstance.messageTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('message') should populate messageTemplate
+                expect(confirmDialogInstance.messageTemplate()).toBeDefined();
+                expect(confirmDialogInstance.messageTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process iconTemplate from @ContentChild('icon')", async () => {
+            it("should resolve iconTemplate from the #icon template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -689,12 +589,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('icon') should set iconTemplate
-                expect(confirmDialogInstance.iconTemplate).toBeDefined();
-                expect(confirmDialogInstance.iconTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('icon') should populate iconTemplate
+                expect(confirmDialogInstance.iconTemplate()).toBeDefined();
+                expect(confirmDialogInstance.iconTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process footerTemplate from @ContentChild('footer')", async () => {
+            it("should resolve footerTemplate from the #footer template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -702,12 +602,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('footer') should set footerTemplate
-                expect(confirmDialogInstance.footerTemplate).toBeDefined();
-                expect(confirmDialogInstance.footerTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('footer') should populate footerTemplate
+                expect(confirmDialogInstance.footerTemplate()).toBeDefined();
+                expect(confirmDialogInstance.footerTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process rejectIconTemplate from @ContentChild('rejecticon')", async () => {
+            it("should resolve rejectIconTemplate from the #rejecticon template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -715,12 +615,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('rejecticon') should set rejectIconTemplate
-                expect(confirmDialogInstance.rejectIconTemplate).toBeDefined();
-                expect(confirmDialogInstance.rejectIconTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('rejecticon') should populate rejectIconTemplate
+                expect(confirmDialogInstance.rejectIconTemplate()).toBeDefined();
+                expect(confirmDialogInstance.rejectIconTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process acceptIconTemplate from @ContentChild('accepticon')", async () => {
+            it("should resolve acceptIconTemplate from the #accepticon template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -728,12 +628,12 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('accepticon') should set acceptIconTemplate
-                expect(confirmDialogInstance.acceptIconTemplate).toBeDefined();
-                expect(confirmDialogInstance.acceptIconTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('accepticon') should populate acceptIconTemplate
+                expect(confirmDialogInstance.acceptIconTemplate()).toBeDefined();
+                expect(confirmDialogInstance.acceptIconTemplate()?.constructor.name).toBe("TemplateRef");
             });
 
-            it("should process headlessTemplate from @ContentChild('headless')", async () => {
+            it("should resolve headlessTemplate from the #headless template into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
@@ -741,34 +641,32 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                // @ContentChild('headless') should set headlessTemplate
-                expect(confirmDialogInstance.headlessTemplate).toBeDefined();
-                expect(confirmDialogInstance.headlessTemplate?.constructor.name).toBe('TemplateRef');
+                // contentChild('headless') should populate headlessTemplate
+                expect(confirmDialogInstance.headlessTemplate()).toBeDefined();
+                expect(confirmDialogInstance.headlessTemplate()?.constructor.name).toBe("TemplateRef");
             });
         });
 
         describe('Template Integration Tests', () => {
             it('should render different template types correctly', async () => {
-                // Test both aglTemplate and #content template approaches
-
-                // Test aglTemplate rendering
+                // Two separate hosts declare the same slots; both must resolve identically.
                 const pTemplateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
                 pTemplateFixture.changeDetectorRef.markForCheck();
                 await pTemplateFixture.whenStable();
                 await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const pTemplateConfirmDialog = pTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-                expect(pTemplateConfirmDialog.templates).toBeDefined();
-                expect(() => pTemplateConfirmDialog.ngAfterContentInit()).not.toThrow();
+                expect(pTemplateConfirmDialog.headerTemplate()).toBeDefined();
+                expect(pTemplateConfirmDialog.messageTemplate()).toBeDefined();
+                expect(pTemplateConfirmDialog.headlessTemplate()).toBeDefined();
 
-                // Test #content template rendering
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
                 await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const contentTemplateConfirmDialog = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
-                expect(contentTemplateConfirmDialog.headerTemplate).toBeDefined();
+                expect(contentTemplateConfirmDialog.headerTemplate()).toBeDefined();
             });
 
             it('should use default templates when custom ones are not provided', () => {
@@ -777,7 +675,7 @@ describe('ConfirmDialog', () => {
                 expect(dialogElement).toBeTruthy();
             });
 
-            it('should handle ngAfterContentInit template processing correctly', async () => {
+            it('should resolve every declared slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
                 templateFixture.changeDetectorRef.markForCheck();
                 await templateFixture.whenStable();
@@ -785,8 +683,9 @@ describe('ConfirmDialog', () => {
 
                 const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
-                expect(() => confirmDialogInstance.ngAfterContentInit()).not.toThrow();
-                expect(confirmDialogInstance.templates).toBeDefined();
+                for (const slot of ['headerTemplate', 'messageTemplate', 'iconTemplate', 'footerTemplate', 'rejectIconTemplate', 'acceptIconTemplate', 'headlessTemplate']) {
+                    expect(confirmDialogInstance[slot]()).withContext(slot).toBeDefined();
+                }
             });
         });
     });
