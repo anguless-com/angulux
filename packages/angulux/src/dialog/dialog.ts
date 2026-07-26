@@ -5,8 +5,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
+    contentChild,
     ElementRef,
     EventEmitter,
     inject,
@@ -19,7 +18,6 @@ import {
     OnDestroy,
     OnInit,
     Output,
-    QueryList,
     signal,
     TemplateRef,
     ViewChild,
@@ -28,7 +26,7 @@ import {
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { addStyle, appendChild, getOuterHeight, getOuterWidth, getViewport, hasClass, removeClass, setAttribute, uuid } from '@anguless/angulux-utils';
-import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { Button, ButtonProps } from '@anguless/angulux/button';
@@ -89,15 +87,15 @@ const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');
                         [attr.aria-modal]="true"
                         [attr.data-p]="dataP"
                     >
-                        <ng-container *ngIf="_headlessTemplate || headlessTemplate || headlessT; else notHeadless">
-                            <ng-container *ngTemplateOutlet="_headlessTemplate || headlessTemplate || headlessT"></ng-container>
+                        <ng-container *ngIf="_headlessTemplate() || headlessTemplate; else notHeadless">
+                            <ng-container *ngTemplateOutlet="_headlessTemplate() || headlessTemplate"></ng-container>
                         </ng-container>
 
                         <ng-template #notHeadless>
                             <div *ngIf="resizable" [class]="cx('resizeHandle')" [aglBind]="ptm('resizeHandle')" [style.z-index]="90" (mousedown)="initResize($event)"></div>
                             <div #titlebar [class]="cx('header')" [aglBind]="ptm('header')" (mousedown)="initDrag($event)" *ngIf="showHeader">
-                                <span [id]="ariaLabelledBy" [class]="cx('title')" [aglBind]="ptm('title')" *ngIf="!_headerTemplate && !headerTemplate && !headerT">{{ header }}</span>
-                                <ng-container *ngTemplateOutlet="_headerTemplate || headerTemplate || headerT; context: { ariaLabelledBy: ariaLabelledBy }"></ng-container>
+                                <span [id]="ariaLabelledBy" [class]="cx('title')" [aglBind]="ptm('title')" *ngIf="!_headerTemplate() && !headerTemplate">{{ header }}</span>
+                                <ng-container *ngTemplateOutlet="_headerTemplate() || headerTemplate; context: { ariaLabelledBy: ariaLabelledBy }"></ng-container>
                                 <div [class]="cx('headerActions')" [aglBind]="ptm('headerActions')">
                                     <agl-button
                                         [pt]="ptm('pcMaximizeButton')"
@@ -112,16 +110,16 @@ const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');
                                         [attr.data-pc-group-section]="'headericon'"
                                     >
                                         <ng-template #icon>
-                                            <span *ngIf="maximizeIcon && !_maximizeiconTemplate && !_minimizeiconTemplate" [ngClass]="maximized ? minimizeIcon : maximizeIcon"></span>
+                                            <span *ngIf="maximizeIcon && !_maximizeiconTemplate() && !_minimizeiconTemplate()" [ngClass]="maximized ? minimizeIcon : maximizeIcon"></span>
                                             <ng-container *ngIf="!maximizeIcon && !maximizeButtonProps?.icon">
-                                                <svg data-p-icon="window-maximize" *ngIf="!maximized && !_maximizeiconTemplate && !maximizeIconTemplate && !maximizeIconT" />
-                                                <svg data-p-icon="window-minimize" *ngIf="maximized && !_minimizeiconTemplate && !minimizeIconTemplate && !minimizeIconT" />
+                                                <svg data-p-icon="window-maximize" *ngIf="!maximized && !_maximizeiconTemplate() && !maximizeIconTemplate" />
+                                                <svg data-p-icon="window-minimize" *ngIf="maximized && !_minimizeiconTemplate() && !minimizeIconTemplate" />
                                             </ng-container>
                                             <ng-container *ngIf="!maximized">
-                                                <ng-template *ngTemplateOutlet="_maximizeiconTemplate || maximizeIconTemplate || maximizeIconT"></ng-template>
+                                                <ng-template *ngTemplateOutlet="_maximizeiconTemplate() || maximizeIconTemplate"></ng-template>
                                             </ng-container>
                                             <ng-container *ngIf="maximized">
-                                                <ng-template *ngTemplateOutlet="_minimizeiconTemplate || minimizeIconTemplate || minimizeIconT"></ng-template>
+                                                <ng-template *ngTemplateOutlet="_minimizeiconTemplate() || minimizeIconTemplate"></ng-template>
                                             </ng-container>
                                         </ng-template>
                                     </agl-button>
@@ -138,12 +136,12 @@ const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');
                                         [attr.data-pc-group-section]="'headericon'"
                                     >
                                         <ng-template #icon>
-                                            <ng-container *ngIf="!_closeiconTemplate && !closeIconTemplate && !closeIconT && !closeButtonProps?.icon">
+                                            <ng-container *ngIf="!_closeiconTemplate() && !closeIconTemplate && !closeButtonProps?.icon">
                                                 <span *ngIf="closeIcon" [class]="closeIcon"></span>
                                                 <svg data-p-icon="times" *ngIf="!closeIcon" />
                                             </ng-container>
-                                            <span *ngIf="_closeiconTemplate || closeIconTemplate || closeIconT">
-                                                <ng-template *ngTemplateOutlet="_closeiconTemplate || closeIconTemplate || closeIconT"></ng-template>
+                                            <span *ngIf="_closeiconTemplate() || closeIconTemplate">
+                                                <ng-template *ngTemplateOutlet="_closeiconTemplate() || closeIconTemplate"></ng-template>
                                             </span>
                                         </ng-template>
                                     </agl-button>
@@ -151,11 +149,10 @@ const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');
                             </div>
                             <div #content [class]="cn(cx('content'), contentStyleClass)" [ngStyle]="contentStyle" [aglBind]="ptm('content')">
                                 <ng-content></ng-content>
-                                <ng-container *ngTemplateOutlet="_contentTemplate || contentTemplate || contentT"></ng-container>
+                                <ng-container *ngTemplateOutlet="_contentTemplate() || contentTemplate"></ng-container>
                             </div>
-                            <div #footer [class]="cx('footer')" [aglBind]="ptm('footer')" *ngIf="_footerTemplate || footerTemplate || footerT">
-                                <ng-content select="agl-footer"></ng-content>
-                                <ng-container *ngTemplateOutlet="_footerTemplate || footerTemplate || footerT"></ng-container>
+                            <div #footer [class]="cx('footer')" [aglBind]="ptm('footer')" *ngIf="_footerTemplate() || footerTemplate">
+                                <ng-container *ngTemplateOutlet="_footerTemplate() || footerTemplate"></ng-container>
                             </div>
                         </ng-template>
                     </div>
@@ -504,43 +501,43 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
      * Custom header template.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) _headerTemplate: TemplateRef<void> | undefined;
+    _headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
 
     /**
      * Custom content template.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) _contentTemplate: TemplateRef<void> | undefined;
+    _contentTemplate = contentChild<TemplateRef<void>>('content', { descendants: false });
 
     /**
      * Custom footer template.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) _footerTemplate: TemplateRef<void> | undefined;
+    _footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
 
     /**
      * Custom close icon template.
      * @group Templates
      */
-    @ContentChild('closeicon', { descendants: false }) _closeiconTemplate: TemplateRef<void> | undefined;
+    _closeiconTemplate = contentChild<TemplateRef<void>>('closeicon', { descendants: false });
 
     /**
      * Custom maximize icon template.
      * @group Templates
      */
-    @ContentChild('maximizeicon', { descendants: false }) _maximizeiconTemplate: TemplateRef<void> | undefined;
+    _maximizeiconTemplate = contentChild<TemplateRef<void>>('maximizeicon', { descendants: false });
 
     /**
      * Custom minimize icon template.
      * @group Templates
      */
-    @ContentChild('minimizeicon', { descendants: false }) _minimizeiconTemplate: TemplateRef<void> | undefined;
+    _minimizeiconTemplate = contentChild<TemplateRef<void>>('minimizeicon', { descendants: false });
 
     /**
      * Custom headless template.
      * @group Templates
      */
-    @ContentChild('headless', { descendants: false }) _headlessTemplate: TemplateRef<void> | undefined;
+    _headlessTemplate = contentChild<TemplateRef<void>>('headless', { descendants: false });
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
@@ -606,19 +603,11 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
 
     _componentStyle = inject(DialogStyle);
 
-    headerT: TemplateRef<void> | undefined;
 
-    contentT: TemplateRef<void> | undefined;
 
-    footerT: TemplateRef<void> | undefined;
 
-    closeIconT: TemplateRef<void> | undefined;
 
-    maximizeIconT: TemplateRef<void> | undefined;
 
-    minimizeIconT: TemplateRef<void> | undefined;
-
-    headlessT: TemplateRef<void> | undefined;
 
     private zIndexForLayering?: number;
 
@@ -650,45 +639,7 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
         }
     }
 
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
 
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'header':
-                    this.headerT = item.template;
-                    break;
-
-                case 'content':
-                    this.contentT = item.template;
-                    break;
-
-                case 'footer':
-                    this.footerT = item.template;
-                    break;
-
-                case 'closeicon':
-                    this.closeIconT = item.template;
-                    break;
-
-                case 'maximizeicon':
-                    this.maximizeIconT = item.template;
-                    break;
-
-                case 'minimizeicon':
-                    this.minimizeIconT = item.template;
-                    break;
-
-                case 'headless':
-                    this.headlessT = item.template;
-                    break;
-
-                default:
-                    this.contentT = item.template;
-                    break;
-            }
-        });
-    }
 
     getAriaLabelledBy() {
         return this.header !== null ? uuid('pn_id_') + '_header' : null;

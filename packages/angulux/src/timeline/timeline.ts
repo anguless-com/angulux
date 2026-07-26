@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, QueryList, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { BlockableUI, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { ChangeDetectionStrategy, Component, contentChild, inject, InjectionToken, Input, NgModule, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { BlockableUI, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { Nullable } from '@anguless/angulux/ts-helpers';
@@ -20,11 +20,11 @@ const TIMELINE_INSTANCE = new InjectionToken<Timeline>('TIMELINE_INSTANCE');
     template: `
         <div [aglBind]="ptm('event')" *ngFor="let event of value; let last = last" [class]="cx('event')" [attr.data-p]="dataP">
             <div [aglBind]="ptm('eventOpposite')" [class]="cx('eventOpposite')" [attr.data-p]="dataP">
-                <ng-container *ngTemplateOutlet="oppositeTemplate || _oppositeTemplate; context: { $implicit: event }"></ng-container>
+                <ng-container *ngTemplateOutlet="oppositeTemplate(); context: { $implicit: event }"></ng-container>
             </div>
             <div [aglBind]="ptm('eventSeparator')" [class]="cx('eventSeparator')" [attr.data-p]="dataP">
-                <ng-container *ngIf="markerTemplate || _markerTemplate; else marker">
-                    <ng-container *ngTemplateOutlet="markerTemplate || _markerTemplate; context: { $implicit: event }"></ng-container>
+                <ng-container *ngIf="markerTemplate(); else marker">
+                    <ng-container *ngTemplateOutlet="markerTemplate(); context: { $implicit: event }"></ng-container>
                 </ng-container>
                 <ng-template #marker>
                     <div [aglBind]="ptm('eventMarker')" [class]="cx('eventMarker')" [attr.data-p]="dataP"></div>
@@ -32,7 +32,7 @@ const TIMELINE_INSTANCE = new InjectionToken<Timeline>('TIMELINE_INSTANCE');
                 <div [aglBind]="ptm('eventConnector')" *ngIf="!last" [class]="cx('eventConnector')" [attr.data-p]="dataP"></div>
             </div>
             <div [aglBind]="ptm('eventContent')" [class]="cx('eventContent')" [attr.data-p]="dataP">
-                <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { $implicit: event }"></ng-container>
+                <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: event }"></ng-container>
             </div>
         </div>
     `,
@@ -82,7 +82,7 @@ export class Timeline extends BaseComponent<TimelinePassThrough> implements Bloc
      * @see {@link TimelineItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: Nullable<TemplateRef<TimelineItemTemplateContext>>;
+    contentTemplate = contentChild<TemplateRef<TimelineItemTemplateContext>>('content', { descendants: false });
 
     /**
      * Custom opposite item template.
@@ -90,7 +90,7 @@ export class Timeline extends BaseComponent<TimelinePassThrough> implements Bloc
      * @see {@link TimelineItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('opposite', { descendants: false }) oppositeTemplate: Nullable<TemplateRef<TimelineItemTemplateContext>>;
+    oppositeTemplate = contentChild<TemplateRef<TimelineItemTemplateContext>>('opposite', { descendants: false });
 
     /**
      * Custom marker template.
@@ -98,38 +98,14 @@ export class Timeline extends BaseComponent<TimelinePassThrough> implements Bloc
      * @see {@link TimelineItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('marker', { descendants: false }) markerTemplate: Nullable<TemplateRef<TimelineItemTemplateContext>>;
+    markerTemplate = contentChild<TemplateRef<TimelineItemTemplateContext>>('marker', { descendants: false });
 
-    @ContentChildren(AglTemplate) templates: Nullable<QueryList<any>>;
 
-    _contentTemplate: TemplateRef<TimelineItemTemplateContext> | undefined;
-
-    _oppositeTemplate: TemplateRef<TimelineItemTemplateContext> | undefined;
-
-    _markerTemplate: TemplateRef<TimelineItemTemplateContext> | undefined;
 
     _componentStyle = inject(TimelineStyle);
 
     getBlockableElement(): HTMLElement {
         return this.el.nativeElement.children[0];
-    }
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'opposite':
-                    this._oppositeTemplate = item.template;
-                    break;
-
-                case 'marker':
-                    this._markerTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     get dataP() {

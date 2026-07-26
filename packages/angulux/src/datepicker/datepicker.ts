@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     forwardRef,
     inject,
@@ -17,7 +15,6 @@ import {
     NgZone,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewChild,
     ViewEncapsulation
@@ -25,7 +22,7 @@ import {
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addClass, addStyle, appendChild, find, findSingle, getFocusableElements, getIndex, getOuterWidth, hasClass, isDate, isNotEmpty, isTouchDevice, relativePosition, setAttribute, uuid } from '@anguless/angulux-utils';
-import { OverlayService, AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseInput } from '@anguless/angulux/baseinput';
@@ -115,9 +112,9 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                 [unstyled]="unstyled()"
             />
             <ng-container *ngIf="showClear && !$disabled() && inputfieldViewChild?.nativeElement?.value">
-                <svg data-p-icon="times" *ngIf="!clearIconTemplate && !_clearIconTemplate" [class]="cx('clearIcon')" [aglBind]="ptm('inputIcon')" (click)="clear()" />
-                <span *ngIf="clearIconTemplate || _clearIconTemplate" [class]="cx('clearIcon')" [aglBind]="ptm('inputIcon')" (click)="clear()">
-                    <ng-template *ngTemplateOutlet="clearIconTemplate || _clearIconTemplate"></ng-template>
+                <svg data-p-icon="times" *ngIf="!clearIconTemplate()" [class]="cx('clearIcon')" [aglBind]="ptm('inputIcon')" (click)="clear()" />
+                <span *ngIf="clearIconTemplate()" [class]="cx('clearIcon')" [aglBind]="ptm('inputIcon')" (click)="clear()">
+                    <ng-template *ngTemplateOutlet="clearIconTemplate()"></ng-template>
                 </span>
             </ng-container>
             <button
@@ -135,15 +132,15 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
             >
                 <span *ngIf="icon" [ngClass]="icon" [aglBind]="ptm('dropdownIcon')"></span>
                 <ng-container *ngIf="!icon">
-                    <svg data-p-icon="calendar" *ngIf="!triggerIconTemplate && !_triggerIconTemplate" [aglBind]="ptm('dropdownIcon')" />
-                    <ng-template *ngTemplateOutlet="triggerIconTemplate || _triggerIconTemplate"></ng-template>
+                    <svg data-p-icon="calendar" *ngIf="!triggerIconTemplate()" [aglBind]="ptm('dropdownIcon')" />
+                    <ng-template *ngTemplateOutlet="triggerIconTemplate()"></ng-template>
                 </ng-container>
             </button>
             <ng-container *ngIf="iconDisplay === 'input' && showIcon">
                 <span [class]="cx('inputIconContainer')" [aglBind]="ptm('inputIconContainer')" [attr.data-p]="inputIconDataP">
-                    <svg data-p-icon="calendar" (click)="onButtonClick($event)" *ngIf="!inputIconTemplate && !_inputIconTemplate" [class]="cx('inputIcon')" [aglBind]="ptm('inputIcon')" />
+                    <svg data-p-icon="calendar" (click)="onButtonClick($event)" *ngIf="!inputIconTemplate()" [class]="cx('inputIcon')" [aglBind]="ptm('inputIcon')" />
 
-                    <ng-container *ngTemplateOutlet="inputIconTemplate || _inputIconTemplate; context: { clickCallBack: onButtonClick.bind(this) }"></ng-container>
+                    <ng-container *ngTemplateOutlet="inputIconTemplate(); context: { clickCallBack: onButtonClick.bind(this) }"></ng-container>
                 </span>
             </ng-container>
         </ng-template>
@@ -159,8 +156,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                 (click)="onOverlayClick($event)"
                 [aglBind]="ptm('panel')"
             >
-                <ng-content select="agl-header"></ng-content>
-                <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
                 <ng-container *ngIf="!timeOnly">
                     <div [class]="cx('calendarContainer')" [aglBind]="ptm('calendarContainer')">
                         <div [class]="cx('calendar')" *ngFor="let month of months; let i = index" [aglBind]="ptm('calendar')">
@@ -179,9 +175,9 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                     [attr.data-pc-group-section]="'navigator'"
                                 >
                                     <ng-template #icon>
-                                        <svg data-p-icon="chevron-left" *ngIf="!previousIconTemplate && !_previousIconTemplate" />
-                                        <span *ngIf="previousIconTemplate || _previousIconTemplate">
-                                            <ng-template *ngTemplateOutlet="previousIconTemplate || _previousIconTemplate"></ng-template>
+                                        <svg data-p-icon="chevron-left" *ngIf="!previousIconTemplate()" />
+                                        <span *ngIf="previousIconTemplate()">
+                                            <ng-template *ngTemplateOutlet="previousIconTemplate()"></ng-template>
                                         </span>
                                     </ng-template>
                                 </agl-button>
@@ -215,8 +211,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                         {{ getYear(month) }}
                                     </button>
                                     <span [class]="cx('decade')" *ngIf="currentView === 'year'" [aglBind]="ptm('decade')">
-                                        <ng-container *ngIf="!decadeTemplate && !_decadeTemplate">{{ yearPickerValues()[0] }} - {{ yearPickerValues()[yearPickerValues().length - 1] }}</ng-container>
-                                        <ng-container *ngTemplateOutlet="decadeTemplate || _decadeTemplate; context: { $implicit: yearPickerValues }"></ng-container>
+                                        <ng-container *ngIf="!decadeTemplate()">{{ yearPickerValues()[0] }} - {{ yearPickerValues()[yearPickerValues().length - 1] }}</ng-container>
+                                        <ng-container *ngTemplateOutlet="decadeTemplate(); context: { $implicit: yearPickerValues }"></ng-container>
                                     </span>
                                 </div>
                                 <agl-button
@@ -232,9 +228,9 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                     [attr.data-pc-group-section]="'navigator'"
                                 >
                                     <ng-template #icon>
-                                        <svg data-p-icon="chevron-right" *ngIf="!nextIconTemplate && !_nextIconTemplate" />
-                                        <ng-container *ngIf="nextIconTemplate || _nextIconTemplate">
-                                            <ng-template *ngTemplateOutlet="nextIconTemplate || _nextIconTemplate"></ng-template>
+                                        <svg data-p-icon="chevron-right" *ngIf="!nextIconTemplate()" />
+                                        <ng-container *ngIf="nextIconTemplate()">
+                                            <ng-template *ngTemplateOutlet="nextIconTemplate()"></ng-template>
                                         </ng-container>
                                     </ng-template>
                                 </agl-button>
@@ -268,12 +264,12 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                                     aglRipple
                                                     [aglBind]="ptm('day')"
                                                 >
-                                                    <ng-container *ngIf="!dateTemplate && !_dateTemplate && (date.selectable || (!disabledDateTemplate && !_disabledDateTemplate))">{{ date.day }}</ng-container>
-                                                    <ng-container *ngIf="date.selectable || (!disabledDateTemplate && !_disabledDateTemplate)">
-                                                        <ng-container *ngTemplateOutlet="dateTemplate || _dateTemplate; context: { $implicit: date }"></ng-container>
+                                                    <ng-container *ngIf="!dateTemplate() && (date.selectable || (!disabledDateTemplate()))">{{ date.day }}</ng-container>
+                                                    <ng-container *ngIf="date.selectable || (!disabledDateTemplate())">
+                                                        <ng-container *ngTemplateOutlet="dateTemplate(); context: { $implicit: date }"></ng-container>
                                                     </ng-container>
                                                     <ng-container *ngIf="!date.selectable">
-                                                        <ng-container *ngTemplateOutlet="disabledDateTemplate || _disabledDateTemplate; context: { $implicit: date }"></ng-container>
+                                                        <ng-container *ngTemplateOutlet="disabledDateTemplate(); context: { $implicit: date }"></ng-container>
                                                     </ng-container>
                                                 </span>
                                                 <div *ngIf="isSelected(date)" class="p-hidden-accessible" aria-live="polite">
@@ -323,8 +319,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate && !_incrementIconTemplate" [aglBind]="ptm('pcIncrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="incrementIconTemplate || _incrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate()" [aglBind]="ptm('pcIncrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="incrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                         <span [aglBind]="ptm('hour')"><ng-container *ngIf="currentHour < 10">0</ng-container>{{ currentHour }}</span>
@@ -346,8 +342,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate && !_decrementIconTemplate" [aglBind]="ptm('pcDecrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="decrementIconTemplate || _decrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate()" [aglBind]="ptm('pcDecrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="decrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                     </div>
@@ -373,8 +369,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate && !_incrementIconTemplate" [aglBind]="ptm('pcIncrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="incrementIconTemplate || _incrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate()" [aglBind]="ptm('pcIncrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="incrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                         <span [aglBind]="ptm('minute')"><ng-container *ngIf="currentMinute < 10">0</ng-container>{{ currentMinute }}</span>
@@ -396,8 +392,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate && !_decrementIconTemplate" [aglBind]="ptm('pcDecrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="decrementIconTemplate || _decrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate()" [aglBind]="ptm('pcDecrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="decrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                     </div>
@@ -423,8 +419,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate && !_incrementIconTemplate" [aglBind]="ptm('pcIncrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="incrementIconTemplate || _incrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate()" [aglBind]="ptm('pcIncrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="incrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                         <span [aglBind]="ptm('second')"><ng-container *ngIf="currentSecond < 10">0</ng-container>{{ currentSecond }}</span>
@@ -446,8 +442,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate && !_decrementIconTemplate" [aglBind]="ptm('pcDecrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="decrementIconTemplate || _decrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate()" [aglBind]="ptm('pcDecrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="decrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                     </div>
@@ -468,8 +464,8 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate && !_incrementIconTemplate" [aglBind]="ptm('pcIncrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="incrementIconTemplate || _incrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-up" *ngIf="!incrementIconTemplate()" [aglBind]="ptm('pcIncrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="incrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                         <span [aglBind]="ptm('ampm')">{{ pm ? 'PM' : 'AM' }}</span>
@@ -486,15 +482,15 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [attr.data-pc-group-section]="'timepickerbutton'"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate && !_decrementIconTemplate" [aglBind]="ptm('pcDecrementButton')['icon']" />
-                                <ng-template *ngTemplateOutlet="decrementIconTemplate || _decrementIconTemplate"></ng-template>
+                                <svg data-p-icon="chevron-down" *ngIf="!decrementIconTemplate()" [aglBind]="ptm('pcDecrementButton')['icon']" />
+                                <ng-template *ngTemplateOutlet="decrementIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                     </div>
                 </div>
                 <div [class]="cx('buttonbar')" *ngIf="showButtonBar" [aglBind]="ptm('buttonbar')">
-                    @if (buttonBarTemplate || _buttonBarTemplate) {
-                        <ng-container *ngTemplateOutlet="buttonBarTemplate || _buttonBarTemplate; context: { todayCallback: onTodayButtonClick.bind(this), clearCallback: onClearButtonClick.bind(this) }"></ng-container>
+                    @if (buttonBarTemplate()) {
+                        <ng-container *ngTemplateOutlet="buttonBarTemplate(); context: { todayCallback: onTodayButtonClick.bind(this), clearCallback: onClearButtonClick.bind(this) }"></ng-container>
                     } @else {
                         <agl-button
                             size="small"
@@ -524,8 +520,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                         />
                     }
                 </div>
-                <ng-content select="agl-footer"></ng-content>
-                <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="footerTemplate()"></ng-container>
             </div>
         </agl-motion>
     `,
@@ -1122,109 +1117,95 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
      * @param {DatePickerDateTemplateContext} context - date template context.
      * @group Templates
      */
-    @ContentChild('date', { descendants: false }) dateTemplate: Nullable<TemplateRef<DatePickerDateTemplateContext>>;
+    dateTemplate = contentChild<TemplateRef<DatePickerDateTemplateContext>>('date', { descendants: false });
 
     /**
      * Custom template for header section.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: Nullable<TemplateRef<void>>;
+    headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
 
     /**
      * Custom template for footer section.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: Nullable<TemplateRef<void>>;
+    footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
 
     /**
      * Custom template for disabled date cells.
      * @param {DatePickerDisabledDateTemplateContext} context - disabled date template context.
      * @group Templates
      */
-    @ContentChild('disabledDate', { descendants: false }) disabledDateTemplate: Nullable<TemplateRef<DatePickerDisabledDateTemplateContext>>;
+    disabledDateTemplate = contentChild<TemplateRef<DatePickerDisabledDateTemplateContext>>('disabledDate', { descendants: false });
 
     /**
      * Custom template for decade view.
      * @param {DatePickerDecadeTemplateContext} context - decade template context.
      * @group Templates
      */
-    @ContentChild('decade', { descendants: false }) decadeTemplate: Nullable<TemplateRef<DatePickerDecadeTemplateContext>>;
+    decadeTemplate = contentChild<TemplateRef<DatePickerDecadeTemplateContext>>('decade', { descendants: false });
 
     /**
      * Custom template for previous month icon.
      * @group Templates
      */
-    @ContentChild('previousicon', { descendants: false }) previousIconTemplate: Nullable<TemplateRef<void>>;
+    previousIconTemplate = contentChild<TemplateRef<void>>('previousicon', { descendants: false });
 
     /**
      * Custom template for next month icon.
      * @group Templates
      */
-    @ContentChild('nexticon', { descendants: false }) nextIconTemplate: Nullable<TemplateRef<void>>;
+    nextIconTemplate = contentChild<TemplateRef<void>>('nexticon', { descendants: false });
 
     /**
      * Custom template for trigger icon.
      * @group Templates
      */
-    @ContentChild('triggericon', { descendants: false }) triggerIconTemplate: Nullable<TemplateRef<void>>;
+    triggerIconTemplate = contentChild<TemplateRef<void>>('triggericon', { descendants: false });
 
     /**
      * Custom template for clear icon.
      * @group Templates
      */
-    @ContentChild('clearicon', { descendants: false }) clearIconTemplate: Nullable<TemplateRef<void>>;
+    clearIconTemplate = contentChild<TemplateRef<void>>('clearicon', { descendants: false });
 
     /**
      * Custom template for decrement icon.
      * @group Templates
      */
-    @ContentChild('decrementicon', { descendants: false }) decrementIconTemplate: Nullable<TemplateRef<void>>;
+    decrementIconTemplate = contentChild<TemplateRef<void>>('decrementicon', { descendants: false });
 
     /**
      * Custom template for increment icon.
      * @group Templates
      */
-    @ContentChild('incrementicon', { descendants: false }) incrementIconTemplate: Nullable<TemplateRef<void>>;
+    incrementIconTemplate = contentChild<TemplateRef<void>>('incrementicon', { descendants: false });
 
     /**
      * Custom template for input icon.
      * @param {DatePickerInputIconTemplateContext} context - input icon template context.
      * @group Templates
      */
-    @ContentChild('inputicon', { descendants: false }) inputIconTemplate: Nullable<TemplateRef<DatePickerInputIconTemplateContext>>;
+    inputIconTemplate = contentChild<TemplateRef<DatePickerInputIconTemplateContext>>('inputicon', { descendants: false });
 
     /**
      * Custom template for button bar.
      * @param {DatePickerButtonBarTemplateContext} context - button bar template context.
      * @group Templates
      */
-    @ContentChild('buttonbar', { descendants: false }) buttonBarTemplate: Nullable<TemplateRef<DatePickerButtonBarTemplateContext>>;
+    buttonBarTemplate = contentChild<TemplateRef<DatePickerButtonBarTemplateContext>>('buttonbar', { descendants: false });
 
-    _dateTemplate: TemplateRef<DatePickerDateTemplateContext> | undefined;
 
-    _headerTemplate: TemplateRef<void> | undefined;
 
-    _footerTemplate: TemplateRef<void> | undefined;
 
-    _disabledDateTemplate: TemplateRef<DatePickerDisabledDateTemplateContext> | undefined;
 
-    _decadeTemplate: TemplateRef<DatePickerDecadeTemplateContext> | undefined;
 
-    _previousIconTemplate: TemplateRef<void> | undefined;
 
-    _nextIconTemplate: TemplateRef<void> | undefined;
 
-    _triggerIconTemplate: TemplateRef<void> | undefined;
 
-    _clearIconTemplate: TemplateRef<void> | undefined;
 
-    _decrementIconTemplate: TemplateRef<void> | undefined;
 
-    _incrementIconTemplate: TemplateRef<void> | undefined;
 
-    _inputIconTemplate: TemplateRef<DatePickerInputIconTemplateContext> | undefined;
-
-    _buttonBarTemplate: TemplateRef<DatePickerButtonBarTemplateContext> | undefined;
 
     _disabledDates!: Array<Date>;
 
@@ -1338,70 +1319,6 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
 
     onAfterViewChecked() {
         this.bindDirectiveInstance.setAttrs(this.ptms(['host', 'root']));
-    }
-
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'date':
-                    this._dateTemplate = item.template;
-                    break;
-
-                case 'decade':
-                    this._decadeTemplate = item.template;
-                    break;
-
-                case 'disabledDate':
-                    this._disabledDateTemplate = item.template;
-                    break;
-
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'inputicon':
-                    this._inputIconTemplate = item.template;
-                    break;
-
-                case 'buttonbar':
-                    this._buttonBarTemplate = item.template;
-                    break;
-
-                case 'previousicon':
-                    this._previousIconTemplate = item.template;
-                    break;
-
-                case 'nexticon':
-                    this._nextIconTemplate = item.template;
-                    break;
-
-                case 'triggericon':
-                    this._triggerIconTemplate = item.template;
-                    break;
-
-                case 'clearicon':
-                    this._clearIconTemplate = item.template;
-                    break;
-
-                case 'decrementicon':
-                    this._decrementIconTemplate = item.template;
-                    break;
-
-                case 'incrementicon':
-                    this._incrementIconTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-
-                default:
-                    this._dateTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     getTranslation(option: string) {

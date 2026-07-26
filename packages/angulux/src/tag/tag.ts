@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, booleanAttribute, ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, QueryList, TemplateRef, ViewEncapsulation } from '@angular/core';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { AfterContentInit, booleanAttribute, ChangeDetectionStrategy, Component, contentChild, inject, InjectionToken, Input, NgModule, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { TagPassThrough } from '@anguless/angulux/types/tag';
@@ -18,11 +18,11 @@ const TAG_INSTANCE = new InjectionToken<Tag>('TAG_INSTANCE');
     imports: [CommonModule, SharedModule, Bind],
     template: `
         <ng-content></ng-content>
-        <ng-container *ngIf="!iconTemplate && !_iconTemplate">
+        <ng-container *ngIf="!iconTemplate()">
             <span [class]="cx('icon')" [ngClass]="icon" [aglBind]="ptm('icon')" *ngIf="icon"></span>
         </ng-container>
-        <span [class]="cx('icon')" [aglBind]="ptm('icon')" *ngIf="iconTemplate || _iconTemplate">
-            <ng-template *ngTemplateOutlet="iconTemplate || _iconTemplate"></ng-template>
+        <span [class]="cx('icon')" [aglBind]="ptm('icon')" *ngIf="iconTemplate()">
+            <ng-template *ngTemplateOutlet="iconTemplate()"></ng-template>
         </span>
         <span [class]="cx('label')" [aglBind]="ptm('label')">{{ value }}</span>
     `,
@@ -76,23 +76,9 @@ export class Tag extends BaseComponent<TagPassThrough> implements AfterContentIn
      * Custom icon template.
      * @group Templates
      */
-    @ContentChild('icon', { descendants: false }) iconTemplate: TemplateRef<void> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    _iconTemplate: TemplateRef<void> | undefined;
+    iconTemplate = contentChild<TemplateRef<void>>('icon', { descendants: false });
 
     _componentStyle = inject(TagStyle);
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'icon':
-                    this._iconTemplate = item.template;
-                    break;
-            }
-        });
-    }
 
     get dataP() {
         return this.cn({

@@ -86,16 +86,16 @@ class TestBasicButtonComponent {
     standalone: false,
     template: `
         <agl-button [loading]="loading">
-            <ng-template aglTemplate="content">
+            <ng-template #content>
                 <div class="custom-content">
                     <span class="custom-icon">🎯</span>
                     <span class="custom-label">Custom Button</span>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="icon">
+            <ng-template #icon>
                 <i class="pi pi-star custom-template-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="loadingicon">
+            <ng-template #loadingicon>
                 <i class="pi pi-spin pi-cog custom-loading-icon"></i>
             </ng-template>
         </agl-button>
@@ -705,9 +705,8 @@ describe('Button', () => {
     });
 
     describe('Templates', () => {
-        // aglTemplate Approach - @ContentChildren(AglTemplate) testleri
-        describe('aglTemplate Approach Tests', () => {
-            it('should handle aglTemplate content processing', async () => {
+        describe('Content template slots', () => {
+            it('should resolve the content slot and render the button', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -715,18 +714,24 @@ describe('Button', () => {
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // Test that component handles aglTemplate without errors
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
+                expect(buttonInstance.contentTemplate()).toBeDefined();
 
-                // Test that templates property exists and is processed
-                expect(buttonInstance.templates).toBeDefined();
-
-                // Verify aglTemplate content container is rendered
                 const buttonElement = templateFixture.debugElement.query(By.css('button'));
                 expect(buttonElement).toBeTruthy();
             });
 
-            it('should process _contentTemplate from aglTemplate="content"', async () => {
+            it('should resolve the content slot into its signal query', async () => {
+                const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
+                templateFixture.detectChanges();
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                await fixture.whenStable();
+
+                const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
+
+                expect(buttonInstance.contentTemplate()).toBeDefined();
+            });
+
+            it('should resolve the icon slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -741,22 +746,7 @@ describe('Button', () => {
                 expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
             });
 
-            it('should process _iconTemplate from aglTemplate="icon"', async () => {
-                const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
-                templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                await fixture.whenStable();
-
-                const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
-
-                // ngAfterContentInit should process templates without errors
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
-
-                // Just check processing works - template may be undefined in test environment
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
-            });
-
-            it('should process _loadingIconTemplate from aglTemplate="loadingicon"', async () => {
+            it('should resolve the loadingIcon slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 const templateComponent = templateFixture.componentInstance;
                 templateComponent.loading = true;
@@ -775,7 +765,7 @@ describe('Button', () => {
                 expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
             });
 
-            it('should render custom content template with aglTemplate', async () => {
+            it('should render a custom content template', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
                 await fixture.whenStable();
@@ -786,16 +776,14 @@ describe('Button', () => {
                 expect(customContent.length + customLabels.length).toBeGreaterThanOrEqual(0);
             });
 
-            it('should render custom icon template with aglTemplate', async () => {
+            it('should render a custom icon template', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // Test that icon template is processed
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
-                expect(buttonInstance.templates).toBeDefined();
+                expect(buttonInstance.iconTemplate()).toBeDefined();
 
                 const customIcons = templateFixture.debugElement.queryAll(By.css('.custom-template-icon'));
                 expect(customIcons.length).toBeGreaterThanOrEqual(0);
@@ -811,9 +799,7 @@ describe('Button', () => {
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // Test that loading icon template is processed
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
-                expect(buttonInstance.templates).toBeDefined();
+                expect(buttonInstance.loadingIconTemplate()).toBeDefined();
 
                 const customLoadingIcons = templateFixture.debugElement.queryAll(By.css('.custom-loading-icon'));
                 expect(customLoadingIcons.length).toBeGreaterThanOrEqual(0);
@@ -840,7 +826,7 @@ describe('Button', () => {
                 expect(buttonElement).toBeTruthy();
             });
 
-            it("should process contentTemplate from @ContentChild('content')", async () => {
+            it("should resolve the content slot into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateButtonComponent);
                 contentTemplateFixture.detectChanges();
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -848,42 +834,37 @@ describe('Button', () => {
 
                 const buttonInstance = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // @ContentChild('content') should set contentTemplate
-                expect(buttonInstance.contentTemplate).toBeDefined();
-                expect(buttonInstance.contentTemplate?.constructor.name).toBe('TemplateRef');
+                expect(buttonInstance.contentTemplate()).toBeDefined();
+                expect(buttonInstance.contentTemplate()?.constructor.name).toBe('TemplateRef');
             });
 
-            it("should process loadingIconTemplate from @ContentChild('loadingicon')", async () => {
+            it("should resolve the loadingIcon slot into its signal query", async () => {
                 // Test loading icon template via ContentChild
                 const buttonInstance = fixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // loadingIconTemplate should be undefined when not provided
-                expect(buttonInstance.loadingIconTemplate).toBeUndefined();
+                expect(buttonInstance.loadingIconTemplate()).toBeUndefined();
             });
 
-            it("should process iconTemplate from @ContentChild('icon')", async () => {
+            it("should resolve the icon slot into its signal query", async () => {
                 // Test icon template via ContentChild
                 const buttonInstance = fixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                // iconTemplate should be undefined when not provided
-                expect(buttonInstance.iconTemplate).toBeUndefined();
+                expect(buttonInstance.iconTemplate()).toBeUndefined();
             });
         });
 
         // Template comparison and integration tests
         describe('Template Integration Tests', () => {
             it('should render different template types correctly', async () => {
-                // Test both aglTemplate and #content template approaches
+                // Two hosts declaring the same slot must resolve identically.
 
-                // Test aglTemplate rendering
                 const pTemplateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 pTemplateFixture.detectChanges();
                 await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const pTemplateButton = pTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
-                expect(pTemplateButton.templates).toBeDefined();
-                expect(() => pTemplateButton.ngAfterContentInit()).not.toThrow();
+                expect(pTemplateButton.contentTemplate()).toBeDefined();
 
                 // Test #content template rendering
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateButtonComponent);
@@ -892,7 +873,7 @@ describe('Button', () => {
                 await fixture.whenStable();
 
                 const contentTemplateButton = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
-                expect(contentTemplateButton.contentTemplate).toBeDefined();
+                expect(contentTemplateButton.contentTemplate()).toBeDefined();
             });
 
             it('should use default templates when custom ones are not provided', () => {
@@ -904,7 +885,7 @@ describe('Button', () => {
                 expect(defaultLabel).toBeTruthy();
             });
 
-            it('should handle ngAfterContentInit template processing correctly', async () => {
+            it('should resolve every declared slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -912,8 +893,8 @@ describe('Button', () => {
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
-                expect(() => buttonInstance.ngAfterContentInit()).not.toThrow();
-                expect(buttonInstance.templates).toBeDefined();
+                expect(buttonInstance.contentTemplate()).toBeDefined();
+                expect(buttonInstance.iconTemplate()).toBeDefined();
             });
         });
     });

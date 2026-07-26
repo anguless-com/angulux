@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     HostListener,
     inject,
@@ -17,7 +15,6 @@ import {
     NgZone,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewEncapsulation,
     ViewRef
@@ -25,7 +22,7 @@ import {
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { $dt } from '@anguless/angulux-styled';
 import { absolutePosition, addClass, appendChild, findSingle, getOffset, isIOS, isTouchDevice } from '@anguless/angulux-utils';
-import { OverlayService, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { OverlayService, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
@@ -69,7 +66,7 @@ const POPOVER_INSTANCE = new InjectionToken<Popover>('POPOVER_INSTANCE');
             >
                 <div [aglBind]="ptm('content')" [class]="cx('content')" (click)="onContentClick($event)" (mousedown)="onContentClick($event)">
                     <ng-content></ng-content>
-                    <ng-template *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { closeCallback: onCloseClick.bind(this) }"></ng-template>
+                    <ng-template *ngTemplateOutlet="contentTemplate(); context: { closeCallback: onCloseClick.bind(this) }"></ng-template>
                 </div>
             </div>
         }
@@ -200,11 +197,7 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
      * @see {@link PopoverContentTemplateContext}
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: Nullable<TemplateRef<PopoverContentTemplateContext>>;
-
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
-
-    _contentTemplate: TemplateRef<PopoverContentTemplateContext> | undefined;
+    contentTemplate = contentChild<TemplateRef<PopoverContentTemplateContext>>('content', { descendants: false });
 
     destroyCallback: Nullable<Function>;
 
@@ -217,16 +210,6 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
     zone = inject(NgZone);
 
     overlayService = inject(OverlayService);
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
-    }
 
     bindDocumentClickListener() {
         if (isPlatformBrowser(this.platformId)) {

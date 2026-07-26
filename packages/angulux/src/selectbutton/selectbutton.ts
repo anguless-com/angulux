@@ -5,9 +5,7 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    EventEmitter,
+    contentChild, EventEmitter,
     forwardRef,
     inject,
     InjectionToken,
@@ -16,13 +14,12 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { equals, resolveFieldData } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -61,9 +58,9 @@ export const SELECTBUTTON_VALUE_ACCESSOR: any = {
                 [pt]="ptm('pcToggleButton')"
                 [unstyled]="unstyled()"
             >
-                @if (itemTemplate || _itemTemplate) {
+                @if (itemTemplate()) {
                     <ng-template #content>
-                        <ng-container *ngTemplateOutlet="itemTemplate || _itemTemplate; context: { $implicit: option, index: i }"></ng-container>
+                        <ng-container *ngTemplateOutlet="itemTemplate(); context: { $implicit: option, index: i }"></ng-container>
                     </ng-template>
                 }
             </agl-togglebutton>
@@ -182,9 +179,7 @@ export class SelectButton extends BaseEditableHolder<SelectButtonPassThrough> im
      * @see {@link SelectButtonItemTemplateContext}
      * @group Templates
      */
-    @ContentChild('item', { descendants: false }) itemTemplate: TemplateRef<SelectButtonItemTemplateContext> | undefined;
-
-    _itemTemplate: TemplateRef<SelectButtonItemTemplateContext> | undefined;
+    itemTemplate = contentChild<TemplateRef<SelectButtonItemTemplateContext>>('item', { descendants: false });
 
     get equalityKey() {
         return this.optionValue ? null : this.dataKey;
@@ -313,18 +308,6 @@ export class SelectButton extends BaseEditableHolder<SelectButtonPassThrough> im
         }
 
         return selected;
-    }
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'item':
-                    this._itemTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     /**

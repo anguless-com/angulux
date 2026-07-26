@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
     contentChild,
-    ContentChildren,
     Directive,
     effect,
     EventEmitter,
@@ -17,12 +15,11 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
 import { addClass, createElement, findSingle, isEmpty } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
@@ -596,28 +593,28 @@ export class ButtonDirective extends BaseComponent {
             [attr.data-p-severity]="severity || buttonProps?.severity"
         >
             <ng-content></ng-content>
-            <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
             <ng-container *ngIf="loading || buttonProps?.loading">
-                <ng-container *ngIf="!loadingIconTemplate && !_loadingIconTemplate">
+                <ng-container *ngIf="!loadingIconTemplate()">
                     <span *ngIf="loadingIcon || buttonProps?.loadingIcon" [class]="cn(cx('loadingIcon'), 'pi-spin', loadingIcon || buttonProps?.loadingIcon)" [aglBind]="ptm('loadingIcon')" [attr.aria-hidden]="true"></span>
                     <svg data-p-icon="spinner" *ngIf="!(loadingIcon || buttonProps?.loadingIcon)" [class]="cn(cx('loadingIcon'), cx('spinnerIcon'))" [aglBind]="ptm('loadingIcon')" [spin]="true" [attr.aria-hidden]="true" />
                 </ng-container>
-                <ng-template [ngIf]="loadingIconTemplate || _loadingIconTemplate" *ngTemplateOutlet="loadingIconTemplate || _loadingIconTemplate; context: { class: cx('loadingIcon'), pt: ptm('loadingIcon') }"></ng-template>
+                <ng-template [ngIf]="loadingIconTemplate()" *ngTemplateOutlet="loadingIconTemplate(); context: { class: cx('loadingIcon'), pt: ptm('loadingIcon') }"></ng-template>
             </ng-container>
             <ng-container *ngIf="!(loading || buttonProps?.loading)">
-                <span *ngIf="(icon || buttonProps?.icon) && !iconTemplate && !_iconTemplate" [class]="cn(cx('icon'), icon || buttonProps?.icon)" [aglBind]="ptm('icon')" [attr.data-p]="dataIconP"></span>
-                <ng-template [ngIf]="!icon && (iconTemplate || _iconTemplate)" *ngTemplateOutlet="iconTemplate || _iconTemplate; context: { class: cx('icon'), pt: ptm('icon') }"></ng-template>
+                <span *ngIf="(icon || buttonProps?.icon) && !iconTemplate()" [class]="cn(cx('icon'), icon || buttonProps?.icon)" [aglBind]="ptm('icon')" [attr.data-p]="dataIconP"></span>
+                <ng-template [ngIf]="!icon && (iconTemplate())" *ngTemplateOutlet="iconTemplate(); context: { class: cx('icon'), pt: ptm('icon') }"></ng-template>
             </ng-container>
             <span
                 [class]="cx('label')"
                 [attr.aria-hidden]="(icon || buttonProps?.icon) && !(label || buttonProps?.label)"
-                *ngIf="!contentTemplate && !_contentTemplate && (label || buttonProps?.label)"
+                *ngIf="!contentTemplate() && (label || buttonProps?.label)"
                 [aglBind]="ptm('label')"
                 [attr.data-p]="dataLabelP"
                 >{{ label || buttonProps?.label }}</span
             >
             <agl-badge
-                *ngIf="!contentTemplate && !_contentTemplate && (badge || buttonProps?.badge)"
+                *ngIf="!contentTemplate() && (badge || buttonProps?.badge)"
                 [value]="badge || buttonProps?.badge"
                 [severity]="badgeSeverity || buttonProps?.badgeSeverity"
                 [pt]="ptm('pcBadge')"
@@ -832,21 +829,19 @@ export class Button extends BaseComponent<ButtonPassThrough> {
      * Custom content template.
      * @group Templates
      **/
-    @ContentChild('content') contentTemplate: TemplateRef<void> | undefined;
+    contentTemplate = contentChild<TemplateRef<void>>('content');
 
     /**
      * Custom loading icon template.
      * @group Templates
      **/
-    @ContentChild('loadingicon') loadingIconTemplate: TemplateRef<ButtonLoadingIconTemplateContext> | undefined;
+    loadingIconTemplate = contentChild<TemplateRef<ButtonLoadingIconTemplateContext>>('loadingicon');
 
     /**
      * Custom icon template.
      * @group Templates
      **/
-    @ContentChild('icon') iconTemplate: TemplateRef<ButtonIconTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
+    iconTemplate = contentChild<TemplateRef<ButtonIconTemplateContext>>('icon');
 
     pcFluid: Fluid | null = inject(Fluid, { optional: true, host: true, skipSelf: true });
 
@@ -855,35 +850,7 @@ export class Button extends BaseComponent<ButtonPassThrough> {
     }
 
     get hasIcon() {
-        return this.icon || this.buttonProps?.icon || this.iconTemplate || this._iconTemplate || this.loadingIcon || this.loadingIconTemplate || this._loadingIconTemplate;
-    }
-
-    _contentTemplate: TemplateRef<void> | undefined;
-
-    _iconTemplate: TemplateRef<ButtonIconTemplateContext> | undefined;
-
-    _loadingIconTemplate: TemplateRef<ButtonLoadingIconTemplateContext> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'icon':
-                    this._iconTemplate = item.template;
-                    break;
-
-                case 'loadingicon':
-                    this._loadingIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
+        return this.icon || this.buttonProps?.icon || this.iconTemplate() || this.loadingIcon || this.loadingIconTemplate();
     }
 
     get dataP() {

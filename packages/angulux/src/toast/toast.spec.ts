@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } fr
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { MessageService, AglTemplate, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
+import { MessageService, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Toast, ToastItem } from './toast';
 
@@ -89,13 +89,13 @@ class TestHeadlessTemplateComponent {}
     standalone: false,
     template: `
         <agl-toast [key]="'ptemplate-test'">
-            <ng-template aglTemplate="message" let-message>
+            <ng-template #message let-message>
                 <div class="ptemplate-message">
                     <i class="ptemplate-icon">📢</i>
                     <span class="ptemplate-text">{{ message.summary }}</span>
                 </div>
             </ng-template>
-            <ng-template aglTemplate="headless" let-message let-closeFn="closeFn">
+            <ng-template #headless let-message let-closeFn="closeFn">
                 <div class="ptemplate-headless">
                     <span class="ptemplate-content">{{ message.detail }}</span>
                     <button class="ptemplate-close" (click)="closeFn($event)">Close</button>
@@ -120,7 +120,7 @@ describe('Toast', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [CommonModule, Toast, SharedModule, AglTemplate],
+            imports: [CommonModule, Toast, SharedModule],
             declarations: [TestBasicToastComponent, TestMessageTemplateComponent, TestHeadlessTemplateComponent, TestPTemplateComponent, TestPositionComponent],
             providers: [MessageService, provideZonelessChangeDetection()]
         }).compileComponents();
@@ -594,8 +594,8 @@ describe('Toast', () => {
             const toastInstance = toastEl.componentInstance as Toast;
 
             toastInstance.ngAfterContentInit();
-            expect(toastInstance._template).toBeTruthy();
-            expect(toastInstance._headlessTemplate).toBeTruthy();
+            expect(toastInstance.template()).toBeTruthy();
+            expect(toastInstance.headlessTemplate()).toBeTruthy();
         });
 
         it('should render aglTemplate message content correctly', async () => {
@@ -679,7 +679,7 @@ describe('Toast', () => {
         beforeEach(async () => {
             await TestBed.resetTestingModule();
             await TestBed.configureTestingModule({
-                imports: [CommonModule, Toast, SharedModule, AglTemplate],
+                imports: [CommonModule, Toast, SharedModule],
                 declarations: [TestBasicToastComponent],
                 providers: [MessageService, provideZonelessChangeDetection()]
             }).compileComponents();

@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     inject,
     InjectionToken,
@@ -15,7 +13,6 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     signal,
     TemplateRef,
     ViewChild,
@@ -23,7 +20,7 @@ import {
 } from '@angular/core';
 import { MotionOptions } from '@anguless/angulux-motion';
 import { uuid } from '@anguless/angulux-utils';
-import { MenuItem, AglTemplate, SharedModule, TooltipOptions } from '@anguless/angulux/api';
+import { MenuItem, SharedModule, TooltipOptions } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
@@ -47,7 +44,7 @@ type SplitButtonIconPosition = 'left' | 'right';
     standalone: true,
     imports: [CommonModule, ButtonDirective, TieredMenu, AutoFocus, ChevronDownIcon, Ripple, TooltipModule, SharedModule],
     template: `
-        <ng-container *ngIf="contentTemplate || _contentTemplate; else defaultButton">
+        <ng-container *ngIf="contentTemplate(); else defaultButton">
             <button
                 [class]="cx('pcButton')"
                 type="button"
@@ -70,7 +67,7 @@ type SplitButtonIconPosition = 'left' | 'right';
                 [pt]="ptm('pcButton')"
                 [unstyled]="unstyled()"
             >
-                <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
             </button>
         </ng-container>
         <ng-template #defaultButton>
@@ -120,8 +117,8 @@ type SplitButtonIconPosition = 'left' | 'right';
         >
             <span *ngIf="dropdownIcon" [class]="dropdownIcon"></span>
             <ng-container *ngIf="!dropdownIcon">
-                <svg data-p-icon="chevron-down" *ngIf="!dropdownIconTemplate && !_dropdownIconTemplate" />
-                <ng-template *ngTemplateOutlet="dropdownIconTemplate || _dropdownIconTemplate"></ng-template>
+                <svg data-p-icon="chevron-down" *ngIf="!dropdownIconTemplate()" />
+                <ng-template *ngTemplateOutlet="dropdownIconTemplate()"></ng-template>
             </ng-container>
         </button>
         <agl-tieredmenu
@@ -353,14 +350,12 @@ export class SplitButton extends BaseComponent<SplitButtonPassThrough> {
      * Custom content template.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<void> | undefined;
+    contentTemplate = contentChild<TemplateRef<void>>('content', { descendants: false });
     /**
      * Custom dropdown icon template.
      * @group Templates
      **/
-    @ContentChild('dropdownicon', { descendants: false }) dropdownIconTemplate: TemplateRef<void> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
+    dropdownIconTemplate = contentChild<TemplateRef<void>>('dropdownicon', { descendants: false });
 
     ariaId: string | undefined;
 
@@ -370,32 +365,11 @@ export class SplitButton extends BaseComponent<SplitButtonPassThrough> {
 
     _componentStyle = inject(SplitButtonStyle);
 
-    _contentTemplate: TemplateRef<void> | undefined;
-
-    _dropdownIconTemplate: TemplateRef<void> | undefined;
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
     onInit() {
         this.ariaId = uuid('pn_id_');
-    }
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'dropdownicon':
-                    this._dropdownIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     onDefaultButtonClick(event: MouseEvent) {

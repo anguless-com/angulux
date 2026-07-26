@@ -6,9 +6,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    effect,
+    contentChild, effect,
     ElementRef,
     EventEmitter,
     forwardRef,
@@ -20,7 +18,6 @@ import {
     NgZone,
     numberAttribute,
     Output,
-    QueryList,
     Signal,
     signal,
     TemplateRef,
@@ -30,7 +27,7 @@ import {
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MotionOptions } from '@anguless/angulux-motion';
 import { deepEquals, equals, findLastIndex, findSingle, focus, getFirstFocusableElement, getFocusableElements, getLastFocusableElement, isEmpty, isNotEmpty, isPrintableCharacter, resolveFieldData, scrollInView, uuid } from '@anguless/angulux-utils';
-import { FilterService, OverlayOptions, AglTemplate, ScrollerOptions, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { FilterService, OverlayOptions, ScrollerOptions, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseInput } from '@anguless/angulux/baseinput';
@@ -206,8 +203,8 @@ export class SelectItem extends BaseComponent {
             [attr.disabled]="$disabled() ? '' : undefined"
             [attr.data-p]="labelDataP"
         >
-            <ng-container *ngIf="!selectedItemTemplate && !_selectedItemTemplate; else defaultPlaceholder">{{ label() === 'p-emptylabel' ? '&nbsp;' : label() }}</ng-container>
-            <ng-container *ngIf="(selectedItemTemplate || _selectedItemTemplate) && !isSelectedOptionEmpty()" [ngTemplateOutlet]="selectedItemTemplate || _selectedItemTemplate" [ngTemplateOutletContext]="{ $implicit: selectedOption }"></ng-container>
+            <ng-container *ngIf="!selectedItemTemplate(); else defaultPlaceholder">{{ label() === 'p-emptylabel' ? '&nbsp;' : label() }}</ng-container>
+            <ng-container *ngIf="(selectedItemTemplate()) && !isSelectedOptionEmpty()" [ngTemplateOutlet]="selectedItemTemplate()" [ngTemplateOutletContext]="{ $implicit: selectedOption }"></ng-container>
             <ng-template #defaultPlaceholder>
                 <span *ngIf="isSelectedOptionEmpty()">{{ label() === 'p-emptylabel' ? '&nbsp;' : label() }}</span>
             </ng-template>
@@ -241,30 +238,30 @@ export class SelectItem extends BaseComponent {
             [attr.data-p]="labelDataP"
         />
         <ng-container *ngIf="isVisibleClearIcon">
-            <svg data-p-icon="times" [class]="cx('clearIcon')" [aglBind]="ptm('clearIcon')" (click)="clear($event)" *ngIf="!clearIconTemplate && !_clearIconTemplate" [attr.data-pc-section]="'clearicon'" />
-            <span [class]="cx('clearIcon')" [aglBind]="ptm('clearIcon')" (click)="clear($event)" *ngIf="clearIconTemplate || _clearIconTemplate" [attr.data-pc-section]="'clearicon'">
-                <ng-template *ngTemplateOutlet="clearIconTemplate || _clearIconTemplate; context: { class: cx('clearIcon') }"></ng-template>
+            <svg data-p-icon="times" [class]="cx('clearIcon')" [aglBind]="ptm('clearIcon')" (click)="clear($event)" *ngIf="!clearIconTemplate()" [attr.data-pc-section]="'clearicon'" />
+            <span [class]="cx('clearIcon')" [aglBind]="ptm('clearIcon')" (click)="clear($event)" *ngIf="clearIconTemplate()" [attr.data-pc-section]="'clearicon'">
+                <ng-template *ngTemplateOutlet="clearIconTemplate(); context: { class: cx('clearIcon') }"></ng-template>
             </span>
         </ng-container>
 
         <div [class]="cx('dropdown')" [aglBind]="ptm('dropdown')" role="button" aria-label="dropdown trigger" aria-haspopup="listbox" [attr.aria-expanded]="overlayVisible ?? false" [attr.data-pc-section]="'trigger'">
             <ng-container *ngIf="loading; else elseBlock">
-                <ng-container *ngIf="loadingIconTemplate || _loadingIconTemplate">
-                    <ng-container *ngTemplateOutlet="loadingIconTemplate || _loadingIconTemplate"></ng-container>
+                <ng-container *ngIf="loadingIconTemplate()">
+                    <ng-container *ngTemplateOutlet="loadingIconTemplate()"></ng-container>
                 </ng-container>
-                <ng-container *ngIf="!loadingIconTemplate && !_loadingIconTemplate">
+                <ng-container *ngIf="!loadingIconTemplate()">
                     <span *ngIf="loadingIcon" [class]="cn(cx('loadingIcon'), 'pi-spin' + loadingIcon)" [aglBind]="ptm('loadingIcon')" aria-hidden="true"></span>
                     <svg data-p-icon="spinner" *ngIf="!loadingIcon" [spin]="true" [class]="cx('loadingIcon')" [aglBind]="ptm('loadingIcon')" [attr.aria-hidden]="true" />
                 </ng-container>
             </ng-container>
 
             <ng-template #elseBlock>
-                <ng-container *ngIf="!dropdownIconTemplate && !_dropdownIconTemplate">
+                <ng-container *ngIf="!dropdownIconTemplate()">
                     <span [class]="cn(cx('dropdownIcon'), dropdownIcon)" [aglBind]="ptm('dropdownIcon')" *ngIf="dropdownIcon"></span>
                     <svg data-p-icon="chevron-down" *ngIf="!dropdownIcon" [class]="cx('dropdownIcon')" [aglBind]="ptm('dropdownIcon')" />
                 </ng-container>
-                <span *ngIf="dropdownIconTemplate || _dropdownIconTemplate" [class]="cx('dropdownIcon')" [aglBind]="ptm('dropdownIcon')">
-                    <ng-template *ngTemplateOutlet="dropdownIconTemplate || _dropdownIconTemplate; context: { class: cx('dropdownIcon') }"></ng-template>
+                <span *ngIf="dropdownIconTemplate()" [class]="cx('dropdownIcon')" [aglBind]="ptm('dropdownIcon')">
+                    <ng-template *ngTemplateOutlet="dropdownIconTemplate(); context: { class: cx('dropdownIcon') }"></ng-template>
                 </span>
             </ng-template>
         </div>
@@ -296,10 +293,10 @@ export class SelectItem extends BaseComponent {
                         [aglBind]="ptm('hiddenFirstFocusableEl')"
                     >
                     </span>
-                    <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate"></ng-container>
+                    <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
                     <div [class]="cx('header')" *ngIf="filter" (click)="$event.stopPropagation()" [aglBind]="ptm('header')">
-                        <ng-container *ngIf="filterTemplate || _filterTemplate; else builtInFilterElement">
-                            <ng-container *ngTemplateOutlet="filterTemplate || _filterTemplate; context: { options: filterOptions }"></ng-container>
+                        <ng-container *ngIf="filterTemplate(); else builtInFilterElement">
+                            <ng-container *ngTemplateOutlet="filterTemplate(); context: { options: filterOptions }"></ng-container>
                         </ng-container>
                         <ng-template #builtInFilterElement>
                             <agl-iconfield [pt]="ptm('pcFilterContainer')" [unstyled]="unstyled()">
@@ -324,9 +321,9 @@ export class SelectItem extends BaseComponent {
                                     [unstyled]="unstyled()"
                                 />
                                 <agl-inputicon [pt]="ptm('pcFilterIconContainer')" [unstyled]="unstyled()">
-                                    <svg data-p-icon="search" *ngIf="!filterIconTemplate && !_filterIconTemplate" [aglBind]="ptm('filterIcon')" />
-                                    <span *ngIf="filterIconTemplate || _filterIconTemplate" [aglBind]="ptm('filterIcon')">
-                                        <ng-template *ngTemplateOutlet="filterIconTemplate || _filterIconTemplate"></ng-template>
+                                    <svg data-p-icon="search" *ngIf="!filterIconTemplate()" [aglBind]="ptm('filterIcon')" />
+                                    <span *ngIf="filterIconTemplate()" [aglBind]="ptm('filterIcon')">
+                                        <ng-template *ngTemplateOutlet="filterIconTemplate()"></ng-template>
                                     </span>
                                 </agl-inputicon>
                             </agl-iconfield>
@@ -349,9 +346,9 @@ export class SelectItem extends BaseComponent {
                             <ng-template #content let-items let-scrollerOptions="options">
                                 <ng-container *ngTemplateOutlet="buildInItems; context: { $implicit: items, options: scrollerOptions }"></ng-container>
                             </ng-template>
-                            <ng-container *ngIf="loaderTemplate || _loaderTemplate">
+                            <ng-container *ngIf="loaderTemplate()">
                                 <ng-template #loader let-scrollerOptions="options">
-                                    <ng-container *ngTemplateOutlet="loaderTemplate || _loaderTemplate; context: { options: scrollerOptions }"></ng-container>
+                                    <ng-container *ngTemplateOutlet="loaderTemplate(); context: { options: scrollerOptions }"></ng-container>
                                 </ng-template>
                             </ng-container>
                         </agl-scroller>
@@ -364,8 +361,8 @@ export class SelectItem extends BaseComponent {
                                 <ng-template ngFor let-option [ngForOf]="items" let-i="index">
                                     <ng-container *ngIf="isOptionGroup(option)">
                                         <li [class]="cx('optionGroup')" [attr.id]="id + '_' + getOptionIndex(i, scrollerOptions)" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" [aglBind]="ptm('optionGroup')">
-                                            <span *ngIf="!groupTemplate && !_groupTemplate" [class]="cx('optionGroupLabel')" [aglBind]="ptm('optionGroupLabel')">{{ getOptionGroupLabel(option.optionGroup) }}</span>
-                                            <ng-container *ngTemplateOutlet="groupTemplate || _groupTemplate; context: { $implicit: option.optionGroup }"></ng-container>
+                                            <span *ngIf="!groupTemplate()" [class]="cx('optionGroupLabel')" [aglBind]="ptm('optionGroupLabel')">{{ getOptionGroupLabel(option.optionGroup) }}</span>
+                                            <ng-container *ngTemplateOutlet="groupTemplate(); context: { $implicit: option.optionGroup }"></ng-container>
                                         </li>
                                     </ng-container>
                                     <ng-container *ngIf="!isOptionGroup(option)">
@@ -376,7 +373,7 @@ export class SelectItem extends BaseComponent {
                                             [selected]="isSelected(option)"
                                             [label]="getOptionLabel(option)"
                                             [disabled]="isOptionDisabled(option)"
-                                            [template]="itemTemplate || _itemTemplate"
+                                            [template]="itemTemplate()"
                                             [focused]="focusedOptionIndex() === getOptionIndex(i, scrollerOptions)"
                                             [ariaPosInset]="getAriaPosInset(getOptionIndex(i, scrollerOptions))"
                                             [ariaSetSize]="ariaSetSize"
@@ -389,23 +386,23 @@ export class SelectItem extends BaseComponent {
                                     </ng-container>
                                 </ng-template>
                                 <li *ngIf="filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" [aglBind]="ptm('emptyMessage')">
-                                    @if (!emptyFilterTemplate && !_emptyFilterTemplate && !emptyTemplate) {
+                                    @if (!emptyFilterTemplate() && !emptyTemplate()) {
                                         {{ emptyFilterMessageLabel }}
                                     } @else {
-                                        <ng-container #emptyFilter *ngTemplateOutlet="emptyFilterTemplate || _emptyFilterTemplate || emptyTemplate || _emptyTemplate"></ng-container>
+                                        <ng-container #emptyFilter *ngTemplateOutlet="emptyFilterTemplate() || emptyTemplate()"></ng-container>
                                     }
                                 </li>
                                 <li *ngIf="!filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" [aglBind]="ptm('emptyMessage')">
-                                    @if (!emptyTemplate && !_emptyTemplate) {
+                                    @if (!emptyTemplate()) {
                                         {{ emptyMessageLabel || emptyFilterMessageLabel }}
                                     } @else {
-                                        <ng-container #empty *ngTemplateOutlet="emptyTemplate || _emptyTemplate"></ng-container>
+                                        <ng-container #empty *ngTemplateOutlet="emptyTemplate()"></ng-container>
                                     }
                                 </li>
                             </ul>
                         </ng-template>
                     </div>
-                    <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate"></ng-container>
+                    <ng-container *ngTemplateOutlet="footerTemplate()"></ng-container>
                     <span
                         #lastHiddenFocusableEl
                         role="presentation"
@@ -798,131 +795,95 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
      * Custom item template.
      * @group Templates
      */
-    @ContentChild('item', { descendants: false }) itemTemplate: Nullable<TemplateRef<SelectItemTemplateContext>>;
+    itemTemplate = contentChild<TemplateRef<SelectItemTemplateContext>>('item', { descendants: false });
 
     /**
      * Custom group template.
      * @group Templates
      */
-    @ContentChild('group', { descendants: false }) groupTemplate: Nullable<TemplateRef<SelectGroupTemplateContext>>;
+    groupTemplate = contentChild<TemplateRef<SelectGroupTemplateContext>>('group', { descendants: false });
 
     /**
      * Custom loader template.
      * @group Templates
      */
-    @ContentChild('loader', { descendants: false }) loaderTemplate: Nullable<TemplateRef<SelectLoaderTemplateContext>>;
+    loaderTemplate = contentChild<TemplateRef<SelectLoaderTemplateContext>>('loader', { descendants: false });
 
     /**
      * Custom selected item template.
      * @group Templates
      */
-    @ContentChild('selectedItem', { descendants: false }) selectedItemTemplate: Nullable<TemplateRef<SelectSelectedItemTemplateContext>>;
+    selectedItemTemplate = contentChild<TemplateRef<SelectSelectedItemTemplateContext>>('selectedItem', { descendants: false });
 
     /**
      * Custom header template.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: Nullable<TemplateRef<void>>;
+    headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
 
     /**
      * Custom filter template.
      * @group Templates
      */
-    @ContentChild('filter', { descendants: false }) filterTemplate: Nullable<TemplateRef<SelectFilterTemplateContext>>;
+    filterTemplate = contentChild<TemplateRef<SelectFilterTemplateContext>>('filter', { descendants: false });
 
     /**
      * Custom footer template.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: Nullable<TemplateRef<void>>;
+    footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
 
     /**
      * Custom empty filter template.
      * @group Templates
      */
-    @ContentChild('emptyfilter', { descendants: false }) emptyFilterTemplate: Nullable<TemplateRef<void>>;
+    emptyFilterTemplate = contentChild<TemplateRef<void>>('emptyfilter', { descendants: false });
 
     /**
      * Custom empty template.
      * @group Templates
      */
-    @ContentChild('empty', { descendants: false }) emptyTemplate: Nullable<TemplateRef<void>>;
+    emptyTemplate = contentChild<TemplateRef<void>>('empty', { descendants: false });
 
     /**
      * Custom dropdown icon template.
      * @group Templates
      */
-    @ContentChild('dropdownicon', { descendants: false }) dropdownIconTemplate: Nullable<TemplateRef<SelectIconTemplateContext>>;
+    dropdownIconTemplate = contentChild<TemplateRef<SelectIconTemplateContext>>('dropdownicon', { descendants: false });
 
     /**
      * Custom loading icon template.
      * @group Templates
      */
-    @ContentChild('loadingicon', { descendants: false }) loadingIconTemplate: Nullable<TemplateRef<void>>;
+    loadingIconTemplate = contentChild<TemplateRef<void>>('loadingicon', { descendants: false });
 
     /**
      * Custom clear icon template.
      * @group Templates
      */
-    @ContentChild('clearicon', { descendants: false }) clearIconTemplate: Nullable<TemplateRef<SelectIconTemplateContext>>;
+    clearIconTemplate = contentChild<TemplateRef<SelectIconTemplateContext>>('clearicon', { descendants: false });
 
     /**
      * Custom filter icon template.
      * @group Templates
      */
-    @ContentChild('filtericon', { descendants: false }) filterIconTemplate: Nullable<TemplateRef<void>>;
+    filterIconTemplate = contentChild<TemplateRef<void>>('filtericon', { descendants: false });
 
-    /**
-     * Custom on icon template.
-     * @group Templates
-     */
-    @ContentChild('onicon', { descendants: false }) onIconTemplate: Nullable<TemplateRef<void>>;
 
-    /**
-     * Custom off icon template.
-     * @group Templates
-     */
-    @ContentChild('officon', { descendants: false }) offIconTemplate: Nullable<TemplateRef<void>>;
 
-    /**
-     * Custom cancel icon template.
-     * @group Templates
-     */
-    @ContentChild('cancelicon', { descendants: false }) cancelIconTemplate: Nullable<TemplateRef<void>>;
 
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
 
-    _itemTemplate: TemplateRef<SelectItemTemplateContext> | undefined;
 
-    _selectedItemTemplate: TemplateRef<SelectSelectedItemTemplateContext> | undefined;
 
-    _headerTemplate: TemplateRef<void> | undefined;
 
-    _filterTemplate: TemplateRef<SelectFilterTemplateContext> | undefined;
 
-    _footerTemplate: TemplateRef<void> | undefined;
 
-    _emptyFilterTemplate: TemplateRef<void> | undefined;
 
-    _emptyTemplate: TemplateRef<void> | undefined;
 
-    _groupTemplate: TemplateRef<SelectGroupTemplateContext> | undefined;
 
-    _loaderTemplate: TemplateRef<SelectLoaderTemplateContext> | undefined;
 
-    _dropdownIconTemplate: TemplateRef<SelectIconTemplateContext> | undefined;
 
-    _loadingIconTemplate: TemplateRef<void> | undefined;
 
-    _clearIconTemplate: TemplateRef<SelectIconTemplateContext> | undefined;
-
-    _filterIconTemplate: TemplateRef<void> | undefined;
-
-    _cancelIconTemplate: TemplateRef<void> | undefined;
-
-    _onIconTemplate: TemplateRef<void> | undefined;
-
-    _offIconTemplate: TemplateRef<void> | undefined;
 
     filterOptions: SelectFilterOptions | undefined;
 
@@ -1104,80 +1065,6 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
                 reset: () => this.resetFilter()
             };
         }
-    }
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'item':
-                    this._itemTemplate = item.template;
-                    break;
-
-                case 'selectedItem':
-                    this._selectedItemTemplate = item.template;
-                    break;
-
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'filter':
-                    this._filterTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-
-                case 'emptyfilter':
-                    this._emptyFilterTemplate = item.template;
-                    break;
-
-                case 'empty':
-                    this._emptyTemplate = item.template;
-                    break;
-
-                case 'group':
-                    this._groupTemplate = item.template;
-                    break;
-
-                case 'loader':
-                    this._loaderTemplate = item.template;
-                    break;
-
-                case 'dropdownicon':
-                    this._dropdownIconTemplate = item.template;
-                    break;
-
-                case 'loadingicon':
-                    this._loadingIconTemplate = item.template;
-                    break;
-
-                case 'clearicon':
-                    this._clearIconTemplate = item.template;
-                    break;
-
-                case 'filtericon':
-                    this._filterIconTemplate = item.template;
-                    break;
-
-                case 'cancelicon':
-                    this._cancelIconTemplate = item.template;
-                    break;
-
-                case 'onicon':
-                    this._onIconTemplate = item.template;
-                    break;
-
-                case 'officon':
-                    this._offIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._itemTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     onAfterViewChecked() {
@@ -1992,7 +1879,7 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             clearable: this.showClear,
             disabled: this.$disabled(),
             [this.size() as string]: this.size(),
-            empty: !this.editable && !this.selectedItemTemplate && (!this.label?.() || this.label() === 'p-emptylabel' || this.label()?.length === 0)
+            empty: !this.editable && !this.selectedItemTemplate() && (!this.label?.() || this.label() === 'p-emptylabel' || this.label()?.length === 0)
         });
     }
 

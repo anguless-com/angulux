@@ -149,14 +149,14 @@ class TestReactiveFormDatePickerComponent {
     });
 }
 
-// aglTemplate only - Comprehensive template test component with all 12 ContentChild projections
+// Comprehensive template test component with all 12 ContentChild projections
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
     template: `
         <agl-datepicker [(ngModel)]="selectedDate" [showTime]="showTime" [showIcon]="showIcon" [showClear]="showClear" [view]="view" [dateFormat]="dateFormat" [touchUI]="touchUI">
             <!-- Date template with context parameters -->
-            <ng-template aglTemplate="date" let-date="date">
+            <ng-template #date let-date>
                 <div class="custom-date" data-testid="date-template">
                     <span class="day">{{ date.day }}</span>
                     <span class="month" *ngIf="date.month">{{ date.month }}</span>
@@ -165,7 +165,7 @@ class TestReactiveFormDatePickerComponent {
             </ng-template>
 
             <!-- Header template -->
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header" data-testid="header-template">
                     <h4>Select Date</h4>
                     <small>Choose your preferred date</small>
@@ -173,7 +173,7 @@ class TestReactiveFormDatePickerComponent {
             </ng-template>
 
             <!-- Footer template -->
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer" data-testid="footer-template">
                     <button type="button" class="today-btn">Today</button>
                     <button type="button" class="clear-btn">Clear</button>
@@ -181,51 +181,51 @@ class TestReactiveFormDatePickerComponent {
             </ng-template>
 
             <!-- Disabled date template with context -->
-            <ng-template aglTemplate="disabledDate" let-date="date">
+            <ng-template #disabledDate let-date>
                 <div class="disabled-date" data-testid="disabled-date-template">
                     <span class="crossed-out">{{ date.day }}</span>
                 </div>
             </ng-template>
 
             <!-- Decade template with context -->
-            <ng-template aglTemplate="decade" let-decade="decade">
+            <ng-template #decade let-decade>
                 <div class="custom-decade" data-testid="decade-template">
                     <span class="decade-range">{{ decade.year }}-{{ decade.year + 9 }}</span>
                 </div>
             </ng-template>
 
             <!-- Previous icon template -->
-            <ng-template aglTemplate="previousicon">
+            <ng-template #previousicon>
                 <i class="pi pi-chevron-left custom-prev" data-testid="previous-icon-template"></i>
             </ng-template>
 
             <!-- Next icon template -->
-            <ng-template aglTemplate="nexticon">
+            <ng-template #nexticon>
                 <i class="pi pi-chevron-right custom-next" data-testid="next-icon-template"></i>
             </ng-template>
 
             <!-- Trigger icon template -->
-            <ng-template aglTemplate="triggericon">
+            <ng-template #triggericon>
                 <i class="pi pi-calendar custom-trigger" data-testid="trigger-icon-template"></i>
             </ng-template>
 
             <!-- Clear icon template -->
-            <ng-template aglTemplate="clearicon">
+            <ng-template #clearicon>
                 <i class="pi pi-times custom-clear" data-testid="clear-icon-template"></i>
             </ng-template>
 
             <!-- Decrement icon template -->
-            <ng-template aglTemplate="decrementicon">
+            <ng-template #decrementicon>
                 <i class="pi pi-minus custom-decrement" data-testid="decrement-icon-template"></i>
             </ng-template>
 
             <!-- Increment icon template -->
-            <ng-template aglTemplate="incrementicon">
+            <ng-template #incrementicon>
                 <i class="pi pi-plus custom-increment" data-testid="increment-icon-template"></i>
             </ng-template>
 
             <!-- Input icon template -->
-            <ng-template aglTemplate="inputicon">
+            <ng-template #inputicon>
                 <i class="pi pi-clock custom-input-icon" data-testid="input-icon-template"></i>
             </ng-template>
         </agl-datepicker>
@@ -248,7 +248,7 @@ class TestPTemplatesDatePickerComponent {
     template: `
         <agl-datepicker [(ngModel)]="selectedDate" [showTime]="showTime" [showIcon]="showIcon" [showClear]="showClear" [view]="view" [dateFormat]="dateFormat" [touchUI]="touchUI">
             <!-- Date template with context parameters -->
-            <ng-template #date let-date="date">
+            <ng-template #date let-date>
                 <div class="custom-date-ref" data-testid="date-ref-template">
                     <span class="day">{{ date?.day }}</span>
                     <span class="month" *ngIf="date?.month">{{ date?.month }}</span>
@@ -273,14 +273,14 @@ class TestPTemplatesDatePickerComponent {
             </ng-template>
 
             <!-- Disabled date template with context -->
-            <ng-template #disabledDate let-date="date">
+            <ng-template #disabledDate let-date>
                 <div class="disabled-date-ref" data-testid="disabled-date-ref-template">
                     <span class="crossed-out-ref">{{ date?.day }}</span>
                 </div>
             </ng-template>
 
             <!-- Decade template with context -->
-            <ng-template #decade let-decade="decade">
+            <ng-template #decade let-decade>
                 <div class="custom-decade-ref" data-testid="decade-ref-template">
                     <span class="decade-range-ref">{{ decade?.year }}-{{ decade?.year ? decade.year + 9 : '' }}</span>
                 </div>
@@ -339,7 +339,7 @@ class TestRefTemplatesDatePickerComponent {
     standalone: false,
     template: `
         <agl-datepicker [(ngModel)]="selectedDate" [showTime]="showTime" [showIcon]="showIcon" [showClear]="showClear" [view]="view" [dateFormat]="dateFormat" [touchUI]="touchUI">
-            <ng-template aglTemplate="date" let-date="date">
+            <ng-template #date let-date>
                 <div class="custom-date" data-testid="date-template">
                     <span class="day">{{ date.day }}</span>
                 </div>
@@ -1166,7 +1166,7 @@ describe('DatePicker', () => {
         });
     });
 
-    describe('aglTemplate Content Projection', () => {
+    describe('Content projection slots', () => {
         let pTemplatesFixture: ComponentFixture<TestPTemplatesDatePickerComponent>;
         let pTemplatesDatePickerElement: any;
 
@@ -1184,36 +1184,27 @@ describe('DatePicker', () => {
             pTemplatesFixture.changeDetectorRef.markForCheck();
             await pTemplatesFixture.whenStable();
 
-            // Verify that templates collection exists
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
-        it('should support date aglTemplate property access', () => {
+        it('should resolve the date slot into its signal query', () => {
             const datePickerComponent = pTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.dateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
-        it('should support header aglTemplate property access', () => {
+        it('should resolve the header slot into its signal query', () => {
             const datePickerComponent = pTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.headerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.headerTemplate()).toBeDefined();
         });
 
-        it('should support footer aglTemplate property access', () => {
+        it('should resolve the footer slot into its signal query', () => {
             const datePickerComponent = pTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.footerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.footerTemplate()).toBeDefined();
         });
 
-        it('should support disabled date aglTemplate property access', () => {
+        it('should resolve the disabledDate slot into its signal query', () => {
             const datePickerComponent = pTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.disabledDateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.disabledDateTemplate()).toBeDefined();
         });
     });
 
@@ -1236,35 +1227,27 @@ describe('DatePicker', () => {
             await refTemplatesFixture.whenStable();
 
             // Verify that templates collection exists
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
         it('should support date #template reference property access', () => {
             const datePickerComponent = refTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.dateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
         it('should support header #template reference property access', () => {
             const datePickerComponent = refTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.headerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.headerTemplate()).toBeDefined();
         });
 
         it('should support footer #template reference property access', () => {
             const datePickerComponent = refTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.footerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.footerTemplate()).toBeDefined();
         });
 
         it('should support disabled date #template reference property access', () => {
             const datePickerComponent = refTemplatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.disabledDateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.disabledDateTemplate()).toBeDefined();
         });
     });
 
@@ -1279,7 +1262,7 @@ describe('DatePicker', () => {
             await templatesFixture.whenStable();
         });
 
-        it('should initialize templates and make them available', async () => {
+        it('should resolve the declared slots into their signal queries', async () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
 
             // Trigger content initialization
@@ -1287,42 +1270,34 @@ describe('DatePicker', () => {
             await templatesFixture.whenStable();
 
             // Verify that templates collection exists
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
-        it('should support date template property access', () => {
+        it('should leave an undeclared slot resolving to undefined', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.dateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            // This host declares #header but no #date on the queried element.
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
+            expect(datePickerComponent.headerTemplate()).toBeUndefined();
         });
 
-        it('should support header template property access', () => {
+        it('should resolve the date slot into its signal query', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.headerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
-        it('should support footer template property access', () => {
+        it('should leave the footer slot undefined when the host does not declare it', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.footerTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.footerTemplate()).toBeUndefined();
         });
 
-        it('should support disabled date template property access', () => {
+        it('should leave the disabled date slot undefined when the host does not declare it', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.disabledDateTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.disabledDateTemplate()).toBeUndefined();
         });
 
-        it('should support decade template property access', () => {
+        it('should leave the decade slot undefined when the host does not declare it', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
-            // Verify component can access template properties without errors
-            expect(() => datePickerComponent.decadeTemplate).not.toThrow();
-            expect(datePickerComponent).toBeTruthy();
+            expect(datePickerComponent.decadeTemplate()).toBeUndefined();
         });
 
         it('should support navigation icon template property access', () => {
@@ -1356,11 +1331,11 @@ describe('DatePicker', () => {
             expect(datePickerComponent).toBeTruthy();
         });
 
-        it('should have template collection initialized', () => {
+        it('should expose the header slot as a signal query', () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
 
             // Verify that the component has template properties
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
 
             // Test that we can access template-related properties without errors
             expect(() => {
@@ -1401,11 +1376,11 @@ describe('DatePicker', () => {
             }).not.toThrow();
         });
 
-        it('should process templates through AglTemplate system', async () => {
+        it('should resolve slots on a template-driven host', async () => {
             const datePickerComponent = templatesDatePickerElement.componentInstance;
 
             // Verify that templates can be processed
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
 
             // Test that the template processing lifecycle works
             expect(() => {
@@ -1413,7 +1388,7 @@ describe('DatePicker', () => {
             }).not.toThrow();
         });
 
-        it('should recognize both aglTemplate and #template structures', async () => {
+        it('should resolve slots declared as #template references on both hosts', async () => {
             // Test that component can handle both aglTemplate directive and #template references
             const datePickerComponent = templatesDatePickerElement.componentInstance;
 
@@ -1426,7 +1401,7 @@ describe('DatePicker', () => {
             }).not.toThrow();
 
             // Templates should be available for processing
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
         it('should verify #template references are accessible', async () => {
@@ -1453,16 +1428,11 @@ describe('DatePicker', () => {
                 // Simulate template context processing
                 templatesFixture.changeDetectorRef.markForCheck();
 
-                // Templates should be available for context binding
-                if (datePickerComponent.templates) {
-                    datePickerComponent.templates.forEach((template: any) => {
-                        expect(template).toBeTruthy();
-                    });
-                }
+                expect(datePickerComponent.dateTemplate()).toBeTruthy();
             }).not.toThrow();
         });
 
-        it('should support dual template approach (aglTemplate + #template)', async () => {
+        it('should resolve slots declared as #template references', async () => {
             // Verify that using both aglTemplate and #template doesn't cause conflicts
             const datePickerComponent = templatesDatePickerElement.componentInstance;
 
@@ -1525,7 +1495,7 @@ describe('DatePicker', () => {
             }).not.toThrow();
 
             // Templates should be properly initialized
-            expect(datePickerComponent.templates).toBeDefined();
+            expect(datePickerComponent.dateTemplate()).toBeDefined();
         });
 
         it('should handle context parameters in date template', async () => {

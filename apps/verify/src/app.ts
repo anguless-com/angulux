@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MenuItem, SharedModule, TreeNode } from '@anguless/angulux/api';
+import { MenuItem, TreeNode } from '@anguless/angulux/api';
 import { CardModule } from '@anguless/angulux/card';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { MenuModule } from '@anguless/angulux/menu';
@@ -34,7 +34,7 @@ interface Product {
 @Component({
     selector: 'agl-verify-root',
     standalone: true,
-    imports: [FormsModule, SharedModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule],
+    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -138,10 +138,10 @@ interface Product {
                         <td>{{ rowData.name }}</td>
                         <td [ttEditableColumn]="rowData" [ttEditableColumnField]="'note'" class="note-cell">
                             <agl-treeTableCellEditor>
-                                <ng-template aglTemplate="input">
+                                <ng-template #input>
                                     <input class="note-input" type="text" [(ngModel)]="rowData.note" />
                                 </ng-template>
-                                <ng-template aglTemplate="output">
+                                <ng-template #output>
                                     <span class="note-output">{{ rowData.note }}</span>
                                 </ng-template>
                             </agl-treeTableCellEditor>
@@ -176,11 +176,12 @@ interface Product {
         <!-- ── 6. multiselect ───────────────────────────────────────────── -->
         <section id="sec-multiselect">
             <h2>multiselect</h2>
-            <!-- Uses the agl-header facet, NOT ng-template #header: only a facet travels through
-                 ng-content select="agl-header", which is the path that broke silently before the
-                 fix. Going via the template route would exercise none of that fix. -->
+            <!-- multiselect has migrated to PA-1, so the agl-header facet route is gone and the
+                 guard watches the surviving one. The failure it protects against is unchanged —
+                 a slot that renders nothing into an overlay, with no error thrown — and the
+                 overlay is still the hard part: the header only exists once the panel opens. -->
             <agl-multiselect [options]="cities" [(ngModel)]="selectedCities" optionLabel="name" placeholder="Select several">
-                <agl-header><div class="ms-facet-header">FACET_HEADER_MULTISELECT</div></agl-header>
+                <ng-template #header><div class="ms-facet-header">FACET_HEADER_MULTISELECT</div></ng-template>
             </agl-multiselect>
             <div class="probe" id="probe-multiselect">count={{ selectedCities?.length ?? 0 }}</div>
         </section>
@@ -188,10 +189,13 @@ interface Product {
         <!-- ── 7. facet: canh lop loi <ng-content select="…"> vua va ───── -->
         <section id="sec-facet">
             <h2>facet (card + dialog)</h2>
+            <!-- card has migrated to PA-1: the agl-header/agl-footer facet route is gone, so the
+                 guard now watches the surviving route. The defect class is unchanged — a slot that
+                 silently renders nothing, with no error thrown — only its single entry point moved. -->
             <agl-card>
-                <agl-header><div class="facet-probe" id="card-header-facet">FACET_HEADER_CARD</div></agl-header>
+                <ng-template #header><div class="facet-probe" id="card-header-facet">FACET_HEADER_CARD</div></ng-template>
                 <p>Card body content.</p>
-                <agl-footer><div class="facet-probe" id="card-footer-facet">FACET_FOOTER_CARD</div></agl-footer>
+                <ng-template #footer><div class="facet-probe" id="card-footer-facet">FACET_FOOTER_CARD</div></ng-template>
             </agl-card>
 
             <button type="button" id="open-dialog" (click)="dialogVisible.set(true)">Open dialog</button>

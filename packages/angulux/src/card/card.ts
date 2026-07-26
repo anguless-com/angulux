@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ContentChild, ContentChildren, inject, InjectionToken, Input, NgModule, QueryList, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, contentChild, inject, InjectionToken, Input, NgModule, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { equals } from '@anguless/angulux-utils';
-import { BlockableUI, Footer, Header, AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { BlockableUI, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { CardStyle } from './style/cardstyle';
@@ -16,28 +16,26 @@ const CARD_INSTANCE = new InjectionToken<Card>('CARD_INSTANCE');
 @Component({
     selector: 'agl-card',
     standalone: true,
-    imports: [CommonModule, SharedModule, BindModule],
+    imports: [CommonModule, BindModule],
     template: `
-        <div [aglBind]="ptm('header')" [class]="cx('header')" *ngIf="headerFacet || headerTemplate || _headerTemplate">
-            <ng-content select="agl-header"></ng-content>
-            <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate"></ng-container>
+        <div [aglBind]="ptm('header')" [class]="cx('header')" *ngIf="headerTemplate()">
+            <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
         </div>
         <div [aglBind]="ptm('body')" [class]="cx('body')">
-            <div [aglBind]="ptm('title')" [class]="cx('title')" *ngIf="header || titleTemplate || _titleTemplate">
-                <ng-container *ngIf="header && !_titleTemplate && !titleTemplate">{{ header }}</ng-container>
-                <ng-container *ngTemplateOutlet="titleTemplate || _titleTemplate"></ng-container>
+            <div [aglBind]="ptm('title')" [class]="cx('title')" *ngIf="header || titleTemplate()">
+                <ng-container *ngIf="header && !titleTemplate()">{{ header }}</ng-container>
+                <ng-container *ngTemplateOutlet="titleTemplate()"></ng-container>
             </div>
-            <div [aglBind]="ptm('subtitle')" [class]="cx('subtitle')" *ngIf="subheader || subtitleTemplate || _subtitleTemplate">
-                <ng-container *ngIf="subheader && !_subtitleTemplate && !subtitleTemplate">{{ subheader }}</ng-container>
-                <ng-container *ngTemplateOutlet="subtitleTemplate || _subtitleTemplate"></ng-container>
+            <div [aglBind]="ptm('subtitle')" [class]="cx('subtitle')" *ngIf="subheader || subtitleTemplate()">
+                <ng-container *ngIf="subheader && !subtitleTemplate()">{{ subheader }}</ng-container>
+                <ng-container *ngTemplateOutlet="subtitleTemplate()"></ng-container>
             </div>
             <div [aglBind]="ptm('content')" [class]="cx('content')">
                 <ng-content></ng-content>
-                <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate"></ng-container>
+                <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
             </div>
-            <div [aglBind]="ptm('footer')" [class]="cx('footer')" *ngIf="footerFacet || footerTemplate || _footerTemplate">
-                <ng-content select="agl-footer"></ng-content>
-                <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate"></ng-container>
+            <div [aglBind]="ptm('footer')" [class]="cx('footer')" *ngIf="footerTemplate()">
+                <ng-container *ngTemplateOutlet="footerTemplate()"></ng-container>
             </div>
         </div>
     `,
@@ -100,86 +98,40 @@ export class Card extends BaseComponent<CardPassThrough> implements BlockableUI 
      */
     @Input() styleClass: string | undefined;
 
-    @ContentChild(Header) headerFacet: TemplateRef<any> | undefined;
-
-    @ContentChild(Footer) footerFacet: TemplateRef<any> | undefined;
-
     /**
      * Custom header template.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: TemplateRef<void> | undefined;
+    headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
 
     /**
      * Custom title template.
      * @group Templates
      */
-    @ContentChild('title', { descendants: false }) titleTemplate: TemplateRef<void> | undefined;
+    titleTemplate = contentChild<TemplateRef<void>>('title', { descendants: false });
 
     /**
      * Custom subtitle template.
      * @group Templates
      */
-    @ContentChild('subtitle', { descendants: false }) subtitleTemplate: TemplateRef<void> | undefined;
+    subtitleTemplate = contentChild<TemplateRef<void>>('subtitle', { descendants: false });
 
     /**
      * Custom content template.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<void> | undefined;
+    contentTemplate = contentChild<TemplateRef<void>>('content', { descendants: false });
 
     /**
      * Custom footer template.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: TemplateRef<void> | undefined;
-
-    _headerTemplate: TemplateRef<void> | undefined;
-
-    _titleTemplate: TemplateRef<void> | undefined;
-
-    _subtitleTemplate: TemplateRef<void> | undefined;
-
-    _contentTemplate: TemplateRef<void> | undefined;
-
-    _footerTemplate: TemplateRef<void> | undefined;
+    footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
 
     _style = signal<{ [klass: string]: any } | null | undefined>(null);
 
     getBlockableElement(): HTMLElement {
         return this.el.nativeElement;
-    }
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'title':
-                    this._titleTemplate = item.template;
-                    break;
-
-                case 'subtitle':
-                    this._subtitleTemplate = item.template;
-                    break;
-
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
     }
 }
 

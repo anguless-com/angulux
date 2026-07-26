@@ -73,36 +73,36 @@ class TestBasicPaginatorComponent {
     }
 }
 
-// Test component for template testing with aglTemplate
+// Test component for content template slots
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
     template: `
         <agl-paginator [rows]="10" [totalRecords]="100" [first]="0">
-            <ng-template aglTemplate="dropdownicon">
+            <ng-template #dropdownicon>
                 <span class="custom-dropdown-icon">▼</span>
             </ng-template>
 
-            <ng-template aglTemplate="firstpagelinkicon">
+            <ng-template #firstpagelinkicon>
                 <span class="custom-first-icon">⏮</span>
             </ng-template>
 
-            <ng-template aglTemplate="previouspagelinkicon">
+            <ng-template #previouspagelinkicon>
                 <span class="custom-prev-icon">⏪</span>
             </ng-template>
 
-            <ng-template aglTemplate="nextpagelinkicon">
+            <ng-template #nextpagelinkicon>
                 <span class="custom-next-icon">⏩</span>
             </ng-template>
 
-            <ng-template aglTemplate="lastpagelinkicon">
+            <ng-template #lastpagelinkicon>
                 <span class="custom-last-icon">⏭</span>
             </ng-template>
         </agl-paginator>
     `
 })
 class TestPTemplatePaginatorComponent {
-    // Component with aglTemplate templates
+    // Component with content templates
 }
 
 // Test component for ContentChild template references
@@ -543,7 +543,7 @@ describe('Paginator', () => {
     });
 
     describe('Template and Content Projection', () => {
-        describe('aglTemplate Approach', () => {
+        describe('Content template slots', () => {
             let pTemplateFixture: ComponentFixture<TestPTemplatePaginatorComponent>;
             let pTemplatePaginator: Paginator;
 
@@ -553,19 +553,19 @@ describe('Paginator', () => {
                 pTemplateFixture.detectChanges();
             });
 
-            it('should create component with aglTemplate templates', () => {
+            it('should create the component with content templates', () => {
                 expect(pTemplateFixture.componentInstance).toBeTruthy();
                 expect(pTemplatePaginator).toBeTruthy();
             });
 
-            it('should process aglTemplate templates in ngAfterContentInit', async () => {
+            it('should resolve every icon slot into its signal query', async () => {
                 await pTemplateFixture.whenStable();
 
-                expect(pTemplatePaginator._dropdownIconTemplate).toBeDefined();
-                expect(pTemplatePaginator._firstPageLinkIconTemplate).toBeDefined();
-                expect(pTemplatePaginator._previousPageLinkIconTemplate).toBeDefined();
-                expect(pTemplatePaginator._nextPageLinkIconTemplate).toBeDefined();
-                expect(pTemplatePaginator._lastPageLinkIconTemplate).toBeDefined();
+                expect(pTemplatePaginator.dropdownIconTemplate()).toBeDefined();
+                expect(pTemplatePaginator.firstPageLinkIconTemplate()).toBeDefined();
+                expect(pTemplatePaginator.previousPageLinkIconTemplate()).toBeDefined();
+                expect(pTemplatePaginator.nextPageLinkIconTemplate()).toBeDefined();
+                expect(pTemplatePaginator.lastPageLinkIconTemplate()).toBeDefined();
             });
 
             it('should apply custom icon templates', async () => {

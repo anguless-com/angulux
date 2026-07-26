@@ -1,12 +1,4 @@
 {
-    "agl-header": {
-        "via": "template",
-        "note": "header facet of agl-card and agl-multiselect; the 'facet card' and 'multiselect' scenarios assert it projects into the slot"
-    },
-    "agl-footer": {
-        "via": "template",
-        "note": "footer facet of agl-card; asserted by the 'facet card' scenario"
-    },
     "agl-motion": {
         "via": "transitive",
         "renderedBy": "agl-dialog, agl-select, agl-multiselect",

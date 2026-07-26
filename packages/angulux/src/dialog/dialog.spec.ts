@@ -142,22 +142,22 @@ class TestBasicDialogComponent {
     standalone: false,
     template: `
         <agl-dialog [(visible)]="visible" [modal]="true">
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">Custom Header with aglTemplate</div>
             </ng-template>
-            <ng-template aglTemplate="content">
+            <ng-template #content>
                 <div class="custom-content">Custom content with aglTemplate</div>
             </ng-template>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">Custom footer with aglTemplate</div>
             </ng-template>
-            <ng-template aglTemplate="closeicon">
+            <ng-template #closeicon>
                 <i class="pi pi-custom-close custom-close-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="maximizeicon">
+            <ng-template #maximizeicon>
                 <i class="pi pi-custom-maximize custom-maximize-icon"></i>
             </ng-template>
-            <ng-template aglTemplate="minimizeicon">
+            <ng-template #minimizeicon>
                 <i class="pi pi-custom-minimize custom-minimize-icon"></i>
             </ng-template>
         </agl-dialog>
@@ -942,14 +942,11 @@ describe('Dialog', () => {
                 expect(customCloseIcon).toBeTruthy();
             });
 
-            it('should process aglTemplate templates in ngAfterContentInit', () => {
-                expect(() => pTemplateDialogInstance.ngAfterContentInit()).not.toThrow();
-
-                // Check that templates are assigned
-                expect(pTemplateDialogInstance.headerT).toBeDefined();
-                expect(pTemplateDialogInstance.contentT).toBeDefined();
-                expect(pTemplateDialogInstance.footerT).toBeDefined();
-                expect(pTemplateDialogInstance.closeIconT).toBeDefined();
+            it('should resolve every declared slot into its signal query', () => {
+                expect(pTemplateDialogInstance._headerTemplate()).toBeDefined();
+                expect(pTemplateDialogInstance._contentTemplate()).toBeDefined();
+                expect(pTemplateDialogInstance._footerTemplate()).toBeDefined();
+                expect(pTemplateDialogInstance._closeiconTemplate()).toBeDefined();
             });
         });
 

@@ -4,9 +4,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     inject,
     InjectionToken,
@@ -15,14 +13,13 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     TemplateRef,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { addClass, appendChild, removeClass, setAttribute } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { Button, ButtonProps } from '@anguless/angulux/button';
@@ -67,11 +64,11 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                 [attr.data-p]="dataP"
                 [attr.data-p-open]="visible"
             >
-                @if (headlessTemplate || _headlessTemplate) {
-                    <ng-container *ngTemplateOutlet="headlessTemplate || _headlessTemplate"></ng-container>
+                @if (headlessTemplate()) {
+                    <ng-container *ngTemplateOutlet="headlessTemplate()"></ng-container>
                 } @else {
                     <div [aglBind]="ptm('header')" [ngClass]="cx('header')" [attr.data-pc-section]="'header'">
-                        <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate"></ng-container>
+                        <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
                         <div *ngIf="header" [aglBind]="ptm('title')" [class]="cx('title')">{{ header }}</div>
                         <agl-button
                             *ngIf="showCloseIcon && closable"
@@ -85,20 +82,20 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                             [unstyled]="unstyled()"
                         >
                             <ng-template #icon>
-                                <svg data-p-icon="times" *ngIf="!closeIconTemplate && !_closeIconTemplate" [attr.data-pc-section]="'closeicon'" />
-                                <ng-template *ngTemplateOutlet="closeIconTemplate || _closeIconTemplate"></ng-template>
+                                <svg data-p-icon="times" *ngIf="!closeIconTemplate()" [attr.data-pc-section]="'closeicon'" />
+                                <ng-template *ngTemplateOutlet="closeIconTemplate()"></ng-template>
                             </ng-template>
                         </agl-button>
                     </div>
 
                     <div [aglBind]="ptm('content')" [ngClass]="cx('content')" [attr.data-pc-section]="'content'">
                         <ng-content></ng-content>
-                        <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate"></ng-container>
+                        <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
                     </div>
 
-                    <ng-container *ngIf="footerTemplate || _footerTemplate">
+                    <ng-container *ngIf="footerTemplate()">
                         <div [aglBind]="ptm('footer')" [ngClass]="cx('footer')" [attr.data-pc-section]="'footer'">
-                            <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate"></ng-container>
+                            <ng-container *ngTemplateOutlet="footerTemplate()"></ng-container>
                         </div>
                     </ng-container>
                 }
@@ -297,67 +294,29 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
      * Custom header template.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: TemplateRef<void> | undefined;
+    headerTemplate = contentChild<TemplateRef<void>>('header', { descendants: false });
     /**
      * Custom footer template.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: TemplateRef<void> | undefined;
+    footerTemplate = contentChild<TemplateRef<void>>('footer', { descendants: false });
     /**
      * Custom content template.
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<void> | undefined;
+    contentTemplate = contentChild<TemplateRef<void>>('content', { descendants: false });
     /**
      * Custom close icon template.
      * @group Templates
      */
-    @ContentChild('closeicon', { descendants: false }) closeIconTemplate: TemplateRef<void> | undefined;
+    closeIconTemplate = contentChild<TemplateRef<void>>('closeicon', { descendants: false });
     /**
      * Custom headless template to replace the entire drawer content.
      * @group Templates
      */
-    @ContentChild('headless', { descendants: false }) headlessTemplate: TemplateRef<void> | undefined;
+    headlessTemplate = contentChild<TemplateRef<void>>('headless', { descendants: false });
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
-
-    _headerTemplate: TemplateRef<void> | undefined;
-
-    _footerTemplate: TemplateRef<void> | undefined;
-
-    _contentTemplate: TemplateRef<void> | undefined;
-
-    _closeIconTemplate: TemplateRef<void> | undefined;
-
-    _headlessTemplate: TemplateRef<void> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-                case 'closeicon':
-                    this._closeIconTemplate = item.template;
-                    break;
-                case 'headless':
-                    this._headlessTemplate = item.template;
-                    break;
-
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
-    }
 
     onKeyDown(event: KeyboardEvent) {
         if (event.code === 'Escape') {

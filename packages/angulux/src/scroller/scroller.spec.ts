@@ -3294,13 +3294,13 @@ describe('Scroller', () => {
     });
 
     describe('Complete Content Projection Tests', () => {
-        describe('aglTemplate Content Projection Tests', () => {
+        describe('Content projection slot tests', () => {
             @Component({
                 changeDetection: ChangeDetectionStrategy.Eager,
                 standalone: false,
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight">
-                        <ng-template aglTemplate="content" let-items let-options="options">
+                        <ng-template #content let-items let-options="options">
                             <div
                                 class="p-template-content"
                                 [attr.data-items-count]="items?.length"
@@ -3336,7 +3336,7 @@ describe('Scroller', () => {
                 standalone: false,
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight">
-                        <ng-template aglTemplate="item" let-item let-options="options">
+                        <ng-template #item let-item let-options="options">
                             <div
                                 class="p-template-item"
                                 [attr.data-index]="options.index"
@@ -3375,7 +3375,7 @@ describe('Scroller', () => {
                 standalone: false,
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight" [showLoader]="true" [loading]="loading">
-                        <ng-template aglTemplate="loader" let-options="options">
+                        <ng-template #loader let-options="options">
                             <div
                                 class="p-template-loader"
                                 [attr.data-index]="options.index"
@@ -3405,7 +3405,7 @@ describe('Scroller', () => {
                 standalone: false,
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight" [showLoader]="true" [loading]="loading">
-                        <ng-template aglTemplate="loadericon" let-options="options">
+                        <ng-template #loadericon let-options="options">
                             <div class="p-template-loader-icon" [class]="options.styleClass" [attr.data-style-class]="options.styleClass">
                                 <i class="custom-loading-icon pi pi-spin pi-spinner"></i>
                                 <span class="loading-text">Loading...</span>
@@ -3421,7 +3421,7 @@ describe('Scroller', () => {
                 loading = true;
             }
 
-            it('should render aglTemplate="content" with correct context objects', async () => {
+            it('should render the #content slot with correct context objects', async () => {
                 await TestBed.configureTestingModule({
                     imports: [Scroller],
                     providers: [provideZonelessChangeDetection()],
@@ -3449,7 +3449,7 @@ describe('Scroller', () => {
                 expect(contentOptions.scrollableElement).toBeDefined();
             });
 
-            it('should render aglTemplate="item" with correct context objects', async () => {
+            it('should render the #item slot with correct context objects', async () => {
                 await TestBed.configureTestingModule({
                     imports: [Scroller],
                     providers: [provideZonelessChangeDetection()],
@@ -3487,7 +3487,7 @@ describe('Scroller', () => {
                 }
             });
 
-            it('should render aglTemplate="loader" with correct context objects', async () => {
+            it('should render the #loader slot with correct context objects', async () => {
                 await TestBed.configureTestingModule({
                     imports: [Scroller],
                     providers: [provideZonelessChangeDetection()],
@@ -3516,7 +3516,7 @@ describe('Scroller', () => {
                 expect(scroller._showLoader).toBe(true);
             });
 
-            it('should render aglTemplate="loadericon" with correct context objects', async () => {
+            it('should render the #loadericon slot with correct context objects', async () => {
                 await TestBed.configureTestingModule({
                     imports: [Scroller],
                     providers: [provideZonelessChangeDetection()],
@@ -3534,8 +3534,7 @@ describe('Scroller', () => {
                 expect(scroller._loading).toBe(true);
                 expect(scroller._showLoader).toBe(true);
 
-                // Test that component is configured for loader icon template
-                expect(scroller.templates || scroller._loaderIconTemplate || scroller.loaderIconTemplate).toBeTruthy();
+                expect(scroller.loaderIconTemplate()).toBeTruthy();
             });
         });
 
@@ -3731,10 +3730,9 @@ describe('Scroller', () => {
                 standalone: false,
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight">
-                        <!-- Both aglTemplate and #template should work together -->
-                        <ng-template aglTemplate="content" let-items let-options="options">
+                        <ng-template #content let-items let-options="options">
                             <div class="mixed-p-template-content">
-                                <h3>aglTemplate Content ({{ items?.length }} items)</h3>
+                                <h3>Projected content ({{ items?.length }} items)</h3>
                                 <div class="p-content-items">
                                     <div *ngFor="let item of items" class="p-content-item">{{ item.name }}</div>
                                 </div>
@@ -3759,7 +3757,7 @@ describe('Scroller', () => {
                 scrollHeight = '200px';
             }
 
-            it('should handle mixed aglTemplate and #template projections', async () => {
+            it('should handle nested #template projections', async () => {
                 await TestBed.configureTestingModule({
                     imports: [Scroller],
                     providers: [provideZonelessChangeDetection()],
@@ -3793,12 +3791,12 @@ describe('Scroller', () => {
                 imports: [Scroller],
                 template: `
                     <agl-scroller [items]="items" [itemSize]="itemSize" [scrollHeight]="scrollHeight" [orientation]="orientation">
-                        <ng-template aglTemplate="content" let-items let-options="options">
+                        <ng-template #content let-items let-options="options">
                             <div class="context-test-content" [attr.data-orientation]="options.orientation" [attr.data-both]="options.both" [attr.data-horizontal]="options.horizontal" [attr.data-vertical]="options.vertical">
                                 Items: {{ items?.length }}
                             </div>
                         </ng-template>
-                        <ng-template aglTemplate="item" let-item let-options="options">
+                        <ng-template #item let-item let-options="options">
                             <div
                                 class="context-test-item"
                                 [attr.data-index]="options.index"

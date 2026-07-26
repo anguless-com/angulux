@@ -4,20 +4,17 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    EventEmitter,
+    contentChild, EventEmitter,
     inject,
     InjectionToken,
     Input,
     NgModule,
     Output,
-    QueryList,
     SimpleChanges,
     TemplateRef,
     ViewEncapsulation
 } from '@angular/core';
-import { AglTemplate, SharedModule, TranslationKeys } from '@anguless/angulux/api';
+import { SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { TimesCircleIcon } from '@anguless/angulux/icons';
@@ -40,7 +37,7 @@ const CHIP_INSTANCE = new InjectionToken<Chip>('CHIP_INSTANCE');
         <ng-template #iconTemplate><span [aglBind]="ptm('icon')" *ngIf="icon" [class]="icon" [ngClass]="cx('icon')"></span></ng-template>
         <div [aglBind]="ptm('label')" [class]="cx('label')" *ngIf="label">{{ label }}</div>
         <ng-container *ngIf="removable">
-            <ng-container *ngIf="!removeIconTemplate && !_removeIconTemplate">
+            <ng-container *ngIf="!removeIconTemplate()">
                 <span
                     [aglBind]="ptm('removeIcon')"
                     *ngIf="removeIcon"
@@ -66,7 +63,7 @@ const CHIP_INSTANCE = new InjectionToken<Chip>('CHIP_INSTANCE');
             </ng-container>
             <span
                 [aglBind]="ptm('removeIcon')"
-                *ngIf="removeIconTemplate || _removeIconTemplate"
+                *ngIf="removeIconTemplate()"
                 [attr.tabindex]="disabled ? -1 : 0"
                 [class]="cx('removeIcon')"
                 (click)="close($event)"
@@ -74,7 +71,7 @@ const CHIP_INSTANCE = new InjectionToken<Chip>('CHIP_INSTANCE');
                 [attr.aria-label]="removeAriaLabel"
                 role="button"
             >
-                <ng-template *ngTemplateOutlet="removeIconTemplate || _removeIconTemplate"></ng-template>
+                <ng-template *ngTemplateOutlet="removeIconTemplate()"></ng-template>
             </span>
         </ng-container>
     `,
@@ -182,25 +179,7 @@ export class Chip extends BaseComponent<ChipPassThrough> {
      * Custom remove icon template.
      * @group Templates
      */
-    @ContentChild('removeicon', { descendants: false }) removeIconTemplate: TemplateRef<void> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
-
-    _removeIconTemplate: TemplateRef<void> | undefined;
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'removeicon':
-                    this._removeIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._removeIconTemplate = item.template;
-                    break;
-            }
-        });
-    }
+    removeIconTemplate = contentChild<TemplateRef<void>>('removeicon', { descendants: false });
 
     onChanges(simpleChanges: SimpleChanges) {
         if (simpleChanges.chipProps && simpleChanges.chipProps.currentValue) {

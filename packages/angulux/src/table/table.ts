@@ -5,8 +5,7 @@ import {
     ChangeDetectorRef,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
+    contentChild,
     Directive,
     ElementRef,
     EventEmitter,
@@ -21,7 +20,6 @@ import {
     numberAttribute,
     Optional,
     Output,
-    QueryList,
     signal,
     SimpleChanges,
     TemplateRef,
@@ -31,7 +29,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addStyle, appendChild, find, findSingle, getAttribute, isClickable, setAttribute } from '@anguless/angulux-utils';
-import { BlockableUI, FilterMatchMode, FilterMetadata, FilterOperator, FilterService, LazyLoadMeta, OverlayService, AglTemplate, ScrollerOptions, SelectItem, SharedModule, SortMeta, TableState, TranslationKeys } from '@anguless/angulux/api';
+import { BlockableUI, FilterMatchMode, FilterMetadata, FilterOperator, FilterService, LazyLoadMeta, OverlayService, ScrollerOptions, SelectItem, SharedModule, SortMeta, TableState, TranslationKeys } from '@anguless/angulux/api';
 import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -132,14 +130,14 @@ export class TableService {
         <div [class]="cx('mask')" [aglBind]="ptm('mask')" *ngIf="loading && showLoader" animate.enter="p-overlay-mask-enter-active" animate.leave="p-overlay-mask-leave-active">
             <i *ngIf="loadingIcon" [class]="cn(cx('loadingIcon'), loadingIcon)" [aglBind]="ptm('loadingIcon')"></i>
             <ng-container *ngIf="!loadingIcon">
-                <svg data-p-icon="spinner" *ngIf="!loadingIconTemplate && !_loadingIconTemplate" [spin]="true" [class]="cx('loadingIcon')" [aglBind]="ptm('loadingIcon')" />
-                <span *ngIf="loadingIconTemplate || _loadingIconTemplate" [class]="cx('loadingIcon')" [aglBind]="ptm('loadingIcon')">
-                    <ng-template *ngTemplateOutlet="loadingIconTemplate || _loadingIconTemplate"></ng-template>
+                <svg data-p-icon="spinner" *ngIf="!_loadingIconTemplate()" [spin]="true" [class]="cx('loadingIcon')" [aglBind]="ptm('loadingIcon')" />
+                <span *ngIf="_loadingIconTemplate()" [class]="cx('loadingIcon')" [aglBind]="ptm('loadingIcon')">
+                    <ng-template *ngTemplateOutlet="_loadingIconTemplate()"></ng-template>
                 </span>
             </ng-container>
         </div>
-        <div *ngIf="captionTemplate || _captionTemplate" [class]="cx('header')" [aglBind]="ptm('header')">
-            <ng-container *ngTemplateOutlet="captionTemplate || _captionTemplate"></ng-container>
+        <div *ngIf="_captionTemplate()" [class]="cx('header')" [aglBind]="ptm('header')">
+            <ng-container *ngTemplateOutlet="_captionTemplate()"></ng-container>
         </div>
         <agl-paginator
             [rows]="rows"
@@ -150,13 +148,13 @@ export class TableService {
             (onPageChange)="onPageChange($event)"
             [rowsPerPageOptions]="rowsPerPageOptions"
             *ngIf="paginator && (paginatorPosition === 'top' || paginatorPosition == 'both')"
-            [templateLeft]="paginatorLeftTemplate || _paginatorLeftTemplate"
-            [templateRight]="paginatorRightTemplate || _paginatorRightTemplate"
+            [templateLeft]="_paginatorLeftTemplate()"
+            [templateRight]="_paginatorRightTemplate()"
             [appendTo]="paginatorDropdownAppendTo"
             [dropdownScrollHeight]="paginatorDropdownScrollHeight"
             [currentPageReportTemplate]="currentPageReportTemplate"
             [showFirstLastIcon]="showFirstLastIcon"
-            [dropdownItemTemplate]="paginatorDropdownItemTemplate || _paginatorDropdownItemTemplate"
+            [dropdownItemTemplate]="_paginatorDropdownItemTemplate()"
             [showCurrentPageReport]="showCurrentPageReport"
             [showJumpToPageDropdown]="showJumpToPageDropdown"
             [showJumpToPageInput]="showJumpToPageInput"
@@ -166,24 +164,24 @@ export class TableService {
             [pt]="ptm('pcPaginator')"
             [unstyled]="unstyled()"
         >
-            <ng-template aglTemplate="dropdownicon" *ngIf="paginatorDropdownIconTemplate || _paginatorDropdownIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorDropdownIconTemplate || _paginatorDropdownIconTemplate"></ng-container>
+            <ng-template #dropdownicon *ngIf="_paginatorDropdownIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorDropdownIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="firstpagelinkicon" *ngIf="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate"></ng-container>
+            <ng-template #firstpagelinkicon *ngIf="_paginatorFirstPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorFirstPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="previouspagelinkicon" *ngIf="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate"></ng-container>
+            <ng-template #previouspagelinkicon *ngIf="_paginatorPreviousPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorPreviousPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="lastpagelinkicon" *ngIf="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate"></ng-container>
+            <ng-template #lastpagelinkicon *ngIf="_paginatorLastPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorLastPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="nextpagelinkicon" *ngIf="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate"></ng-container>
+            <ng-template #nextpagelinkicon *ngIf="_paginatorNextPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorNextPageLinkIconTemplate()"></ng-container>
             </ng-template>
         </agl-paginator>
 
@@ -206,7 +204,7 @@ export class TableService {
                 (onLazyLoad)="onLazyItemLoad($event)"
                 [loaderDisabled]="true"
                 [showSpacer]="false"
-                [showLoader]="loadingBodyTemplate || _loadingBodyTemplate"
+                [showLoader]="_loadingBodyTemplate()"
                 [options]="virtualScrollOptions"
                 [pt]="ptm('virtualScroller')"
             >
@@ -236,11 +234,11 @@ export class TableService {
 
             <ng-template #buildInTable let-items let-scrollerOptions="options">
                 <table #table role="table" [class]="cn(cx('table'), tableStyleClass)" [aglBind]="ptm('table')" [style]="tableStyle" [attr.id]="id + '-table'">
-                    <ng-container *ngTemplateOutlet="colGroupTemplate || _colGroupTemplate; context: { $implicit: scrollerOptions.columns }"></ng-container>
+                    <ng-container *ngTemplateOutlet="_colGroupTemplate(); context: { $implicit: scrollerOptions.columns }"></ng-container>
                     <thead role="rowgroup" #thead [class]="cx('thead')" [ngStyle]="sx('thead')" [aglBind]="ptm('thead')">
                         <ng-container
                             *ngTemplateOutlet="
-                                headerGroupedTemplate || headerTemplate || _headerTemplate;
+                                _headerGroupedTemplate() || _headerTemplate();
                                 context: {
                                     $implicit: scrollerOptions.columns
                                 }
@@ -251,11 +249,11 @@ export class TableService {
                         role="rowgroup"
                         [class]="cx('tbody')"
                         [aglBind]="ptm('tbody')"
-                        *ngIf="frozenValue || frozenBodyTemplate || _frozenBodyTemplate"
+                        *ngIf="frozenValue || _frozenBodyTemplate()"
                         [value]="frozenValue"
                         [frozenRows]="true"
                         [aglTableBody]="scrollerOptions.columns"
-                        [aglTableBodyTemplate]="frozenBodyTemplate || _frozenBodyTemplate"
+                        [aglTableBodyTemplate]="_frozenBodyTemplate()"
                         [unstyled]="unstyled()"
                         [frozen]="true"
                         [attr.data-p-virtualscroll]="virtualScroll"
@@ -267,7 +265,7 @@ export class TableService {
                         [style]="scrollerOptions.contentStyle"
                         [value]="dataToRender(scrollerOptions.rows)"
                         [aglTableBody]="scrollerOptions.columns"
-                        [aglTableBodyTemplate]="bodyTemplate || _bodyTemplate"
+                        [aglTableBodyTemplate]="_bodyTemplate()"
                         [scrollerOptions]="scrollerOptions"
                         [unstyled]="unstyled()"
                         [attr.data-p-virtualscroll]="virtualScroll"
@@ -279,10 +277,10 @@ export class TableService {
                         [class]="cx('virtualScrollerSpacer')"
                         [aglBind]="ptm('virtualScrollerSpacer')"
                     ></tbody>
-                    <tfoot role="rowgroup" *ngIf="footerGroupedTemplate || footerTemplate || _footerTemplate || _footerGroupedTemplate" #tfoot [ngClass]="cx('footer')" [ngStyle]="sx('tfoot')" [aglBind]="ptm('tfoot')">
+                    <tfoot role="rowgroup" *ngIf="_footerGroupedTemplate() || _footerTemplate()" #tfoot [ngClass]="cx('footer')" [ngStyle]="sx('tfoot')" [aglBind]="ptm('tfoot')">
                         <ng-container
                             *ngTemplateOutlet="
-                                footerGroupedTemplate || footerTemplate || _footerTemplate || _footerGroupedTemplate;
+                                _footerGroupedTemplate() || _footerTemplate();
                                 context: {
                                     $implicit: scrollerOptions.columns
                                 }
@@ -302,13 +300,13 @@ export class TableService {
             (onPageChange)="onPageChange($event)"
             [rowsPerPageOptions]="rowsPerPageOptions"
             *ngIf="paginator && (paginatorPosition === 'bottom' || paginatorPosition == 'both')"
-            [templateLeft]="paginatorLeftTemplate || _paginatorLeftTemplate"
-            [templateRight]="paginatorRightTemplate || _paginatorRightTemplate"
+            [templateLeft]="_paginatorLeftTemplate()"
+            [templateRight]="_paginatorRightTemplate()"
             [appendTo]="paginatorDropdownAppendTo"
             [dropdownScrollHeight]="paginatorDropdownScrollHeight"
             [currentPageReportTemplate]="currentPageReportTemplate"
             [showFirstLastIcon]="showFirstLastIcon"
-            [dropdownItemTemplate]="paginatorDropdownItemTemplate || _paginatorDropdownItemTemplate"
+            [dropdownItemTemplate]="_paginatorDropdownItemTemplate()"
             [showCurrentPageReport]="showCurrentPageReport"
             [showJumpToPageDropdown]="showJumpToPageDropdown"
             [showJumpToPageInput]="showJumpToPageInput"
@@ -318,39 +316,39 @@ export class TableService {
             [pt]="ptm('pcPaginator')"
             [unstyled]="unstyled()"
         >
-            <ng-template aglTemplate="dropdownicon" *ngIf="paginatorDropdownIconTemplate || _paginatorDropdownIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorDropdownIconTemplate || _paginatorDropdownIconTemplate"></ng-container>
+            <ng-template #dropdownicon *ngIf="_paginatorDropdownIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorDropdownIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="firstpagelinkicon" *ngIf="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate"></ng-container>
+            <ng-template #firstpagelinkicon *ngIf="_paginatorFirstPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorFirstPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="previouspagelinkicon" *ngIf="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate"></ng-container>
+            <ng-template #previouspagelinkicon *ngIf="_paginatorPreviousPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorPreviousPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="lastpagelinkicon" *ngIf="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate"></ng-container>
+            <ng-template #lastpagelinkicon *ngIf="_paginatorLastPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorLastPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="nextpagelinkicon" *ngIf="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate"></ng-container>
+            <ng-template #nextpagelinkicon *ngIf="_paginatorNextPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorNextPageLinkIconTemplate()"></ng-container>
             </ng-template>
         </agl-paginator>
 
-        <div *ngIf="summaryTemplate || _summaryTemplate" [ngClass]="cx('footer')" [aglBind]="ptm('footer')">
-            <ng-container *ngTemplateOutlet="summaryTemplate || _summaryTemplate"></ng-container>
+        <div *ngIf="_summaryTemplate()" [ngClass]="cx('footer')" [aglBind]="ptm('footer')">
+            <ng-container *ngTemplateOutlet="_summaryTemplate()"></ng-container>
         </div>
 
         <div #resizeHelper [ngClass]="cx('columnResizeIndicator')" [aglBind]="ptm('columnResizeIndicator')" [style.display]="'none'" *ngIf="resizableColumns"></div>
         <span #reorderIndicatorUp [ngClass]="cx('rowReorderIndicatorUp')" [aglBind]="ptm('rowReorderIndicatorUp')" [style.display]="'none'" *ngIf="reorderableColumns">
-            <svg data-p-icon="arrow-down" *ngIf="!reorderIndicatorUpIconTemplate && !_reorderIndicatorUpIconTemplate" [aglBind]="ptm('rowReorderIndicatorUp')['icon']" />
-            <ng-template *ngTemplateOutlet="reorderIndicatorUpIconTemplate || _reorderIndicatorUpIconTemplate"></ng-template>
+            <svg data-p-icon="arrow-down" *ngIf="!_reorderIndicatorUpIconTemplate()" [aglBind]="ptm('rowReorderIndicatorUp')['icon']" />
+            <ng-template *ngTemplateOutlet="_reorderIndicatorUpIconTemplate()"></ng-template>
         </span>
         <span #reorderIndicatorDown [ngClass]="cx('rowReorderIndicatorDown')" [aglBind]="ptm('rowReorderIndicatorDown')" [style.display]="'none'" *ngIf="reorderableColumns">
-            <svg data-p-icon="arrow-up" *ngIf="!reorderIndicatorDownIconTemplate && !_reorderIndicatorDownIconTemplate" [aglBind]="ptm('rowReorderIndicatorDown')['icon']" />
-            <ng-template *ngTemplateOutlet="reorderIndicatorDownIconTemplate || _reorderIndicatorDownIconTemplate"></ng-template>
+            <svg data-p-icon="arrow-up" *ngIf="!_reorderIndicatorDownIconTemplate()" [aglBind]="ptm('rowReorderIndicatorDown')['icon']" />
+            <ng-template *ngTemplateOutlet="_reorderIndicatorDownIconTemplate()"></ng-template>
         </span>
     `,
     providers: [TableService, TableStyle, { provide: TABLE_INSTANCE, useExisting: Table }, { provide: PARENT_INSTANCE, useExisting: Table }],
@@ -991,8 +989,6 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
     @ViewChild('scroller') scroller: Nullable<Scroller>;
 
-    @ContentChildren(AglTemplate) _templates: Nullable<QueryList<AglTemplate>>;
-
     _value: RowData[] = [];
 
     _columns: any[] | undefined;
@@ -1005,102 +1001,63 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
     filteredValue: any[] | undefined | null;
 
-    // @todo will be refactored later
-    @ContentChild('header', { descendants: false }) _headerTemplate: TemplateRef<any>;
-    headerTemplate: Nullable<TemplateRef<any>>;
+    _headerTemplate = contentChild<TemplateRef<any>>('header', { descendants: false });
 
-    @ContentChild('headergrouped', { descendants: false }) _headerGroupedTemplate: TemplateRef<any>;
-    headerGroupedTemplate: Nullable<TemplateRef<any>>;
+    _headerGroupedTemplate = contentChild<TemplateRef<any>>('headergrouped', { descendants: false });
 
-    @ContentChild('body', { descendants: false }) _bodyTemplate: TemplateRef<any>;
-    bodyTemplate: Nullable<TemplateRef<any>>;
+    _bodyTemplate = contentChild<TemplateRef<any>>('body', { descendants: false });
 
-    @ContentChild('loadingbody', { descendants: false }) _loadingBodyTemplate: TemplateRef<any>;
-    loadingBodyTemplate: Nullable<TemplateRef<any>>;
+    _loadingBodyTemplate = contentChild<TemplateRef<any>>('loadingbody', { descendants: false });
 
-    @ContentChild('caption', { descendants: false }) _captionTemplate: TemplateRef<any>;
-    captionTemplate: Nullable<TemplateRef<any>>;
+    _captionTemplate = contentChild<TemplateRef<any>>('caption', { descendants: false });
 
-    @ContentChild('footer', { descendants: false }) _footerTemplate: TemplateRef<any>;
-    footerTemplate: Nullable<TemplateRef<any>>;
+    _footerTemplate = contentChild<TemplateRef<any>>('footer', { descendants: false });
 
-    @ContentChild('footergrouped', { descendants: false }) _footerGroupedTemplate: TemplateRef<any>;
-    footerGroupedTemplate: Nullable<TemplateRef<any>>;
+    _footerGroupedTemplate = contentChild<TemplateRef<any>>('footergrouped', { descendants: false });
 
-    @ContentChild('summary', { descendants: false }) _summaryTemplate: TemplateRef<any>;
-    summaryTemplate: Nullable<TemplateRef<any>>;
+    _summaryTemplate = contentChild<TemplateRef<any>>('summary', { descendants: false });
 
-    @ContentChild('colgroup', { descendants: false }) _colGroupTemplate: TemplateRef<any>;
-    colGroupTemplate: Nullable<TemplateRef<any>>;
+    _colGroupTemplate = contentChild<TemplateRef<any>>('colgroup', { descendants: false });
 
-    @ContentChild('expandedrow', { descendants: false }) _expandedRowTemplate: TemplateRef<any>;
-    expandedRowTemplate: Nullable<TemplateRef<any>>;
+    _expandedRowTemplate = contentChild<TemplateRef<any>>('expandedrow', { descendants: false });
 
-    @ContentChild('groupheader', { descendants: false }) _groupHeaderTemplate: TemplateRef<any>;
-    groupHeaderTemplate: Nullable<TemplateRef<any>>;
+    _groupHeaderTemplate = contentChild<TemplateRef<any>>('groupheader', { descendants: false });
 
-    @ContentChild('groupfooter', { descendants: false }) _groupFooterTemplate: TemplateRef<any>;
-    groupFooterTemplate: Nullable<TemplateRef<any>>;
+    _groupFooterTemplate = contentChild<TemplateRef<any>>('groupfooter', { descendants: false });
 
-    @ContentChild('frozenexpandedrow', { descendants: false }) _frozenExpandedRowTemplate: TemplateRef<any>;
-    frozenExpandedRowTemplate: Nullable<TemplateRef<any>>;
+    _frozenExpandedRowTemplate = contentChild<TemplateRef<any>>('frozenexpandedrow', { descendants: false });
 
-    @ContentChild('frozenheader', { descendants: false }) _frozenHeaderTemplate: TemplateRef<any>;
-    frozenHeaderTemplate: Nullable<TemplateRef<any>>;
+    _frozenBodyTemplate = contentChild<TemplateRef<any>>('frozenbody', { descendants: false });
 
-    @ContentChild('frozenbody', { descendants: false }) _frozenBodyTemplate: TemplateRef<any>;
-    frozenBodyTemplate: Nullable<TemplateRef<any>>;
+    _emptyMessageTemplate = contentChild<TemplateRef<any>>('emptymessage', { descendants: false });
 
-    @ContentChild('frozenfooter', { descendants: false }) _frozenFooterTemplate: TemplateRef<any>;
-    frozenFooterTemplate: Nullable<TemplateRef<any>>;
+    _paginatorLeftTemplate = contentChild<TemplateRef<any>>('paginatorleft', { descendants: false });
 
-    @ContentChild('frozencolgroup', { descendants: false }) _frozenColGroupTemplate: TemplateRef<any>;
-    frozenColGroupTemplate: Nullable<TemplateRef<any>>;
+    _paginatorRightTemplate = contentChild<TemplateRef<any>>('paginatorright', { descendants: false });
 
-    @ContentChild('emptymessage', { descendants: false }) _emptyMessageTemplate: TemplateRef<any>;
-    emptyMessageTemplate: Nullable<TemplateRef<any>>;
+    _paginatorDropdownItemTemplate = contentChild<TemplateRef<any>>('paginatordropdownitem', { descendants: false });
 
-    @ContentChild('paginatorleft', { descendants: false }) _paginatorLeftTemplate: TemplateRef<any>;
-    paginatorLeftTemplate: Nullable<TemplateRef<any>>;
+    _loadingIconTemplate = contentChild<TemplateRef<any>>('loadingicon', { descendants: false });
 
-    @ContentChild('paginatorright', { descendants: false }) _paginatorRightTemplate: TemplateRef<any>;
-    paginatorRightTemplate: Nullable<TemplateRef<any>>;
+    _reorderIndicatorUpIconTemplate = contentChild<TemplateRef<any>>('reorderindicatorupicon', { descendants: false });
 
-    @ContentChild('paginatordropdownitem', { descendants: false }) _paginatorDropdownItemTemplate: TemplateRef<any>;
-    paginatorDropdownItemTemplate: Nullable<TemplateRef<any>>;
+    _reorderIndicatorDownIconTemplate = contentChild<TemplateRef<any>>('reorderindicatordownicon', { descendants: false });
 
-    @ContentChild('loadingicon', { descendants: false }) _loadingIconTemplate: TemplateRef<any>;
-    loadingIconTemplate: Nullable<TemplateRef<any>>;
+    _sortIconTemplate = contentChild<TemplateRef<any>>('sorticon', { descendants: false });
 
-    @ContentChild('reorderindicatorupicon', { descendants: false }) _reorderIndicatorUpIconTemplate: TemplateRef<any>;
-    reorderIndicatorUpIconTemplate: Nullable<TemplateRef<any>>;
+    _checkboxIconTemplate = contentChild<TemplateRef<any>>('checkboxicon', { descendants: false });
 
-    @ContentChild('reorderindicatordownicon', { descendants: false }) _reorderIndicatorDownIconTemplate: TemplateRef<any>;
-    reorderIndicatorDownIconTemplate: Nullable<TemplateRef<any>>;
+    _headerCheckboxIconTemplate = contentChild<TemplateRef<any>>('headercheckboxicon', { descendants: false });
 
-    @ContentChild('sorticon', { descendants: false }) _sortIconTemplate: TemplateRef<any>;
-    sortIconTemplate: Nullable<TemplateRef<any>>;
+    _paginatorDropdownIconTemplate = contentChild<TemplateRef<any>>('paginatordropdownicon', { descendants: false });
 
-    @ContentChild('checkboxicon', { descendants: false }) _checkboxIconTemplate: TemplateRef<any>;
-    checkboxIconTemplate: Nullable<TemplateRef<any>>;
+    _paginatorFirstPageLinkIconTemplate = contentChild<TemplateRef<any>>('paginatorfirstpagelinkicon', { descendants: false });
 
-    @ContentChild('headercheckboxicon', { descendants: false }) _headerCheckboxIconTemplate: TemplateRef<any>;
-    headerCheckboxIconTemplate: Nullable<TemplateRef<any>>;
+    _paginatorLastPageLinkIconTemplate = contentChild<TemplateRef<any>>('paginatorlastpagelinkicon', { descendants: false });
 
-    @ContentChild('paginatordropdownicon', { descendants: false }) _paginatorDropdownIconTemplate: TemplateRef<any>;
-    paginatorDropdownIconTemplate: Nullable<TemplateRef<any>>;
+    _paginatorPreviousPageLinkIconTemplate = contentChild<TemplateRef<any>>('paginatorpreviouspagelinkicon', { descendants: false });
 
-    @ContentChild('paginatorfirstpagelinkicon', { descendants: false }) _paginatorFirstPageLinkIconTemplate: TemplateRef<any>;
-    paginatorFirstPageLinkIconTemplate: Nullable<TemplateRef<any>>;
-
-    @ContentChild('paginatorlastpagelinkicon', { descendants: false }) _paginatorLastPageLinkIconTemplate: TemplateRef<any>;
-    paginatorLastPageLinkIconTemplate: Nullable<TemplateRef<any>>;
-
-    @ContentChild('paginatorpreviouspagelinkicon', { descendants: false }) _paginatorPreviousPageLinkIconTemplate: TemplateRef<any>;
-    paginatorPreviousPageLinkIconTemplate: Nullable<TemplateRef<any>>;
-
-    @ContentChild('paginatornextpagelinkicon', { descendants: false }) _paginatorNextPageLinkIconTemplate: TemplateRef<any>;
-    paginatorNextPageLinkIconTemplate: Nullable<TemplateRef<any>>;
+    _paginatorNextPageLinkIconTemplate = contentChild<TemplateRef<any>>('paginatornextpagelinkicon', { descendants: false });
 
     selectionKeys: any = {};
 
@@ -1212,140 +1169,6 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
         }
 
         this.initialized = true;
-    }
-
-    onAfterContentInit() {
-        (this._templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'caption':
-                    this.captionTemplate = item.template;
-                    break;
-
-                case 'header':
-                    this.headerTemplate = item.template;
-                    break;
-
-                case 'headergrouped':
-                    this.headerGroupedTemplate = item.template;
-                    break;
-
-                case 'body':
-                    this.bodyTemplate = item.template;
-                    break;
-
-                case 'loadingbody':
-                    this.loadingBodyTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this.footerTemplate = item.template;
-                    break;
-
-                case 'footergrouped':
-                    this.footerGroupedTemplate = item.template;
-                    break;
-
-                case 'summary':
-                    this.summaryTemplate = item.template;
-                    break;
-
-                case 'colgroup':
-                    this.colGroupTemplate = item.template;
-                    break;
-
-                case 'expandedrow':
-                    this.expandedRowTemplate = item.template;
-                    break;
-
-                case 'groupheader':
-                    this.groupHeaderTemplate = item.template;
-                    break;
-
-                case 'groupfooter':
-                    this.groupFooterTemplate = item.template;
-                    break;
-
-                case 'frozenheader':
-                    this.frozenHeaderTemplate = item.template;
-                    break;
-
-                case 'frozenbody':
-                    this.frozenBodyTemplate = item.template;
-                    break;
-
-                case 'frozenfooter':
-                    this.frozenFooterTemplate = item.template;
-                    break;
-
-                case 'frozencolgroup':
-                    this.frozenColGroupTemplate = item.template;
-                    break;
-
-                case 'frozenexpandedrow':
-                    this.frozenExpandedRowTemplate = item.template;
-                    break;
-
-                case 'emptymessage':
-                    this.emptyMessageTemplate = item.template;
-                    break;
-
-                case 'paginatorleft':
-                    this.paginatorLeftTemplate = item.template;
-                    break;
-
-                case 'paginatorright':
-                    this.paginatorRightTemplate = item.template;
-                    break;
-
-                case 'paginatordropdownicon':
-                    this.paginatorDropdownIconTemplate = item.template;
-                    break;
-
-                case 'paginatordropdownitem':
-                    this.paginatorDropdownItemTemplate = item.template;
-                    break;
-
-                case 'paginatorfirstpagelinkicon':
-                    this.paginatorFirstPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatorlastpagelinkicon':
-                    this.paginatorLastPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatorpreviouspagelinkicon':
-                    this.paginatorPreviousPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatornextpagelinkicon':
-                    this.paginatorNextPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'loadingicon':
-                    this.loadingIconTemplate = item.template;
-                    break;
-
-                case 'reorderindicatorupicon':
-                    this.reorderIndicatorUpIconTemplate = item.template;
-                    break;
-
-                case 'reorderindicatordownicon':
-                    this.reorderIndicatorDownIconTemplate = item.template;
-                    break;
-
-                case 'sorticon':
-                    this.sortIconTemplate = item.template;
-                    break;
-
-                case 'checkboxicon':
-                    this.checkboxIconTemplate = item.template;
-                    break;
-
-                case 'headercheckboxicon':
-                    this.headerCheckboxIconTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     onAfterViewInit() {
@@ -3215,15 +3038,15 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     selector: '[aglTableBody]',
     standalone: false,
     template: `
-        <ng-container *ngIf="!dataTable.expandedRowTemplate && !dataTable._expandedRowTemplate">
+        <ng-container *ngIf="!dataTable._expandedRowTemplate()">
             <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="value" [ngForTrackBy]="dataTable.rowTrackBy">
                 <ng-container
-                    *ngIf="(dataTable.groupHeaderTemplate || dataTable._groupHeaderTemplate) && !dataTable.virtualScroll && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupHeader(value, rowData, getRowIndex(rowIndex))"
+                    *ngIf="(dataTable._groupHeaderTemplate()) && !dataTable.virtualScroll && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupHeader(value, rowData, getRowIndex(rowIndex))"
                     role="row"
                 >
                     <ng-container
                         *ngTemplateOutlet="
-                            dataTable.groupHeaderTemplate || dataTable._groupHeaderTemplate;
+                            dataTable._groupHeaderTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3237,7 +3060,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 <ng-container *ngIf="dataTable.rowGroupMode !== 'rowspan'">
                     <ng-container
                         *ngTemplateOutlet="
-                            rowData ? template : dataTable.loadingBodyTemplate || dataTable._loadingBodyTemplate;
+                            rowData ? template : dataTable._loadingBodyTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3251,7 +3074,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 <ng-container *ngIf="dataTable.rowGroupMode === 'rowspan'">
                     <ng-container
                         *ngTemplateOutlet="
-                            rowData ? template : dataTable.loadingBodyTemplate || dataTable._loadingBodyTemplate;
+                            rowData ? template : dataTable._loadingBodyTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3265,12 +3088,12 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                     ></ng-container>
                 </ng-container>
                 <ng-container
-                    *ngIf="(dataTable.groupFooterTemplate || dataTable._groupFooterTemplate) && !dataTable.virtualScroll && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupFooter(value, rowData, getRowIndex(rowIndex))"
+                    *ngIf="(dataTable._groupFooterTemplate()) && !dataTable.virtualScroll && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupFooter(value, rowData, getRowIndex(rowIndex))"
                     role="row"
                 >
                     <ng-container
                         *ngTemplateOutlet="
-                            dataTable.groupFooterTemplate || dataTable._groupFooterTemplate;
+                            dataTable._groupFooterTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3283,9 +3106,18 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 </ng-container>
             </ng-template>
         </ng-container>
-        <ng-container *ngIf="(dataTable.expandedRowTemplate || dataTable._expandedRowTemplate) && !(frozen && (dataTable.frozenExpandedRowTemplate || dataTable._frozenExpandedRowTemplate))">
+        <ng-container *ngIf="(dataTable._expandedRowTemplate()) && !(frozen && (dataTable._frozenExpandedRowTemplate()))">
             <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="value" [ngForTrackBy]="dataTable.rowTrackBy">
-                <ng-container *ngIf="!(dataTable.groupHeaderTemplate && dataTable._groupHeaderTemplate)">
+                <!-- A guard stood here, inherited verbatim from upstream 21.1.9: it suppressed this row only
+                     when a caller supplied a groupheader through BOTH retired routes at once - the aglTemplate
+                     switch AND the ng-template #groupheader reference. It joined the two with a conjunction
+                     where every sibling gate in this file uses a disjunction, so it was already dead code
+                     upstream. PA-1 deletes one of the two routes, so the condition can never be met again and
+                     the guard is vacuously true; dropping it is what preserves the behaviour callers actually
+                     observed. Collapsing it to a single negated slot instead would NOT be equivalent - it would
+                     hide this row for everyone who supplies a groupheader at all, which is a regression, not a
+                     migration. Whether upstream meant a disjunction is a behaviour question of its own. -->
+                <ng-container>
                     <ng-container
                         *ngTemplateOutlet="
                             template;
@@ -3300,10 +3132,10 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                         "
                     ></ng-container>
                 </ng-container>
-                <ng-container *ngIf="(dataTable.groupHeaderTemplate || dataTable._groupHeaderTemplate) && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupHeader(value, rowData, getRowIndex(rowIndex))" role="row">
+                <ng-container *ngIf="(dataTable._groupHeaderTemplate()) && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupHeader(value, rowData, getRowIndex(rowIndex))" role="row">
                     <ng-container
                         *ngTemplateOutlet="
-                            dataTable.groupHeaderTemplate || dataTable._groupHeaderTemplate;
+                            dataTable._groupHeaderTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3318,7 +3150,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 <ng-container *ngIf="dataTable.isRowExpanded(rowData)">
                     <ng-container
                         *ngTemplateOutlet="
-                            dataTable.expandedRowTemplate || dataTable._expandedRowTemplate;
+                            dataTable._expandedRowTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3327,10 +3159,10 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                             }
                         "
                     ></ng-container>
-                    <ng-container *ngIf="(dataTable.groupFooterTemplate || dataTable._groupFooterTemplate) && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupFooter(value, rowData, getRowIndex(rowIndex))" role="row">
+                    <ng-container *ngIf="(dataTable._groupFooterTemplate()) && dataTable.rowGroupMode === 'subheader' && shouldRenderRowGroupFooter(value, rowData, getRowIndex(rowIndex))" role="row">
                         <ng-container
                             *ngTemplateOutlet="
-                                dataTable.groupFooterTemplate || dataTable._groupFooterTemplate;
+                                dataTable._groupFooterTemplate();
                                 context: {
                                     $implicit: rowData,
                                     rowIndex: getRowIndex(rowIndex),
@@ -3345,7 +3177,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 </ng-container>
             </ng-template>
         </ng-container>
-        <ng-container *ngIf="(dataTable.frozenExpandedRowTemplate || dataTable._frozenExpandedRowTemplate) && frozen">
+        <ng-container *ngIf="(dataTable._frozenExpandedRowTemplate()) && frozen">
             <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="value" [ngForTrackBy]="dataTable.rowTrackBy">
                 <ng-container
                     *ngTemplateOutlet="
@@ -3363,7 +3195,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 <ng-container *ngIf="dataTable.isRowExpanded(rowData)">
                     <ng-container
                         *ngTemplateOutlet="
-                            dataTable.frozenExpandedRowTemplate || dataTable._frozenExpandedRowTemplate;
+                            dataTable._frozenExpandedRowTemplate();
                             context: {
                                 $implicit: rowData,
                                 rowIndex: getRowIndex(rowIndex),
@@ -3376,10 +3208,10 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             </ng-template>
         </ng-container>
         <ng-container *ngIf="dataTable.loading">
-            <ng-container *ngTemplateOutlet="dataTable.loadingBodyTemplate || dataTable._loadingBodyTemplate; context: { $implicit: columns, frozen: frozen }"></ng-container>
+            <ng-container *ngTemplateOutlet="dataTable._loadingBodyTemplate(); context: { $implicit: columns, frozen: frozen }"></ng-container>
         </ng-container>
         <ng-container *ngIf="dataTable.isEmpty() && !dataTable.loading">
-            <ng-container *ngTemplateOutlet="dataTable.emptyMessageTemplate || dataTable._emptyMessageTemplate; context: { $implicit: columns, frozen: frozen }"></ng-container>
+            <ng-container *ngTemplateOutlet="dataTable._emptyMessageTemplate(); context: { $implicit: columns, frozen: frozen }"></ng-container>
         </ng-container>
     `,
     changeDetection: ChangeDetectionStrategy.Default,
@@ -3764,13 +3596,13 @@ export class SortableColumn extends BaseComponent {
     selector: 'agl-sortIcon',
     standalone: false,
     template: `
-        <ng-container *ngIf="!(dataTable.sortIconTemplate || dataTable._sortIconTemplate)">
+        <ng-container *ngIf="!(dataTable._sortIconTemplate())">
             <svg data-p-icon="sort-alt" [class]="cx('sortableColumnIcon')" *ngIf="sortOrder === 0" />
             <svg data-p-icon="sort-amount-up-alt" [class]="cx('sortableColumnIcon')" *ngIf="sortOrder === 1" />
             <svg data-p-icon="sort-amount-down" [class]="cx('sortableColumnIcon')" *ngIf="sortOrder === -1" />
         </ng-container>
-        <span *ngIf="dataTable.sortIconTemplate || dataTable._sortIconTemplate" [class]="cx('sortableColumnIcon')">
-            <ng-template *ngTemplateOutlet="dataTable.sortIconTemplate || dataTable._sortIconTemplate; context: { $implicit: sortOrder }"></ng-template>
+        <span *ngIf="dataTable._sortIconTemplate()" [class]="cx('sortableColumnIcon')">
+            <ng-template *ngTemplateOutlet="dataTable._sortIconTemplate(); context: { $implicit: sortOrder }"></ng-template>
         </span>
         <agl-badge *ngIf="isMultiSorted()" [class]="cx('sortableColumnBadge')" [value]="getBadgeValue()" size="small"></agl-badge>
     `,
@@ -4931,24 +4763,18 @@ export class CancelEditableRow extends BaseComponent {
     standalone: false,
     template: `
         <ng-container *ngIf="editing">
-            <ng-container *ngTemplateOutlet="inputTemplate || _inputTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="_inputTemplate()"></ng-container>
         </ng-container>
         <ng-container *ngIf="!editing">
-            <ng-container *ngTemplateOutlet="outputTemplate || _outputTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="_outputTemplate()"></ng-container>
         </ng-container>
     `,
     encapsulation: ViewEncapsulation.None
 })
 export class CellEditor extends BaseComponent {
-    @ContentChildren(AglTemplate) _templates: Nullable<QueryList<AglTemplate>>;
+    _inputTemplate = contentChild<TemplateRef<any>>('input');
 
-    @ContentChild('input') _inputTemplate: TemplateRef<any>;
-
-    @ContentChild('output') _outputTemplate: TemplateRef<any>;
-
-    inputTemplate: Nullable<TemplateRef<any>>;
-
-    outputTemplate: Nullable<TemplateRef<any>>;
+    _outputTemplate = contentChild<TemplateRef<any>>('output');
 
     constructor(
         public dataTable: Table,
@@ -4956,20 +4782,6 @@ export class CellEditor extends BaseComponent {
         @Optional() public editableRow: EditableRow
     ) {
         super();
-    }
-
-    onAfterContentInit() {
-        (this._templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'input':
-                    this.inputTemplate = item.template;
-                    break;
-
-                case 'output':
-                    this.outputTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     get editing(): boolean {
@@ -5046,8 +4858,8 @@ export class TableRadioButton extends BaseComponent {
     standalone: false,
     template: `
         <agl-checkbox [(ngModel)]="checked" [binary]="true" (onChange)="onClick($event)" [required]="required()" [disabled]="disabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
-            @if (dataTable.checkboxIconTemplate || dataTable._checkboxIconTemplate; as template) {
-                <ng-template aglTemplate="icon">
+            @if (dataTable._checkboxIconTemplate(); as template) {
+                <ng-template #icon >
                     <ng-template *ngTemplateOutlet="template; context: { $implicit: checked }" />
                 </ng-template>
             }
@@ -5112,8 +4924,8 @@ export class TableCheckbox extends BaseComponent {
     standalone: false,
     template: `
         <agl-checkbox [pt]="ptm('pcCheckbox')" [(ngModel)]="checked" (onChange)="onClick($event)" [binary]="true" [disabled]="isDisabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
-            @if (dataTable.headerCheckboxIconTemplate || dataTable._headerCheckboxIconTemplate; as template) {
-                <ng-template aglTemplate="icon">
+            @if (dataTable._headerCheckboxIconTemplate(); as template) {
+                <ng-template #icon >
                     <ng-template *ngTemplateOutlet="template; context: { $implicit: checked }" />
                 </ng-template>
             }
@@ -5386,7 +5198,7 @@ export class ReorderableRow extends BaseComponent {
                 [field]="field"
                 [ariaLabel]="ariaLabel"
                 [filterConstraint]="dataTable.filters[field]"
-                [filterTemplate]="filterTemplate || _filterTemplate"
+                [filterTemplate]="filterTemplate()"
                 [placeholder]="placeholder"
                 [minFractionDigits]="minFractionDigits"
                 [maxFractionDigits]="maxFractionDigits"
@@ -5418,10 +5230,10 @@ export class ReorderableRow extends BaseComponent {
             >
                 <ng-template #icon>
                     <ng-container>
-                        <svg data-p-icon="filter" *ngIf="!filterIconTemplate && !_filterIconTemplate && !hasFilter" [aglBind]="ptm('pcColumnFilterButton')['icon']" />
-                        <svg data-p-icon="filter-fill" *ngIf="!filterIconTemplate && !_filterIconTemplate && hasFilter" [aglBind]="ptm('pcColumnFilterButton')['icon']" />
-                        <span *ngIf="filterIconTemplate || _filterIconTemplate" [aglBind]="ptm('pcColumnFilterButton')['icon']" [attr.data-pc-section]="'columnfilterbuttonicon'">
-                            <ng-template *ngTemplateOutlet="filterIconTemplate || _filterIconTemplate; context: { hasFilter: hasFilter }"></ng-template>
+                        <svg data-p-icon="filter" *ngIf="!filterIconTemplate() && !hasFilter" [aglBind]="ptm('pcColumnFilterButton')['icon']" />
+                        <svg data-p-icon="filter-fill" *ngIf="!filterIconTemplate() && hasFilter" [aglBind]="ptm('pcColumnFilterButton')['icon']" />
+                        <span *ngIf="filterIconTemplate()" [aglBind]="ptm('pcColumnFilterButton')['icon']" [attr.data-pc-section]="'columnfilterbuttonicon'">
+                            <ng-template *ngTemplateOutlet="filterIconTemplate(); context: { hasFilter: hasFilter }"></ng-template>
                         </span>
                     </ng-container>
                 </ng-template>
@@ -5442,7 +5254,7 @@ export class ReorderableRow extends BaseComponent {
                     (click)="onContentClick()"
                     (keydown.escape)="onEscape()"
                 >
-                    <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate; context: { $implicit: field }"></ng-container>
+                    <ng-container *ngTemplateOutlet="headerTemplate(); context: { $implicit: field }"></ng-container>
                     <ul *ngIf="display === 'row'; else menu" [class]="cx('filterConstraintList')" [aglBind]="ptm('filterConstraintList')">
                         <li
                             *ngFor="let matchMode of matchModes; let i = index"
@@ -5480,7 +5292,7 @@ export class ReorderableRow extends BaseComponent {
                                     [type]="type"
                                     [field]="field"
                                     [filterConstraint]="fieldConstraint"
-                                    [filterTemplate]="filterTemplate || _filterTemplate"
+                                    [filterTemplate]="filterTemplate()"
                                     [placeholder]="placeholder"
                                     [minFractionDigits]="minFractionDigits"
                                     [maxFractionDigits]="maxFractionDigits"
@@ -5510,8 +5322,8 @@ export class ReorderableRow extends BaseComponent {
                                         [unstyled]="unstyled()"
                                     >
                                         <ng-template #icon>
-                                            <svg data-p-icon="trash" *ngIf="!removeRuleIconTemplate && !_removeRuleIconTemplate" [aglBind]="ptm('pcFilterRemoveRuleButton')['icon']" />
-                                            <ng-template *ngTemplateOutlet="removeRuleIconTemplate || _removeRuleIconTemplate"></ng-template>
+                                            <svg data-p-icon="trash" *ngIf="!removeRuleIconTemplate()" [aglBind]="ptm('pcFilterRemoveRuleButton')['icon']" />
+                                            <ng-template *ngTemplateOutlet="removeRuleIconTemplate()"></ng-template>
                                         </ng-template>
                                     </agl-button>
                                 </div>
@@ -5531,8 +5343,8 @@ export class ReorderableRow extends BaseComponent {
                                 [unstyled]="unstyled()"
                             >
                                 <ng-template #icon>
-                                    <svg data-p-icon="plus" *ngIf="!addRuleIconTemplate && !_addRuleIconTemplate" [aglBind]="ptm('pcAddRuleButtonLabel')['icon']" />
-                                    <ng-template *ngTemplateOutlet="addRuleIconTemplate || _addRuleIconTemplate"></ng-template>
+                                    <svg data-p-icon="plus" *ngIf="!addRuleIconTemplate()" [aglBind]="ptm('pcAddRuleButtonLabel')['icon']" />
+                                    <ng-template *ngTemplateOutlet="addRuleIconTemplate()"></ng-template>
                                 </ng-template>
                             </agl-button>
                         }
@@ -5560,7 +5372,7 @@ export class ReorderableRow extends BaseComponent {
                             />
                         </div>
                     </ng-template>
-                    <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate; context: { $implicit: field }"></ng-container>
+                    <ng-container *ngTemplateOutlet="footerTemplate(); context: { $implicit: field }"></ng-container>
                 </div>
             }
         </div>
@@ -5784,8 +5596,6 @@ export class ColumnFilter extends BaseComponent {
 
     @ViewChild('clearBtn') clearButtonViewChild: Nullable<ElementRef>;
 
-    @ContentChildren(AglTemplate) _templates: Nullable<QueryList<any>>;
-
     overlaySubscription: Subscription | undefined;
 
     renderOverlay = signal<boolean>(false);
@@ -5794,45 +5604,36 @@ export class ColumnFilter extends BaseComponent {
      * Custom header template.
      * @group Templates
      */
-    @ContentChild('header', { descendants: false }) headerTemplate: TemplateRef<any>;
-    _headerTemplate: Nullable<TemplateRef<any>>;
+    headerTemplate = contentChild<TemplateRef<any>>('header', { descendants: false });
 
     /**
      * Custom filter template.
      * @group Templates
      */
-    @ContentChild('filter', { descendants: false }) filterTemplate: TemplateRef<any>;
-    _filterTemplate: Nullable<TemplateRef<any>>;
+    filterTemplate = contentChild<TemplateRef<any>>('filter', { descendants: false });
 
     /**
      * Custom footer template.
      * @group Templates
      */
-    @ContentChild('footer', { descendants: false }) footerTemplate: TemplateRef<any>;
-    _footerTemplate: Nullable<TemplateRef<any>>;
+    footerTemplate = contentChild<TemplateRef<any>>('footer', { descendants: false });
     /**
      * Custom filter icon template.
      * @group Templates
      */
-    @ContentChild('filtericon', { descendants: false }) filterIconTemplate: TemplateRef<any>;
-    _filterIconTemplate: Nullable<TemplateRef<any>>;
+    filterIconTemplate = contentChild<TemplateRef<any>>('filtericon', { descendants: false });
 
     /**
      * Custom remove rule button icon template.
      * @group Templates
      */
-    @ContentChild('removeruleicon', { descendants: false }) removeRuleIconTemplate: TemplateRef<any>;
-    _removeRuleIconTemplate: Nullable<TemplateRef<any>>;
+    removeRuleIconTemplate = contentChild<TemplateRef<any>>('removeruleicon', { descendants: false });
 
     /**
      * Custom add rule button icon template.
      * @group Templates
      */
-    @ContentChild('addruleicon', { descendants: false }) addRuleIconTemplate: TemplateRef<any>;
-    _addRuleIconTemplate: Nullable<TemplateRef<any>>;
-
-    @ContentChild('clearfiltericon', { descendants: false }) clearFilterIconTemplate: TemplateRef<any>;
-    _clearFilterIconTemplate: Nullable<TemplateRef<any>>;
+    addRuleIconTemplate = contentChild<TemplateRef<any>>('addruleicon', { descendants: false });
 
     operatorOptions: any[] | undefined;
 
@@ -5959,44 +5760,6 @@ export class ColumnFilter extends BaseComponent {
                 value: FilterOperator.OR
             }
         ];
-    }
-
-    onAfterContentInit() {
-        (this._templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'header':
-                    this._headerTemplate = item.template;
-                    break;
-
-                case 'filter':
-                    this._filterTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this._footerTemplate = item.template;
-                    break;
-
-                case 'filtericon':
-                    this._filterIconTemplate = item.template;
-                    break;
-
-                case 'clearfiltericon':
-                    this._clearFilterIconTemplate = item.template;
-                    break;
-
-                case 'removeruleicon':
-                    this._removeRuleIconTemplate = item.template;
-                    break;
-
-                case 'addruleicon':
-                    this._addRuleIconTemplate = item.template;
-                    break;
-
-                default:
-                    this._filterTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     initFieldFilterConstraint() {

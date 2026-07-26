@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, provideZonelessChangeDe
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
-import { OverlayService, AglTemplate } from '@anguless/angulux/api';
+import { OverlayService } from '@anguless/angulux/api';
 import { Popover } from './popover';
 
 // function createMockAnimationEvent(toState: string, fromState: string = 'void'): AnimationEvent {
@@ -99,7 +99,7 @@ class TestTemplatePopoverComponent {
     template: `
         <button #targetButton (click)="popover.toggle($event)">Toggle</button>
         <agl-popover #popover>
-            <ng-template aglTemplate="content" let-closeCallback="closeCallback">
+            <ng-template #content let-closeCallback="closeCallback">
                 <div class="ptemplate-content">
                     PTemplate content
                     <button class="close-button" (click)="closeCallback()">Close</button>
@@ -139,7 +139,7 @@ describe('Popover', () => {
         });
 
         await TestBed.configureTestingModule({
-            imports: [CommonModule, Popover, AglTemplate],
+            imports: [CommonModule, Popover],
             declarations: [TestBasicPopoverComponent, TestTemplatePopoverComponent, TestPTemplatePopoverComponent, TestKeyboardNavigationComponent],
             providers: [provideZonelessChangeDetection(), { provide: OverlayService, useValue: overlayServiceSpy }]
         }).compileComponents();
@@ -394,7 +394,7 @@ describe('Popover', () => {
 
             it('should process aglTemplate content in ngAfterContentInit', () => {
                 popoverInstance.ngAfterContentInit();
-                expect(popoverInstance._contentTemplate).toBeTruthy();
+                expect(popoverInstance.contentTemplate()).toBeTruthy();
             });
 
             it('should render aglTemplate content correctly', async () => {

@@ -3,9 +3,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     computed,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     inject,
     InjectionToken,
@@ -14,7 +12,6 @@ import {
     NgModule,
     NgZone,
     Output,
-    QueryList,
     signal,
     TemplateRef,
     ViewChild,
@@ -22,7 +19,7 @@ import {
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { absolutePosition, addClass, appendChild, focus, getOuterWidth, getTargetElement, isTouchDevice, relativePosition, removeClass } from '@anguless/angulux-utils';
-import { OverlayModeType, OverlayOnBeforeHideEvent, OverlayOnBeforeShowEvent, OverlayOnHideEvent, OverlayOnShowEvent, OverlayOptions, OverlayService, AglTemplate, ResponsiveOverlayOptions, SharedModule } from '@anguless/angulux/api';
+import { OverlayModeType, OverlayOnBeforeHideEvent, OverlayOnBeforeShowEvent, OverlayOnHideEvent, OverlayOnShowEvent, OverlayOptions, OverlayService, ResponsiveOverlayOptions, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
@@ -47,7 +44,7 @@ const OVERLAY_INSTANCE = new InjectionToken<Overlay>('OVERLAY_INSTANCE');
     template: `
         @if (inline()) {
             <ng-content></ng-content>
-            <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { $implicit: { mode: null } }"></ng-container>
+            <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: { mode: null } }"></ng-container>
         } @else {
             <div *ngIf="modalVisible" #overlay [class]="cn(cx('root'), styleClass)" [style]="sx('root')" [aglBind]="ptm('root')" (click)="onOverlayClick()">
                 <agl-motion
@@ -64,7 +61,7 @@ const OVERLAY_INSTANCE = new InjectionToken<Overlay>('OVERLAY_INSTANCE');
                 >
                     <div #content [class]="cn(cx('content'), contentStyleClass)" [aglBind]="ptm('content')" (click)="onOverlayContentClick($event)">
                         <ng-content></ng-content>
-                        <ng-container *ngTemplateOutlet="contentTemplate || _contentTemplate; context: { $implicit: { mode: overlayMode } }"></ng-container>
+                        <ng-container *ngTemplateOutlet="contentTemplate(); context: { $implicit: { mode: overlayMode } }"></ng-container>
                     </div>
                 </agl-motion>
             </div>
@@ -360,15 +357,11 @@ export class Overlay extends BaseComponent {
      * @see {@link OverlayContentTemplateContext}
      * @group Templates
      */
-    @ContentChild('content', { descendants: false }) contentTemplate: TemplateRef<OverlayContentTemplateContext> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
+    contentTemplate = contentChild<TemplateRef<OverlayContentTemplateContext>>('content', { descendants: false });
 
     hostAttrSelector = input<string>();
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
-
-    _contentTemplate: TemplateRef<OverlayContentTemplateContext> | undefined;
 
     _visible: boolean = false;
 
@@ -476,20 +469,6 @@ export class Overlay extends BaseComponent {
         private zone: NgZone
     ) {
         super();
-    }
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'content':
-                    this._contentTemplate = item.template;
-                    break;
-                // TODO: new template types may be added.
-                default:
-                    this._contentTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     onAfterViewChecked() {

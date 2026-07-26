@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, ContentChild, ContentChildren, EventEmitter, inject, InjectionToken, input, Input, NgModule, Output, QueryList, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, contentChild, EventEmitter, inject, InjectionToken, input, Input, NgModule, Output, signal, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { MotionOptions } from '@anguless/angulux-motion';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { TimesIcon } from '@anguless/angulux/icons';
@@ -23,15 +23,15 @@ const MESSAGE_INSTANCE = new InjectionToken<Message>('MESSAGE_INSTANCE');
     template: `
         <div [aglBind]="ptm('contentWrapper')" [class]="cx('contentWrapper')" [attr.data-p]="dataP">
             <div [aglBind]="ptm('content')" [class]="cx('content')" [attr.data-p]="dataP">
-                @if (iconTemplate || _iconTemplate) {
-                    <ng-container *ngTemplateOutlet="iconTemplate || _iconTemplate"></ng-container>
+                @if (iconTemplate()) {
+                    <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
                 }
                 @if (icon) {
                     <i [aglBind]="ptm('icon')" [class]="cn(cx('icon'), icon)" [attr.data-p]="dataP"></i>
                 }
 
-                @if (containerTemplate || _containerTemplate) {
-                    <ng-container *ngTemplateOutlet="containerTemplate || _containerTemplate; context: { closeCallback: closeCallback }"></ng-container>
+                @if (containerTemplate()) {
+                    <ng-container *ngTemplateOutlet="containerTemplate(); context: { closeCallback: closeCallback }"></ng-container>
                 } @else {
                     <div *ngIf="!escape; else escapeOut">
                         <span [aglBind]="ptm('text')" *ngIf="!escape" [ngClass]="cx('text')" [innerHTML]="text" [attr.data-p]="dataP"></span>
@@ -50,10 +50,10 @@ const MESSAGE_INSTANCE = new InjectionToken<Message>('MESSAGE_INSTANCE');
                         @if (closeIcon) {
                             <i [aglBind]="ptm('closeIcon')" [class]="cn(cx('closeIcon'), closeIcon)" [ngClass]="closeIcon" [attr.data-p]="dataP"></i>
                         }
-                        @if (closeIconTemplate || _closeIconTemplate) {
-                            <ng-container *ngTemplateOutlet="closeIconTemplate || _closeIconTemplate"></ng-container>
+                        @if (closeIconTemplate()) {
+                            <ng-container *ngTemplateOutlet="closeIconTemplate()"></ng-container>
                         }
-                        @if (!closeIconTemplate && !_closeIconTemplate && !closeIcon) {
+                        @if (!closeIconTemplate() && !closeIcon) {
                             <svg [aglBind]="ptm('closeIcon')" data-p-icon="times" [class]="cx('closeIcon')" [attr.data-p]="dataP" />
                         }
                     </button>
@@ -194,27 +194,21 @@ export class Message extends BaseComponent<MessagePassThrough> {
      * @see {@link MessageContainerTemplateContext}
      * @group Templates
      */
-    @ContentChild('container', { descendants: false }) containerTemplate: TemplateRef<MessageContainerTemplateContext> | undefined;
+    containerTemplate = contentChild<TemplateRef<MessageContainerTemplateContext>>('container', { descendants: false });
 
     /**
      * Custom template of the message icon.
      * @group Templates
      */
-    @ContentChild('icon', { descendants: false }) iconTemplate: TemplateRef<void> | undefined;
+    iconTemplate = contentChild<TemplateRef<void>>('icon', { descendants: false });
 
     /**
      * Custom template of the close icon.
      * @group Templates
      */
-    @ContentChild('closeicon', { descendants: false }) closeIconTemplate: TemplateRef<void> | undefined;
+    closeIconTemplate = contentChild<TemplateRef<void>>('closeicon', { descendants: false });
 
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
 
-    _containerTemplate: TemplateRef<MessageContainerTemplateContext> | undefined;
-
-    _iconTemplate: TemplateRef<void> | undefined;
-
-    _closeIconTemplate: TemplateRef<void> | undefined;
 
     closeCallback = (event: Event) => {
         this.close(event);
@@ -226,24 +220,6 @@ export class Message extends BaseComponent<MessagePassThrough> {
                 this.visible.set(false);
             }, this.life);
         }
-    }
-
-    onAfterContentInit() {
-        this.templates?.forEach((item) => {
-            switch (item.getType()) {
-                case 'container':
-                    this._containerTemplate = item.template;
-                    break;
-
-                case 'icon':
-                    this._iconTemplate = item.template;
-                    break;
-
-                case 'closeicon':
-                    this._closeIconTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     /**

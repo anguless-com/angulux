@@ -45,10 +45,10 @@ class TestTabsComponent {
     template: `
         <agl-tabs [(value)]="value" [scrollable]="true">
             <agl-tablist>
-                <ng-template aglTemplate="previcon">
+                <ng-template #previcon>
                     <i class="custom-prev-icon">‹</i>
                 </ng-template>
-                <ng-template aglTemplate="nexticon">
+                <ng-template #nexticon>
                     <i class="custom-next-icon">›</i>
                 </ng-template>
                 <agl-tab [value]="1">Very Long Tab Name 1</agl-tab>
@@ -678,25 +678,18 @@ describe('Tabs', () => {
                 }
             });
 
-            it('should process aglTemplate="previcon" correctly', () => {
+            it('should resolve the #previcon slot into its signal query', () => {
                 const tabList = scrollableFixture.debugElement.query(By.directive(TabList));
                 const tabListComponent = tabList.componentInstance;
 
-                // Check if component processes the template
-                expect(tabListComponent).toBeTruthy();
-
-                // Templates should be processed without errors
-                expect(() => tabListComponent.ngAfterContentInit()).not.toThrow();
+                expect(tabListComponent.prevIconTemplate()).toBeDefined();
             });
 
-            it('should process aglTemplate="nexticon" correctly', () => {
+            it('should resolve the #nexticon slot into its signal query', () => {
                 const tabList = scrollableFixture.debugElement.query(By.directive(TabList));
                 const tabListComponent = tabList.componentInstance;
 
-                // Check if component exists and processes templates
-                expect(tabListComponent).toBeTruthy();
-
-                // Check that the component has the scrollable configuration
+                expect(tabListComponent.nextIconTemplate()).toBeDefined();
                 expect(tabListComponent.scrollable()).toBe(true);
             });
         });

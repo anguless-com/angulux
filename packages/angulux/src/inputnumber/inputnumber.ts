@@ -3,9 +3,7 @@ import {
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
-    ContentChild,
-    ContentChildren,
-    ElementRef,
+    contentChild, ElementRef,
     EventEmitter,
     forwardRef,
     inject,
@@ -15,7 +13,6 @@ import {
     NgModule,
     numberAttribute,
     Output,
-    QueryList,
     SimpleChanges,
     TemplateRef,
     ViewChild,
@@ -23,7 +20,7 @@ import {
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { getSelection } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { AutoFocus } from '@anguless/angulux/autofocus';
 import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseInput } from '@anguless/angulux/baseinput';
@@ -97,9 +94,9 @@ export const INPUTNUMBER_VALUE_ACCESSOR: any = {
             [attr.data-p]="dataP"
         />
         <ng-container *ngIf="buttonLayout != 'vertical' && showClear && value">
-            <svg data-p-icon="times" *ngIf="!clearIconTemplate && !_clearIconTemplate" [aglBind]="ptm('clearIcon')" [class]="cx('clearIcon')" (click)="clear()" />
-            <span *ngIf="clearIconTemplate || _clearIconTemplate" [aglBind]="ptm('clearIcon')" (click)="clear()" [class]="cx('clearIcon')">
-                <ng-template *ngTemplateOutlet="clearIconTemplate || _clearIconTemplate"></ng-template>
+            <svg data-p-icon="times" *ngIf="!clearIconTemplate()" [aglBind]="ptm('clearIcon')" [class]="cx('clearIcon')" (click)="clear()" />
+            <span *ngIf="clearIconTemplate()" [aglBind]="ptm('clearIcon')" (click)="clear()" [class]="cx('clearIcon')">
+                <ng-template *ngTemplateOutlet="clearIconTemplate()"></ng-template>
             </span>
         </ng-container>
         <span [aglBind]="ptm('buttonGroup')" [class]="cx('buttonGroup')" *ngIf="showButtons && buttonLayout === 'stacked'" [attr.data-p]="dataP">
@@ -119,8 +116,8 @@ export const INPUTNUMBER_VALUE_ACCESSOR: any = {
             >
                 <span *ngIf="incrementButtonIcon" [aglBind]="ptm('incrementButtonIcon')" [ngClass]="incrementButtonIcon"></span>
                 <ng-container *ngIf="!incrementButtonIcon">
-                    <svg data-p-icon="angle-up" [aglBind]="ptm('incrementButtonIcon')" *ngIf="!incrementButtonIconTemplate && !_incrementButtonIconTemplate" />
-                    <ng-template *ngTemplateOutlet="incrementButtonIconTemplate || _incrementButtonIconTemplate"></ng-template>
+                    <svg data-p-icon="angle-up" [aglBind]="ptm('incrementButtonIcon')" *ngIf="!incrementButtonIconTemplate()" />
+                    <ng-template *ngTemplateOutlet="incrementButtonIconTemplate()"></ng-template>
                 </ng-container>
             </button>
 
@@ -140,8 +137,8 @@ export const INPUTNUMBER_VALUE_ACCESSOR: any = {
             >
                 <span *ngIf="decrementButtonIcon" [aglBind]="ptm('decrementButtonIcon')" [ngClass]="decrementButtonIcon"></span>
                 <ng-container *ngIf="!decrementButtonIcon">
-                    <svg data-p-icon="angle-down" [aglBind]="ptm('decrementButtonIcon')" *ngIf="!decrementButtonIconTemplate && !_decrementButtonIconTemplate" />
-                    <ng-template *ngTemplateOutlet="decrementButtonIconTemplate || _decrementButtonIconTemplate"></ng-template>
+                    <svg data-p-icon="angle-down" [aglBind]="ptm('decrementButtonIcon')" *ngIf="!decrementButtonIconTemplate()" />
+                    <ng-template *ngTemplateOutlet="decrementButtonIconTemplate()"></ng-template>
                 </ng-container>
             </button>
         </span>
@@ -162,8 +159,8 @@ export const INPUTNUMBER_VALUE_ACCESSOR: any = {
         >
             <span *ngIf="incrementButtonIcon" [aglBind]="ptm('incrementButtonIcon')" [ngClass]="incrementButtonIcon"></span>
             <ng-container *ngIf="!incrementButtonIcon">
-                <svg data-p-icon="angle-up" [aglBind]="ptm('incrementButtonIcon')" *ngIf="!incrementButtonIconTemplate && !_incrementButtonIconTemplate" />
-                <ng-template *ngTemplateOutlet="incrementButtonIconTemplate || _incrementButtonIconTemplate"></ng-template>
+                <svg data-p-icon="angle-up" [aglBind]="ptm('incrementButtonIcon')" *ngIf="!incrementButtonIconTemplate()" />
+                <ng-template *ngTemplateOutlet="incrementButtonIconTemplate()"></ng-template>
             </ng-container>
         </button>
         <button
@@ -183,8 +180,8 @@ export const INPUTNUMBER_VALUE_ACCESSOR: any = {
         >
             <span *ngIf="decrementButtonIcon" [aglBind]="ptm('decrementButtonIcon')" [ngClass]="decrementButtonIcon"></span>
             <ng-container *ngIf="!decrementButtonIcon">
-                <svg data-p-icon="angle-down" [aglBind]="ptm('decrementButtonIcon')" *ngIf="!decrementButtonIconTemplate && !_decrementButtonIconTemplate" />
-                <ng-template *ngTemplateOutlet="decrementButtonIconTemplate || _decrementButtonIconTemplate"></ng-template>
+                <svg data-p-icon="angle-down" [aglBind]="ptm('decrementButtonIcon')" *ngIf="!decrementButtonIconTemplate()" />
+                <ng-template *ngTemplateOutlet="decrementButtonIconTemplate()"></ng-template>
             </ng-container>
         </button>
     `,
@@ -410,28 +407,22 @@ export class InputNumber extends BaseInput<InputNumberPassThrough> {
      * Custom clear icon template.
      * @group Templates
      */
-    @ContentChild('clearicon', { descendants: false }) clearIconTemplate: Nullable<TemplateRef<void>>;
+    clearIconTemplate = contentChild<TemplateRef<void>>('clearicon', { descendants: false });
     /**
      * Custom increment button icon template.
      * @group Templates
      */
-    @ContentChild('incrementbuttonicon', { descendants: false }) incrementButtonIconTemplate: Nullable<TemplateRef<void>>;
+    incrementButtonIconTemplate = contentChild<TemplateRef<void>>('incrementbuttonicon', { descendants: false });
 
     /**
      * Custom decrement button icon template.
      * @group Templates
      */
-    @ContentChild('decrementbuttonicon', { descendants: false }) decrementButtonIconTemplate: Nullable<TemplateRef<void>>;
-
-    @ContentChildren(AglTemplate) templates!: QueryList<AglTemplate>;
+    decrementButtonIconTemplate = contentChild<TemplateRef<void>>('decrementbuttonicon', { descendants: false });
 
     @ViewChild('input') input!: ElementRef<HTMLInputElement>;
 
-    _clearIconTemplate: TemplateRef<void> | undefined;
 
-    _incrementButtonIconTemplate: TemplateRef<void> | undefined;
-
-    _decrementButtonIconTemplate: TemplateRef<void> | undefined;
 
     value: Nullable<number>;
 
@@ -490,24 +481,6 @@ export class InputNumber extends BaseInput<InputNumberPassThrough> {
         this.constructParser();
 
         this.initialized = true;
-    }
-
-    onAfterContentInit() {
-        this.templates.forEach((item) => {
-            switch (item.getType()) {
-                case 'clearicon':
-                    this._clearIconTemplate = item.template;
-                    break;
-
-                case 'incrementbuttonicon':
-                    this._incrementButtonIconTemplate = item.template;
-                    break;
-
-                case 'decrementbuttonicon':
-                    this._decrementButtonIconTemplate = item.template;
-                    break;
-            }
-        });
     }
 
     getOptions() {

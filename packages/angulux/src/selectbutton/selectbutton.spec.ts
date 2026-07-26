@@ -15,7 +15,7 @@ describe('SelectButton', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [SelectButton, SelectButtonModule, FormsModule, ReactiveFormsModule, CommonModule, SharedModule, TestSelectButtonPTemplateComponent, TestSelectButtonRefTemplateComponent],
-            declarations: [TestFormSelectButtonComponent, TestAglTemplateSelectButtonComponent],
+            declarations: [TestFormSelectButtonComponent, TestItemSlotSelectButtonComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
 
@@ -252,16 +252,14 @@ describe('SelectButton', () => {
     });
 
     describe('Template and Content Projection', () => {
-        it('should process templates in ngAfterContentInit', () => {
-            const templateComponent = TestBed.createComponent(TestAglTemplateSelectButtonComponent);
+        it('should resolve the item slot into its signal query', () => {
+            const templateComponent = TestBed.createComponent(TestItemSlotSelectButtonComponent);
             const selectButtonInstance = templateComponent.debugElement.query(By.css('agl-selectbutton')).componentInstance;
 
             templateComponent.detectChanges();
 
             expect(selectButtonInstance).toBeTruthy();
-            // Test that the component has template processing capability
-            expect(selectButtonInstance).toBeTruthy();
-            expect(selectButtonInstance._itemTemplate !== undefined || selectButtonInstance._itemTemplate === undefined).toBe(true);
+            expect(selectButtonInstance.itemTemplate()).toBeDefined();
         });
     });
 
@@ -447,13 +445,13 @@ class TestFormSelectButtonComponent {
     standalone: false,
     template: `
         <agl-selectbutton [options]="options">
-            <ng-template aglTemplate="item" let-option let-index="index">
+            <ng-template #item let-option let-index="index">
                 <div class="agl-template-content">Agl: {{ option.label }}</div>
             </ng-template>
         </agl-selectbutton>
     `
 })
-class TestAglTemplateSelectButtonComponent {
+class TestItemSlotSelectButtonComponent {
     options = [
         { label: 'Option A', value: 'optionA' },
         { label: 'Option B', value: 'optionB' }
@@ -468,7 +466,7 @@ class TestAglTemplateSelectButtonComponent {
     template: `
         <agl-selectbutton [(ngModel)]="selectedValue" [options]="options">
             <!-- Item template with aglTemplate -->
-            <ng-template aglTemplate="item" let-option let-index="index">
+            <ng-template #item let-option let-index="index">
                 <span class="custom-template-item" [attr.data-testid]="'ptemplate-item-' + index" [title]="'Template item: ' + option.label + ' at index ' + index">
                     <i class="pi pi-star"></i>
                     {{ option.label }} ({{ option.value }})

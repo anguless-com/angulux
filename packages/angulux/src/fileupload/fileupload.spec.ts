@@ -742,7 +742,7 @@ describe('FileUpload', () => {
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+            <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
                 <div class="custom-header">
                     <button type="button" (click)="chooseCallback()" class="choose-btn">Choose</button>
                     <button type="button" (click)="uploadCallback()" class="upload-btn">Upload</button>
@@ -776,7 +776,7 @@ class TestHashHeaderComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="content" let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback">
+            <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback">
                 <div class="custom-content">
                     <div *ngFor="let file of files; let i = index" class="file-item">
                         <span>{{ file.name }}</span>
@@ -812,7 +812,7 @@ class TestHashContentComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="file" let-file let-index="index">
+            <ng-template #file let-file let-index="index">
                 <div class="custom-file">
                     <span>Custom: {{ file.name }} ({{ index }})</span>
                 </div>
@@ -827,7 +827,7 @@ class TestPTemplateFileComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="empty">
+            <ng-template #empty>
                 <div class="custom-empty">No files selected</div>
             </ng-template>
         </agl-fileupload>
@@ -840,7 +840,7 @@ class TestPTemplateEmptyComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="basic" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="filelabel" let-files>
+            <ng-template #filelabel let-files>
                 <div class="custom-file-label">
                     {{ files?.length ? files.length + ' files selected' : 'No files' }}
                 </div>
@@ -855,13 +855,13 @@ class TestPTemplateFileLabelComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="chooseicon">
+            <ng-template #chooseicon>
                 <i class="custom-choose-icon pi pi-plus"></i>
             </ng-template>
-            <ng-template aglTemplate="uploadicon">
+            <ng-template #uploadicon>
                 <i class="custom-upload-icon pi pi-upload"></i>
             </ng-template>
-            <ng-template aglTemplate="cancelicon">
+            <ng-template #cancelicon>
                 <i class="custom-cancel-icon pi pi-times"></i>
             </ng-template>
         </agl-fileupload>
@@ -874,7 +874,7 @@ class TestPTemplateIconsComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="toolbar">
+            <ng-template #toolbar>
                 <div class="custom-toolbar">
                     <span class="toolbar-info">Custom Toolbar Content</span>
                     <button class="toolbar-action">Action</button>
@@ -890,7 +890,7 @@ class TestPTemplateToolbarComponent {}
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload" [files]="files">
-            <ng-template aglTemplate="file" let-file let-index="index">
+            <ng-template #file let-file let-index="index">
                 <div class="file-item">
                     <span>{{ file.name }}</span>
                     <ng-container [ngTemplateOutlet]="removeIconTemplate" [ngTemplateOutletContext]="{ class: 'p-button-icon-only p-button-danger', file: file, index: index }"></ng-container>
@@ -915,7 +915,7 @@ class TestFileRemoveIconComponent {
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+            <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
                 <div class="context-test-header">
                     <span [attr.data-files-count]="files?.length || 0">Files: {{ files?.length || 0 }}</span>
                     <button type="button" (click)="testChoose(chooseCallback)" class="ctx-choose">Choose</button>
@@ -945,7 +945,7 @@ class TestContextObjectsComponent {
     standalone: false,
     template: `
         <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="content" let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback" let-progress="progress" let-messages="messages">
+            <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback" let-progress="progress" let-messages="messages">
                 <div class="context-content-test">
                     <div class="files-info">
                         <span [attr.data-pending-count]="files?.length || 0">Pending: {{ files?.length || 0 }}</span>
@@ -977,7 +977,7 @@ class TestContentContextComponent {
     standalone: false,
     template: `
         <agl-fileupload mode="basic" name="testFile[]" url="https://test.com/upload">
-            <ng-template aglTemplate="filelabel" let-files>
+            <ng-template #filelabel let-files>
                 <div class="context-file-label">
                     <span [attr.data-files-array-length]="files?.length || 0">Files Array Length: {{ files?.length || 0 }}</span>
                     <span [attr.data-first-file-name]="files?.[0]?.name || 'none'">First File: {{ files?.[0]?.name || 'none' }}</span>
@@ -996,8 +996,8 @@ describe('FileUpload Template Tests', () => {
         TestBed.resetTestingModule();
     });
 
-    describe('aglTemplate Tests', () => {
-        it('should render aglTemplate="header" with correct context', async () => {
+    describe('Content template slots', () => {
+        it('should render the #header slot with correct context', async () => {
             await TestBed.configureTestingModule({
                 imports: [FileUpload, HttpClientTestingModule],
                 declarations: [TestPTemplateHeaderComponent],
@@ -1025,7 +1025,7 @@ describe('FileUpload Template Tests', () => {
             }
         });
 
-        it('should render aglTemplate="content" with correct context', async () => {
+        it('should render the #content slot with correct context', async () => {
             await TestBed.configureTestingModule({
                 imports: [FileUpload, HttpClientTestingModule],
                 declarations: [TestPTemplateContentComponent],
@@ -1051,7 +1051,7 @@ describe('FileUpload Template Tests', () => {
             }
         });
 
-        it('should render aglTemplate="file" with correct context', async () => {
+        it('should render the #file slot with correct context', async () => {
             await TestBed.configureTestingModule({
                 imports: [FileUpload, HttpClientTestingModule],
                 declarations: [TestPTemplateFileComponent],
@@ -1072,7 +1072,7 @@ describe('FileUpload Template Tests', () => {
             }
         });
 
-        it('should render aglTemplate="empty" when no files', async () => {
+        it('should render the #empty slot when no files', async () => {
             await TestBed.configureTestingModule({
                 imports: [FileUpload, HttpClientTestingModule],
                 declarations: [TestPTemplateEmptyComponent],
@@ -1362,58 +1362,49 @@ describe('FileUpload Template Tests', () => {
             fileUploadComponent = testFixture.debugElement.query(By.directive(FileUpload))?.componentInstance;
         });
 
-        it('should execute chooseCallback from template context', () => {
-            if (fileUploadComponent) {
-                spyOn(fileUploadComponent, 'choose');
+        it('should execute chooseCallback from template context', async () => {
+            // The header context binds `choose.bind(this)` while the outlet renders, so a spy
+            // installed on the instance afterwards is never the function the button holds.
+            // Spy on the prototype before the component exists, and the binding picks it up.
+            const spy = spyOn(FileUpload.prototype, 'choose');
+            const freshFixture = TestBed.createComponent(TestPTemplateHeaderComponent);
+            freshFixture.detectChanges();
+            await freshFixture.whenStable();
 
-                const chooseBtn = testFixture.debugElement.query(By.css('.choose-btn'));
-                if (chooseBtn) {
-                    chooseBtn.nativeElement.click();
-                    expect(fileUploadComponent.choose).toHaveBeenCalled();
-                } else {
-                    // If button not found, test the component method directly
-                    fileUploadComponent.choose();
-                    expect(fileUploadComponent.choose).toHaveBeenCalled();
-                }
-            } else {
-                expect(testFixture.componentInstance).toBeTruthy();
-            }
+            const chooseBtn = freshFixture.debugElement.query(By.css('.choose-btn'));
+            expect(chooseBtn).toBeTruthy();
+            chooseBtn.nativeElement.click();
+            expect(spy).toHaveBeenCalled();
         });
 
-        it('should execute clearCallback from template context', () => {
-            if (fileUploadComponent) {
-                spyOn(fileUploadComponent, 'clear');
+        it('should execute clearCallback from template context', async () => {
+            // The header context binds `clear.bind(this)` while the outlet renders, so a spy
+            // installed on the instance afterwards is never the function the button holds.
+            // Spy on the prototype before the component exists, and the binding picks it up.
+            const spy = spyOn(FileUpload.prototype, 'clear');
+            const freshFixture = TestBed.createComponent(TestPTemplateHeaderComponent);
+            freshFixture.detectChanges();
+            await freshFixture.whenStable();
 
-                const clearBtn = testFixture.debugElement.query(By.css('.clear-btn'));
-                if (clearBtn) {
-                    clearBtn.nativeElement.click();
-                    expect(fileUploadComponent.clear).toHaveBeenCalled();
-                } else {
-                    // If button not found, test the component method directly
-                    fileUploadComponent.clear();
-                    expect(fileUploadComponent.clear).toHaveBeenCalled();
-                }
-            } else {
-                expect(testFixture.componentInstance).toBeTruthy();
-            }
+            const clearBtn = freshFixture.debugElement.query(By.css('.clear-btn'));
+            expect(clearBtn).toBeTruthy();
+            clearBtn.nativeElement.click();
+            expect(spy).toHaveBeenCalled();
         });
 
-        it('should execute uploadCallback from template context', () => {
-            if (fileUploadComponent) {
-                spyOn(fileUploadComponent, 'upload');
+        it('should execute uploadCallback from template context', async () => {
+            // The header context binds `upload.bind(this)` while the outlet renders, so a spy
+            // installed on the instance afterwards is never the function the button holds.
+            // Spy on the prototype before the component exists, and the binding picks it up.
+            const spy = spyOn(FileUpload.prototype, 'upload');
+            const freshFixture = TestBed.createComponent(TestPTemplateHeaderComponent);
+            freshFixture.detectChanges();
+            await freshFixture.whenStable();
 
-                const uploadBtn = testFixture.debugElement.query(By.css('.upload-btn'));
-                if (uploadBtn) {
-                    uploadBtn.nativeElement.click();
-                    expect(fileUploadComponent.upload).toHaveBeenCalled();
-                } else {
-                    // If button not found, test the component method directly
-                    fileUploadComponent.upload();
-                    expect(fileUploadComponent.upload).toHaveBeenCalled();
-                }
-            } else {
-                expect(testFixture.componentInstance).toBeTruthy();
-            }
+            const uploadBtn = freshFixture.debugElement.query(By.css('.upload-btn'));
+            expect(uploadBtn).toBeTruthy();
+            uploadBtn.nativeElement.click();
+            expect(spy).toHaveBeenCalled();
         });
     });
 });
@@ -1647,7 +1638,7 @@ describe('FileUpload Advanced Template Combinations', () => {
             standalone: false,
             template: `
                 <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-                    <ng-template aglTemplate="header" let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+                    <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
                         <div class="mixed-header">
                             <span class="file-count">{{ files?.length || 0 }} files</span>
                             <div class="header-actions">
@@ -1658,7 +1649,7 @@ describe('FileUpload Advanced Template Combinations', () => {
                         </div>
                     </ng-template>
 
-                    <ng-template aglTemplate="content" let-files let-uploadedFiles="uploadedFiles" let-progress="progress">
+                    <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-progress="progress">
                         <div class="mixed-content">
                             <div class="upload-section" *ngIf="files?.length">
                                 <h4>Ready to Upload ({{ files.length }})</h4>
@@ -1683,7 +1674,7 @@ describe('FileUpload Advanced Template Combinations', () => {
                         </div>
                     </ng-template>
 
-                    <ng-template aglTemplate="toolbar">
+                    <ng-template #toolbar>
                         <div class="mixed-toolbar">
                             <span class="toolbar-title">Advanced File Upload</span>
                             <div class="toolbar-stats">
@@ -1693,7 +1684,7 @@ describe('FileUpload Advanced Template Combinations', () => {
                         </div>
                     </ng-template>
 
-                    <ng-template aglTemplate="empty">
+                    <ng-template #empty>
                         <div class="mixed-empty">
                             <div class="empty-icon">📁</div>
                             <div class="empty-text">Drag and drop files here or click Choose</div>
@@ -1701,11 +1692,11 @@ describe('FileUpload Advanced Template Combinations', () => {
                         </div>
                     </ng-template>
 
-                    <ng-template aglTemplate="chooseicon">
+                    <ng-template #chooseicon>
                         <i class="pi pi-cloud-upload mixed-choose-icon"></i>
                     </ng-template>
 
-                    <ng-template aglTemplate="uploadicon">
+                    <ng-template #uploadicon>
                         <i class="pi pi-send mixed-upload-icon"></i>
                     </ng-template>
                 </agl-fileupload>
@@ -1812,8 +1803,8 @@ describe('FileUpload Advanced Template Combinations', () => {
             standalone: false,
             template: `
                 <agl-fileupload mode="advanced" name="testFile[]" url="https://test.com/upload">
-                    <ng-template
-                        aglTemplate="content"
+                    <ng-template #content
+                        
                         let-files
                         let-uploadedFiles="uploadedFiles"
                         let-removeFileCallback="removeFileCallback"

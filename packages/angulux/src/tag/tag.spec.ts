@@ -42,7 +42,7 @@ class TestIconTemplateTagComponent {}
     standalone: false,
     template: `
         <agl-tag value="PTemplate Tag">
-            <ng-template aglTemplate="icon">
+            <ng-template #icon>
                 <span class="p-template-icon">⭐</span>
             </ng-template>
         </agl-tag>
@@ -88,7 +88,7 @@ class TestStyleTagComponent {
             <ng-template #icon>
                 <i class="template-icon">🏷️</i>
             </ng-template>
-            <ng-template aglTemplate="icon">
+            <ng-template #icon>
                 <span class="p-template-icon">📌</span>
             </ng-template>
         </agl-tag>
@@ -162,9 +162,8 @@ describe('Tag', () => {
             expect(tagInstance.constructor.name).toBe('Tag');
         });
 
-        it('should initialize templates properties', () => {
-            expect(tagInstance.templates).toBeDefined();
-            expect(tagInstance._iconTemplate).toBeUndefined();
+        it('should start with no icon template resolved', () => {
+            expect(tagInstance.iconTemplate()).toBeUndefined();
         });
     });
 
@@ -394,7 +393,7 @@ describe('Tag', () => {
             }
         });
 
-        it('should handle aglTemplate icon processing', async () => {
+        it('should resolve the icon slot and render it', async () => {
             const pTemplateFixture = TestBed.createComponent(TestPTemplateTagComponent);
             pTemplateFixture.detectChanges();
             await new Promise((resolve) => setTimeout(resolve, 100));
@@ -402,17 +401,8 @@ describe('Tag', () => {
 
             const pTemplateTag = pTemplateFixture.debugElement.query(By.directive(Tag)).componentInstance;
 
-            expect(() => pTemplateTag.ngAfterContentInit()).not.toThrow();
-            expect(pTemplateTag.templates).toBeDefined();
-
-            // Check if icon section exists, may be rendered differently in test environment
-            const iconContainer = pTemplateFixture.debugElement.query(By.css('span:nth-child(2)'));
-            if (iconContainer) {
-                expect(iconContainer).toBeTruthy();
-            } else {
-                // Template processing might not work fully in test environment
-                expect(pTemplateTag.templates).toBeDefined();
-            }
+            expect(pTemplateTag.iconTemplate()).toBeDefined();
+            expect(pTemplateFixture.debugElement.query(By.css('span:nth-child(2)'))).toBeTruthy();
         });
 
         it('should render #icon template correctly', async () => {
@@ -432,24 +422,18 @@ describe('Tag', () => {
             }
         });
 
-        it('should render aglTemplate icon correctly', async () => {
+        it('should render the icon slot content', async () => {
             const pTemplateFixture = TestBed.createComponent(TestPTemplateTagComponent);
             pTemplateFixture.detectChanges();
             await new Promise((resolve) => setTimeout(resolve, 100));
             await pTemplateFixture.whenStable();
 
             const pTemplateIcon = pTemplateFixture.debugElement.query(By.css('.p-template-icon'));
-            if (pTemplateIcon) {
-                expect(pTemplateIcon).toBeTruthy();
-                expect(pTemplateIcon.nativeElement.textContent.trim()).toBe('⭐');
-            } else {
-                // If template processing doesn't work in test environment, just verify component exists
-                const tagComponent = pTemplateFixture.debugElement.query(By.directive(Tag)).componentInstance;
-                expect(tagComponent.templates).toBeDefined();
-            }
+            expect(pTemplateIcon).toBeTruthy();
+            expect(pTemplateIcon.nativeElement.textContent.trim()).toBe('⭐');
         });
 
-        it('should prioritize iconTemplate over _iconTemplate', async () => {
+        it('should bind the first #icon when the slot is declared more than once', async () => {
             const multipleFixture = TestBed.createComponent(TestMultipleIconTemplatesComponent);
             multipleFixture.detectChanges();
             await new Promise((resolve) => setTimeout(resolve, 100));
@@ -457,13 +441,12 @@ describe('Tag', () => {
 
             const multipleTag = multipleFixture.debugElement.query(By.directive(Tag)).componentInstance;
 
-            // Both templates should be processed
-            expect(multipleTag.iconTemplate).toBeDefined();
-            expect(() => multipleTag.ngAfterContentInit()).not.toThrow();
-
-            // Component should exist and have templates
-            expect(multipleTag).toBeTruthy();
-            expect(multipleTag.templates).toBeDefined();
+            expect(multipleTag.iconTemplate()).toBeDefined();
+            // contentChild resolves in content order, so the first declaration wins and the
+            // second is inert — the one behaviour worth pinning now that a slot has one route.
+            // Asserted on rendered text rather than a selector: it proves what the user sees.
+            expect(multipleFixture.nativeElement.textContent).toContain('🏷️');
+            expect(multipleFixture.nativeElement.textContent).not.toContain('📌');
         });
 
         it('should not show icon span when template is used', () => {
@@ -509,7 +492,7 @@ describe('Tag', () => {
             await pTemplateFixture.whenStable();
 
             // Template should still be processed correctly
-            expect(pTemplateTag.templates).toBeDefined();
+            expect(pTemplateTag.iconTemplate()).toBeDefined();
 
             // Verify the value property was updated
             expect(pTemplateTag.value).toBe('Updated Template Tag');
@@ -792,7 +775,7 @@ describe('Tag', () => {
             expect(() => pTemplateTag.ngAfterContentInit()).not.toThrow();
         });
 
-        it('should set _iconTemplate when processing AglTemplate', async () => {
+        it('should resolve the icon slot into its signal query', async () => {
             const pTemplateFixture = TestBed.createComponent(TestPTemplateTagComponent);
             pTemplateFixture.detectChanges();
             await new Promise((resolve) => setTimeout(resolve, 100));
@@ -801,12 +784,11 @@ describe('Tag', () => {
             const pTemplateTag = pTemplateFixture.debugElement.query(By.directive(Tag)).componentInstance;
 
             expect(pTemplateTag).toBeTruthy();
-            expect(pTemplateTag.templates !== undefined || pTemplateTag._iconTemplate !== undefined).toBe(true);
+            expect(pTemplateTag.iconTemplate()).toBeDefined();
         });
 
         it('should handle missing templates gracefully', () => {
-            expect(() => tagInstance.ngAfterContentInit()).not.toThrow();
-            expect(tagInstance._iconTemplate).toBeUndefined();
+            expect(tagInstance.iconTemplate()).toBeUndefined();
         });
 
         it('should handle templates without icon type', async () => {
@@ -817,8 +799,7 @@ describe('Tag', () => {
 
             const basicTag = basicFixture.debugElement.query(By.directive(Tag)).componentInstance;
 
-            expect(() => basicTag.ngAfterContentInit()).not.toThrow();
-            expect(basicTag._iconTemplate).toBeUndefined();
+            expect(basicTag.iconTemplate()).toBeUndefined();
         });
     });
 
@@ -1051,7 +1032,6 @@ describe('Tag', () => {
             // Manually call ngAfterContentInit to test processing
             expect(() => pTemplateTag.ngAfterContentInit()).not.toThrow();
 
-            // Check if _iconTemplate is set after processing
             pTemplateTag.ngAfterContentInit();
             await new Promise((resolve) => setTimeout(resolve, 100));
             await pTemplateFixture.whenStable();
