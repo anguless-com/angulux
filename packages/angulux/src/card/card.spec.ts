@@ -32,19 +32,19 @@ class TestCustomCardComponent {
     standalone: false,
     template: `
         <agl-card>
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="custom-header">Custom Header Template</div>
             </ng-template>
-            <ng-template aglTemplate="title">
+            <ng-template #title>
                 <h2 class="custom-title">Custom Title Template</h2>
             </ng-template>
-            <ng-template aglTemplate="subtitle">
+            <ng-template #subtitle>
                 <p class="custom-subtitle">Custom Subtitle Template</p>
             </ng-template>
-            <ng-template aglTemplate="content">
+            <ng-template #content>
                 <div class="custom-content">Custom Content Template</div>
             </ng-template>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="custom-footer">Custom Footer Template</div>
             </ng-template>
         </agl-card>
@@ -57,17 +57,17 @@ class TestTemplateCardComponent {}
     standalone: false,
     template: `
         <agl-card>
-            <agl-header>
+            <ng-template #header>
                 <div class="facet-header">Header Facet Content</div>
-            </agl-header>
+            </ng-template>
             <div class="main-content">Main Card Content</div>
-            <agl-footer>
+            <ng-template #footer>
                 <div class="facet-footer">Footer Facet Content</div>
-            </agl-footer>
+            </ng-template>
         </agl-card>
     `
 })
-class TestFacetCardComponent {}
+class TestHeaderFooterTemplateCardComponent {}
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -133,7 +133,7 @@ class TestDynamicCardComponent {
     standalone: false,
     template: `
         <agl-card>
-            <ng-template aglTemplate="header">
+            <ng-template #header>
                 <div class="header-with-actions">
                     <h3>Card with Actions</h3>
                     <button class="header-action" type="button">Action</button>
@@ -147,7 +147,7 @@ class TestDynamicCardComponent {
                     <li>Item 3</li>
                 </ul>
             </div>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="footer-buttons">
                     <button class="btn-primary" type="button">Save</button>
                     <button class="btn-secondary" type="button">Cancel</button>
@@ -185,7 +185,7 @@ class TestSubheaderOnlyCardComponent {}
     standalone: false,
     template: `
         <agl-card>
-            <ng-template aglTemplate="footer">
+            <ng-template #footer>
                 <div class="footer-only">Footer Only Content</div>
             </ng-template>
             <div class="content-with-footer">Content with footer only</div>
@@ -207,7 +207,7 @@ describe('Card', () => {
                 TestBasicCardComponent,
                 TestCustomCardComponent,
                 TestTemplateCardComponent,
-                TestFacetCardComponent,
+                TestHeaderFooterTemplateCardComponent,
                 TestContentChildCardComponent,
                 TestSimpleTextCardComponent,
                 TestDynamicCardComponent,
@@ -496,11 +496,11 @@ describe('Card', () => {
         });
     });
 
-    describe('Header and Footer Facets', () => {
-        let facetFixture: ComponentFixture<TestFacetCardComponent>;
+    describe('Header and Footer Templates', () => {
+        let facetFixture: ComponentFixture<TestHeaderFooterTemplateCardComponent>;
 
         beforeEach(async () => {
-            facetFixture = TestBed.createComponent(TestFacetCardComponent);
+            facetFixture = TestBed.createComponent(TestHeaderFooterTemplateCardComponent);
             await facetFixture.whenStable();
         });
 
@@ -823,17 +823,17 @@ describe('Card', () => {
     });
 
     describe('Template Processing', () => {
-        it('should process templates after content init', async () => {
+        it('should resolve every content template into its signal query', async () => {
             const templateFixture = TestBed.createComponent(TestTemplateCardComponent);
             await templateFixture.whenStable();
 
             const cardInstance = templateFixture.debugElement.query(By.directive(Card)).componentInstance;
 
-            expect(cardInstance._headerTemplate).toBeTruthy();
-            expect(cardInstance._titleTemplate).toBeTruthy();
-            expect(cardInstance._subtitleTemplate).toBeTruthy();
-            expect(cardInstance._contentTemplate).toBeTruthy();
-            expect(cardInstance._footerTemplate).toBeTruthy();
+            expect(cardInstance.headerTemplate()).toBeTruthy();
+            expect(cardInstance.titleTemplate()).toBeTruthy();
+            expect(cardInstance.subtitleTemplate()).toBeTruthy();
+            expect(cardInstance.contentTemplate()).toBeTruthy();
+            expect(cardInstance.footerTemplate()).toBeTruthy();
         });
 
         it('should handle templates with ngAfterContentInit lifecycle', async () => {
@@ -990,7 +990,7 @@ describe('Card', () => {
         });
 
         it('should maintain card structure with different content types', async () => {
-            const facetFixture = TestBed.createComponent(TestFacetCardComponent);
+            const facetFixture = TestBed.createComponent(TestHeaderFooterTemplateCardComponent);
             await facetFixture.whenStable();
 
             const cardElement = facetFixture.debugElement.query(By.directive(Card));
@@ -1290,7 +1290,7 @@ describe('Card', () => {
                     standalone: false,
                     template: `
                         <agl-card [pt]="pt">
-                            <ng-template aglTemplate="footer">
+                            <ng-template #footer>
                                 <div>Footer Content</div>
                             </ng-template>
                         </agl-card>
@@ -1321,7 +1321,7 @@ describe('Card', () => {
                     standalone: false,
                     template: `
                         <agl-card [pt]="pt">
-                            <ng-template aglTemplate="header">
+                            <ng-template #header>
                                 <div>Header Content</div>
                             </ng-template>
                         </agl-card>
@@ -1555,11 +1555,11 @@ describe('Card', () => {
                     standalone: false,
                     template: `
                         <agl-card [pt]="pt" [header]="'Test Header'" [subheader]="'Test Subheader'">
-                            <ng-template aglTemplate="header">
+                            <ng-template #header>
                                 <div>Header Content</div>
                             </ng-template>
                             <div>Content</div>
-                            <ng-template aglTemplate="footer">
+                            <ng-template #footer>
                                 <div>Footer Content</div>
                             </ng-template>
                         </agl-card>

@@ -188,10 +188,13 @@ interface Product {
         <!-- ── 7. facet: canh lop loi <ng-content select="…"> vua va ───── -->
         <section id="sec-facet">
             <h2>facet (card + dialog)</h2>
+            <!-- card has migrated to PA-1: the agl-header/agl-footer facet route is gone, so the
+                 guard now watches the surviving route. The defect class is unchanged — a slot that
+                 silently renders nothing, with no error thrown — only its single entry point moved. -->
             <agl-card>
-                <agl-header><div class="facet-probe" id="card-header-facet">FACET_HEADER_CARD</div></agl-header>
+                <ng-template #header><div class="facet-probe" id="card-header-facet">FACET_HEADER_CARD</div></ng-template>
                 <p>Card body content.</p>
-                <agl-footer><div class="facet-probe" id="card-footer-facet">FACET_FOOTER_CARD</div></agl-footer>
+                <ng-template #footer><div class="facet-probe" id="card-footer-facet">FACET_FOOTER_CARD</div></ng-template>
             </agl-card>
 
             <button type="button" id="open-dialog" (click)="dialogVisible.set(true)">Open dialog</button>

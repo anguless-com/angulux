@@ -183,8 +183,10 @@ test('multiselect — selects several items and projects the header facet into t
 
 test('facet card — header and footer project into the component slots', async ({ page }) => {
     const errors = watchErrors(page);
-    // Regression guard for the `<ng-content select="p-header">` defect class: eight sites
-    // broke silently, the facet simply never appearing in the DOM with no error thrown.
+    // Regression guard for the silently-empty-slot defect class: eight sites broke with the
+    // slot simply never appearing in the DOM and no error thrown. card has since migrated to
+    // PA-1, so the entry point watched here is `<ng-template #header>` rather than the retired
+    // `<ng-content select="agl-header">` facet. The failure mode being guarded is the same.
     await expect(page.locator('.p-card-header #card-header-facet')).toHaveText('FACET_HEADER_CARD');
     await expect(page.locator('.p-card-footer #card-footer-facet')).toHaveText('FACET_FOOTER_CARD');
     await page.screenshot({ path: `${EVIDENCE}/c3-facet-card.png` });
