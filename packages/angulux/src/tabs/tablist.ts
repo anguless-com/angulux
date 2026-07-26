@@ -1,7 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, ContentChild, ContentChildren, effect, ElementRef, forwardRef, inject, InjectionToken, QueryList, signal, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, contentChild, effect, ElementRef, forwardRef, inject, InjectionToken, signal, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { findSingle, getOffset, getOuterWidth, getWidth, isRTL } from '@anguless/angulux-utils';
-import { AglTemplate, SharedModule } from '@anguless/angulux/api';
+import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { ChevronLeftIcon, ChevronRightIcon } from '@anguless/angulux/icons';
@@ -33,8 +33,8 @@ const TABLIST_INSTANCE = new InjectionToken<TabList>('TABLIST_INSTANCE');
                 [attr.data-pc-group-section]="'navigator'"
                 (click)="onPrevButtonClick()"
             >
-                @if (prevIconTemplate || _prevIconTemplate) {
-                    <ng-container *ngTemplateOutlet="prevIconTemplate || _prevIconTemplate" />
+                @if (prevIconTemplate()) {
+                    <ng-container *ngTemplateOutlet="prevIconTemplate()" />
                 } @else {
                     <svg data-p-icon="chevron-left" />
                 }
@@ -58,8 +58,8 @@ const TABLIST_INSTANCE = new InjectionToken<TabList>('TABLIST_INSTANCE');
                 [attr.data-pc-group-section]="'navigator'"
                 (click)="onNextButtonClick()"
             >
-                @if (nextIconTemplate || _nextIconTemplate) {
-                    <ng-container *ngTemplateOutlet="nextIconTemplate || _nextIconTemplate" />
+                @if (nextIconTemplate()) {
+                    <ng-container *ngTemplateOutlet="nextIconTemplate()" />
                 } @else {
                     <svg data-p-icon="chevron-right" />
                 }
@@ -89,15 +89,13 @@ export class TabList extends BaseComponent<TabListPassThrough> {
      * @type {TemplateRef<any> | undefined}
      * @group Templates
      */
-    @ContentChild('previcon', { descendants: false }) prevIconTemplate: TemplateRef<any> | undefined;
+    prevIconTemplate = contentChild<TemplateRef<any>>('previcon', { descendants: false });
     /**
      * A template reference variable that represents the next icon in a UI component.
      * @type {TemplateRef<any> | undefined}
      * @group Templates
      */
-    @ContentChild('nexticon', { descendants: false }) nextIconTemplate: TemplateRef<any> | undefined;
-
-    @ContentChildren(AglTemplate) templates: QueryList<AglTemplate> | undefined;
+    nextIconTemplate = contentChild<TemplateRef<any>>('nexticon', { descendants: false });
 
     @ViewChild('content') content: ElementRef<HTMLDivElement>;
 
@@ -150,23 +148,6 @@ export class TabList extends BaseComponent<TabListPassThrough> {
             this.updateButtonState();
             this.bindResizeObserver();
         }
-    }
-
-    _prevIconTemplate: TemplateRef<any> | undefined;
-
-    _nextIconTemplate: TemplateRef<any> | undefined;
-
-    onAfterContentInit() {
-        this.templates?.forEach((t) => {
-            switch (t.getType()) {
-                case 'previcon':
-                    this._prevIconTemplate = t.template;
-                    break;
-                case 'nexticon':
-                    this._nextIconTemplate = t.template;
-                    break;
-            }
-        });
     }
 
     onDestroy() {
