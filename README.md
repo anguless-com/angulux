@@ -70,34 +70,39 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Seven gates run on every commit and every pull request. They do not check style — each one
+Twelve gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
 |---|---|
 | `check:catalog` | a dependency version drifting off the pinned catalog |
 | `check:scope` | the transitive closure drifting off the 64 warranted modules |
-| `check:license` | any PrimeTek package from a post-MIT release entering the tree |
+| `check:license` | any PrimeTek package from a post-MIT release entering the tree — and, separately, any licence-flagged material sitting in `ref/` that `PROVENANCE.md` does not declare |
 | `check:names` | PrimeNG names surviving in selector, API or **trademark** positions — including inside bare strings, JSDoc links and DOM attributes |
 | `check:risk-coverage` | the browser gate's scope drifting off the risky decorators computed from source |
 | `check:language` | non-English text reaching a public repository |
 | `check:public-tree` | internal-only paths sitting in the git index (`.gitignore` does **not** untrack) |
+| `check:scope-names` | a bare `angulux`/`angulux-*` package reference surviving where the scoped `@anguless/*` name belongs |
+| `check:tsup` | the bundler leaking outside the four forks' own build scripts |
+| `check:action-inputs` | a workflow passing a `with:` key that its action does not declare — YAML nobody validates until it silently does nothing |
+| `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
+| `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all seven, ~3 seconds
+npm run check     # all twelve, ~3 seconds
 ```
 
-An eighth gate, `check:publishable`, runs after the build rather than in that suite: it
+One more gate, `check:publishable`, runs after the build rather than inside that suite: it
 packs every package and reads `package.json` back **out of the tarball**, so what gets
 inspected is the exact bytes npm would receive. It exists because a guard that read the
 source tree instead once passed while three packages were about to publish an
 uninstallable `workspace:` dependency.
 
-Two of the seven — `check:license` and `check:catalog` — **also run daily on a schedule**, and
+Two of them — `check:license` and `check:catalog` — **also run daily on a schedule**, and
 that is not redundancy. A pull-request run only proves the tree was clean *at our last
 commit*, while the boundary those two enforce lives outside this repository: PrimeTek
 decides which of their releases is the last MIT one, and that can change on a day when
-nobody here pushes anything. The other five gate our own code, so a commit is the only
+nobody here pushes anything. The rest gate our own code, so a commit is the only
 moment they can be wrong.
 
 On top of that: `provenance/manifest.json` records SHA-256 checksums and registry publish

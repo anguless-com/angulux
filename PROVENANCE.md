@@ -2,7 +2,7 @@
 
 > The record of where this code came from. **This is a legal document.** Every change to it
 > needs a stated reason.
-> Last updated: 2026-07-23
+> Last updated: 2026-07-27
 
 ## 1. Summary
 
@@ -99,8 +99,22 @@ After 21.1.9 the relationship with PrimeNG changes from **code synchronisation**
 **Not allowed:**
 - Copying any code from `primeng` >= 22 or from any commercial `@primeuix/*` version.
 - Decompiling, un-minifying, or transcribing compiled `.mjs` back into source.
-- Installing a commercial release into this repository in any form, including "just to look
-  at it".
+- Installing a commercial release anywhere it can be built, imported, or published from.
+
+**The one carve-out, and its price.** A commercial release may sit in `ref/` — and nowhere
+else — provided it is never built against, never imported, and never read at the code level.
+This exists because `ref/` is the repository's evidence shelf, not its supply chain: it is
+gitignored, absent from every lockfile, and absent from CI.
+
+The carve-out is not a relaxation, because it costs more than deleting the directory would.
+Anything parked there **must be entered in the register in section 7**, and
+`tools/check-prime-license.mjs` fails the build when the register and the disk disagree in
+*either* direction — undeclared material, or a declared row describing something no longer
+present. An unopened commercial install is a defensible thing to keep. An unrecorded one is
+not, and this repository will not build with one.
+
+What the carve-out still does not permit is any use of the material. Parking it is allowed;
+reading it is the red line in section 3, and that line does not move.
 
 Any feature ported from an upstream signal must record it in the commit message:
 `upstream-signal: <link to public docs>` — **never** a link to source code.
@@ -166,7 +180,7 @@ dropped · PrimeTek trademarks removed from the public API surface.
 
 | Command | What it blocks |
 |---|---|
-| `check:license` | a commercially licensed PrimeTek package reaching the dependency tree |
+| `check:license` | a commercially licensed PrimeTek package reaching the dependency tree, **and** any licence-flagged material in `ref/` that section 7 does not declare (in either direction — undeclared material, or a declared row that is no longer on disk) |
 | `check:scope` | the transitive closure drifting from the agreed 64 modules |
 | `check:catalog` | versions drifting out of the pinned catalog, and the forked family being referenced from a registry instead of the workspace |
 | `check:names` | leftover PrimeNG names in selector, API or trademark positions — including the forms that live **inside strings**, which TypeScript never reports |
@@ -178,3 +192,57 @@ that still contains pnpm-only protocols (`catalog:` / `workspace:`, which npm an
 not understand), or that carries publish-trap metadata — a wrong `license`, a `restricted`
 access level, an empty `repository`, or a non-English description. Publishing cannot be
 undone with git, so all of these fail the build instead.
+
+## 7. Quarantined reference material
+
+Everything in `ref/` that `tools/check-prime-license.mjs` flags is listed here. The gate reads
+this table back and fails the build if the disk and this register disagree in either
+direction, so the list below is not a description of the quarantine — it *is* the quarantine.
+
+Two things this table is careful not to conflate. The **Guard** column records what the
+licence guard mechanically concluded; the **Verified licence** column records what a human
+read in the package's own `LICENSE` file or on the registry. They disagree on purpose: the
+guard fails closed, so a PrimeTek package its boundary table has never seen is reported
+`unverified`, which is a statement about the table and not about the package. `@primeuix/mcp`
+is MIT and still appears here for exactly that reason.
+
+| Location | Package | Version | Guard | Verified licence |
+|---|---|---|---|---|
+| `ref/primeng` | `@primeuix/mcp` | `1.0.1` | unverified | **MIT** — registry metadata, checked 2026-07-27 |
+| `ref/primeng.dev` | `primeng` | `22.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeui/license-manager` | `1.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeicons/angular` | `8.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeicons/core` | `8.0.0` | unverified | **PrimeUI commercial** — `LICENSE.md` read by hand 2026-07-27 |
+| `ref/primeng.dev` | `@primeuix/motion` | `1.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeuix/styled` | `1.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeuix/styles` | `3.0.0` | commercial | PrimeUI commercial |
+| `ref/primeng.dev` | `@primeuix/utils` | `0.8.0` | commercial | PrimeUI commercial |
+
+### `ref/primeng` — the MIT evidence clone
+
+A `--depth 1` checkout of tag `21.1.9`, with nothing installed. Only its committed lockfile is
+read here, and the single row above comes from a devDependency of PrimeTek's own repository,
+not from anything angulux inherited. No action: it is MIT.
+
+### `ref/primeng.dev` — a commercial install, kept unopened
+
+A bare `npm install primeng@^22`, roughly 84 MB, created to see how PrimeNG's own v22 release
+approached Angular 22. **It cannot serve that purpose, and the attempt was abandoned on
+2026-07-27.** The published package contains zero `.ts` sources — only `.d.ts` and compiled
+`.mjs` — so the only route to the information runs through decompiling or un-minifying
+compiled output, which section 3 forbids outright. There is nothing to learn here that is
+lawful to learn.
+
+It is retained as licensing evidence: it is the artifact behind the boundary claims in
+section 3, and re-verifying those claims against a live install is cheaper than re-deriving
+them. Reading it at the code level remains prohibited; it is a specimen, not a source.
+
+**Re-report trigger.** Revisit this entry when any of the following happens:
+
+- the repository begins accepting outside contributors — an unopened commercial install is
+  defensible for a maintainer who can attest to it, and much harder to attest to for a team;
+- PrimeTek publishes a new major of any `prime*` package, which changes the versions above;
+- the register goes stale for any other reason, which the gate will report before a human
+  notices.
+
+Absent one of those, the correct action remains: leave it closed.
