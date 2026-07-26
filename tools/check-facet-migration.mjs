@@ -78,7 +78,10 @@ const LEGACY = [
     //                   FIRST. A pattern anchored on "shadow second" reads right past it.
     //                   INV-5 caught this one instead, which is the argument for keeping both:
     //                   the spellings keep arriving, the truthiness check does not care.
-    [/(?:(?:\w+\.)?_)?\w*[Tt]emplate\s*(?:\|\||\?\?)\s*(?:\w+\.)?_?\w*[Tt]emplate/g, '`xTemplate || _xTemplate` gate (any `||` / `??` / `<obj>._x` / lowercase / reversed spelling) — the silent-mismatch site'],
+    //   `this.tt._x`    treetable reads the parent through TWO segments. `(?:\w+\.)?` allows
+    //                   one; the receiver is now `(?:\w+\.)*`, because there is no reason the
+    //                   chain stops at two either.
+    [/(?:(?:\w+\.)*_)?\w*[Tt]emplate\s*(?:\|\||\?\?)\s*(?:\w+\.)*_?\w*[Tt]emplate/g, '`xTemplate || _xTemplate` gate (any `||` / `??` / `<obj>._x` / lowercase / reversed spelling) — the silent-mismatch site'],
     [/<ng-content select="agl-(?:header|footer)"/g, '<ng-content select="agl-header|agl-footer"> — the retired facet slot']
 ];
 
@@ -164,7 +167,7 @@ for (const mod of modules) {
         // one shipped in f744616 and left `p-virtualscroller-loader-mask` permanently off.
         // style/*.ts files read component state too; they are not templates, and they were the
         // last place anyone thought to look.
-        const boolRead = new RegExp(`!\\s*(?:\\w+\\.)?${field}\\b(?!\\s*\\()|(?:\\w+\\.)?${field}\\s*(?:\\|\\||&&)|(?:\\|\\||&&)\\s*(?:\\w+\\.)?${field}\\b(?!\\s*\\()`, 'g');
+        const boolRead = new RegExp(`!\\s*(?:\\w+\\.)*${field}\\b(?!\\s*\\()|(?:\\w+\\.)*${field}\\s*(?:\\|\\||&&)|(?:\\|\\||&&)\\s*(?:\\w+\\.)*${field}\\b(?!\\s*\\()`, 'g');
         for (const m of srcText.match(boolRead) ?? []) {
             problems.push([`packages/angulux/src/${mod}`, `\`${m.trim()}\` reads the slot without calling it — a signal is always truthy, so this branch silently never changes`]);
         }
@@ -191,6 +194,40 @@ for (const mod of modules) {
         for (const m of t.matchAll(/\.(templates|_\w*[Tt]emplate)\b/g)) {
             if (liveSlots.has(m[1])) continue;
             problems.push([rel(f), `spec still reads \`.${m[1]}\` — a member this module's migration deleted; on an \`any\`-typed fixture that compiles and passes while testing nothing`]);
+        }
+    }
+}
+
+// --- INV-6: no source template may still EMIT `aglTemplate=`, in any module
+//
+// The per-module checks all look inward, and this class of break goes the other way. `table`
+// and `treetable` forward icons down into their own `<agl-paginator>` and `<agl-checkbox>`
+// with `<ng-template aglTemplate="firstpagelinkicon">`; `paginator` does the same into the
+// `<agl-select>` it embeds. The moment the CHILD migrated, those forwards stopped arriving —
+// silently, because an unmatched `aglTemplate` is just an ng-template nobody reads. Twenty-seven
+// sites across three modules broke that way in f744616, 2d8cc74 and 25cef38, and every
+// per-module gate stayed green: the emitting module was still legacy, so nothing examined it,
+// and the receiving module's own spec had nothing to say about a parent it never sees.
+//
+// The rule is therefore global and blunt. Once any module has migrated, the receiving side is
+// being dismantled library-wide, and the only safe number of `aglTemplate=` emitters is zero.
+// `apps/` is in scope as well, and had to be: the verification app fed `aglTemplate="input"`
+// into `agl-treeTableCellEditor`, and a library-only scan called that clean. Consumers live
+// outside packages/ — so does the app the browser gate depends on.
+if (migratedCount > 0) {
+    const roots = [...modules.map((m) => join(SRC, m)), resolve(repoRoot, 'apps')];
+    for (const root of roots) {
+        let files;
+        try {
+            files = walk(root);
+        } catch {
+            continue;
+        }
+        for (const f of files.filter((x) => (x.endsWith('.ts') || x.endsWith('.html')) && !x.endsWith('.spec.ts') && !x.includes('/node_modules/'))) {
+            const t = readFileSync(f, 'utf8');
+            for (const m of t.matchAll(/<ng-template[^>]*\saglTemplate="([a-zA-Z]+)"/g)) {
+                problems.push([f.slice(repoRoot.length + 1), `emits \`aglTemplate="${m[1]}"\` into a child component — nothing listens for it any more, and an unmatched aglTemplate throws nothing`]);
+            }
         }
     }
 }

@@ -4,8 +4,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ContentChild,
-    ContentChildren,
+    contentChild,
     Directive,
     ElementRef,
     EventEmitter,
@@ -18,7 +17,6 @@ import {
     NgZone,
     numberAttribute,
     Output,
-    QueryList,
     SimpleChanges,
     TemplateRef,
     ViewChild,
@@ -48,7 +46,7 @@ import {
     reorderArray,
     resolveFieldData
 } from '@anguless/angulux-utils';
-import { BlockableUI, FilterMetadata, FilterService, AglTemplate, ScrollerOptions, SharedModule, SortMeta, TreeNode, TreeTableNode } from '@anguless/angulux/api';
+import { BlockableUI, FilterMetadata, FilterService, ScrollerOptions, SharedModule, SortMeta, TreeNode, TreeTableNode } from '@anguless/angulux/api';
 import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -134,14 +132,14 @@ export class TreeTableService {
         <div [aglBind]="ptm('mask')" [class]="cx('mask')" *ngIf="loading && showLoader" animate.enter="p-overlay-mask-enter-active" animate.leave="p-overlay-mask-leave-active">
             <i *ngIf="loadingIcon" [class]="cn(cx('loadingIcon'), 'pi-spin' + loadingIcon)"></i>
             <ng-container *ngIf="!loadingIcon">
-                <svg data-p-icon="spinner" *ngIf="!loadingIconTemplate && !_loadingIconTemplate" [spin]="true" [class]="cx('loadingIcon')" />
-                <span *ngIf="loadingIconTemplate || _loadingIconTemplate" [class]="cx('loadingIcon')">
-                    <ng-template *ngTemplateOutlet="loadingIconTemplate || _loadingIconTemplate"></ng-template>
+                <svg data-p-icon="spinner" *ngIf="!_loadingIconTemplate()" [spin]="true" [class]="cx('loadingIcon')" />
+                <span *ngIf="_loadingIconTemplate()" [class]="cx('loadingIcon')">
+                    <ng-template *ngTemplateOutlet="_loadingIconTemplate()"></ng-template>
                 </span>
             </ng-container>
         </div>
-        <div [aglBind]="ptm('header')" *ngIf="captionTemplate || _captionTemplate" [class]="cx('header')">
-            <ng-container *ngTemplateOutlet="captionTemplate || _captionTemplate"></ng-container>
+        <div [aglBind]="ptm('header')" *ngIf="_captionTemplate()" [class]="cx('header')">
+            <ng-container *ngTemplateOutlet="_captionTemplate()"></ng-container>
         </div>
         <agl-paginator
             [pt]="ptm('pcPaginator')"
@@ -154,44 +152,44 @@ export class TreeTableService {
             (onPageChange)="onPageChange($event)"
             [rowsPerPageOptions]="rowsPerPageOptions"
             *ngIf="paginator && (paginatorPosition === 'top' || paginatorPosition == 'both')"
-            [templateLeft]="paginatorLeftTemplate ?? _paginatorLeftTemplate"
-            [templateRight]="paginatorRightTemplate ?? _paginatorRightTemplate"
+            [templateLeft]="_paginatorLeftTemplate()"
+            [templateRight]="_paginatorRightTemplate()"
             [appendTo]="paginatorDropdownAppendTo"
             [currentPageReportTemplate]="currentPageReportTemplate"
             [showFirstLastIcon]="showFirstLastIcon"
-            [dropdownItemTemplate]="paginatorDropdownItemTemplate ?? _paginatorDropdownItemTemplate"
+            [dropdownItemTemplate]="_paginatorDropdownItemTemplate()"
             [showCurrentPageReport]="showCurrentPageReport"
             [showJumpToPageDropdown]="showJumpToPageDropdown"
             [showPageLinks]="showPageLinks"
             [locale]="paginatorLocale"
             [unstyled]="unstyled()"
         >
-            <ng-template aglTemplate="firstpagelinkicon" *ngIf="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate"></ng-container>
+            <ng-template #firstpagelinkicon *ngIf="_paginatorFirstPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorFirstPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="previouspagelinkicon" *ngIf="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate"></ng-container>
+            <ng-template #previouspagelinkicon *ngIf="_paginatorPreviousPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorPreviousPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="lastpagelinkicon" *ngIf="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate"></ng-container>
+            <ng-template #lastpagelinkicon *ngIf="_paginatorLastPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorLastPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="nextpagelinkicon" *ngIf="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate"></ng-container>
+            <ng-template #nextpagelinkicon *ngIf="_paginatorNextPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorNextPageLinkIconTemplate()"></ng-container>
             </ng-template>
         </agl-paginator>
 
         <div [aglBind]="ptm('wrapper')" [class]="cx('wrapper')" *ngIf="!scrollable">
             <table role="treegrid" [aglBind]="ptm('table')" #table [ngClass]="tableStyleClass" [ngStyle]="tableStyle">
-                <ng-container *ngTemplateOutlet="colGroupTemplate || _colGroupTemplate; context: { $implicit: columns }"></ng-container>
+                <ng-container *ngTemplateOutlet="_colGroupTemplate(); context: { $implicit: columns }"></ng-container>
                 <thead role="rowgroup" [class]="cx('thead')" [aglBind]="ptm('thead')">
-                    <ng-container *ngTemplateOutlet="headerTemplate || _headerTemplate; context: { $implicit: columns }"></ng-container>
+                    <ng-container *ngTemplateOutlet="_headerTemplate(); context: { $implicit: columns }"></ng-container>
                 </thead>
-                <tbody [class]="cx('tbody')" [aglBind]="ptm('tbody')" role="rowgroup" [unstyled]="unstyled()" [aglTreeTableBody]="columns" [aglTreeTableBodyTemplate]="bodyTemplate ?? _bodyTemplate"></tbody>
+                <tbody [class]="cx('tbody')" [aglBind]="ptm('tbody')" role="rowgroup" [unstyled]="unstyled()" [aglTreeTableBody]="columns" [aglTreeTableBodyTemplate]="_bodyTemplate()"></tbody>
                 <tfoot [class]="cx('tfoot')" [aglBind]="ptm('tfoot')" role="rowgroup">
-                    <ng-container *ngTemplateOutlet="footerTemplate || _footerTemplate; context: { $implicit: columns }"></ng-container>
+                    <ng-container *ngTemplateOutlet="_footerTemplate(); context: { $implicit: columns }"></ng-container>
                 </tfoot>
             </table>
         </div>
@@ -199,7 +197,7 @@ export class TreeTableService {
         <div [aglBind]="ptm('scrollableWrapper')" [class]="cx('scrollableWrapper')" *ngIf="scrollable">
             <div
                 [ngClass]="[cx('scrollableView'), cx('frozenView')]"
-                *ngIf="frozenColumns || frozenBodyTemplate || _frozenBodyTemplate"
+                *ngIf="frozenColumns || _frozenBodyTemplate()"
                 #scrollableFrozenView
                 [ttScrollableView]="frozenColumns"
                 [unstyled]="unstyled()"
@@ -231,46 +229,46 @@ export class TreeTableService {
             (onPageChange)="onPageChange($event)"
             [rowsPerPageOptions]="rowsPerPageOptions"
             *ngIf="paginator && (paginatorPosition === 'bottom' || paginatorPosition == 'both')"
-            [templateLeft]="paginatorLeftTemplate ?? _paginatorLeftTemplate"
-            [templateRight]="paginatorRightTemplate ?? _paginatorRightTemplate"
+            [templateLeft]="_paginatorLeftTemplate()"
+            [templateRight]="_paginatorRightTemplate()"
             [appendTo]="paginatorDropdownAppendTo"
             [currentPageReportTemplate]="currentPageReportTemplate"
             [showFirstLastIcon]="showFirstLastIcon"
-            [dropdownItemTemplate]="paginatorDropdownItemTemplate ?? _paginatorDropdownItemTemplate"
+            [dropdownItemTemplate]="_paginatorDropdownItemTemplate()"
             [showCurrentPageReport]="showCurrentPageReport"
             [showJumpToPageDropdown]="showJumpToPageDropdown"
             [showPageLinks]="showPageLinks"
             [locale]="paginatorLocale"
             [unstyled]="unstyled()"
         >
-            <ng-template aglTemplate="firstpagelinkicon" *ngIf="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorFirstPageLinkIconTemplate || _paginatorFirstPageLinkIconTemplate"></ng-container>
+            <ng-template #firstpagelinkicon *ngIf="_paginatorFirstPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorFirstPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="previouspagelinkicon" *ngIf="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorPreviousPageLinkIconTemplate || _paginatorPreviousPageLinkIconTemplate"></ng-container>
+            <ng-template #previouspagelinkicon *ngIf="_paginatorPreviousPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorPreviousPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="lastpagelinkicon" *ngIf="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorLastPageLinkIconTemplate || _paginatorLastPageLinkIconTemplate"></ng-container>
+            <ng-template #lastpagelinkicon *ngIf="_paginatorLastPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorLastPageLinkIconTemplate()"></ng-container>
             </ng-template>
 
-            <ng-template aglTemplate="nextpagelinkicon" *ngIf="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate">
-                <ng-container *ngTemplateOutlet="paginatorNextPageLinkIconTemplate || _paginatorNextPageLinkIconTemplate"></ng-container>
+            <ng-template #nextpagelinkicon *ngIf="_paginatorNextPageLinkIconTemplate()">
+                <ng-container *ngTemplateOutlet="_paginatorNextPageLinkIconTemplate()"></ng-container>
             </ng-template>
         </agl-paginator>
-        <div [aglBind]="ptm('footer')" *ngIf="summaryTemplate || _summaryTemplate" [class]="cx('footer')">
-            <ng-container *ngTemplateOutlet="summaryTemplate || _summaryTemplate"></ng-container>
+        <div [aglBind]="ptm('footer')" *ngIf="_summaryTemplate()" [class]="cx('footer')">
+            <ng-container *ngTemplateOutlet="_summaryTemplate()"></ng-container>
         </div>
 
         <div [aglBind]="ptm('columnResizerHelper')" #resizeHelper [class]="cx('columnResizerHelper')" [style.display]="'none'" *ngIf="resizableColumns"></div>
         <span [aglBind]="ptm('reorderIndicatorUp')" #reorderIndicatorUp [class]="cx('reorderIndicatorUp')" [style.display]="'none'" *ngIf="reorderableColumns">
-            <svg data-p-icon="arrow-down" *ngIf="!reorderIndicatorUpIconTemplate && !_reorderIndicatorUpIconTemplate" />
-            <ng-template *ngTemplateOutlet="reorderIndicatorUpIconTemplate || _reorderIndicatorUpIconTemplate"></ng-template>
+            <svg data-p-icon="arrow-down" *ngIf="!_reorderIndicatorUpIconTemplate()" />
+            <ng-template *ngTemplateOutlet="_reorderIndicatorUpIconTemplate()"></ng-template>
         </span>
         <span [aglBind]="ptm('reorderIndicatorDown')" #reorderIndicatorDown [class]="cx('reorderIndicatorDown')" [style.display]="'none'" *ngIf="reorderableColumns">
-            <svg data-p-icon="arrow-up" *ngIf="!reorderIndicatorDownIconTemplate && !_reorderIndicatorDownIconTemplate" />
-            <ng-template *ngTemplateOutlet="reorderIndicatorDownIconTemplate || _reorderIndicatorDownIconTemplate"></ng-template>
+            <svg data-p-icon="arrow-up" *ngIf="!_reorderIndicatorDownIconTemplate()" />
+            <ng-template *ngTemplateOutlet="_reorderIndicatorDownIconTemplate()"></ng-template>
         </span>
     `,
     providers: [TreeTableService, TreeTableStyle, { provide: TREETABLE_INSTANCE, useExisting: TreeTable }, { provide: PARENT_INSTANCE, useExisting: TreeTable }],
@@ -805,83 +803,57 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
 
     filterTimeout: any;
 
-    @ContentChild('colgroup', { descendants: false }) _colGroupTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    colGroupTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _colGroupTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('colgroup', { descendants: false });
 
-    @ContentChild('caption', { descendants: false }) _captionTemplate: Nullable<TemplateRef<void>>;
-    captionTemplate: Nullable<TemplateRef<void>>;
+    _captionTemplate = contentChild<TemplateRef<void>>('caption', { descendants: false });
 
-    @ContentChild('header', { descendants: false }) _headerTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    headerTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _headerTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('header', { descendants: false });
 
-    @ContentChild('body', { descendants: false }) _bodyTemplate: Nullable<TemplateRef<TreeTableBodyTemplateContext>>;
-    bodyTemplate: Nullable<TemplateRef<TreeTableBodyTemplateContext>>;
+    _bodyTemplate = contentChild<TemplateRef<TreeTableBodyTemplateContext>>('body', { descendants: false });
 
-    @ContentChild('footer', { descendants: false }) _footerTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    footerTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _footerTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('footer', { descendants: false });
 
-    @ContentChild('summary', { descendants: false }) _summaryTemplate: Nullable<TemplateRef<void>>;
-    summaryTemplate: Nullable<TemplateRef<void>>;
+    _summaryTemplate = contentChild<TemplateRef<void>>('summary', { descendants: false });
 
-    @ContentChild('emptymessage', { descendants: false }) _emptyMessageTemplate: Nullable<TemplateRef<TreeTableEmptyMessageTemplateContext>>;
-    emptyMessageTemplate: Nullable<TemplateRef<TreeTableEmptyMessageTemplateContext>>;
+    _emptyMessageTemplate = contentChild<TemplateRef<TreeTableEmptyMessageTemplateContext>>('emptymessage', { descendants: false });
 
-    @ContentChild('paginatorleft', { descendants: false }) _paginatorLeftTemplate: Nullable<TemplateRef<void>>;
-    paginatorLeftTemplate: Nullable<TemplateRef<void>>;
+    _paginatorLeftTemplate = contentChild<TemplateRef<void>>('paginatorleft', { descendants: false });
 
-    @ContentChild('paginatorright', { descendants: false }) _paginatorRightTemplate: Nullable<TemplateRef<void>>;
-    paginatorRightTemplate: Nullable<TemplateRef<void>>;
+    _paginatorRightTemplate = contentChild<TemplateRef<void>>('paginatorright', { descendants: false });
 
-    @ContentChild('paginatordropdownitem', { descendants: false }) _paginatorDropdownItemTemplate: Nullable<TemplateRef<void>>;
-    paginatorDropdownItemTemplate: Nullable<TemplateRef<void>>;
+    _paginatorDropdownItemTemplate = contentChild<TemplateRef<void>>('paginatordropdownitem', { descendants: false });
 
-    @ContentChild('frozenheader', { descendants: false }) _frozenHeaderTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    frozenHeaderTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _frozenHeaderTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('frozenheader', { descendants: false });
 
-    @ContentChild('frozenbody', { descendants: false }) _frozenBodyTemplate: Nullable<TemplateRef<void>>;
-    frozenBodyTemplate: Nullable<TemplateRef<void>>;
+    _frozenBodyTemplate = contentChild<TemplateRef<void>>('frozenbody', { descendants: false });
 
-    @ContentChild('frozenfooter', { descendants: false }) _frozenFooterTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    frozenFooterTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _frozenFooterTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('frozenfooter', { descendants: false });
 
-    @ContentChild('frozencolgroup', { descendants: false }) _frozenColGroupTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
-    frozenColGroupTemplate: Nullable<TemplateRef<TreeTableColumnsTemplateContext>>;
+    _frozenColGroupTemplate = contentChild<TemplateRef<TreeTableColumnsTemplateContext>>('frozencolgroup', { descendants: false });
 
-    @ContentChild('loadingicon', { descendants: false }) _loadingIconTemplate: Nullable<TemplateRef<void>>;
-    loadingIconTemplate: Nullable<TemplateRef<void>>;
+    _loadingIconTemplate = contentChild<TemplateRef<void>>('loadingicon', { descendants: false });
 
-    @ContentChild('reorderindicatorupicon', { descendants: false }) _reorderIndicatorUpIconTemplate: Nullable<TemplateRef<void>>;
-    reorderIndicatorUpIconTemplate: Nullable<TemplateRef<void>>;
+    _reorderIndicatorUpIconTemplate = contentChild<TemplateRef<void>>('reorderindicatorupicon', { descendants: false });
 
-    @ContentChild('reorderindicatordownicon', { descendants: false }) _reorderIndicatorDownIconTemplate: Nullable<TemplateRef<void>>;
-    reorderIndicatorDownIconTemplate: Nullable<TemplateRef<void>>;
+    _reorderIndicatorDownIconTemplate = contentChild<TemplateRef<void>>('reorderindicatordownicon', { descendants: false });
 
-    @ContentChild('sorticon', { descendants: false }) _sortIconTemplate: Nullable<TemplateRef<TreeTableSortIconTemplateContext>>;
-    sortIconTemplate: Nullable<TemplateRef<TreeTableSortIconTemplateContext>>;
+    _sortIconTemplate = contentChild<TemplateRef<TreeTableSortIconTemplateContext>>('sorticon', { descendants: false });
 
-    @ContentChild('checkboxicon', { descendants: false }) _checkboxIconTemplate: Nullable<TemplateRef<TreeTableCheckboxIconTemplateContext>>;
-    checkboxIconTemplate: Nullable<TemplateRef<TreeTableCheckboxIconTemplateContext>>;
+    _checkboxIconTemplate = contentChild<TemplateRef<TreeTableCheckboxIconTemplateContext>>('checkboxicon', { descendants: false });
 
-    @ContentChild('headercheckboxicon', { descendants: false }) _headerCheckboxIconTemplate: Nullable<TemplateRef<TreeTableHeaderCheckboxIconTemplateContext>>;
-    headerCheckboxIconTemplate: Nullable<TemplateRef<TreeTableHeaderCheckboxIconTemplateContext>>;
+    _headerCheckboxIconTemplate = contentChild<TemplateRef<TreeTableHeaderCheckboxIconTemplateContext>>('headercheckboxicon', { descendants: false });
 
-    @ContentChild('togglericon', { descendants: false }) _togglerIconTemplate: Nullable<TemplateRef<TreeTableTogglerIconTemplateContext>>;
-    togglerIconTemplate: Nullable<TemplateRef<TreeTableTogglerIconTemplateContext>>;
+    _togglerIconTemplate = contentChild<TemplateRef<TreeTableTogglerIconTemplateContext>>('togglericon', { descendants: false });
 
-    @ContentChild('paginatorfirstpagelinkicon', { descendants: false }) _paginatorFirstPageLinkIconTemplate: Nullable<TemplateRef<void>>;
-    paginatorFirstPageLinkIconTemplate: Nullable<TemplateRef<void>>;
+    _paginatorFirstPageLinkIconTemplate = contentChild<TemplateRef<void>>('paginatorfirstpagelinkicon', { descendants: false });
 
-    @ContentChild('paginatorlastpagelinkicon', { descendants: false }) _paginatorLastPageLinkIconTemplate: Nullable<TemplateRef<void>>;
-    paginatorLastPageLinkIconTemplate: Nullable<TemplateRef<void>>;
+    _paginatorLastPageLinkIconTemplate = contentChild<TemplateRef<void>>('paginatorlastpagelinkicon', { descendants: false });
 
-    @ContentChild('paginatorpreviouspagelinkicon', { descendants: false }) _paginatorPreviousPageLinkIconTemplate: Nullable<TemplateRef<void>>;
-    paginatorPreviousPageLinkIconTemplate: Nullable<TemplateRef<void>>;
+    _paginatorPreviousPageLinkIconTemplate = contentChild<TemplateRef<void>>('paginatorpreviouspagelinkicon', { descendants: false });
 
-    @ContentChild('paginatornextpagelinkicon', { descendants: false }) _paginatorNextPageLinkIconTemplate: Nullable<TemplateRef<void>>;
-    paginatorNextPageLinkIconTemplate: Nullable<TemplateRef<void>>;
+    _paginatorNextPageLinkIconTemplate = contentChild<TemplateRef<void>>('paginatornextpagelinkicon', { descendants: false });
 
-    @ContentChild('loader', { descendants: false }) _loaderTemplate: Nullable<TemplateRef<void>>;
-    loaderTemplate: Nullable<TemplateRef<void>>;
+    _loaderTemplate = contentChild<TemplateRef<void>>('loader', { descendants: false });
 
     lastResizerHelperX: Nullable<number>;
 
@@ -922,117 +894,7 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
         this.initialized = true;
     }
 
-    @ContentChildren(AglTemplate) templates: Nullable<QueryList<AglTemplate>>;
 
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'caption':
-                    this.captionTemplate = item.template;
-                    break;
-
-                case 'header':
-                    this.headerTemplate = item.template;
-                    break;
-
-                case 'body':
-                    this.bodyTemplate = item.template;
-                    break;
-
-                case 'footer':
-                    this.footerTemplate = item.template;
-                    break;
-
-                case 'summary':
-                    this.summaryTemplate = item.template;
-                    break;
-
-                case 'colgroup':
-                    this.colGroupTemplate = item.template;
-                    break;
-
-                case 'emptymessage':
-                    this.emptyMessageTemplate = item.template;
-                    break;
-
-                case 'paginatorleft':
-                    this.paginatorLeftTemplate = item.template;
-                    break;
-
-                case 'paginatorright':
-                    this.paginatorRightTemplate = item.template;
-                    break;
-
-                case 'paginatordropdownitem':
-                    this.paginatorDropdownItemTemplate = item.template;
-                    break;
-
-                case 'frozenheader':
-                    this.frozenHeaderTemplate = item.template;
-                    break;
-
-                case 'frozenbody':
-                    this.frozenBodyTemplate = item.template;
-                    break;
-
-                case 'frozenfooter':
-                    this.frozenFooterTemplate = item.template;
-                    break;
-
-                case 'frozencolgroup':
-                    this.frozenColGroupTemplate = item.template;
-                    break;
-
-                case 'loadingicon':
-                    this.loadingIconTemplate = item.template;
-                    break;
-
-                case 'reorderindicatorupicon':
-                    this.reorderIndicatorUpIconTemplate = item.template;
-                    break;
-
-                case 'reorderindicatordownicon':
-                    this.reorderIndicatorDownIconTemplate = item.template;
-                    break;
-
-                case 'sorticon':
-                    this.sortIconTemplate = item.template;
-                    break;
-
-                case 'checkboxicon':
-                    this.checkboxIconTemplate = item.template;
-                    break;
-
-                case 'headercheckboxicon':
-                    this.headerCheckboxIconTemplate = item.template;
-                    break;
-
-                case 'togglericon':
-                    this.togglerIconTemplate = item.template;
-                    break;
-
-                case 'paginatorfirstpagelinkicon':
-                    this.paginatorFirstPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatorlastpagelinkicon':
-                    this.paginatorLastPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatorpreviouspagelinkicon':
-                    this.paginatorPreviousPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'paginatornextpagelinkicon':
-                    this.paginatorNextPageLinkIconTemplate = item.template;
-                    break;
-
-                case 'loader':
-                    this.loaderTemplate = item.template;
-                    break;
-            }
-        });
-    }
 
     filterService = inject(FilterService);
 
@@ -2380,7 +2242,7 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
             </ng-container>
         </ng-template>
         <ng-container *ngIf="tt.isEmpty()">
-            <ng-container *ngTemplateOutlet="tt.emptyMessageTemplate || tt._emptyMessageTemplate; context: { $implicit: columns, frozen: frozen }"></ng-container>
+            <ng-container *ngTemplateOutlet="tt._emptyMessageTemplate(); context: { $implicit: columns, frozen: frozen }"></ng-container>
         </ng-container>
     `,
     encapsulation: ViewEncapsulation.None,
@@ -2450,11 +2312,11 @@ export class TTBody extends BaseComponent {
             <div #scrollHeaderBox [class]="cx('scrollableHeaderBox')" [aglBind]="ptm('scrollableHeaderBox')">
                 <table [class]="cn(cx('scrollableHeaderTable'), tt.tableStyleClass)" [aglBind]="ptm('scrollableHeaderTable')" [ngStyle]="tt.tableStyle">
                     <ng-container
-                        *ngTemplateOutlet="frozen ? tt.frozenColGroupTemplate || tt._frozenColGroupTemplate || tt.colGroupTemplate || tt._colGroupTemplate : tt.colGroupTemplate || tt._colGroupTemplate; context: { $implicit: columns }"
+                        *ngTemplateOutlet="frozen ? tt._frozenColGroupTemplate() || tt._colGroupTemplate() : tt._colGroupTemplate(); context: { $implicit: columns }"
                     ></ng-container>
                     <thead role="rowgroup" [class]="cx('thead')" [aglBind]="ptm('thead')">
                         <ng-container
-                            *ngTemplateOutlet="frozen ? tt.frozenHeaderTemplate || tt._frozenHeaderTemplate || tt.headerTemplate || tt._headerTemplate : tt.headerTemplate || tt._headerTemplate; context: { $implicit: columns }"
+                            *ngTemplateOutlet="frozen ? tt._frozenHeaderTemplate() || tt._headerTemplate() : tt._headerTemplate(); context: { $implicit: columns }"
                         ></ng-container>
                     </thead>
                 </table>
@@ -2477,9 +2339,9 @@ export class TTBody extends BaseComponent {
             <ng-template #content let-items let-scrollerOptions="options">
                 <ng-container *ngTemplateOutlet="buildInItems; context: { $implicit: items, options: scrollerOptions }"></ng-container>
             </ng-template>
-            <ng-container *ngIf="tt.loaderTemplate || tt._loaderTemplate">
+            <ng-container *ngIf="tt._loaderTemplate()">
                 <ng-template #loader let-scrollerOptions="options">
-                    <ng-container *ngTemplateOutlet="tt.loaderTemplate || tt._loaderTemplate; context: { options: scrollerOptions }"></ng-container>
+                    <ng-container *ngTemplateOutlet="tt._loaderTemplate(); context: { options: scrollerOptions }"></ng-container>
                 </ng-template>
             </ng-container>
         </agl-scroller>
@@ -2500,7 +2362,7 @@ export class TTBody extends BaseComponent {
         <ng-template #buildInItems let-items let-scrollerOptions="options">
             <table role="treegrid" #scrollTable [aglBind]="ptm('table')" [class]="tt.tableStyleClass" [ngClass]="scrollerOptions.contentStyleClass" [ngStyle]="tt.tableStyle" [style]="scrollerOptions.contentStyle">
                 <ng-container
-                    *ngTemplateOutlet="frozen ? tt.frozenColGroupTemplate || tt._frozenColGroupTemplate || tt.colGroupTemplate || tt._colGroupTemplate : tt.colGroupTemplate || tt._colGroupTemplate; context: { $implicit: columns }"
+                    *ngTemplateOutlet="frozen ? tt._frozenColGroupTemplate() || tt._colGroupTemplate() : tt._colGroupTemplate(); context: { $implicit: columns }"
                 ></ng-container>
                 <tbody
                     [aglBind]="ptm('tbody')"
@@ -2509,7 +2371,7 @@ export class TTBody extends BaseComponent {
                     [aglBind]="ptm('tbody')"
                     [aglTreeTableBody]="columns"
                     [unstyled]="unstyled()"
-                    [aglTreeTableBodyTemplate]="frozen ? tt.frozenBodyTemplate || tt._frozenBodyTemplate || tt.bodyTemplate || tt._bodyTemplate : tt.bodyTemplate || tt._bodyTemplate"
+                    [aglTreeTableBodyTemplate]="frozen ? tt._frozenBodyTemplate() || tt._bodyTemplate() : tt._bodyTemplate()"
                     [serializedNodes]="items"
                     [frozen]="frozen"
                 ></tbody>
@@ -2517,15 +2379,15 @@ export class TTBody extends BaseComponent {
             <div #scrollableAligner [style.background-color]="'transparent'" *ngIf="frozen"></div>
         </ng-template>
 
-        <div #scrollFooter *ngIf="tt.footerTemplate || tt._footerTemplate" [class]="cx('scrollableFooter')" [aglBind]="ptm('scrollableFooter')">
+        <div #scrollFooter *ngIf="tt._footerTemplate()" [class]="cx('scrollableFooter')" [aglBind]="ptm('scrollableFooter')">
             <div #scrollFooterBox [class]="cx('scrollableFooterBox')" [aglBind]="ptm('scrollableFooterBox')">
                 <table [class]="cx('scrollableFooterTable')" [ngClass]="tt.tableStyleClass" [ngStyle]="tt.tableStyle" [aglBind]="ptm('scrollableFooterTable')">
                     <ng-container
-                        *ngTemplateOutlet="frozen ? tt.frozenColGroupTemplate || tt._frozenColGroupTemplate || tt.colGroupTemplate || tt._colGroupTemplate : tt.colGroupTemplate || tt._colGroupTemplate; context: { $implicit: columns }"
+                        *ngTemplateOutlet="frozen ? tt._frozenColGroupTemplate() || tt._colGroupTemplate() : tt._colGroupTemplate(); context: { $implicit: columns }"
                     ></ng-container>
                     <tfoot role="rowgroup" [class]="cx('tfoot')" [aglBind]="ptm('tfoot')">
                         <ng-container
-                            *ngTemplateOutlet="frozen ? tt.frozenFooterTemplate || tt._frozenFooterTemplate || tt.footerTemplate || tt._footerTemplate : tt.footerTemplate || tt._footerTemplate; context: { $implicit: columns }"
+                            *ngTemplateOutlet="frozen ? tt._frozenFooterTemplate() || tt._footerTemplate() : tt._footerTemplate(); context: { $implicit: columns }"
                         ></ng-container>
                     </tfoot>
                 </table>
@@ -2596,7 +2458,7 @@ export class TTScrollableView extends BaseComponent {
     onAfterViewInit() {
         if (isPlatformBrowser(this.platformId)) {
             if (!this.frozen) {
-                if (this.tt.frozenColumns || this.tt.frozenBodyTemplate || this.tt._frozenBodyTemplate) {
+                if (this.tt.frozenColumns || this.tt._frozenBodyTemplate()) {
                     addClass(this.el.nativeElement, 'p-treetable-unfrozen-view');
                 }
 
@@ -2837,13 +2699,13 @@ export class TTSortableColumn extends BaseComponent {
     selector: 'agl-treeTableSortIcon, agl-treetable-sort-icon, agl-tree-table-sort-icon',
     standalone: false,
     template: `
-        <ng-container *ngIf="!tt.sortIconTemplate && !tt._sortIconTemplate">
+        <ng-container *ngIf="!tt._sortIconTemplate()">
             <svg data-p-icon="sort-alt" [class]="cx('sortableColumnIcon')" [aglBind]="ptm('sortableColumnIcon')" *ngIf="sortOrder === 0" />
             <svg data-p-icon="sort-amount-up-alt" [class]="cx('sortableColumnIcon')" *ngIf="sortOrder === 1" [aglBind]="ptm('sortableColumnIcon')" />
             <svg data-p-icon="sort-amount-down" [class]="cx('sortableColumnIcon')" *ngIf="sortOrder === -1" [aglBind]="ptm('sortableColumnIcon')" />
         </ng-container>
-        <span *ngIf="tt.sortIconTemplate || tt._sortIconTemplate" [class]="cx('sortableColumnIcon')" [aglBind]="ptm('sortableColumnIcon')">
-            <ng-template *ngTemplateOutlet="tt.sortIconTemplate || tt._sortIconTemplate; context: { $implicit: sortOrder }"></ng-template>
+        <span *ngIf="tt._sortIconTemplate()" [class]="cx('sortableColumnIcon')" [aglBind]="ptm('sortableColumnIcon')">
+            <ng-template *ngTemplateOutlet="tt._sortIconTemplate(); context: { $implicit: sortOrder }"></ng-template>
         </span>
         <agl-badge *ngIf="isMultiSorted()" [class]="cx('sortableColumnBadge')" [value]="getBadgeValue()" size="small" [pt]="ptm('pcSortableColumnBadge')" [unstyled]="unstyled()"></agl-badge>
     `,
@@ -3329,9 +3191,9 @@ export class TTContextMenuRow extends BaseComponent {
     standalone: false,
     template: `
         <agl-checkbox [ngModel]="checked" [pt]="ptm('pcRowCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="disabled" [indeterminate]="partialChecked" [styleClass]="cx('pcNodeCheckbox')" [tabIndex]="-1" [unstyled]="unstyled()">
-            <ng-container *ngIf="tt.checkboxIconTemplate || tt._checkboxIconTemplate">
-                <ng-template aglTemplate="icon">
-                    <ng-template *ngTemplateOutlet="tt.checkboxIconTemplate || tt._checkboxIconTemplate; context: { $implicit: checked, partialSelected: partialChecked }"></ng-template>
+            <ng-container *ngIf="tt._checkboxIconTemplate()">
+                <ng-template #icon >
+                    <ng-template *ngTemplateOutlet="tt._checkboxIconTemplate(); context: { $implicit: checked, partialSelected: partialChecked }"></ng-template>
                 </ng-template>
             </ng-container>
         </agl-checkbox>
@@ -3425,9 +3287,9 @@ export class TTCheckbox extends BaseComponent {
     standalone: false,
     template: `
         <agl-checkbox [ngModel]="checked" [pt]="ptm('pcHeaderCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="!tt.value || tt.value.length === 0" [unstyled]="unstyled()">
-            <ng-container *ngIf="tt.headerCheckboxIconTemplate || tt._headerCheckboxIconTemplate">
-                <ng-template aglTemplate="icon">
-                    <ng-template *ngTemplateOutlet="tt.headerCheckboxIconTemplate || tt._headerCheckboxIconTemplate; context: { $implicit: checked }"></ng-template>
+            <ng-container *ngIf="tt._headerCheckboxIconTemplate()">
+                <ng-template #icon >
+                    <ng-template *ngTemplateOutlet="tt._headerCheckboxIconTemplate(); context: { $implicit: checked }"></ng-template>
                 </ng-template>
             </ng-container>
         </agl-checkbox>
@@ -3707,10 +3569,10 @@ export class TTEditableColumn extends BaseComponent {
     standalone: false,
     template: `
         <ng-container *ngIf="tt.editingCell === editableColumn.el.nativeElement">
-            <ng-container *ngTemplateOutlet="inputTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="inputTemplate()"></ng-container>
         </ng-container>
         <ng-container *ngIf="!tt.editingCell || tt.editingCell !== editableColumn.el.nativeElement">
-            <ng-container *ngTemplateOutlet="outputTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="outputTemplate()"></ng-container>
         </ng-container>
     `,
     encapsulation: ViewEncapsulation.None,
@@ -3725,31 +3587,23 @@ export class TreeTableCellEditor extends BaseComponent {
         this.bindDirectiveInstance.setAttrs(this.ptm('cellEditor'));
     }
 
-    @ContentChildren(AglTemplate) templates: Nullable<QueryList<AglTemplate>>;
+    /**
+     * Editing state of the cell.
+     * @group Templates
+     */
+    inputTemplate = contentChild<TemplateRef<any>>('input');
 
-    inputTemplate: Nullable<TemplateRef<any>>;
-
-    outputTemplate: Nullable<TemplateRef<any>>;
+    /**
+     * Display state of the cell.
+     * @group Templates
+     */
+    outputTemplate = contentChild<TemplateRef<any>>('output');
 
     constructor(
         public tt: TreeTable,
         public editableColumn: TTEditableColumn
     ) {
         super();
-    }
-
-    onAfterContentInit() {
-        (this.templates as QueryList<AglTemplate>).forEach((item) => {
-            switch (item.getType()) {
-                case 'input':
-                    this.inputTemplate = item.template;
-                    break;
-
-                case 'output':
-                    this.outputTemplate = item.template;
-                    break;
-            }
-        });
     }
 }
 
@@ -3997,11 +3851,11 @@ export class TTRow extends BaseComponent {
             [attr.data-pc-group-section]="'rowactionbutton'"
             [attr.aria-label]="toggleButtonAriaLabel"
         >
-            <ng-container *ngIf="!tt.togglerIconTemplate && !tt._togglerIconTemplate">
+            <ng-container *ngIf="!tt._togglerIconTemplate()">
                 <svg data-p-icon="chevron-down" *ngIf="rowNode.node.expanded" [aglBind]="ptm('nodetoggleicon')" [attr.aria-hidden]="true" />
                 <svg data-p-icon="chevron-right" *ngIf="!rowNode.node.expanded" [aglBind]="ptm('nodetoggleicon')" [attr.aria-hidden]="true" />
             </ng-container>
-            <ng-template *ngTemplateOutlet="tt.togglerIconTemplate || tt._togglerIconTemplate; context: { $implicit: rowNode.node.expanded }"></ng-template>
+            <ng-template *ngTemplateOutlet="tt._togglerIconTemplate(); context: { $implicit: rowNode.node.expanded }"></ng-template>
         </button>
     `,
     encapsulation: ViewEncapsulation.None,

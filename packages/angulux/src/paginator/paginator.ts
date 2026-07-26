@@ -87,13 +87,13 @@ const PAGINATOR_INSTANCE = new InjectionToken<Paginator>('PAGINATOR_INSTANCE');
             [pt]="ptm('pcJumpToPageDropdown')"
             [unstyled]="unstyled()"
         >
-            <ng-template aglTemplate="selectedItem">{{ currentPageReport }}</ng-template>
+            <ng-template #selectedItem >{{ currentPageReport }}</ng-template>
             <ng-container *ngIf="jumpToPageItemTemplate">
-                <ng-template let-item aglTemplate="item">
+                <ng-template #item let-item>
                     <ng-container *ngTemplateOutlet="jumpToPageItemTemplate; context: { $implicit: item }"></ng-container>
                 </ng-template>
             </ng-container>
-            <ng-template aglTemplate="dropdownicon" *ngIf="dropdownIconTemplate()">
+            <ng-template #dropdownicon *ngIf="dropdownIconTemplate()">
                 <ng-container *ngTemplateOutlet="dropdownIconTemplate()"></ng-container>
             </ng-template>
         </agl-select>
@@ -124,11 +124,11 @@ const PAGINATOR_INSTANCE = new InjectionToken<Paginator>('PAGINATOR_INSTANCE');
             [unstyled]="unstyled()"
         >
             <ng-container *ngIf="dropdownItemTemplate">
-                <ng-template let-item aglTemplate="item">
+                <ng-template #item let-item>
                     <ng-container *ngTemplateOutlet="dropdownItemTemplate; context: { $implicit: item }"></ng-container>
                 </ng-template>
             </ng-container>
-            <ng-template aglTemplate="dropdownicon" *ngIf="dropdownIconTemplate()">
+            <ng-template #dropdownicon *ngIf="dropdownIconTemplate()">
                 <ng-container *ngTemplateOutlet="dropdownIconTemplate()"></ng-container>
             </ng-template>
         </agl-select>

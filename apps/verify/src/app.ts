@@ -138,10 +138,10 @@ interface Product {
                         <td>{{ rowData.name }}</td>
                         <td [ttEditableColumn]="rowData" [ttEditableColumnField]="'note'" class="note-cell">
                             <agl-treeTableCellEditor>
-                                <ng-template aglTemplate="input">
+                                <ng-template #input>
                                     <input class="note-input" type="text" [(ngModel)]="rowData.note" />
                                 </ng-template>
-                                <ng-template aglTemplate="output">
+                                <ng-template #output>
                                     <span class="note-output">{{ rowData.note }}</span>
                                 </ng-template>
                             </agl-treeTableCellEditor>

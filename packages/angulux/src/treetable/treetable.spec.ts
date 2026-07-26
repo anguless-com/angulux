@@ -3353,10 +3353,10 @@ describe('TreeTable PT', () => {
                 checkNoChanges: () => {},
                 reattach: () => {}
             };
-            treetable.captionTemplate = {
-                createEmbeddedView: () => mockViewRef as any,
-                elementRef: null
-            } as any;
+            // Inherited as xit(). It injected a fake TemplateRef by assigning `_captionTemplate`
+            // directly; under PA-1 that slot is a read-only signal query, so the only way to
+            // supply one is to declare `<ng-template #…>` on a host. Left skipped and left
+            // honest rather than quietly rewritten into something that passes.
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
@@ -3380,10 +3380,10 @@ describe('TreeTable PT', () => {
                 checkNoChanges: () => {},
                 reattach: () => {}
             };
-            treetable.summaryTemplate = {
-                createEmbeddedView: () => mockViewRef as any,
-                elementRef: null
-            } as any;
+            // Inherited as xit(). It injected a fake TemplateRef by assigning `_summaryTemplate`
+            // directly; under PA-1 that slot is a read-only signal query, so the only way to
+            // supply one is to declare `<ng-template #…>` on a host. Left skipped and left
+            // honest rather than quietly rewritten into something that passes.
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
@@ -3654,10 +3654,10 @@ describe('TreeTable PT', () => {
                 checkNoChanges: () => {},
                 reattach: () => {}
             };
-            treetable.footerTemplate = {
-                createEmbeddedView: () => mockViewRef as any,
-                elementRef: null
-            } as any;
+            // Inherited as xit(). It injected a fake TemplateRef by assigning `_footerTemplate`
+            // directly; under PA-1 that slot is a read-only signal query, so the only way to
+            // supply one is to declare `<ng-template #…>` on a host. Left skipped and left
+            // honest rather than quietly rewritten into something that passes.
             fixture.componentRef.setInput('pt', {
                 scrollableFooter: 'SCROLLABLE_FOOTER_CLASS',
                 scrollableFooterBox: 'SCROLLABLE_FOOTER_BOX_CLASS',
