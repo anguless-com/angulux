@@ -35,6 +35,11 @@
         "check:action-inputs": "node tools/check-action-inputs.mjs",
         "check:facet-single-route": "node tools/check-facet-single-route.mjs"
     },
+    "pnpm": {
+        "overrides": {
+            "postcss": "8.5.23"
+        }
+    },
     "devDependencies": {
         "@angular-devkit/build-angular": "catalog:angular22",
         "@angular/animations": "catalog:angular22",
