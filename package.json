@@ -57,7 +57,7 @@
         "@types/node": "26.1.1",
         "chart.js": "catalog:",
         "cross-env": "^10.1.0",
-        "fs-extra": "^11.3.2",
+        "fs-extra": "^11.4.0",
         "glob": "^11.0.3",
         "jasmine-core": "6.3.0",
         "ng-packagr": "catalog:angular22",
