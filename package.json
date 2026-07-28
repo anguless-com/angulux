@@ -37,7 +37,10 @@
     },
     "pnpm": {
         "overrides": {
-            "postcss": "8.5.23"
+            "postcss": "8.5.23",
+            "@modelcontextprotocol/sdk": "^1.30.0",
+            "esbuild": "^0.28.1",
+            "@hono/node-server": "^2.0.5"
         }
     },
     "devDependencies": {
