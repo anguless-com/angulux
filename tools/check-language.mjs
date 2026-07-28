@@ -10,12 +10,14 @@
  *
  * TWO detectors, because Vietnamese hides in two different ways:
  *
- *   1. DIACRITICS — the easy half. Matching on the characters that exist in Vietnamese
- *      and (essentially) nowhere else is high precision: `ă â đ ê ô ơ ư` plus every
- *      hook/dot-below/horn variant. Deliberately NOT matched: plain `à á è é ì í ò ó ù ú
- *      ã õ ç ñ ü ö`, which are ordinary French, Spanish, Portuguese and German. The
- *      inherited spec fixtures are full of those ("Côte d'Ivoire", "Case à cocher
- *      spéciale") and flagging them would train everyone to ignore this guard.
+ *   1. DIACRITICS — the easy half, though the split is not as clean as it looks. `ă đ ơ ư`
+ *      and the hook/dot-below/horn variants are Vietnamese and nothing else. `â ê ô` are
+ *      NOT: French, Portuguese and Turkish use them too. They are matched anyway, because
+ *      dropping them would blind the guard to `không` and `một` — so this detector CAN
+ *      fire on a foreign-language fixture, by design. Deliberately NOT matched: plain
+ *      `à á è é ì í ò ó ù ú ã õ ç ñ ü ö`, which carry no Vietnamese signal; the inherited
+ *      fixtures are full of them ("Case à cocher spéciale", "Drawer simülasyonu") and
+ *      flagging those would train everyone to ignore this guard.
  *
  *   2. UNACCENTED VIETNAMESE — the half that actually escapes. Typing Vietnamese without
  *      diacritics is normal here (`pham vi khop, khong co ro ri`), and no diacritic
@@ -63,9 +65,16 @@ const vnWordHits = (line) => [...new Set([...line.matchAll(VN_WORD_RE)].map((m) 
 
 /**
  * Files exempt from BOTH detectors.
- * `attic/` is verbatim unported upstream code (see attic/README.md) and NOTICE/PROVENANCE
- * may legitimately carry non-English text. Everything else is in scope, including specs:
- * their fixtures are French, which detector 1 does not match anyway.
+ * `attic/` is verbatim unported upstream code (see attic/README.md); NOTICE is exempt so
+ * that third-party attribution text can stay in its own language (it needs no exemption
+ * today — the allowance is deliberate headroom). Everything else is in scope, PROVENANCE.md
+ * and every spec included.
+ *
+ * In-scope specs pass because none of them contain `â ê ô` — not because foreign fixtures
+ * are unmatchable. attic/cascadeselect/cascadeselect.spec.ts carries "Côte d'Ivoire" and
+ * would fail this gate the day it is ported into src/. When that day comes, translate or
+ * re-letter the fixture. Do NOT drop `â ê ô` from VN_CHARS to make it pass: that is the
+ * one edit that silently guts the detector.
  */
 const EXEMPT = [
     /^packages\/angulux\/attic\//,
