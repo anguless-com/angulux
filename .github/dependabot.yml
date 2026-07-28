@@ -27,6 +27,21 @@ updates:
           prefix: chore
           include: scope
 
+      # One pull request per ecosystem, not one per dependency.
+      #
+      # Bumps are never merged here — they are applied to the private tree as coherent
+      # commits and synced outward — so these pull requests are notifications, not work.
+      # Ungrouped, a routine week opened six of them, and every one closed itself two
+      # minutes after the sync landed: six threads of mail to report that nothing had
+      # happened. Grouping collapses that into one notification without changing which
+      # versions get proposed. No update-types filter here: the ignore rules below
+      # already refuse what must not be automated, and a filter would only split the
+      # group back apart.
+      groups:
+          npm:
+              patterns:
+                  - '*'
+
       ignore:
           # --- The MIT boundary. Never automate a crossing. -------------------
           - dependency-name: '@primeuix/*'
@@ -63,3 +78,11 @@ updates:
           - ci
       commit-message:
           prefix: ci
+
+      # Same reasoning as the npm group above. A group cannot span ecosystems, so an
+      # action bump and a package bump in the same week still arrive as two pull
+      # requests — two being the floor here, not a shortfall.
+      groups:
+          actions:
+              patterns:
+                  - '*'
