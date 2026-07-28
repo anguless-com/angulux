@@ -1,5 +1,5 @@
 {
-  "_comment": "Recorded input names for each pinned GitHub Action, from its action.yml at the pinned ref. tools/check-action-inputs.mjs verifies every `with:` key in .github/workflows/ is a real input here. GitHub SILENTLY IGNORES unknown `with:` keys, so a renamed input (e.g. first-interaction v3 moving to snake_case) kills a job with no error \u2014 this is the guard. When Dependabot bumps an action, this snapshot goes stale and the gate fails until a maintainer runs `node tools/dump-action-inputs.mjs --write`.",
+  "_comment": "Recorded input names for each pinned GitHub Action, from its action.yml at the pinned ref. tools/check-action-inputs.mjs verifies every `with:` key in .github/workflows/ is a real input here. GitHub SILENTLY IGNORES unknown `with:` keys, so a renamed input (e.g. first-interaction v3 moving to snake_case) kills a job with no error — this is the guard. When Dependabot bumps an action, this snapshot goes stale and the gate fails until a maintainer runs `node tools/dump-action-inputs.mjs --write`.",
   "_regenerate": "node tools/dump-action-inputs.mjs --write",
   "actions": {
     "actions/checkout@v7": [
@@ -143,7 +143,7 @@
       "token",
       "wait-for-processing"
     ],
-    "ossf/scorecard-action@v2.4.3": [
+    "ossf/scorecard-action@v2.4.4": [
       "file_mode",
       "internal_default_token",
       "internal_publish_base_url",
