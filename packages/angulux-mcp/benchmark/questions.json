@@ -1,0 +1,179 @@
+{
+    "_comment": "A FIXED benchmark set, derived once from corpus/corpus.json and then committed. questions.test.mjs re-verifies every expectation against the corpus on each run, so a library change turns the suite red instead of letting the benchmark quietly measure nothing.",
+    "corpusSourceHash": "a37ce49d789fe814bc63187c3c434c359e3d60561c0dc22f5e6b42b0ba80a3f9",
+    "count": 20,
+    "questions": [
+        {
+            "id": "Q01",
+            "kind": "selector",
+            "module": "button",
+            "ask": "In angulux, what is the element selector for the button component?",
+            "expect": "agl-button",
+            "primeNgWrongAnswer": "p-button"
+        },
+        {
+            "id": "Q02",
+            "kind": "selector",
+            "module": "card",
+            "ask": "In angulux, what is the element selector for the card component?",
+            "expect": "agl-card",
+            "primeNgWrongAnswer": "p-card"
+        },
+        {
+            "id": "Q03",
+            "kind": "selector",
+            "module": "dialog",
+            "ask": "In angulux, what is the element selector for the dialog component?",
+            "expect": "agl-dialog",
+            "primeNgWrongAnswer": "p-dialog"
+        },
+        {
+            "id": "Q04",
+            "kind": "selector",
+            "module": "chip",
+            "ask": "In angulux, what is the element selector for the chip component?",
+            "expect": "agl-chip",
+            "primeNgWrongAnswer": "p-chip"
+        },
+        {
+            "id": "Q05",
+            "kind": "selector",
+            "module": "badge",
+            "ask": "In angulux, what is the element selector for the badge component?",
+            "expect": "agl-badge",
+            "primeNgWrongAnswer": "p-badge"
+        },
+        {
+            "id": "Q06",
+            "kind": "selector",
+            "module": "divider",
+            "ask": "In angulux, what is the element selector for the divider component?",
+            "expect": "agl-divider",
+            "primeNgWrongAnswer": "p-divider"
+        },
+        {
+            "id": "Q07",
+            "kind": "entrypoint",
+            "module": "button",
+            "ask": "In angulux, what is the exact import specifier for the button module?",
+            "expect": "@anguless/angulux/button",
+            "primeNgWrongAnswer": "primeng/button"
+        },
+        {
+            "id": "Q08",
+            "kind": "entrypoint",
+            "module": "card",
+            "ask": "In angulux, what is the exact import specifier for the card module?",
+            "expect": "@anguless/angulux/card",
+            "primeNgWrongAnswer": "primeng/card"
+        },
+        {
+            "id": "Q09",
+            "kind": "entrypoint",
+            "module": "dialog",
+            "ask": "In angulux, what is the exact import specifier for the dialog module?",
+            "expect": "@anguless/angulux/dialog",
+            "primeNgWrongAnswer": "primeng/dialog"
+        },
+        {
+            "id": "Q10",
+            "kind": "entrypoint",
+            "module": "checkbox",
+            "ask": "In angulux, what is the exact import specifier for the checkbox module?",
+            "expect": "@anguless/angulux/checkbox",
+            "primeNgWrongAnswer": "primeng/checkbox"
+        },
+        {
+            "id": "Q11",
+            "kind": "supported",
+            "module": "accordion",
+            "ask": "Is the accordion module supported in angulux? Answer yes or no.",
+            "expect": "no",
+            "primeNgWrongAnswer": "yes"
+        },
+        {
+            "id": "Q12",
+            "kind": "supported",
+            "module": "autocomplete",
+            "ask": "Is the autocomplete module supported in angulux? Answer yes or no.",
+            "expect": "no",
+            "primeNgWrongAnswer": "yes"
+        },
+        {
+            "id": "Q13",
+            "kind": "supported",
+            "module": "carousel",
+            "ask": "Is the carousel module supported in angulux? Answer yes or no.",
+            "expect": "no",
+            "primeNgWrongAnswer": "yes"
+        },
+        {
+            "id": "Q14",
+            "kind": "supported",
+            "module": "breadcrumb",
+            "ask": "Is the breadcrumb module supported in angulux? Answer yes or no.",
+            "expect": "no",
+            "primeNgWrongAnswer": "yes"
+        },
+        {
+            "id": "Q15",
+            "kind": "deprecated",
+            "module": "avatar",
+            "declaration": "Avatar",
+            "member": "styleClass",
+            "ask": "In angulux, is the `styleClass` input on `Avatar` (module `avatar`) deprecated? Answer yes or no.",
+            "expect": "yes",
+            "primeNgWrongAnswer": "no"
+        },
+        {
+            "id": "Q16",
+            "kind": "deprecated",
+            "module": "badge",
+            "declaration": "BadgeDirective",
+            "member": "size",
+            "ask": "In angulux, is the `size` input on `BadgeDirective` (module `badge`) deprecated? Answer yes or no.",
+            "expect": "yes",
+            "primeNgWrongAnswer": "no"
+        },
+        {
+            "id": "Q17",
+            "kind": "deprecated",
+            "module": "button",
+            "declaration": "ButtonDirective",
+            "member": "label",
+            "ask": "In angulux, is the `label` input on `ButtonDirective` (module `button`) deprecated? Answer yes or no.",
+            "expect": "yes",
+            "primeNgWrongAnswer": "no"
+        },
+        {
+            "id": "Q18",
+            "kind": "inputExists",
+            "module": "button",
+            "declaration": "Button",
+            "member": "size",
+            "ask": "In angulux, does `Button` (module `button`) declare an input named `size`? Answer yes or no.",
+            "expect": "yes",
+            "primeNgWrongAnswer": "no"
+        },
+        {
+            "id": "Q19",
+            "kind": "inputExists",
+            "module": "button",
+            "declaration": "Button",
+            "member": "iconPos",
+            "ask": "In angulux, does `Button` (module `button`) declare an input named `iconPos`? Answer yes or no.",
+            "expect": "yes",
+            "primeNgWrongAnswer": "no"
+        },
+        {
+            "id": "Q20",
+            "kind": "inputExists",
+            "module": "button",
+            "declaration": "Button",
+            "member": "severity2",
+            "ask": "In angulux, does `Button` (module `button`) declare an input named `severity2`? Answer yes or no.",
+            "expect": "no",
+            "primeNgWrongAnswer": "yes"
+        }
+    ]
+}
