@@ -52,5 +52,8 @@
     "dependencies": {
         "@anguless/angulux-styled": "workspace:^"
     },
+    "devDependencies": {
+        "terser": "5.46.2"
+    },
     "private": false
 }

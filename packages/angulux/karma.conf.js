@@ -4,8 +4,12 @@
 module.exports = function (config) {
     config.set({
         basePath: '',
-        frameworks: ['jasmine', '@angular-devkit/build-angular'],
-        plugins: [require('karma-jasmine'), require('karma-chrome-launcher'), require('karma-jasmine-html-reporter'), require('karma-coverage'), require('@angular-devkit/build-angular/plugins/karma')],
+        // No '@angular-devkit/build-angular' framework or plugin here: the builder is
+        // @angular/build:karma, which injects its own. Leaving them in is not merely
+        // redundant — the builder strips them at startup and warns, and the package that
+        // provides them is deliberately no longer installed.
+        frameworks: ['jasmine'],
+        plugins: [require('karma-jasmine'), require('karma-chrome-launcher'), require('karma-jasmine-html-reporter'), require('karma-coverage')],
         client: {
             clearContext: false, // leave Jasmine Spec Runner output visible in browser
             jasmine: {
