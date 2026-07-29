@@ -92,8 +92,21 @@ const table = (rows, headers) => [
     ...rows
 ];
 
-/** Escape a cell so a type containing `|` cannot break the table it sits in. */
-const cell = (value) => String(value).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+/**
+ * Escape a cell so a value containing `|` cannot break the table it sits in.
+ *
+ * Backslashes are escaped FIRST, and the order is the whole point. Escaping only the pipe
+ * turns the input `a\|b` into `a\\|b`, which markdown reads as an escaped backslash followed
+ * by a LIVE delimiter — so the row silently gains a column. CodeQL flags exactly this as
+ * js/incomplete-sanitization, and it was right: no type or description in the corpus contains
+ * a backslash today, but "no input currently triggers it" is a property of the data, not of
+ * the function, and the data is regenerated from source that anyone can edit.
+ */
+const cell = (value) =>
+    String(value)
+        .replace(/\\/g, '\\\\')
+        .replace(/\|/g, '\\|')
+        .replace(/\n/g, ' ');
 
 function renderDeclaration(declaration) {
     const lines = [`## ${declaration.name}`, '', `\`${declaration.selector}\` — ${declaration.kind}`, ''];

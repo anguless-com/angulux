@@ -89,3 +89,68 @@ test('llms-full.txt contains every module', () => {
 test('every rendered file is LF-only', () => {
     for (const [path, contents] of site) assert.doesNotMatch(contents, /\r/, `${path} contains CR`);
 });
+
+/**
+ * Count the LIVE delimiters in a table row, the way a markdown parser does: walk left to
+ * right, and let a backslash consume the character after it.
+ *
+ * A one-character lookbehind is not good enough and that matters here — `a\\|b` has an
+ * escaped backslash followed by a REAL delimiter, but `/(?<!\\)\|/` sees the backslash
+ * immediately before the pipe and wrongly concludes it is escaped. That naive check passed
+ * against the very bug CodeQL reported, which is how a test can confirm a defect instead of
+ * catching it.
+ */
+function liveDelimiters(row) {
+    let count = 0;
+    for (let i = 0; i < row.length; i += 1) {
+        if (row[i] === '\\') {
+            i += 1;
+            continue;
+        }
+        if (row[i] === '|') count += 1;
+    }
+    return count;
+}
+
+test('a value containing a backslash cannot smuggle a live delimiter into a row', () => {
+    // CodeQL js/incomplete-sanitization, high, caught on PR #93. Escaping only the pipe turns
+    // `a\|b` into `a\\|b` — an escaped backslash followed by a live delimiter — so the row
+    // gains a column. No corpus value contains a backslash today, but that is a fact about
+    // the data, not about the function, and the data is regenerated from editable source.
+    const BACKSLASH = String.fromCharCode(92);
+    const hostile = {
+        name: 'evil',
+        entrypoint: '@anguless/angulux/evil',
+        description: '',
+        declarations: [
+            {
+                name: 'Evil',
+                kind: 'component',
+                selector: 'agl-evil',
+                inputs: [
+                    {
+                        // A backslash IMMEDIATELY before a pipe — the only arrangement that
+                        // exercises the flaw.
+                        name: 'x',
+                        type: `a${BACKSLASH}|b`,
+                        description: `trailing ${BACKSLASH}`,
+                        group: null,
+                        default: null,
+                        defaultDeclared: false,
+                        deprecated: null,
+                        signal: false
+                    }
+                ],
+                outputs: []
+            }
+        ]
+    };
+
+    const rows = renderModulePage(hostile)
+        .split('\n')
+        .filter((line) => line.startsWith('| `'));
+
+    assert.equal(rows.length, 1);
+    // 5 live delimiters bound 4 columns.
+    assert.equal(liveDelimiters(rows[0]), 5, `row broke into extra columns: ${rows[0]}`);
+});
