@@ -1,0 +1,70 @@
+{
+    "generator": {
+        "version": "1",
+        "sourceHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "closureCount": 64
+    },
+    "modules": [
+        {
+            "name": "button",
+            "entrypoint": "@anguless/angulux/button",
+            "description": "",
+            "declarations": [
+                {
+                    "name": "Button",
+                    "kind": "component",
+                    "selector": "agl-button",
+                    "inputs": [
+                        {
+                            "name": "size",
+                            "type": "'small' | 'large' | undefined",
+                            "description": "Defines the size of the button.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": null,
+                            "signal": false
+                        },
+                        {
+                            "name": "iconPos",
+                            "type": "ButtonIconPosition",
+                            "description": "Position of the icon.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": null,
+                            "signal": false
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "onClick",
+                            "type": "EventEmitter<MouseEvent>",
+                            "description": "Callback to execute when button is clicked.\nThis event is intended to be used with the <agl-button> component. Using a regular <button> element, use (click).",
+                            "group": "Emits",
+                            "deprecated": null
+                        }
+                    ]
+                },
+                {
+                    "name": "ButtonDirective",
+                    "kind": "directive",
+                    "selector": "[aglButton]",
+                    "inputs": [
+                        {
+                            "name": "label",
+                            "type": "string | undefined",
+                            "description": "Text of the button.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": "use aglButtonLabel directive instead.",
+                            "signal": false
+                        }
+                    ],
+                    "outputs": []
+                }
+            ]
+        }
+    ]
+}

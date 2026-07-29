@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Twelve gates run on every commit and every pull request. They do not check style — each one
+Thirteen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -86,10 +86,11 @@ closes a class of failure that has already happened in this repository.
 | `check:tsup` | the bundler leaking outside the four forks' own build scripts |
 | `check:action-inputs` | a workflow passing a `with:` key that its action does not declare — YAML nobody validates until it silently does nothing |
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
+| `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all twelve, ~3 seconds
+npm run check     # all thirteen, no build needed
 ```
 
 One more gate, `check:publishable`, runs after the build rather than inside that suite: it
@@ -113,7 +114,7 @@ type-check cannot see a render bug.
 Current evidence, reproducible from a clean checkout:
 
 ```
-12/12 gates          exit 0
+13/13 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
 browser gate         13/13 passed
@@ -174,7 +175,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 12 gates
+npm run check                                   # the 13 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do
