@@ -117,3 +117,49 @@ test('corpus_info reports the provenance a caller needs to spot a stale server',
     assert.equal(info.libraryVersion, corpus.libraryVersion);
     assert.equal(info.closureCount, 64);
 });
+
+test('a summary is a fraction of the full module, and says which view it is', () => {
+    // Dogfooding found get_module('table') returning 71 KB in one tool result — 25
+    // declarations, 83 inputs on one of them. Correct, contract-satisfying, and far too much
+    // to hand an assistant that asked what the component is called.
+    const full = call('get_module', { name: 'table' });
+    const summary = call('get_module', { name: 'table', summary: true });
+
+    assert.equal(full.view, 'full');
+    assert.equal(summary.view, 'summary');
+
+    const fullBytes = JSON.stringify(full).length;
+    const summaryBytes = JSON.stringify(summary).length;
+    assert.ok(summaryBytes * 10 < fullBytes, `summary ${summaryBytes} is not << full ${fullBytes}`);
+});
+
+test('a summary reports member counts and omits the members themselves', () => {
+    const summary = call('get_module', { name: 'table', summary: true });
+    const table = summary.module.declarations.find((d) => d.name === 'Table');
+
+    assert.equal(table.inputCount, 83);
+    assert.ok(table.outputCount > 0);
+    assert.ok(!('inputs' in table), 'a summary must not carry the arrays it claims to omit');
+});
+
+test('one declaration can be fetched in full without its 24 siblings', () => {
+    const one = call('get_module', { name: 'table', declaration: 'ColumnFilter' });
+
+    assert.equal(one.view, 'declaration');
+    assert.equal(one.module.declarations.length, 1);
+    assert.equal(one.module.declarations[0].name, 'ColumnFilter');
+    assert.ok(one.module.declarations[0].inputs.length > 0, 'the one you asked for keeps its detail');
+});
+
+test('asking for a declaration that does not exist lists what does', () => {
+    const miss = call('get_module', { name: 'button', declaration: 'DataTable' });
+
+    assert.equal(miss.found, false);
+    assert.match(miss.reason, /ButtonDirective/);
+});
+
+test('every view still satisfies the contract', () => {
+    for (const args of [{ name: 'table' }, { name: 'table', summary: true }, { name: 'table', declaration: 'Table' }]) {
+        assert.deepEqual(validateToolResult('get_module', call('get_module', args)), [], JSON.stringify(args));
+    }
+});

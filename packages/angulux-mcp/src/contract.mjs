@@ -23,6 +23,9 @@ export const TOOL_NAMES = ['list_modules', 'get_module', 'search_api', 'check_us
 
 const SCOPE = '@anguless/angulux/';
 
+/** What a `get_module` response is: everything, an overview, or one declaration in full. */
+const VIEWS = new Set(['full', 'summary', 'declaration']);
+
 const isString = (v) => typeof v === 'string';
 const isBool = (v) => typeof v === 'boolean';
 
@@ -54,21 +57,59 @@ const VALIDATORS = {
             problems.push('found must be a boolean');
             return;
         }
-        if (payload.found) {
-            const module = payload.module;
-            if (module === null || typeof module !== 'object') {
-                problems.push('found is true but module is missing');
-                return;
+        if (!payload.found) {
+            if (!isString(payload.reason)) {
+                problems.push('found is false but no reason was given — a caller needs to know why');
             }
-            checkModuleSummary(
-                { ...module, declarationCount: Array.isArray(module.declarations) ? module.declarations.length : null },
-                'module',
-                problems
-            );
-            if (!Array.isArray(module.declarations)) problems.push('module.declarations must be an array');
-            if (!isString(module.description)) problems.push('module.description must be a string');
-        } else if (!isString(payload.reason)) {
-            problems.push('found is false but no reason was given — a caller needs to know why');
+            return;
+        }
+
+        // The response says WHICH view it is. `table` carries 25 declarations and 83 inputs on
+        // one of them — 71 KB in a single tool result — so a caller needs a cheap way to look
+        // before it fetches. Silently truncating a "full" response would be worse than the
+        // size: the caller could not tell a small module from a trimmed one.
+        if (!VIEWS.has(payload.view)) {
+            problems.push(`view must be one of ${[...VIEWS].join(', ')}`);
+        }
+
+        const module = payload.module;
+        if (module === null || typeof module !== 'object') {
+            problems.push('found is true but module is missing');
+            return;
+        }
+
+        checkModuleSummary(
+            { ...module, declarationCount: Array.isArray(module.declarations) ? module.declarations.length : null },
+            'module',
+            problems
+        );
+        if (!isString(module.description)) problems.push('module.description must be a string');
+        if (!Array.isArray(module.declarations)) {
+            problems.push('module.declarations must be an array');
+            return;
+        }
+
+        module.declarations.forEach((declaration, i) => {
+            const at = `module.declarations[${i}] (${declaration?.name ?? '?'})`;
+            if (!isString(declaration?.name)) problems.push(`${at}: name must be a string`);
+            if (!isString(declaration?.selector)) problems.push(`${at}: selector must be a string`);
+
+            if (payload.view === 'summary') {
+                // A summary must carry counts, so the caller can judge the cost of fetching
+                // the detail — and must NOT carry the member arrays it claims to have omitted.
+                if (!Number.isInteger(declaration?.inputCount)) problems.push(`${at}: inputCount must be an integer`);
+                if (!Number.isInteger(declaration?.outputCount)) problems.push(`${at}: outputCount must be an integer`);
+                if ('inputs' in declaration || 'outputs' in declaration) {
+                    problems.push(`${at}: a summary must omit inputs/outputs, not include them`);
+                }
+            } else {
+                if (!Array.isArray(declaration?.inputs)) problems.push(`${at}: inputs must be an array`);
+                if (!Array.isArray(declaration?.outputs)) problems.push(`${at}: outputs must be an array`);
+            }
+        });
+
+        if (payload.view === 'declaration' && module.declarations.length !== 1) {
+            problems.push(`view is "declaration" but ${module.declarations.length} declarations were returned`);
         }
     },
 
