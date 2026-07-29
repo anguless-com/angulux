@@ -85,3 +85,88 @@ export function renderLlmsTxt(corpus) {
 
     return lines.join('\n').replace(/\r\n/g, '\n');
 }
+
+const table = (rows, headers) => [
+    `| ${headers.join(' | ')} |`,
+    `| ${headers.map(() => '---').join(' | ')} |`,
+    ...rows
+];
+
+/** Escape a cell so a type containing `|` cannot break the table it sits in. */
+const cell = (value) => String(value).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+
+function renderDeclaration(declaration) {
+    const lines = [`## ${declaration.name}`, '', `\`${declaration.selector}\` — ${declaration.kind}`, ''];
+
+    if (declaration.description) lines.push(declaration.description, '');
+
+    if (declaration.inputs.length) {
+        lines.push(
+            ...table(
+                declaration.inputs.map((input) => {
+                    // "not documented" rather than a blank or an invented value: only ~10% of
+                    // inputs declare @defaultValue, and a blank cell reads as "no default"
+                    // when the truth is "nobody wrote one down".
+                    const dflt = input.defaultDeclared ? `\`${cell(input.default)}\`` : '_not documented_';
+                    const note = input.deprecated ? ` **Deprecated:** ${cell(input.deprecated)}` : '';
+                    return `| \`${cell(input.name)}\` | \`${cell(input.type)}\` | ${dflt} | ${cell(input.description)}${note} |`;
+                }),
+                ['Input', 'Type', 'Default', 'Description']
+            ),
+            ''
+        );
+    }
+
+    if (declaration.outputs.length) {
+        lines.push(
+            ...table(
+                declaration.outputs.map(
+                    (output) => `| \`${cell(output.name)}\` | \`${cell(output.type)}\` | ${cell(output.description)} |`
+                ),
+                ['Output', 'Type', 'Description']
+            ),
+            ''
+        );
+    }
+
+    return lines;
+}
+
+/** One module's page. Also the body reused verbatim inside llms-full.txt. */
+export function renderModulePage(module) {
+    const lines = [`# ${module.name}`, '', `\`\`\`ts`, `import { … } from '${module.entrypoint}';`, '```', ''];
+
+    if (module.declarations.length === 0) {
+        lines.push(
+            'This module declares no component or directive. It is internal infrastructure that other',
+            'modules depend on, and there is nothing here to use directly.',
+            ''
+        );
+        return lines.join('\n');
+    }
+
+    for (const declaration of module.declarations) lines.push(...renderDeclaration(declaration));
+    return lines.join('\n');
+}
+
+/**
+ * Everything in one file — the convention assistants look for when they would rather make
+ * one request than sixty-five.
+ */
+export function renderLlmsFullTxt(corpus) {
+    return ['# Angulux — full API', '', `> ${summaryOf(corpus)}`, '', ...corpus.modules.map((m) => renderModulePage(m))]
+        .join('\n')
+        .replace(/\r\n/g, '\n');
+}
+
+/**
+ * The whole publishable site as path -> contents. Returned rather than written so the
+ * workflow decides where it lands and the tests never touch a filesystem.
+ */
+export function renderSite(corpus) {
+    const files = new Map();
+    files.set('llms.txt', renderLlmsTxt(corpus));
+    files.set('llms-full.txt', renderLlmsFullTxt(corpus));
+    for (const module of corpus.modules) files.set(`${module.name}.md`, renderModulePage(module));
+    return files;
+}
