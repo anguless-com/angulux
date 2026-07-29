@@ -249,6 +249,12 @@ importers:
 
   packages/angulux-license-guard: {}
 
+  packages/angulux-mcp:
+    dependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.30.0
+        version: 1.30.0
+
   packages/angulux-migrate: {}
 
   packages/angulux-motion:

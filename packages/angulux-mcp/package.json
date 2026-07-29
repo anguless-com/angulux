@@ -1,0 +1,43 @@
+{
+    "name": "angulux-mcp",
+    "version": "0.1.0",
+    "description": "An MCP server that answers questions about angulux from the generated API corpus — so an assistant can look the answer up instead of guessing PrimeNG's.",
+    "keywords": [
+        "angulux",
+        "mcp",
+        "model-context-protocol",
+        "angular",
+        "documentation"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux-mcp"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "homepage": "https://github.com/anguless-com/angulux/tree/main/packages/angulux-mcp#readme",
+    "type": "module",
+    "bin": {
+        "angulux-mcp": "./bin/angulux-mcp.mjs"
+    },
+    "exports": {
+        ".": "./src/index.mjs",
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "bin",
+        "src",
+        "README.md",
+        "LICENSE"
+    ],
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "catalog:"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    },
+    "private": true
+}
