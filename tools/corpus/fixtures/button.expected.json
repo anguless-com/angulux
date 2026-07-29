@@ -34,16 +34,6 @@
                             "defaultDeclared": false,
                             "deprecated": null,
                             "signal": false
-                        },
-                        {
-                            "name": "label",
-                            "type": "string | undefined",
-                            "description": "Text of the button.",
-                            "group": "Props",
-                            "default": null,
-                            "defaultDeclared": false,
-                            "deprecated": "use aglButtonLabel directive instead.",
-                            "signal": false
                         }
                     ],
                     "outputs": [
@@ -55,6 +45,24 @@
                             "deprecated": null
                         }
                     ]
+                },
+                {
+                    "name": "ButtonDirective",
+                    "kind": "directive",
+                    "selector": "[aglButton]",
+                    "inputs": [
+                        {
+                            "name": "label",
+                            "type": "string | undefined",
+                            "description": "Text of the button.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": "use aglButtonLabel directive instead.",
+                            "signal": false
+                        }
+                    ],
+                    "outputs": []
                 }
             ]
         }
