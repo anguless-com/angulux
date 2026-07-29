@@ -36,7 +36,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { resolve, dirname, join } from 'node:path';
+import { resolve, dirname, join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -62,13 +62,39 @@ const PUBLISHABLE = [
 const problems = [];
 const staging = mkdtempSync(join(tmpdir(), 'angulux-publishable-'));
 
-/** Read one file out of a tarball. Uses `tar -O`, which bsdtar and GNU tar both support. */
+/**
+ * On Windows `corepack` is a `.cmd` shim: `execFileSync` resolves the literal name only
+ * (ENOENT), and since the CVE-2024-27980 fix Node refuses to spawn `.cmd` without a shell
+ * at all (EINVAL). So this gate had NEVER run on a Windows machine — only in CI. The shell
+ * is enabled on win32 alone, and the one interpolated argument is quoted, because a shell
+ * is a quoting surface and the staging path is a temp directory we do not control.
+ */
+const IS_WIN = process.platform === 'win32';
+const COREPACK = IS_WIN ? 'corepack.cmd' : 'corepack';
+const shellArg = (s) => (IS_WIN && /\s/.test(s) ? `"${s}"` : s);
+
+/**
+ * Read one file out of a tarball. Uses `tar -O`, which bsdtar and GNU tar both support.
+ *
+ * The archive is named by BASENAME with `cwd` set to its directory, never by absolute path:
+ * GNU tar reads a leading `C:` as a remote host spec ("Cannot connect to C: resolve failed"),
+ * and `--force-local` — the obvious fix — is GNU-only, so it would trade a Windows break for
+ * a macOS one. Removing the colon from the argument keeps one code path for all three.
+ */
 function readFromTarball(tarball, member) {
-    return execFileSync('tar', ['xzOf', tarball, member], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+    return execFileSync('tar', ['xzOf', basename(tarball), member], {
+        cwd: dirname(tarball),
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024
+    });
 }
 
 function listTarball(tarball) {
-    return execFileSync('tar', ['tzf', tarball], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 })
+    return execFileSync('tar', ['tzf', basename(tarball)], {
+        cwd: dirname(tarball),
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024
+    })
         .split('\n')
         .filter(Boolean);
 }
@@ -87,10 +113,11 @@ try {
         // the bug and then certify it as fine.
         let tarball;
         try {
-            const out = execFileSync('corepack', ['pnpm', 'pack', '--pack-destination', staging], {
+            const out = execFileSync(COREPACK, ['pnpm', 'pack', '--pack-destination', shellArg(staging)], {
                 cwd: abs,
                 encoding: 'utf8',
-                stdio: ['ignore', 'pipe', 'pipe']
+                stdio: ['ignore', 'pipe', 'pipe'],
+                shell: IS_WIN
             });
             const line = out.trim().split('\n').filter(Boolean).pop();
             tarball = line && line.endsWith('.tgz') ? resolve(abs, line) : null;
@@ -140,6 +167,44 @@ try {
         //    Read off the tarball, because that is what a consumer installs.
         if (zeroDeps && Object.keys(pkg.dependencies || {}).length) {
             problems.push([name, `declares ${Object.keys(pkg.dependencies).length} runtime dependency(ies) but claims zero`]);
+        }
+
+        // 5. The exports map is a PROMISE ABOUT PATHS, and nothing was checking it.
+        //    tsup derives its entry keys from a glob, and `glob` returns PLATFORM separators.
+        //    On Windows `src\index.ts` never matched the `/^src\//` strip, so every artifact
+        //    landed one directory deeper than the manifest says — `dist/src/index.mjs` where
+        //    `exports` promised `dist/index.mjs`. tsup still exited 0. Measured on both
+        //    glob 11.1.0 and 13.0.6, so this is latent, not a version regression.
+        const inTarball = (target) => entries.includes('package/' + String(target).replace(/^\.\//, ''));
+        const promised = new Set();
+        for (const field of ['main', 'module', 'types']) {
+            if (typeof pkg[field] === 'string') promised.add(pkg[field]);
+        }
+        (function collect(node) {
+            if (typeof node === 'string') promised.add(node);
+            else if (node && typeof node === 'object') Object.values(node).forEach(collect);
+        })(pkg.exports);
+        for (const target of promised) {
+            // Wildcard patterns are covered by the invariant below — a `*` in an exports
+            // target matches across separators, so they cannot be checked by existence.
+            if (target.includes('*')) continue;
+            if (!inTarball(target)) {
+                problems.push([name, `exports/main/module promises ${target}, which is NOT in the tarball`]);
+            }
+        }
+
+        // 6. The invariant that makes the wildcard subpaths checkable at all.
+        //    `"./*": "./dist/*/index.mjs"` still RESOLVES against `dist/src/button/index.mjs`
+        //    (an exports `*` matches across separators), so `<pkg>/button` broke for consumers
+        //    while `<pkg>/src/button` quietly worked and no build ever failed. dist mirrors
+        //    module names; it must never carry the source prefix.
+        const leaked = entries.filter((e) => e.startsWith('package/dist/src/'));
+        if (leaked.length) {
+            problems.push([
+                name,
+                `${leaked.length} file(s) emitted under dist/src/ (e.g. ${leaked[0].replace('package/', '')}) — ` +
+                    'the build leaked the source prefix into the artifact layout'
+            ]);
         }
 
         if (!problems.some((p) => p[0] === name)) {
