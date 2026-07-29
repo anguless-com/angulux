@@ -14,6 +14,10 @@ catalog:
     'primeicons': 7.0.0
     'tailwindcss-primeui': 0.6.1
     'chart.js': 4.5.1
+    # Used only by the private, unpublished angulux-mcp package. Pinned here rather than as a
+    # literal in that package's manifest so check-catalog can see it: a version nothing gates
+    # is a version that drifts.
+    '@modelcontextprotocol/sdk': 1.30.0
 
 # ---------------------------------------------------------------------------
 # angular22 catalog — two groups, two opposite rules:
