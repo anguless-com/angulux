@@ -32,7 +32,8 @@ const summaryOf = (corpus) => {
 
     return (
         `Angulux is an Angular 22 UI component library, forked from the last MIT release of ` +
-        `PrimeNG (21.1.9). Selectors are \`agl-*\` and entry points are \`angulux/<module>\` — ` +
+        `PrimeNG (21.1.9). Selectors are \`agl-*\` and entry points are ` +
+        `\`@anguless/angulux/<module>\` — ` +
         `code written against PrimeNG's \`p-*\` selectors will not work. This index covers ` +
         `${corpus.modules.length} supported modules, ${declarations} components and directives, ` +
         `${inputs} inputs, of which ${deprecated} are deprecated. Every page is generated from ` +

@@ -81,3 +81,20 @@ test('deprecated inputs are surfaced in the index, not buried in a page', () => 
 test('the output is LF-only', () => {
     assert.doesNotMatch(text(), /\r/);
 });
+
+test('no unscoped angulux/ import form survives anywhere in the index', () => {
+    // The corpus data and the import example were both corrected to `@anguless/angulux/…`,
+    // but the blockquote SUMMARY still said `angulux/<module>` — the wrong form, in the most
+    // prominent line an assistant reads, found by looking at the built file rather than by
+    // any test. This asserts the general property instead of the one line: every occurrence
+    // of `angulux/` must be preceded by the scope.
+    // Scoped to quoted/backticked contexts — an import specifier — because the published URL
+    // legitimately contains `.../angulux/` and is not a package name.
+    const unscoped = [...text().matchAll(/['"`]angulux\//g)];
+
+    assert.deepEqual(
+        unscoped.map((m) => text().slice(m.index, m.index + 24)),
+        [],
+        'an unscoped angulux/ import form is being published'
+    );
+});
