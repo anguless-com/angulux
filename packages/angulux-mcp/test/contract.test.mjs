@@ -17,6 +17,7 @@ const valid = {
     list_modules: { modules: [{ name: 'button', entrypoint: '@anguless/angulux/button', declarationCount: 4 }] },
     get_module: {
         found: true,
+        view: 'full',
         module: { name: 'button', entrypoint: '@anguless/angulux/button', description: '', declarations: [] }
     },
     search_api: { matches: [{ module: 'button', declaration: 'Button', member: 'size', kind: 'input' }] },
@@ -74,4 +75,56 @@ test('every entrypoint the server hands out is the scoped, resolvable one', () =
     // The R0 bug that shipped and had to be fixed: `angulux/button` does not resolve.
     const bad = { modules: [{ name: 'button', entrypoint: 'angulux/button', declarationCount: 4 }] };
     assert.match(validateToolResult('list_modules', bad).join('\n'), /@anguless\/angulux\//);
+});
+
+test('a get_module response must say which view it is', () => {
+    const noView = { found: true, module: valid.get_module.module };
+    assert.match(validateToolResult('get_module', noView).join('\n'), /view must be one of/);
+});
+
+test('a summary cannot smuggle in the members it claims to have omitted', () => {
+    // If a "summary" carried the full arrays, the caller would pay full price for a response
+    // labelled cheap — and would have no way to know.
+    const sneaky = {
+        found: true,
+        view: 'summary',
+        module: {
+            name: 'button',
+            entrypoint: '@anguless/angulux/button',
+            description: '',
+            declarations: [{ name: 'Button', kind: 'component', selector: 'agl-button', inputCount: 1, outputCount: 0, inputs: [] }]
+        }
+    };
+    assert.match(validateToolResult('get_module', sneaky).join('\n'), /must omit inputs\/outputs/);
+});
+
+test('a summary without counts is not a summary', () => {
+    const countless = {
+        found: true,
+        view: 'summary',
+        module: {
+            name: 'button',
+            entrypoint: '@anguless/angulux/button',
+            description: '',
+            declarations: [{ name: 'Button', kind: 'component', selector: 'agl-button' }]
+        }
+    };
+    assert.match(validateToolResult('get_module', countless).join('\n'), /inputCount/);
+});
+
+test('a "declaration" view carrying more than one declaration is rejected', () => {
+    const two = {
+        found: true,
+        view: 'declaration',
+        module: {
+            name: 'button',
+            entrypoint: '@anguless/angulux/button',
+            description: '',
+            declarations: [
+                { name: 'Button', kind: 'component', selector: 'agl-button', inputs: [], outputs: [] },
+                { name: 'ButtonDirective', kind: 'directive', selector: '[aglButton]', inputs: [], outputs: [] }
+            ]
+        }
+    };
+    assert.match(validateToolResult('get_module', two).join('\n'), /2 declarations were returned/);
 });

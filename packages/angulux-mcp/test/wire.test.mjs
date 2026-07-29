@@ -111,3 +111,22 @@ test('an unknown tool is refused over the wire, not silently empty', async () =>
     const result = await client.callTool({ name: 'get_component', arguments: {} });
     assert.equal(result.isError, true);
 });
+
+test('the cheap views survive the wire, and are actually cheap', async () => {
+    // The size problem was found by dogfooding, not by a test — so it gets a test that
+    // measures the REAL serialised bytes coming back, not the in-process object.
+    const full = await client.callTool({ name: 'get_module', arguments: { name: 'table' } });
+    const summary = await client.callTool({ name: 'get_module', arguments: { name: 'table', summary: true } });
+    const one = await client.callTool({ name: 'get_module', arguments: { name: 'table', declaration: 'Table' } });
+
+    const bytes = (r) => r.content.find((b) => b.type === 'text').text.length;
+
+    assert.ok(bytes(summary) * 10 < bytes(full), `summary ${bytes(summary)} vs full ${bytes(full)}`);
+    assert.ok(bytes(one) < bytes(full), 'one declaration must be smaller than all 25');
+
+    for (const [name, result] of [['summary', summary], ['declaration', one]]) {
+        const payload = JSON.parse(result.content.find((b) => b.type === 'text').text);
+        assert.equal(payload.view, name);
+        assert.deepEqual(validateToolResult('get_module', payload), [], `${name} view violated the contract`);
+    }
+});

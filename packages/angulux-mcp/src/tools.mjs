@@ -61,8 +61,10 @@ export function createTools(corpus) {
         list_modules: {
             description:
                 'List every angulux module that is supported, with the import specifier for each. ' +
-                'Call this first when you do not know which module a component lives in, or to check ' +
-                'whether something is supported at all before recommending it.',
+                'Call this first when you do not know which module a component lives in, to check ' +
+                'whether something is supported at all before recommending it, or whenever the ' +
+                'question is only "what do I import" — this returns all 64 modules for a fraction of ' +
+                'what fetching one large module costs.',
             inputSchema: {
                 type: 'object',
                 properties: {
@@ -81,15 +83,29 @@ export function createTools(corpus) {
 
         get_module: {
             description:
-                "Get one module's full API: every component and directive it declares, with each " +
-                'input and output, its type, whether a default is documented, and whether it is ' +
-                'deprecated. Call this before writing angulux markup for a component.',
+                "Get a module's API: the components and directives it declares, with each input and " +
+                'output, its type, whether a default is documented, and whether it is deprecated. ' +
+                'Call this before writing angulux markup. Large modules are expensive — `table` ' +
+                'declares 25 things — so for an unfamiliar module pass `summary: true` first to see ' +
+                'what it declares, then pass `declaration` to fetch just the one you need. If you ' +
+                'only want the import specifier, use list_modules instead; it returns all 64 for ' +
+                'less than one large module costs.',
             inputSchema: {
                 type: 'object',
-                properties: { name: { type: 'string', description: 'Module name, e.g. "button".' } },
+                properties: {
+                    name: { type: 'string', description: 'Module name, e.g. "button".' },
+                    summary: {
+                        type: 'boolean',
+                        description: 'Return declaration names, kinds, selectors and member COUNTS only.'
+                    },
+                    declaration: {
+                        type: 'string',
+                        description: 'Return only this declaration, e.g. "Table", in full detail.'
+                    }
+                },
                 required: ['name']
             },
-            handler: ({ name } = {}) => {
+            handler: ({ name, summary = false, declaration } = {}) => {
                 const module = corpus.moduleByName(name);
                 if (!module) {
                     return {
@@ -100,7 +116,39 @@ export function createTools(corpus) {
                             'from this release — either way it is not supported and should not be recommended.'
                     };
                 }
-                return { found: true, module };
+
+                if (declaration !== undefined) {
+                    const one = module.declarations.find((d) => d.name === declaration);
+                    if (!one) {
+                        return {
+                            found: false,
+                            reason:
+                                `\`${name}\` declares no \`${declaration}\`. It declares: ` +
+                                `${module.declarations.map((d) => d.name).join(', ') || '(nothing)'}.`
+                        };
+                    }
+                    return { found: true, view: 'declaration', module: { ...module, declarations: [one] } };
+                }
+
+                if (summary) {
+                    return {
+                        found: true,
+                        view: 'summary',
+                        module: {
+                            ...module,
+                            declarations: module.declarations.map(({ name: n, kind, selector, description, inputs, outputs }) => ({
+                                name: n,
+                                kind,
+                                selector,
+                                description,
+                                inputCount: inputs.length,
+                                outputCount: outputs.length
+                            }))
+                        }
+                    };
+                }
+
+                return { found: true, view: 'full', module };
             }
         },
 
