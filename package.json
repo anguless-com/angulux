@@ -44,7 +44,6 @@
         }
     },
     "devDependencies": {
-        "@angular-devkit/build-angular": "catalog:angular22",
         "@angular/animations": "catalog:angular22",
         "@angular/build": "catalog:angular22",
         "@angular/cli": "catalog:angular22",
