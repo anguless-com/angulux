@@ -222,6 +222,27 @@ The generator can only read `packages/angulux/**` and `tools/**` and makes no ne
 request. That boundary is enforced in code and asserted by a test, because the PrimeNG
 *documentation site* was never MIT — only the source was, and only up to 21.1.9.
 
+### For assistants that speak MCP
+
+`packages/angulux-mcp` serves the same corpus as five tools over MCP stdio, so an assistant can
+query it instead of reading a page. It is **not published** — run it from a checkout:
+
+```
+claude mcp add angulux -- node /absolute/path/to/angulux/packages/angulux-mcp/bin/angulux-mcp.mjs
+```
+
+The tool worth knowing about is `check_usage`. Give it a selector, an import specifier, a module
+name or a list of inputs, and it answers before you write the code:
+
+```
+check_usage({ selector: 'p-button', entrypoint: 'primeng/button' })
+  → selector `p-button` is PrimeNG's; angulux uses `agl-button`
+  → import specifier `primeng/button` does not resolve; use `@anguless/angulux/button`
+```
+
+See [`packages/angulux-mcp/README.md`](packages/angulux-mcp/README.md) for the other four tools,
+the non-Claude client snippet, and why the package is unpublished.
+
 ## Provenance
 
 [`PROVENANCE.md`](PROVENANCE.md) records the exact upstream commits, the archived MIT
