@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -1003,7 +1003,7 @@ describe('SplitButton', () => {
 
                 // @ContentChild('content') should set contentTemplate
                 expect(splitButtonInstance.contentTemplate()).toBeDefined();
-                expect(splitButtonInstance.contentTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(splitButtonInstance.contentTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve the dropdownIcon slot into its signal query", async () => {
@@ -1016,7 +1016,7 @@ describe('SplitButton', () => {
 
                 // @ContentChild('dropdownicon') should set dropdownIconTemplate
                 expect(splitButtonInstance.dropdownIconTemplate()).toBeDefined();
-                expect(splitButtonInstance.dropdownIconTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(splitButtonInstance.dropdownIconTemplate()).toBeInstanceOf(TemplateRef);
             });
         });
 
