@@ -15,7 +15,12 @@
  * COSTS MONEY. Requires ANTHROPIC_API_KEY (or an `ant auth login` profile).
  *
  * Usage:
- *   node packages/angulux-mcp/benchmark/run.mjs [--model claude-opus-5] [--effort high] [--limit N]
+ *   node packages/angulux-mcp/benchmark/run.mjs [--model claude-opus-5] [--effort high]
+ *                                                [--sample | --limit N]
+ *
+ * --sample runs one question per kind (5 of 20). Prefer it over --limit for a cheap probe:
+ * the set is grouped by kind, so --limit 5 would ask five selector questions and none of the
+ * other four kinds.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -24,7 +29,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { ANSWER_SCHEMA, SYSTEM, grade, summarise, toAnthropicTools } from './harness.mjs';
+import { ANSWER_SCHEMA, SYSTEM, grade, sampleOnePerKind, summarise, toAnthropicTools } from './harness.mjs';
 import { loadCorpus } from '../src/corpus.mjs';
 
 const here = import.meta.dirname;
@@ -38,10 +43,12 @@ const arg = (flag, fallback) => {
 const MODEL = arg('--model', 'claude-opus-5');
 const EFFORT = arg('--effort', 'high');
 const LIMIT = Number(arg('--limit', '0')) || Infinity;
+const SAMPLE = process.argv.includes('--sample');
 const MAX_TOOL_TURNS = 6;
 
 const anthropic = new Anthropic();
-const { questions } = JSON.parse(readFileSync(resolve(here, 'questions.json'), 'utf8'));
+const all = JSON.parse(readFileSync(resolve(here, 'questions.json'), 'utf8')).questions;
+const questions = SAMPLE ? sampleOnePerKind(all) : all.slice(0, LIMIT);
 const corpus = loadCorpus();
 
 /** One question, one arm. Returns the graded result plus what it cost. */
@@ -132,7 +139,7 @@ async function runArm(label, { withTools }) {
     }
 
     const results = [];
-    for (const question of questions.slice(0, LIMIT)) {
+    for (const question of questions) {
         const result = await ask(question, { tools, mcp });
         results.push({ id: question.id, kind: question.kind, expect: question.expect, ...result });
         process.stderr.write(`  ${label} ${question.id} ${result.correct ? 'OK ' : 'MISS'} → ${result.answer ?? '(refused)'}\n`);
@@ -155,6 +162,7 @@ const record = {
     corpusSourceHash: corpus.sourceHash,
     libraryVersion: corpus.libraryVersion,
     questions: withMcp.length,
+    subset: SAMPLE ? 'one-per-kind' : questions.length < all.length ? `first ${questions.length}` : 'full',
     arms: {
         withMcp: { ...summarise(withMcp), usage: totals(withMcp), answers: withMcp },
         withoutMcp: { ...summarise(withoutMcp), usage: totals(withoutMcp), answers: withoutMcp }

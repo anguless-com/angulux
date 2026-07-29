@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ANSWER_SCHEMA, grade, summarise, toAnthropicTools } from '../benchmark/harness.mjs';
+import { ANSWER_SCHEMA, grade, sampleOnePerKind, summarise, toAnthropicTools } from '../benchmark/harness.mjs';
 import { createTools } from '../src/tools.mjs';
 import { loadCorpus } from '../src/corpus.mjs';
 
@@ -101,4 +101,15 @@ test('the harness does not enable model fallbacks', () => {
     // test. Refusals are recorded instead.
     const source = readFileSync(resolve(here, '../benchmark/run.mjs'), 'utf8');
     assert.doesNotMatch(source, /fallbacks/);
+});
+
+test('--sample takes one question per kind, not five of the same', () => {
+    // `--limit 5` is the obvious cheap probe and a trap: the set is grouped by kind, so the
+    // first five are all selector questions. That measures one question type while reading
+    // like it measured the benchmark.
+    const sample = sampleOnePerKind(questions);
+
+    assert.equal(sample.length, 5);
+    assert.equal(new Set(sample.map((q) => q.kind)).size, 5, 'every kind must be represented exactly once');
+    assert.notDeepEqual(sample.map((q) => q.id), questions.slice(0, 5).map((q) => q.id));
 });

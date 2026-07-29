@@ -76,6 +76,18 @@ export function grade(question, rawAnswer) {
     };
 }
 
+/**
+ * One question per kind, in file order — a cheap probe that still spans the whole set.
+ *
+ * `--limit 5` looks like the obvious way to try a few questions and is a trap: the set is
+ * grouped by kind, so the first five are all selector questions. That would measure one
+ * question type and read as if it measured the benchmark.
+ */
+export function sampleOnePerKind(questions) {
+    const seen = new Set();
+    return questions.filter((q) => !seen.has(q.kind) && seen.add(q.kind));
+}
+
 export function summarise(results) {
     const correct = results.filter((r) => r.correct).length;
     const primeNg = results.filter((r) => r.gaveWrongAnswer).length;
