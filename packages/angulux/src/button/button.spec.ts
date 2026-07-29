@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -835,7 +835,7 @@ describe('Button', () => {
                 const buttonInstance = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
 
                 expect(buttonInstance.contentTemplate()).toBeDefined();
-                expect(buttonInstance.contentTemplate()?.constructor.name).toBe('TemplateRef');
+                expect(buttonInstance.contentTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve the loadingIcon slot into its signal query", async () => {

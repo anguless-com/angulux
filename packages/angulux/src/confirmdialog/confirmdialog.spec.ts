@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -565,7 +565,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('header') should populate headerTemplate
                 expect(confirmDialogInstance.headerTemplate()).toBeDefined();
-                expect(confirmDialogInstance.headerTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.headerTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve messageTemplate from the #message template into its signal query", async () => {
@@ -578,7 +578,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('message') should populate messageTemplate
                 expect(confirmDialogInstance.messageTemplate()).toBeDefined();
-                expect(confirmDialogInstance.messageTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.messageTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve iconTemplate from the #icon template into its signal query", async () => {
@@ -591,7 +591,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('icon') should populate iconTemplate
                 expect(confirmDialogInstance.iconTemplate()).toBeDefined();
-                expect(confirmDialogInstance.iconTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.iconTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve footerTemplate from the #footer template into its signal query", async () => {
@@ -604,7 +604,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('footer') should populate footerTemplate
                 expect(confirmDialogInstance.footerTemplate()).toBeDefined();
-                expect(confirmDialogInstance.footerTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.footerTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve rejectIconTemplate from the #rejecticon template into its signal query", async () => {
@@ -617,7 +617,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('rejecticon') should populate rejectIconTemplate
                 expect(confirmDialogInstance.rejectIconTemplate()).toBeDefined();
-                expect(confirmDialogInstance.rejectIconTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.rejectIconTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve acceptIconTemplate from the #accepticon template into its signal query", async () => {
@@ -630,7 +630,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('accepticon') should populate acceptIconTemplate
                 expect(confirmDialogInstance.acceptIconTemplate()).toBeDefined();
-                expect(confirmDialogInstance.acceptIconTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.acceptIconTemplate()).toBeInstanceOf(TemplateRef);
             });
 
             it("should resolve headlessTemplate from the #headless template into its signal query", async () => {
@@ -643,7 +643,7 @@ describe('ConfirmDialog', () => {
 
                 // contentChild('headless') should populate headlessTemplate
                 expect(confirmDialogInstance.headlessTemplate()).toBeDefined();
-                expect(confirmDialogInstance.headlessTemplate()?.constructor.name).toBe("TemplateRef");
+                expect(confirmDialogInstance.headlessTemplate()).toBeInstanceOf(TemplateRef);
             });
         });
 
