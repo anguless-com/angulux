@@ -340,7 +340,7 @@ describe('Menu', () => {
         it('should have required dependencies injected', () => {
             expect(menuInstance.overlayService).toBeTruthy();
             expect(menuInstance._componentStyle).toBeTruthy();
-            expect(menuInstance.constructor.name).toBe('Menu');
+            expect(menuInstance).toBeInstanceOf(Menu);
         });
 
         it('should have default values', () => {

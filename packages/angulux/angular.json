@@ -5,6 +5,8 @@
     "projects": {
         "angulux": {
             "root": "src",
+            "//sourceRoot": "Stated explicitly, not inherited. The CLI derives sourceRoot as <root>/src when it is absent, and root is already 'src' here — so the default resolves to 'src/src', a directory that does not exist. @angular/build:karma passes that path to esbuild as the resolveDir for its generated test-bed module, and every bare import in it ('@angular/core', '@angular/core/testing') then fails to resolve. The webpack builder never used this value, which is why the mistake survived unnoticed until the builder changed.",
+            "sourceRoot": "src",
             "projectType": "library",
             "architect": {
                 "build": {
@@ -15,7 +17,8 @@
                     }
                 },
                 "test": {
-                    "builder": "@angular-devkit/build-angular:karma",
+                    "builder": "@angular/build:karma",
+                    "//polyfills": "Deliberately absent. All 48 spec files call provideZonelessChangeDetection(), so the suite needs no Zone.js. Listing 'zone.js' here would do more than waste a download: @angular/build:karma keys off it and injects provideZoneChangeDetection() into the test bed it generates, which then fights each spec's zoneless provider. That combination logs NG0914 on every spec and shifts change-detection timing enough to surface an unrelated null-node crash in TreeTable.",
                     "options": {
                         "tsConfig": "tsconfig.spec.json",
                         "scripts": []
