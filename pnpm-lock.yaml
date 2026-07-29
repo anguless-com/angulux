@@ -145,7 +145,7 @@ importers:
         specifier: catalog:angular22
         version: 6.0.3
       zone.js:
-        specifier: 0.16.2
+        specifier: catalog:angular22
         version: 0.16.2
 
   apps/verify:
