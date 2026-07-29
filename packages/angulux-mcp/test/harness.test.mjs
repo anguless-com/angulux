@@ -71,7 +71,20 @@ test('summarise counts correct, PrimeNG answers and refusals separately', () => 
         { correct: false, gaveWrongAnswer: true, refused: false },
         { correct: false, gaveWrongAnswer: false, refused: true }
     ];
-    assert.deepEqual(summarise(rows), { asked: 3, correct: 1, gavePrimeNgAnswer: 1, refused: 1 });
+    assert.deepEqual(summarise(rows), { asked: 3, correct: 1, gavePrimeNgAnswer: 1, refused: 1, errored: 0 });
+});
+
+test('an errored question is counted as errored, not as a wrong answer', () => {
+    // A run that half-failed on billing or rate limits must not read as a model that got half
+    // the answers wrong — that would be the most expensive kind of misleading number.
+    const rows = [
+        { correct: true, gaveWrongAnswer: false, refused: false },
+        { correct: false, gaveWrongAnswer: false, refused: false, error: '400 credit balance too low' }
+    ];
+    const s = summarise(rows);
+
+    assert.equal(s.errored, 1);
+    assert.equal(s.gavePrimeNgAnswer, 0, 'an API error is not the model reaching for PrimeNG');
 });
 
 test('the answer schema is shaped the way structured outputs require', () => {

@@ -92,5 +92,8 @@ export function summarise(results) {
     const correct = results.filter((r) => r.correct).length;
     const primeNg = results.filter((r) => r.gaveWrongAnswer).length;
     const refused = results.filter((r) => r.refused).length;
-    return { asked: results.length, correct, gavePrimeNgAnswer: primeNg, refused };
+    // Errored questions are reported separately from wrong ones. A run that half-failed on
+    // billing must not read as a model that got half the answers wrong.
+    const errored = results.filter((r) => r.error).length;
+    return { asked: results.length, correct, gavePrimeNgAnswer: primeNg, refused, errored };
 }

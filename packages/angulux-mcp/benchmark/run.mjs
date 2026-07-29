@@ -140,9 +140,27 @@ async function runArm(label, { withTools }) {
 
     const results = [];
     for (const question of questions) {
-        const result = await ask(question, { tools, mcp });
+        // Never let one failed question throw away the ones already paid for. A billing or
+        // rate-limit error on question 16 used to lose fifteen answers that cost real money;
+        // now it is recorded as a failed question and the run continues.
+        let result;
+        try {
+            result = await ask(question, { tools, mcp });
+        } catch (error) {
+            const status = error?.status ?? '';
+            result = {
+                correct: false,
+                gaveWrongAnswer: false,
+                refused: false,
+                error: `${status} ${error?.message ?? error}`.trim(),
+                usage: { input: 0, output: 0, calls: 0, toolCalls: 0 },
+                answer: null
+            };
+        }
+
         results.push({ id: question.id, kind: question.kind, expect: question.expect, ...result });
-        process.stderr.write(`  ${label} ${question.id} ${result.correct ? 'OK ' : 'MISS'} → ${result.answer ?? '(refused)'}\n`);
+        const mark = result.error ? 'ERR ' : result.correct ? 'OK  ' : 'MISS';
+        process.stderr.write(`  ${label} ${question.id} ${mark} → ${result.error ?? result.answer ?? '(refused)'}\n`);
     }
 
     await mcp?.close();
