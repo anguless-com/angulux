@@ -18,7 +18,8 @@
  */
 
 import ts from 'typescript';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const DECLARATION_KIND = { Component: 'component', Directive: 'directive' };
 
@@ -196,4 +197,50 @@ export function extractFile(filePath) {
     }
 
     return declarations;
+}
+
+/**
+ * The `.ts` files in a module that may legitimately declare public API.
+ *
+ * Recurses, because "components live in the module's top-level file" is an assumption about
+ * 64 directories nobody has verified — and the test compares this list against a regex over
+ * the same files, so a missed subdirectory shows up as a disagreement rather than as a
+ * quietly shorter corpus.
+ *
+ * Spec files are excluded on purpose. The 48 in-scope spec files declare throwaway host
+ * components with invented selectors; documenting those would put fiction in front of a
+ * model with no way for a reader to tell.
+ */
+export function sourceFilesOf(moduleDir) {
+    const found = [];
+
+    const walk = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+            const full = join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(full);
+                continue;
+            }
+            if (!entry.name.endsWith('.ts')) continue;
+            if (entry.name.endsWith('.spec.ts') || entry.name.endsWith('.d.ts')) continue;
+            found.push(full);
+        }
+    };
+
+    walk(moduleDir);
+    return found.sort();
+}
+
+/**
+ * Every documentable declaration in one module directory.
+ *
+ * Returns an empty array for a module that declares nothing — `api` is types and injection
+ * tokens with no renderable surface. Absence is data: the corpus records that the module
+ * exists and declares nothing, rather than dropping it and leaving a reader to guess whether
+ * it was missed or is genuinely empty.
+ *
+ * @param {string} moduleDir absolute path to `packages/angulux/src/<module>`
+ */
+export function extractModule(moduleDir) {
+    return sourceFilesOf(moduleDir).flatMap((file) => extractFile(file));
 }
