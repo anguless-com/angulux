@@ -25,6 +25,20 @@
       "submodules",
       "token"
     ],
+    "actions/configure-pages@v6": [
+      "enablement",
+      "generator_config_file",
+      "static_site_generator",
+      "token"
+    ],
+    "actions/deploy-pages@v5": [
+      "artifact_name",
+      "error_count",
+      "preview",
+      "reporting_interval",
+      "timeout",
+      "token"
+    ],
     "actions/first-interaction@v3": [
       "issue_message",
       "pr_message",
@@ -69,6 +83,12 @@
       "include-hidden-files",
       "name",
       "overwrite",
+      "path",
+      "retention-days"
+    ],
+    "actions/upload-pages-artifact@v5": [
+      "include-hidden-files",
+      "name",
       "path",
       "retention-days"
     ],

@@ -37,3 +37,6 @@ docs/specs/
 .env
 .env.*
 !.env.example
+
+# Generated LLM-facing site, built from the committed corpus by the Pages workflow.
+site/

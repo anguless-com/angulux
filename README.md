@@ -191,6 +191,37 @@ npx playwright test --config e2e/playwright.config.ts   # browser gate → 13/13
 `pnpm` runs through corepack and is not on `PATH`; use `corepack pnpm`. Karma needs
 `CHROME_BIN` set if Chrome is not at the default location.
 
+## Documentation for AI assistants
+
+Angulux is new, so no model has seen it. Ask an assistant about it and it will answer with
+PrimeNG's `p-*` API, because that is the only thing in its training data. These files exist
+so it does not have to guess:
+
+| URL | What it is |
+| --- | --- |
+| [`llms.txt`](https://anguless-com.github.io/angulux/llms.txt) | the index, in the [llms.txt](https://llmstxt.org) format |
+| [`llms-full.txt`](https://anguless-com.github.io/angulux/llms-full.txt) | every module's API in one file |
+| `<module>.md` | one page per module, e.g. [`button.md`](https://anguless-com.github.io/angulux/button.md) |
+
+All of it is generated from this repository's own TypeScript into `corpus/corpus.json`, and
+`check:corpus` fails the build if the committed corpus is not byte-identical to a fresh
+generation. Nothing here is hand-written, so **do not edit the corpus or the pages** — the
+next generation overwrites them. Fix the JSDoc in the component instead.
+
+Three things worth knowing before you rely on it:
+
+- **`llms-full.txt` is not part of the llms.txt specification.** The spec defines one file,
+  `llms.txt`. The full variant is a widely-followed convention, and we serve it because
+  assistants look for it — not because a standard requires it.
+- **Most inputs do not document a default.** Only 127 of 1205 declare `@defaultValue`, so
+  pages say *not documented* rather than leaving a blank that reads as "there is no default".
+- **69 inputs are deprecated** and each page names the replacement. That number is the single
+  best reason for this to exist: without it, an assistant recommends them confidently.
+
+The generator can only read `packages/angulux/**` and `tools/**` and makes no network
+request. That boundary is enforced in code and asserted by a test, because the PrimeNG
+*documentation site* was never MIT — only the source was, and only up to 21.1.9.
+
 ## Provenance
 
 [`PROVENANCE.md`](PROVENANCE.md) records the exact upstream commits, the archived MIT
