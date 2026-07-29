@@ -48,25 +48,39 @@ updates:
           - dependency-name: 'primeicons'
           - dependency-name: 'tailwindcss-primeui'
 
-          # --- Angular: majors are a deliberate, planned migration ------------
-          # angulux's major is locked to Angular's major, so an Angular major bump is a
-          # release-line decision (see GOVERNANCE.md), not a dependency update. Minor and
-          # patch updates are welcome and are still proposed.
+          # --- Everything a catalog owns. Bumped by hand, never by bot. -------
+          #
+          # pnpm-workspace.yaml is the single source of truth for these versions, and
+          # package.json refers to them as `catalog:` or `catalog:angular22` rather than
+          # by number. Dependabot does not model catalogs. When it bumped zone.js 0.15.1
+          # to 0.16.2 (#87) it updated pnpm-workspace.yaml and the lockfile's `catalogs`
+          # block correctly, then flattened the ROOT importer's specifier from
+          # `catalog:angular22` to the literal `0.16.2`. package.json still read
+          # `catalog:angular22`, so `pnpm install --frozen-lockfile` rejected the lockfile
+          # and all 12 gates died before one of them ran. The bump was fine; the catalog
+          # link was not.
+          #
+          # That break is structural, not a one-off. It repeats for any catalog entry the
+          # bot touches at any severity, so narrowing by update-type does not avoid it:
+          # 0.15.1 to 0.16.2 was not a major. The catalog moves as one reviewed commit
+          # in the private tree and syncs outward instead; 866e86c did exactly that for
+          # the whole angular22 catalog. These entries protect that mechanism.
+          #
+          # The cost is real and deliberate: no bot now watches Angular, TypeScript or
+          # rxjs for us, including for security advisories. Whoever bumps the catalog owns
+          # that. GOVERNANCE.md already made the Angular major a release-line decision;
+          # this extends the same hand-driven treatment to the rest of the catalog.
           - dependency-name: '@angular/*'
-            update-types: ['version-update:semver-major']
           - dependency-name: '@angular-devkit/*'
-            update-types: ['version-update:semver-major']
           - dependency-name: 'ng-packagr'
-            update-types: ['version-update:semver-major']
           - dependency-name: 'zone.js'
-            update-types: ['version-update:semver-major']
-
+          - dependency-name: 'rxjs'
+          - dependency-name: 'tslib'
+          - dependency-name: 'chart.js'
           # typescript MUST stay on 6.0.x: @angular/compiler-cli@22 requires ">=6.0 <6.1"
-          # while typescript@latest is already 7.x. A minor bump here breaks the build.
+          # while typescript@latest is already 7.x. check-catalog enforces the floor; this
+          # keeps the proposal from being opened in the first place.
           - dependency-name: 'typescript'
-            update-types:
-                - 'version-update:semver-major'
-                - 'version-update:semver-minor'
 
     - package-ecosystem: github-actions
       directory: /
