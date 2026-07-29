@@ -7,13 +7,13 @@
     "modules": [
         {
             "name": "api",
-            "entrypoint": "angulux/api",
+            "entrypoint": "@anguless/angulux/api",
             "description": "",
             "declarations": []
         },
         {
             "name": "autofocus",
-            "entrypoint": "angulux/autofocus",
+            "entrypoint": "@anguless/angulux/autofocus",
             "description": "",
             "declarations": [
                 {
@@ -39,7 +39,7 @@
         },
         {
             "name": "avatar",
-            "entrypoint": "angulux/avatar",
+            "entrypoint": "@anguless/angulux/avatar",
             "description": "",
             "declarations": [
                 {
@@ -144,7 +144,7 @@
         },
         {
             "name": "avatargroup",
-            "entrypoint": "angulux/avatargroup",
+            "entrypoint": "@anguless/angulux/avatargroup",
             "description": "",
             "declarations": [
                 {
@@ -180,7 +180,7 @@
         },
         {
             "name": "badge",
-            "entrypoint": "angulux/badge",
+            "entrypoint": "@anguless/angulux/badge",
             "description": "",
             "declarations": [
                 {
@@ -365,13 +365,13 @@
         },
         {
             "name": "base",
-            "entrypoint": "angulux/base",
+            "entrypoint": "@anguless/angulux/base",
             "description": "",
             "declarations": []
         },
         {
             "name": "basecomponent",
-            "entrypoint": "angulux/basecomponent",
+            "entrypoint": "@anguless/angulux/basecomponent",
             "description": "",
             "declarations": [
                 {
@@ -427,7 +427,7 @@
         },
         {
             "name": "baseeditableholder",
-            "entrypoint": "angulux/baseeditableholder",
+            "entrypoint": "@anguless/angulux/baseeditableholder",
             "description": "",
             "declarations": [
                 {
@@ -483,7 +483,7 @@
         },
         {
             "name": "baseinput",
-            "entrypoint": "angulux/baseinput",
+            "entrypoint": "@anguless/angulux/baseinput",
             "description": "",
             "declarations": [
                 {
@@ -599,7 +599,7 @@
         },
         {
             "name": "basemodelholder",
-            "entrypoint": "angulux/basemodelholder",
+            "entrypoint": "@anguless/angulux/basemodelholder",
             "description": "",
             "declarations": [
                 {
@@ -614,7 +614,7 @@
         },
         {
             "name": "bind",
-            "entrypoint": "angulux/bind",
+            "entrypoint": "@anguless/angulux/bind",
             "description": "",
             "declarations": [
                 {
@@ -640,7 +640,7 @@
         },
         {
             "name": "button",
-            "entrypoint": "angulux/button",
+            "entrypoint": "@anguless/angulux/button",
             "description": "",
             "declarations": [
                 {
@@ -1218,7 +1218,7 @@
         },
         {
             "name": "card",
-            "entrypoint": "angulux/card",
+            "entrypoint": "@anguless/angulux/card",
             "description": "",
             "declarations": [
                 {
@@ -1274,7 +1274,7 @@
         },
         {
             "name": "chart",
-            "entrypoint": "angulux/chart",
+            "entrypoint": "@anguless/angulux/chart",
             "description": "",
             "declarations": [
                 {
@@ -1389,7 +1389,7 @@
         },
         {
             "name": "checkbox",
-            "entrypoint": "angulux/checkbox",
+            "entrypoint": "@anguless/angulux/checkbox",
             "description": "",
             "declarations": [
                 {
@@ -1620,7 +1620,7 @@
         },
         {
             "name": "chip",
-            "entrypoint": "angulux/chip",
+            "entrypoint": "@anguless/angulux/chip",
             "description": "",
             "declarations": [
                 {
@@ -1743,7 +1743,7 @@
         },
         {
             "name": "colorpicker",
-            "entrypoint": "angulux/colorpicker",
+            "entrypoint": "@anguless/angulux/colorpicker",
             "description": "",
             "declarations": [
                 {
@@ -1914,13 +1914,13 @@
         },
         {
             "name": "config",
-            "entrypoint": "angulux/config",
+            "entrypoint": "@anguless/angulux/config",
             "description": "",
             "declarations": []
         },
         {
             "name": "confirmdialog",
-            "entrypoint": "angulux/confirmdialog",
+            "entrypoint": "@anguless/angulux/confirmdialog",
             "description": "",
             "declarations": [
                 {
@@ -2285,7 +2285,7 @@
         },
         {
             "name": "datepicker",
-            "entrypoint": "angulux/datepicker",
+            "entrypoint": "@anguless/angulux/datepicker",
             "description": "",
             "declarations": [
                 {
@@ -2998,7 +2998,7 @@
         },
         {
             "name": "dialog",
-            "entrypoint": "angulux/dialog",
+            "entrypoint": "@anguless/angulux/dialog",
             "description": "",
             "declarations": [
                 {
@@ -3541,7 +3541,7 @@
         },
         {
             "name": "divider",
-            "entrypoint": "angulux/divider",
+            "entrypoint": "@anguless/angulux/divider",
             "description": "",
             "declarations": [
                 {
@@ -3597,13 +3597,13 @@
         },
         {
             "name": "dom",
-            "entrypoint": "angulux/dom",
+            "entrypoint": "@anguless/angulux/dom",
             "description": "",
             "declarations": []
         },
         {
             "name": "drawer",
-            "entrypoint": "angulux/drawer",
+            "entrypoint": "@anguless/angulux/drawer",
             "description": "",
             "declarations": [
                 {
@@ -3844,7 +3844,7 @@
         },
         {
             "name": "fileupload",
-            "entrypoint": "angulux/fileupload",
+            "entrypoint": "@anguless/angulux/fileupload",
             "description": "",
             "declarations": [
                 {
@@ -4397,7 +4397,7 @@
         },
         {
             "name": "fluid",
-            "entrypoint": "angulux/fluid",
+            "entrypoint": "@anguless/angulux/fluid",
             "description": "",
             "declarations": [
                 {
@@ -4412,7 +4412,7 @@
         },
         {
             "name": "focustrap",
-            "entrypoint": "angulux/focustrap",
+            "entrypoint": "@anguless/angulux/focustrap",
             "description": "",
             "declarations": [
                 {
@@ -4438,7 +4438,7 @@
         },
         {
             "name": "iconfield",
-            "entrypoint": "angulux/iconfield",
+            "entrypoint": "@anguless/angulux/iconfield",
             "description": "",
             "declarations": [
                 {
@@ -4484,7 +4484,7 @@
         },
         {
             "name": "icons",
-            "entrypoint": "angulux/icons",
+            "entrypoint": "@anguless/angulux/icons",
             "description": "",
             "declarations": [
                 {
@@ -4942,7 +4942,7 @@
         },
         {
             "name": "inputicon",
-            "entrypoint": "angulux/inputicon",
+            "entrypoint": "@anguless/angulux/inputicon",
             "description": "",
             "declarations": [
                 {
@@ -4978,7 +4978,7 @@
         },
         {
             "name": "inputnumber",
-            "entrypoint": "angulux/inputnumber",
+            "entrypoint": "@anguless/angulux/inputnumber",
             "description": "",
             "declarations": [
                 {
@@ -5365,7 +5365,7 @@
         },
         {
             "name": "inputtext",
-            "entrypoint": "angulux/inputtext",
+            "entrypoint": "@anguless/angulux/inputtext",
             "description": "",
             "declarations": [
                 {
@@ -5461,7 +5461,7 @@
         },
         {
             "name": "menu",
-            "entrypoint": "angulux/menu",
+            "entrypoint": "@anguless/angulux/menu",
             "description": "",
             "declarations": [
                 {
@@ -5708,7 +5708,7 @@
         },
         {
             "name": "message",
-            "entrypoint": "angulux/message",
+            "entrypoint": "@anguless/angulux/message",
             "description": "",
             "declarations": [
                 {
@@ -5873,7 +5873,7 @@
         },
         {
             "name": "motion",
-            "entrypoint": "angulux/motion",
+            "entrypoint": "@anguless/angulux/motion",
             "description": "",
             "declarations": [
                 {
@@ -6388,7 +6388,7 @@
         },
         {
             "name": "multiselect",
-            "entrypoint": "angulux/multiselect",
+            "entrypoint": "@anguless/angulux/multiselect",
             "description": "",
             "declarations": [
                 {
@@ -7299,7 +7299,7 @@
         },
         {
             "name": "overlay",
-            "entrypoint": "angulux/overlay",
+            "entrypoint": "@anguless/angulux/overlay",
             "description": "",
             "declarations": [
                 {
@@ -7610,7 +7610,7 @@
         },
         {
             "name": "paginator",
-            "entrypoint": "angulux/paginator",
+            "entrypoint": "@anguless/angulux/paginator",
             "description": "",
             "declarations": [
                 {
@@ -7845,7 +7845,7 @@
         },
         {
             "name": "password",
-            "entrypoint": "angulux/password",
+            "entrypoint": "@anguless/angulux/password",
             "description": "",
             "declarations": [
                 {
@@ -8265,7 +8265,7 @@
         },
         {
             "name": "popover",
-            "entrypoint": "angulux/popover",
+            "entrypoint": "@anguless/angulux/popover",
             "description": "",
             "declarations": [
                 {
@@ -8428,7 +8428,7 @@
         },
         {
             "name": "progressbar",
-            "entrypoint": "angulux/progressbar",
+            "entrypoint": "@anguless/angulux/progressbar",
             "description": "",
             "declarations": [
                 {
@@ -8514,7 +8514,7 @@
         },
         {
             "name": "progressspinner",
-            "entrypoint": "angulux/progressspinner",
+            "entrypoint": "@anguless/angulux/progressspinner",
             "description": "",
             "declarations": [
                 {
@@ -8580,7 +8580,7 @@
         },
         {
             "name": "radiobutton",
-            "entrypoint": "angulux/radiobutton",
+            "entrypoint": "@anguless/angulux/radiobutton",
             "description": "",
             "declarations": [
                 {
@@ -8721,7 +8721,7 @@
         },
         {
             "name": "ripple",
-            "entrypoint": "angulux/ripple",
+            "entrypoint": "@anguless/angulux/ripple",
             "description": "",
             "declarations": [
                 {
@@ -8736,7 +8736,7 @@
         },
         {
             "name": "scroller",
-            "entrypoint": "angulux/scroller",
+            "entrypoint": "@anguless/angulux/scroller",
             "description": "",
             "declarations": [
                 {
@@ -9037,7 +9037,7 @@
         },
         {
             "name": "select",
-            "entrypoint": "angulux/select",
+            "entrypoint": "@anguless/angulux/select",
             "description": "",
             "declarations": [
                 {
@@ -9812,7 +9812,7 @@
         },
         {
             "name": "selectbutton",
-            "entrypoint": "angulux/selectbutton",
+            "entrypoint": "@anguless/angulux/selectbutton",
             "description": "",
             "declarations": [
                 {
@@ -9985,7 +9985,7 @@
         },
         {
             "name": "skeleton",
-            "entrypoint": "angulux/skeleton",
+            "entrypoint": "@anguless/angulux/skeleton",
             "description": "",
             "declarations": [
                 {
@@ -10071,7 +10071,7 @@
         },
         {
             "name": "splitbutton",
-            "entrypoint": "angulux/splitbutton",
+            "entrypoint": "@anguless/angulux/splitbutton",
             "description": "",
             "declarations": [
                 {
@@ -10420,7 +10420,7 @@
         },
         {
             "name": "table",
-            "entrypoint": "angulux/table",
+            "entrypoint": "@anguless/angulux/table",
             "description": "",
             "declarations": [
                 {
@@ -12636,7 +12636,7 @@
         },
         {
             "name": "tabs",
-            "entrypoint": "angulux/tabs",
+            "entrypoint": "@anguless/angulux/tabs",
             "description": "",
             "declarations": [
                 {
@@ -12756,7 +12756,7 @@
         },
         {
             "name": "tag",
-            "entrypoint": "angulux/tag",
+            "entrypoint": "@anguless/angulux/tag",
             "description": "",
             "declarations": [
                 {
@@ -12822,7 +12822,7 @@
         },
         {
             "name": "textarea",
-            "entrypoint": "angulux/textarea",
+            "entrypoint": "@anguless/angulux/textarea",
             "description": "",
             "declarations": [
                 {
@@ -12917,7 +12917,7 @@
         },
         {
             "name": "tieredmenu",
-            "entrypoint": "angulux/tieredmenu",
+            "entrypoint": "@anguless/angulux/tieredmenu",
             "description": "",
             "declarations": [
                 {
@@ -13340,7 +13340,7 @@
         },
         {
             "name": "timeline",
-            "entrypoint": "angulux/timeline",
+            "entrypoint": "@anguless/angulux/timeline",
             "description": "",
             "declarations": [
                 {
@@ -13396,7 +13396,7 @@
         },
         {
             "name": "toast",
-            "entrypoint": "angulux/toast",
+            "entrypoint": "@anguless/angulux/toast",
             "description": "",
             "declarations": [
                 {
@@ -13705,7 +13705,7 @@
         },
         {
             "name": "togglebutton",
-            "entrypoint": "angulux/togglebutton",
+            "entrypoint": "@anguless/angulux/togglebutton",
             "description": "",
             "declarations": [
                 {
@@ -13870,7 +13870,7 @@
         },
         {
             "name": "toggleswitch",
-            "entrypoint": "angulux/toggleswitch",
+            "entrypoint": "@anguless/angulux/toggleswitch",
             "description": "",
             "declarations": [
                 {
@@ -13995,7 +13995,7 @@
         },
         {
             "name": "tooltip",
-            "entrypoint": "angulux/tooltip",
+            "entrypoint": "@anguless/angulux/tooltip",
             "description": "",
             "declarations": [
                 {
@@ -14231,7 +14231,7 @@
         },
         {
             "name": "treetable",
-            "entrypoint": "angulux/treetable",
+            "entrypoint": "@anguless/angulux/treetable",
             "description": "",
             "declarations": [
                 {
@@ -15443,25 +15443,25 @@
         },
         {
             "name": "ts-helpers",
-            "entrypoint": "angulux/ts-helpers",
+            "entrypoint": "@anguless/angulux/ts-helpers",
             "description": "",
             "declarations": []
         },
         {
             "name": "types",
-            "entrypoint": "angulux/types",
+            "entrypoint": "@anguless/angulux/types",
             "description": "",
             "declarations": []
         },
         {
             "name": "usestyle",
-            "entrypoint": "angulux/usestyle",
+            "entrypoint": "@anguless/angulux/usestyle",
             "description": "",
             "declarations": []
         },
         {
             "name": "utils",
-            "entrypoint": "angulux/utils",
+            "entrypoint": "@anguless/angulux/utils",
             "description": "",
             "declarations": []
         }

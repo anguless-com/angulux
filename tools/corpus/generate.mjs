@@ -86,7 +86,12 @@ export function buildCorpus() {
         }
         return {
             name,
-            entrypoint: `angulux/${name}`,
+            // `@anguless/angulux/<module>`, not `angulux/<module>`. The package is scoped, and
+            // the secondary entry points hang off the scoped name — apps/verify imports
+            // `@anguless/angulux/card`. Publishing the unscoped form would have taught every
+            // assistant an import that does not resolve, which is the precise failure this
+            // corpus exists to prevent.
+            entrypoint: `@anguless/angulux/${name}`,
             description: '',
             declarations: extractModule(dir)
         };

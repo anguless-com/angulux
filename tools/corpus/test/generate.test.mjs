@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,7 +56,34 @@ test('a module that declares nothing is still present', () => {
 });
 
 test('every module carries the entrypoint a consumer would actually import', () => {
-    for (const module of buildCorpus().modules) {
-        assert.equal(module.entrypoint, `angulux/${module.name}`);
+    // ANCHORED TO REAL USAGE, not to a constant in this file. The first version of this test
+    // asserted `angulux/<module>` because that is what the plan sketched — and it passed,
+    // confirming a fiction. The package is scoped, so the real specifier is
+    // `@anguless/angulux/<module>`, and publishing the unscoped form would have taught every
+    // assistant an import that does not resolve.
+    //
+    // apps/verify is a real application that compiles against the built library, so its
+    // import statements are evidence in a way that a hardcoded string here never is.
+    const used = new Set();
+    const walk = (dir) => {
+        for (const entry of readdirSync(dir, { withFileTypes: true })) {
+            const full = resolve(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(full);
+                continue;
+            }
+            if (!entry.name.endsWith('.ts')) continue;
+            for (const match of readFileSync(full, 'utf8').matchAll(/from '(@anguless\/angulux\/[\w-]+)'/g)) {
+                used.add(match[1]);
+            }
+        }
+    };
+    walk(resolve(repoRoot, 'apps/verify/src'));
+
+    assert.ok(used.size > 0, 'the verification app imports nothing — this anchor proves nothing');
+
+    const byEntrypoint = new Map(buildCorpus().modules.map((m) => [m.entrypoint, m.name]));
+    for (const specifier of used) {
+        assert.ok(byEntrypoint.has(specifier), `apps/verify imports ${specifier}, which no corpus module claims`);
     }
 });

@@ -7,7 +7,7 @@
     "modules": [
         {
             "name": "button",
-            "entrypoint": "angulux/button",
+            "entrypoint": "@anguless/angulux/button",
             "description": "",
             "declarations": [
                 {
