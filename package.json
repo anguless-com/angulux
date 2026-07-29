@@ -32,6 +32,7 @@
         "test:tools": "node --test \"packages/angulux-license-guard/test/**/*.test.mjs\" \"packages/angulux-migrate/test/**/*.test.mjs\" \"tools/corpus/test/**/*.test.mjs\"",
         "check:tsup": "node tools/check-tsup-usage.mjs",
         "check:gate-count": "node tools/check-gate-count.mjs",
+        "check:corpus": "node tools/check-corpus.mjs",
         "check:action-inputs": "node tools/check-action-inputs.mjs",
         "check:facet-single-route": "node tools/check-facet-single-route.mjs"
     },
