@@ -1,0 +1,12 @@
+# The corpus is a GENERATED artifact whose bytes are compared, not merely parsed.
+#
+# `check:corpus` regenerates it and asserts the result is byte-identical to the committed
+# file. With `core.autocrlf=true` — the default on many Windows setups, and set on the
+# maintainer's machine — git checks text files out as CRLF while the generator emits LF, so
+# the gate would fail on Windows immediately after any fresh clone and pass on the Linux
+# runner. That is a gate that reports the platform rather than the drift.
+#
+# Pinning LF here fixes the artifact's bytes on every platform. Deliberately scoped to the
+# corpus alone: normalising the whole repository would rewrite every checked-out file for a
+# problem only the byte-compared artifact has.
+corpus/*.json text eol=lf

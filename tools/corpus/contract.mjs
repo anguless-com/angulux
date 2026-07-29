@@ -72,7 +72,12 @@ export function validateCorpus(corpus) {
         problems.push('generator block is missing');
     } else {
         if (!isString(generator.version)) problems.push('generator.version must be a string');
-        if (!isString(generator.commit)) problems.push('generator.commit must be a string');
+        // A content hash of the files that fed the corpus, NOT a commit SHA. A HEAD SHA
+        // would change on every commit and make the byte-identical drift gate fail on all of
+        // them — manufacturing the drift it exists to detect.
+        if (!isString(generator.sourceHash) || !/^[0-9a-f]{64}$/.test(generator.sourceHash)) {
+            problems.push('generator.sourceHash must be a sha256 hex digest');
+        }
         if (!Number.isInteger(generator.closureCount)) {
             problems.push('generator.closureCount must be an integer');
         }
