@@ -17,6 +17,10 @@ pnpm-lock.yaml.bak
 test-results/
 # Playwright MCP scratch output (snapshots, console logs, screenshots) — same rule
 .playwright-mcp/
+# Serena MCP project config and symbol cache — 48 MB of regenerable .pkl. Serena intends its
+# project.yml to be versioned, but this repo already keeps maintainer tooling out of the public
+# tree (`.agl/` above), and committing it would impose a particular AI tool on contributors.
+.serena/
 
 # Provenance tarballs: kept locally / in a private evidence store, never published.
 # primeng-21.1.9.tgz ships proprietary "PRIMENG LTS VERSIONS LICENSE" text inside its
