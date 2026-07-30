@@ -97,27 +97,53 @@ One-time sequence:
 3. Delete the token used in step 1.
 4. Every subsequent release runs through this workflow with no credential at all.
 
-## Seeding the tags before the first automated release
+## Seeding the tags — done 2026-07-30, and the version it fixed
 
-semantic-release derives the current version from git tags. A fresh repository has none, so
-it would start `angulux` at `1.0.0` — wrong, since the major is locked to Angular's.
+semantic-release derives the current version from git tags. A fresh repository has none, so it
+starts at `1.0.0` — wrong for `angulux`, whose major is locked to Angular's. Worse, `1.0.0` is
+not on the registry, so the workflow's duplicate-publish guard has nothing to catch: the first
+real run would have published `@anguless/angulux@1.0.0` and broken that lock permanently.
 
-After the manual first publish, create the two tags so both trains know where they are:
+Seeded at `83b6038`, where `v22.0.0-rc.0` points:
 
 ```bash
-git tag angulux-v22.0.0-rc.0
-git tag angulux-forks-v1.0.0
-git push origin angulux-v22.0.0-rc.0 angulux-forks-v1.0.0
+git tag angulux-v22.0.0     83b6038
+git tag angulux-forks-v1.0.0 83b6038
+git push origin angulux-v22.0.0 angulux-forks-v1.0.0
 ```
 
-Do this **once**, and check it before the first non-dry-run release. A dry run reports the
-version it would produce; if that number looks wrong, the tags are the reason.
+### The tag must be a STABLE version, not the published prerelease
+
+The obvious move — tagging `angulux-v22.0.0-rc.0`, the version actually on the registry —
+**does not work**, and the run that proved it is its own controlled comparison: same commit,
+same tooling, one dry-run.
+
+| Train | Tag | semantic-release | Version |
+|---|---|---|---|
+| forks | `angulux-forks-v1.0.0` — stable | `Found 31 commits since last release` | `1.1.0` |
+| angulux | `angulux-v22.0.0-rc.0` — prerelease | `There is no previous release` | `1.0.0` |
+
+semantic-release attributes a tag to the **channel of the branch it belongs to**. A version with
+a prerelease component belongs to the prerelease channel — the `next` branch — so `main` never
+sees it and falls back to a first release. The `angulux-v22.0.0-rc.0` tag is left in place: it is
+harmless on `main`, and it is the correct anchor if `next` is ever used.
+
+**Consequence, accepted deliberately:** anchoring at `angulux-v22.0.0` means the next automated
+release is `22.1.0`, and a plain `22.0.0` will never exist on the registry. Nothing can make the
+next automated release *be* `22.0.0` — there are no breaking commits, so the analyser computes a
+minor either way. Publishing `22.0.0` by hand first would have bought the number at the cost of
+one more irreversible manual publish, which is the step this automation exists to remove.
+
+Verified by dry-run afterwards: **angulux → `22.1.0`, forks → `1.1.0`**, neither on the registry.
+`Found N commits since last release` is the line that proves a tag was recognised;
+`There is no previous release` is the line that proves it was not.
 
 ## Prereleases
 
 The `next` branch is configured as a prerelease channel producing `-rc.N` versions on both
-trains. `main` produces stable releases. An RC on `main` (as `22.0.0-rc.0` currently is) is
-a pre-automation artifact, not a pattern to keep.
+trains. `main` produces stable releases. An RC on `main` (as `22.0.0-rc.0` is) is a
+pre-automation artifact, not a pattern to keep — and, as the seeding section above records, it
+also cannot serve as `main`'s baseline.
 
 ## What produces which bump
 
