@@ -273,9 +273,16 @@ jobs:
                       # Publishing the tarball also means the artifact that ships is the same
                       # one check:publishable inspected, rather than a second build of it.
                       echo "::group::publish $name@$version"
-                      (cd "$dir" && corepack pnpm pack --pack-destination "$staging" >/dev/null)
-                      tarball="$staging/$name-$version.tgz"
-                      [ -f "$tarball" ] || { echo "::error::expected $tarball"; ls -la "$staging"; exit 1; }
+
+                      # The tarball path comes from pnpm's own output, not from the package
+                      # name. npm flattens the scope when naming a tarball, so
+                      # `@anguless/angulux-utils` packs to `anguless-angulux-utils-<v>.tgz`.
+                      # Building the path out of "$name" verbatim produced a path with a
+                      # slash in the middle, which never exists — and only at release time,
+                      # since this workflow has never run a real publish.
+                      # tools/check-publishable.mjs reads the path this way already.
+                      tarball=$(cd "$dir" && corepack pnpm pack --pack-destination "$staging" | tail -n 1)
+                      [ -f "$tarball" ] || { echo "::error::expected a tarball, got '$tarball'"; ls -la "$staging"; exit 1; }
 
                       node -e "
                         const {execFileSync}=require('child_process');
@@ -413,12 +420,19 @@ jobs:
               run: |
                   set -euo pipefail
                   version="${{ steps.after.outputs.version }}"
+                  name=$(node -p "require('./packages/angulux/dist/package.json').name")
 
                   # A version that already exists on the registry after semantic-release just
                   # minted it is not a no-op to skip past — it means the computed version was
                   # wrong, or a previous run published and failed to tag. Either way, stop.
-                  if npm view "angulux@$version" version >/dev/null 2>&1; then
-                      echo "::error::angulux@$version is already on the registry, but this run just released it."
+                  #
+                  # The name is read from the manifest rather than hard-coded. This line asked
+                  # about `angulux` long after the package became `@anguless/angulux`, and an
+                  # unpublished name makes `npm view` fail — so the guard fell through every
+                  # time. The last check standing between a re-run and a duplicate publish was
+                  # reporting success without having looked at anything.
+                  if npm view "$name@$version" version >/dev/null 2>&1; then
+                      echo "::error::$name@$version is already on the registry, but this run just released it."
                       echo "Do not re-publish over it. Investigate the tags before doing anything else."
                       exit 1
                   fi
@@ -427,8 +441,7 @@ jobs:
                   # check:publishable inspected — not a second build of it. See the fork job
                   # for why packing with pnpm rather than npm is load-bearing.
                   staging=$(mktemp -d)
-                  (cd packages/angulux/dist && corepack pnpm pack --pack-destination "$staging" >/dev/null)
-                  tarball="$staging/angulux-$version.tgz"
-                  [ -f "$tarball" ] || { echo "::error::expected $tarball"; ls -la "$staging"; exit 1; }
+                  tarball=$(cd packages/angulux/dist && corepack pnpm pack --pack-destination "$staging" | tail -n 1)
+                  [ -f "$tarball" ] || { echo "::error::expected a tarball, got '$tarball'"; ls -la "$staging"; exit 1; }
 
                   npm publish --provenance --access public "$tarball"
