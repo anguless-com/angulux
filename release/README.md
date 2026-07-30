@@ -137,10 +137,34 @@ around **November 2026**.
 
 ## Tooling is not a dependency
 
-semantic-release and its plugins run through `npx` in the workflow instead of sitting in
-`devDependencies`. This repository's dependency tree *is* its license risk surface
-(see [`../SECURITY.md`](../SECURITY.md)) and its lockfile is evidence. Release tooling has
-no business in either.
+semantic-release and its plugins are not in `devDependencies`. This repository's dependency
+tree *is* its license risk surface (see [`../SECURITY.md`](../SECURITY.md)) and its lockfile is
+evidence. Release tooling has no business in either.
+
+[`install-tooling.sh`](install-tooling.sh) installs the pinned set into `$RUNNER_TEMP` —
+outside the repository entirely — and exports `NODE_PATH` so semantic-release can find it. Since
+nothing lands in the working tree, the tooling cannot reach the manifest, the lockfile, or the
+commit `@semantic-release/git` makes.
+
+### Why not `npx -p`, which is what this was until 2026-07-30
+
+It did not work, and nothing had run it. semantic-release loads plugins with
+`resolve-from(cwd, name)` — out of the *project's* `node_modules` — while `npx -p` leaves them in
+its own cache. The first dry-run ever attempted died on the first plugin:
+
+```
+Error: Cannot find module '@semantic-release/commit-analyzer'
+Require stack: - /home/runner/work/angulux/angulux/noop.js
+```
+
+The workflow is `workflow_dispatch` only and every first publish was manual, so the release
+automation had never executed past version computation. `npm install` inside the repository is
+not the alternative either: this is a pnpm workspace whose manifests use the `catalog:` and
+`workspace:` protocols, and npm cannot resolve either of them.
+
+`install-tooling.sh` therefore ends by resolving every plugin the way semantic-release will,
+from the repository as cwd, and fails there — with the list of what is unresolvable — rather
+than three steps later inside semantic-release's plugin loader.
 
 ## If a release goes wrong
 

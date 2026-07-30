@@ -39,10 +39,30 @@ permissions:
 
 env:
     NODE_VERSION: '22'
-    # semantic-release and its plugins are run through npx rather than added to
-    # devDependencies on purpose: this repository's dependency tree IS its license risk
-    # surface (see SECURITY.md), and release tooling has no business inside it.
-    SR_VERSION: '24'
+    # Release tooling stays OUT of devDependencies on purpose: this repository's dependency tree
+    # IS its license risk surface (see SECURITY.md) and its lockfile is evidence. It is installed
+    # into $RUNNER_TEMP instead — outside the repository entirely, so it cannot reach the manifest,
+    # the lockfile, or the release commit — and reached through NODE_PATH.
+    #
+    # It used to run through `npx -p semantic-release -p @semantic-release/...`. That never worked:
+    # semantic-release loads plugins with resolve-from(cwd, name), i.e. out of the PROJECT's
+    # node_modules, while npx leaves them in its own cache. Every plugin came back
+    # MODULE_NOT_FOUND, and because the workflow is dispatch-only it was never run until
+    # 2026-07-30. `npm install` inside the repository is not the alternative: this is a pnpm
+    # workspace whose manifests use the `catalog:` and `workspace:` protocols, which npm cannot
+    # resolve.
+    #
+    # Pinned exactly, like everything else this repository installs — no ^, no ~.
+    SR_TOOLING: >-
+        semantic-release@24.2.9
+        @semantic-release/commit-analyzer@13.0.1
+        @semantic-release/release-notes-generator@14.1.1
+        @semantic-release/changelog@7.0.0
+        @semantic-release/exec@7.1.0
+        @semantic-release/git@11.0.1
+        @semantic-release/github@12.0.9
+        @semantic-release/npm@13.1.5
+        conventional-changelog-conventionalcommits@8.0.0
 
 jobs:
     # ---------------------------------------------------------------------------
@@ -194,20 +214,14 @@ jobs:
               id: before
               run: echo "version=$(node -p "require('./packages/angulux-styled/package.json').version")" >> "$GITHUB_OUTPUT"
 
+            - name: Install the release tooling, outside the repository
+              run: bash release/install-tooling.sh
+
             - name: semantic-release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  npx --yes \
-                      -p semantic-release@${SR_VERSION} \
-                      -p @semantic-release/commit-analyzer \
-                      -p @semantic-release/release-notes-generator \
-                      -p @semantic-release/changelog \
-                      -p @semantic-release/exec \
-                      -p @semantic-release/git \
-                      -p @semantic-release/github \
-                      -p conventional-changelog-conventionalcommits@8 \
-                      semantic-release --extends ./release/forks.releaserc.json \
+                  semantic-release --extends ./release/forks.releaserc.json \
                       ${{ github.event.inputs.dry-run == 'true' && '--dry-run' || '' }}
 
             - name: Did a release happen
@@ -353,20 +367,14 @@ jobs:
               id: before
               run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
+            - name: Install the release tooling, outside the repository
+              run: bash release/install-tooling.sh
+
             - name: semantic-release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  npx --yes \
-                      -p semantic-release@${SR_VERSION} \
-                      -p @semantic-release/commit-analyzer \
-                      -p @semantic-release/release-notes-generator \
-                      -p @semantic-release/changelog \
-                      -p @semantic-release/npm \
-                      -p @semantic-release/git \
-                      -p @semantic-release/github \
-                      -p conventional-changelog-conventionalcommits@8 \
-                      semantic-release --extends ./release/angulux.releaserc.json \
+                  semantic-release --extends ./release/angulux.releaserc.json \
                       ${{ github.event.inputs.dry-run == 'true' && '--dry-run' || '' }}
 
             - name: Did a release happen
