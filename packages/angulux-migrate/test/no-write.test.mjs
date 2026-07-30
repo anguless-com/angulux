@@ -79,8 +79,11 @@ test('the report gives file and line for individual changes', () => {
     const dir = tempProject(PROJECT);
     try {
         const { output } = runMigrate(dir);
-        assert.match(output, /src\/app\.html:1/);
-        assert.match(output, /src\/app\.component\.ts:1/);
+        // Either separator: the report prints native paths, so Windows says `src\app.html`.
+        // That is correct output for the platform, not a defect to normalise away in the
+        // migrator — so the tolerance belongs here, in the assertion.
+        assert.match(output, /src[/\\]app\.html:1/);
+        assert.match(output, /src[/\\]app\.component\.ts:1/);
     } finally {
         rmSync(dir, { recursive: true, force: true });
     }
