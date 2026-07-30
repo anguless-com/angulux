@@ -125,21 +125,41 @@ from a trimmed one.
   to a reading model instead of being filled with a guess.
 - **69 inputs are deprecated.** Each carries its replacement.
 
-## The benchmark, and what it has not yet shown
+## What this server is proven to do — and what it is not
 
-`benchmark/` holds a two-arm harness for the spec's AC-12: the same 20 questions asked with the
-server's tools attached and again with no tools, so the second arm is a control.
+Two different claims, kept apart on purpose. One is verified in CI; the other is not verified at
+all, and saying so is cheaper than being caught overstating it.
 
-**It has not been run.** The org has no Anthropic API credit — a Claude Code subscription and
-API credit are billed separately — so the value claim behind this server, that an assistant
-stops emitting PrimeNG APIs for angulux, is currently **plausible but unmeasured**.
+### ✅ Proven: the answer is here, and PrimeNG's is not
 
-What *is* measured: every tool round-trips through a real MCP client over real stdio, the whole
-set still works with the network removed, and `check_usage` demonstrably rejects `p-button` and
-names `agl-button`.
+`test/sufficiency.test.mjs` drives the real binary over real stdio and asserts, for all **20**
+benchmark questions:
 
-**Re-report trigger:** run it when API credit exists. One command, and the result is committed
-whichever way it goes:
+- every question is answerable in **at most two tool calls** — measured by counting calls, not
+  assumed from the shape of the code;
+- the PrimeNG answer is **absent** from what the lookup hands back;
+- given the wrong answer, `check_usage` rejects it and **names the right one**.
+
+Verdicts are scored by `grade()`, the same function the paid harness uses, so the free gate and
+the paid one cannot drift apart. Free, offline, deterministic, part of `npm run test:tools`.
+
+**Mutation-proven**, because a new gate that passes first try has not earned trust: rewriting the
+selector to `p-*` in `tools.mjs` reddens the answerability and absence tests; making `check_usage`
+always return `ok: true` reddens the correction test; adding an unhandled question kind reddens
+the coverage guard. Each mutation reddened only its own test.
+
+### ⏸️ Not proven: that assistants actually behave better
+
+The sufficiency gate says **nothing about model behaviour.** It proves the data source is
+sufficient, not that an assistant chooses to consult it. The honest reading: a model that still
+writes `p-button` **did not look** — as opposed to looked and found nothing.
+
+`benchmark/` holds a two-arm harness for that stronger claim (the spec's **AC-12b**): the same 20
+questions with the tools attached and again with no tools as a control. **It has never been run.**
+It needs Anthropic API credit, which is billed **separately** from a Claude Code subscription, and
+that spend was declined on 2026-07-30. It is an **opt-in tool, not a gate**.
+
+If you want the number, one command — and the result gets committed whichever way it goes:
 
 ```
 node packages/angulux-mcp/benchmark/run.mjs --sample --effort medium   # 5 questions, one per kind
