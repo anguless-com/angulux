@@ -7,14 +7,37 @@
  * nothing FOREIGN (bijection), but a HALF-applied rename reverses perfectly: reversibility is not
  * completeness. This guard proves completeness — zero bare package names left in a scoped position.
  *
- * THREE CHECKS:
- *   1. Completeness — no quoted `angulux`/`angulux-{fork}` specifier remains unscoped (target: 0).
+ * FIVE CHECKS:
+ *   1. Completeness — no quoted `angulux`/`angulux-{fork}` specifier remains unscoped, IN THE TS
+ *                     AND MANIFEST SCAN SCOPE (target: 0). The scope is printed with the result;
+ *                     see the note on claim width below.
  *   2. Invariant    — the count of quoted `.p-*` CSS-class strings is unchanged (this rename must
  *                     never touch a selector or CSS class). Baseline measured at rename time.
- *   3. Couplings    — the three sites that string-match the BARE name and are hand-patched (the
- *                     codemod cannot reach them): the tsup `external` regex literal and the
- *                     gen-closure closure regex. (postbuild's dir mapping is behavioural — proven
- *                     by the build + check:publishable at V1, not statically here.)
+ *   3. Couplings    — the sites that string-match the BARE name and are hand-patched (the codemod
+ *                     cannot reach them): the tsup `external` regex literal and the gen-closure
+ *                     closure regex. (postbuild's dir mapping is behavioural — proven by the build
+ *                     + check:publishable at V1, not statically here.)
+ *   4. Registry ids — a bare name handed to a REGISTRY-FACING npm subcommand (`npm view angulux@…`,
+ *                     `npm deprecate angulux@…`). Added 2026-07-30 after BL-53: `release.yml` ran
+ *                     `npm view "angulux@$version"` for months. Nothing is published under the bare
+ *                     `angulux`, so npm exited non-zero every time and the duplicate-publish guard
+ *                     wrapped around it never fired. Prose that merely mentions "angulux@22.x" is
+ *                     not flagged — only a name a TOOL is about to consume.
+ *   5. Filters resolve — every `--filter <x>` in the workflows and the root scripts names a real
+ *                     workspace package. pnpm prints "No projects matched the filters" and
+ *                     **exits 0**, so a filter pointing at a package that was renamed away is a
+ *                     silent no-op with a green CI. This replaces an earlier rule that rejected
+ *                     bare `--filter angulux` on the stated grounds that it "silently matches
+ *                     nothing". Measured 2026-07-30: that is false — pnpm matches a scope-less
+ *                     pattern against any scope, and `--filter angulux` selects
+ *                     `@anguless/angulux` correctly. The rule was blocking a working command for a
+ *                     reason that did not exist; the real hazard is the exit-0 no-match above.
+ *
+ * ON CLAIM WIDTH (the BL-53 lesson): each line this script prints must describe what it ACTUALLY
+ * inspected, not what it is named after. Check 1 previously announced "no bare reference left in
+ * any scoped position" while reading only .ts files and a fixed manifest list — which is how three
+ * bare names survived in CI shell for months. A guard that overstates its reach is worse than a
+ * missing guard: it makes people stop looking.
  *
  * Runs in `npm run check` (gate #8) and before publish. RED until BL-29 B* completes, then GREEN.
  *
@@ -81,9 +104,6 @@ const gc = 'tools/scope/gen-closure.mjs';
 if (fs.existsSync(gc) && !fs.readFileSync(gc, 'utf8').includes('@anguless/angulux')) {
     couplingFails.push(`${gc}: closure regex does not mention @anguless/angulux — first-party imports won't be detected (closure goes empty)`);
 }
-// pnpm `--filter angulux` selects by package NAME, so after scoping it must read
-// `--filter @anguless/angulux`. The bare form silently matches nothing → build:lib is a no-op.
-// (Directory refs `packages/angulux-*` are a different thing and stay unscoped — dirs don't move.)
 function walkYml(dir, out = []) {
     if (!fs.existsSync(dir)) return out;
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -92,10 +112,62 @@ function walkYml(dir, out = []) {
     }
     return out;
 }
+
+// ── check 4: a bare name handed to a registry-facing npm subcommand ──
+//
+// The BL-53 defect. `npm view angulux@22.0.0-rc.0` asks about a package that does not exist (the
+// bare name was refused by npm's typosquat filter and never published), so npm exits non-zero and
+// any `if` wrapped around it falls through. Scanned in the files where such a command actually
+// runs or is documented for copy-paste, not everywhere the product is mentioned in prose.
+const REGISTRY_SUBCMDS = 'view|info|show|publish|unpublish|deprecate|dist-tag|pack|install|i|add';
+const NPM_INVOCATION = new RegExp(String.raw`\bnpm\s+(?:-{1,2}\S+\s+)*(?:${REGISTRY_SUBCMDS})\b([^\n]*)`, 'g');
+// A bare first-party package name: not already scoped (`@anguless/…`), not a longer name that
+// merely starts with it (`angulux-migrate` and `angulux-license-guard` ARE published bare — they
+// are the outward-facing tools and must not be flagged).
+const BARE_REGISTRY_ID = new RegExp(String.raw`(?<![@\w./-])(angulux(?:-(?:utils|styled|styles|motion))?)(?=@|["'\s]|$)`);
+
+const REGISTRY_ID_SCOPE = [
+    ...walkYml('.github/workflows'),
+    ...['release/README.md', 'README.md', 'PROVENANCE.md', 'SECURITY.md', 'CONTRIBUTING.md',
+        'GOVERNANCE.md', 'SUPPORT.md', '.github/pull_request_template.md'],
+].filter((f) => fs.existsSync(f));
+
+const registryIdFails = [];
+for (const p of REGISTRY_ID_SCOPE) {
+    for (const m of fs.readFileSync(p, 'utf8').matchAll(NPM_INVOCATION)) {
+        const bare = m[1].match(BARE_REGISTRY_ID);
+        if (bare) registryIdFails.push(`${path.relative(root, p)}: \`${m[0].trim().slice(0, 72)}\` → bare \`${bare[1]}\`, must be \`@anguless/${bare[1]}\``);
+    }
+}
+
+// ── check 5: every `--filter <x>` names a package that exists ──
+//
+// pnpm prints "No projects matched the filters" and EXITS 0. A filter left pointing at a name that
+// was renamed away is therefore a step that does nothing, in a job that passes. Measured, not
+// assumed: a scope-less pattern matches any scope, so `--filter angulux` legitimately selects
+// `@anguless/angulux`; `--filter @wrongscope/angulux` and `--filter angulu` match nothing.
+const wsNames = new Set();
+for (const glob of ['packages', 'apps']) {
+    if (!fs.existsSync(glob)) continue;
+    for (const e of fs.readdirSync(glob, { withFileTypes: true })) {
+        const mf = path.join(glob, e.name, 'package.json');
+        if (e.isDirectory() && fs.existsSync(mf)) wsNames.add(JSON.parse(fs.readFileSync(mf, 'utf8')).name);
+    }
+}
+const filterResolves = (token) => wsNames.has(token) ||
+    (!token.includes('/') && [...wsNames].some((n) => n.split('/').pop() === token));
+
+const filterFails = [];
+let filtersChecked = 0;
 for (const p of ['package.json', ...walkYml('.github/workflows')]) {
     if (!fs.existsSync(p)) continue;
-    const hits = [...fs.readFileSync(p, 'utf8').matchAll(/--filter[= ]+angulux(?=[\s"'])/g)];
-    if (hits.length) couplingFails.push(`${path.relative(root, p)}: ${hits.length}× bare \`--filter angulux\` (pnpm filters by name → must be \`--filter @anguless/angulux\`)`);
+    for (const m of fs.readFileSync(p, 'utf8').matchAll(/--filter[= ]+(['"]?)([^\s'"]+)\1/g)) {
+        const token = m[2];
+        // Path and glob filters are a different mechanism and resolve at run time.
+        if (/^[.]{1,3}[/\\]?|[*{]/.test(token)) continue;
+        filtersChecked++;
+        if (!filterResolves(token)) filterFails.push(`${path.relative(root, p)}: \`--filter ${token}\` matches no workspace package (pnpm would print "No projects matched" and exit 0)`);
+    }
 }
 
 // ── report ──
@@ -109,7 +181,7 @@ if (bareCount > 0) {
     if (bareCount > bareSamples.length) console.error(`      … and ${bareCount - bareSamples.length} more`);
     console.error('  → run: node tools/codemod/scope-anguless.mjs');
 } else {
-    console.log('✓ completeness: no bare angulux/angulux-* package reference left in any scoped position.');
+    console.log(`✓ completeness: no bare angulux/angulux-* specifier in ${files.length} .ts + manifest file(s).`);
 }
 
 if (pClassCount !== P_CLASS_BASELINE) {
@@ -124,9 +196,28 @@ if (couplingFails.length) {
     console.error('\n✗ couplings: a bare-name string-match site was not updated:');
     for (const c of couplingFails) console.error(`      · ${c}`);
 } else {
-    console.log('✓ couplings: tsup external + gen-closure closure regex reference the scoped name.');
+    console.log('✓ couplings: 4 tsup external regexes + the gen-closure regex reference the scoped name.');
 }
 
-console.log(`\n  scanned ${files.length} file(s)`);
+if (registryIdFails.length) {
+    failed = true;
+    console.error(`\n✗ registry ids: ${registryIdFails.length} npm command(s) name a package that is not published:`);
+    for (const c of registryIdFails) console.error(`      · ${c}`);
+    console.error('  A command aimed at an unpublished name does not report "not found" — npm exits');
+    console.error('  non-zero and any `if` around it falls through. See BL-53.');
+} else {
+    console.log(`✓ registry ids: no bare name passed to npm view/publish/deprecate/… in ${REGISTRY_ID_SCOPE.length} workflow + doc file(s).`);
+}
+
+if (filterFails.length) {
+    failed = true;
+    console.error(`\n✗ filters: ${filterFails.length} pnpm filter(s) match no workspace package:`);
+    for (const c of filterFails) console.error(`      · ${c}`);
+    console.error('  pnpm exits 0 on no-match, so this is a step that does nothing in a job that passes.');
+} else {
+    console.log(`✓ filters: ${filtersChecked} \`--filter\` token(s) all resolve, against ${wsNames.size} workspace package(s).`);
+}
+
+console.log(`\n  scanned ${files.length} .ts/manifest file(s) + ${REGISTRY_ID_SCOPE.length} workflow/doc file(s)`);
 if (failed) process.exit(1);
-console.log('✓ scan-anguless-scope: scope rename is complete and positionally sound.');
+console.log('✓ scan-anguless-scope: 5 checks green — see the header for exactly what each one covers.');
