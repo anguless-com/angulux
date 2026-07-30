@@ -26,6 +26,12 @@ function project({ git = true, dirty = false } = {}) {
         g('init', '-q');
         g('config', 'user.email', 'test@example.com');
         g('config', 'user.name', 'Test');
+        // Pin line endings for the same reason identity is pinned: the fixture repo must not
+        // inherit the developer's global git config. With `core.autocrlf=true` — the Windows
+        // default — `git checkout` restores these files with CRLF, and the revertibility test
+        // below compares bytes against an LF fixture. Normalising the comparison instead would
+        // weaken the one assertion that matters: a revert must restore the file EXACTLY.
+        g('config', 'core.autocrlf', 'false');
         g('add', '-A');
         g('commit', '-qm', 'base');
         if (dirty) writeFileSync(join(dir, 'src', 'extra.html'), '<div>uncommitted</div>\n');
