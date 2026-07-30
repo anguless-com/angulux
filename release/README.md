@@ -146,8 +146,13 @@ no business in either.
 
 - **Published the wrong content.** Do not `npm unpublish` and reuse the version — the
   version is burned. Publish a patch that fixes it, and deprecate the bad one:
-  `npm deprecate angulux@x.y.z "broken, use x.y.z+1"`.
+  `npm deprecate @anguless/angulux@x.y.z "broken, use x.y.z+1"`. The scope is not optional:
+  nothing is published under the bare `angulux` — npm's typosquat filter refused it — so a
+  command naming it fails instead of doing anything.
 - **semantic-release tagged but publishing failed.** Re-run the workflow. Both publish steps
-  check `npm view` first and skip versions already on the registry, so a re-run is safe.
+  ask `npm view` about the version first and **stop** if it is already on the registry — they
+  do not skip past it, because a version that exists after semantic-release just minted it
+  means the computed version is wrong or an earlier run published without tagging. Investigate
+  the tags rather than re-running again.
 - **The wrong version was computed.** Check the seeded tags above; that is almost always
   the cause.
