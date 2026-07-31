@@ -7,9 +7,16 @@
 # gitignored, and a workflow that published a whole directory tree would be one mistake away
 # from putting it on the public web.
 #
-# The canonical URL today is https://anguless-com.github.io/angulux/. When angulux.io is
-# bought it points at this same deployment and GitHub 301s these paths, so nothing an
-# assistant cached goes stale — the paths never change, only the host.
+# The canonical URL is https://angulux.anguless.com/ — a subdomain of a domain already owned,
+# which is a HOST ROOT and therefore the address assistants probe by convention
+# (https://<host>/llms.txt). The `CNAME` that puts it there is emitted into the artifact by
+# build-site, not left to the repository setting alone: a workflow deploy replaces the whole
+# published tree, so a domain configured only in settings is one deploy away from silently
+# reverting to the github.io path while every generated link still names the custom domain.
+#
+# GitHub 301s the old https://anguless-com.github.io/angulux/* here, so nothing an assistant
+# cached goes stale. The PATH does change — the `/angulux/` prefix is dropped — which is why
+# that is a redirect and not merely a new hostname in front of unchanged paths.
 name: Pages
 
 on:

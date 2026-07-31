@@ -109,6 +109,23 @@ test('the page declares a favicon, so a visit does not log a 404 for one', () =>
     assert.match(site.get('favicon.svg'), /^<svg /);
 });
 
+test('the CNAME names exactly the host every generated link points at', () => {
+    // A CNAME naming one host while 65 files link to another is invisible until something
+    // 404s, so it is derived rather than typed.
+    const cname = site.get('CNAME');
+
+    assert.ok(cname, 'no CNAME in the artifact');
+    assert.equal(cname.trim(), new URL(BASE_URL).hostname);
+    assert.ok(!cname.includes('/'), 'CNAME must be a bare hostname, not a URL');
+    assert.ok(!cname.includes(':'), 'CNAME must not carry a scheme or port');
+});
+
+test('llms.txt is served from a host ROOT, not a project subpath', () => {
+    // The whole reason for the custom domain: assistants probe https://<host>/llms.txt.
+    // A path segment before the filename puts it where nothing looks by convention.
+    assert.equal(new URL(BASE_URL).pathname, '/');
+});
+
 test('robots.txt allows the crawlers this deployment exists for', () => {
     const robots = site.get('robots.txt');
 
