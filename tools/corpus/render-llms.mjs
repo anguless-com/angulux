@@ -11,16 +11,28 @@
  * implying a standard exists. Getting this backwards would mean quietly inventing a rule and
  * then defending it.
  *
- * The spec permits llms.txt at a subpath, which is what makes serving from a GitHub Pages
- * project path legal today and a domain move legal later. The paths do not change when the
- * host does.
+ * The spec permits llms.txt at a subpath, which is what made serving from a GitHub Pages
+ * project path legal while this had no domain of its own.
  */
 
 /**
- * Canonical base today. When angulux.io is bought it points at the same deployment and
- * GitHub 301s these paths, so nothing an assistant cached goes stale.
+ * The canonical base.
+ *
+ * A HOST ROOT, not a project subpath, and that is the point of moving here. Assistants and
+ * crawlers probe `https://<host>/llms.txt` by convention; under the old
+ * `anguless-com.github.io/angulux/` the file was reachable only by already knowing the path.
+ * A subdomain is a host root, so this satisfies the convention exactly as an apex domain
+ * would, without buying anything.
+ *
+ * Changing this rewrites every link in llms.txt and llms-full.txt, which is why it is one
+ * constant and not a string repeated 65 times.
+ *
+ * The old URLs do not break: once a custom domain is set, GitHub 301s
+ * `anguless-com.github.io/angulux/*` here. Note that the PATH changes too — the `/angulux/`
+ * prefix is dropped — so this is a redirect, not merely a different hostname in front of the
+ * same paths. An earlier comment in this file claimed the paths never change; they do.
  */
-export const BASE_URL = 'https://anguless-com.github.io/angulux/';
+export const BASE_URL = 'https://angulux.anguless.com/';
 
 const summaryOf = (corpus) => {
     const declarations = corpus.modules.reduce((n, m) => n + m.declarations.length, 0);
@@ -305,6 +317,22 @@ export function renderFaviconSvg() {
 }
 
 /**
+ * The CNAME file GitHub Pages reads to serve this deployment on a custom domain.
+ *
+ * Emitted as part of the artifact rather than left to the repository setting alone. A
+ * workflow deploy replaces the whole published tree on every run, so a domain configured
+ * only in settings is one deploy away from being dropped — and the failure mode is the live
+ * site quietly reverting to the github.io path while every generated link still points at
+ * the custom domain.
+ *
+ * Derived from BASE_URL so the two cannot disagree. A CNAME naming one host while every
+ * link names another is exactly the split that would be invisible until something 404s.
+ */
+export function renderCname() {
+    return `${new URL(BASE_URL).hostname}\n`;
+}
+
+/**
  * robots.txt.
  *
  * Explicitly allow, rather than rely on the absence of a file meaning yes. Some crawlers treat
@@ -334,5 +362,6 @@ export function renderSite(corpus) {
     files.set('llms/index.html', landing);
     files.set('robots.txt', renderRobotsTxt());
     files.set('favicon.svg', renderFaviconSvg());
+    files.set('CNAME', renderCname());
     return files;
 }
