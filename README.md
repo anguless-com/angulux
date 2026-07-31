@@ -199,6 +199,7 @@ so it does not have to guess:
 
 | URL | What it is |
 | --- | --- |
+| [the index page](https://anguless-com.github.io/angulux/) | what is here, for a reader who trimmed the URL back to the host; also served at [`/llms`](https://anguless-com.github.io/angulux/llms) |
 | [`llms.txt`](https://anguless-com.github.io/angulux/llms.txt) | the index, in the [llms.txt](https://llmstxt.org) format |
 | [`llms-full.txt`](https://anguless-com.github.io/angulux/llms-full.txt) | every module's API in one file |
 | `<module>.md` | one page per module, e.g. [`button.md`](https://anguless-com.github.io/angulux/button.md) |

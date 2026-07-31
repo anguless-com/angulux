@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { renderSite, renderModulePage } from '../render-llms.mjs';
+import { renderSite, renderModulePage, renderIndexHtml, BASE_URL } from '../render-llms.mjs';
 import { buildCorpus } from '../generate.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -35,8 +35,86 @@ test('no page exists for an attic module', () => {
 test('no page is empty, including the modules that declare nothing', () => {
     for (const [path, contents] of site) {
         assert.ok(contents.trim().length > 0, `${path} is empty`);
-        assert.match(contents, /^# /, `${path} does not start with an H1`);
+        // The markdown corpus starts with an H1. index.html and robots.txt are not markdown
+        // and are asserted on their own terms below.
+        const markdown = path.endsWith('.md') || path === 'llms.txt' || path === 'llms-full.txt';
+        if (markdown) assert.match(contents, /^# /, `${path} does not start with an H1`);
     }
+});
+
+test('the root is a page, not a 404', () => {
+    // It was a 404 until this existed, which is what anyone gets when they trim a URL back to
+    // its host to check whether the site is real.
+    const index = site.get('index.html');
+
+    assert.ok(index, 'no index.html');
+    assert.match(index, /^<!doctype html>/i);
+    assert.match(index, /<title>[^<]*Angulux/);
+});
+
+test('/llms serves the same page as the root', () => {
+    // Other libraries publish machine-facing docs under /llms and that is the address people
+    // try. Serving it costs one duplicated file and saves a 404 for a reasonable guess.
+    assert.equal(site.get('llms/index.html'), site.get('index.html'));
+});
+
+test('the landing page links every file it advertises, absolutely', () => {
+    const index = site.get('index.html');
+
+    for (const file of ['llms.txt', 'llms-full.txt', 'button.md']) {
+        assert.ok(index.includes(`${BASE_URL}${file}`), `index.html does not link ${file}`);
+    }
+});
+
+test('the landing page counts modules from the corpus rather than a typed-in number', () => {
+    // A hand-typed count is a number that starts drifting the day it is written.
+    const index = renderIndexHtml({ ...corpus, modules: corpus.modules.slice(0, 3) });
+
+    assert.ok(index.includes('3 supported modules'), 'the summary did not follow the corpus');
+    assert.ok(!index.includes('64 supported modules'));
+});
+
+test('the landing page renders markdown backticks as code, not as grave accents', () => {
+    // The summary is shared with llms.txt and is written in markdown. Dropped into HTML
+    // unchanged it renders `agl-*` as a word with grave accents around it — caught by looking
+    // at the page, not by any assertion that existed before it.
+    const index = site.get('index.html');
+    const lede = index.slice(index.indexOf('class="lede"'), index.indexOf('</p>'));
+
+    assert.ok(!lede.includes('`'), 'a raw backtick survived into the rendered lede');
+    assert.ok(lede.includes('<code>agl-*</code>'));
+});
+
+test('a hostile corpus value cannot inject markup into the landing page', () => {
+    const hostile = {
+        modules: [
+            {
+                name: '<script>alert(1)</script>',
+                entrypoint: '@anguless/angulux/x',
+                description: '',
+                declarations: []
+            }
+        ]
+    };
+
+    assert.ok(!renderIndexHtml(hostile).includes('<script>alert(1)</script>'));
+});
+
+test('the page declares a favicon, so a visit does not log a 404 for one', () => {
+    // Browsers request /favicon.ico unprompted unless the page names one.
+    const index = site.get('index.html');
+
+    assert.ok(site.has('favicon.svg'), 'no favicon.svg');
+    assert.ok(index.includes(`${BASE_URL}favicon.svg`), 'index.html does not declare the favicon');
+    assert.match(site.get('favicon.svg'), /^<svg /);
+});
+
+test('robots.txt allows the crawlers this deployment exists for', () => {
+    const robots = site.get('robots.txt');
+
+    assert.match(robots, /^User-agent: \*$/m);
+    assert.match(robots, /^Allow: \/$/m);
+    assert.ok(robots.includes(`${BASE_URL}llms.txt`));
 });
 
 test('a module with no declarations says so, rather than rendering a blank page', () => {
