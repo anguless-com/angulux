@@ -226,7 +226,8 @@ not from anything angulux inherited. No action: it is MIT.
 
 ### `ref/primeng.dev` — a commercial install, kept unopened
 
-A bare `npm install primeng@^22`, roughly 84 MB, created to see how PrimeNG's own v22 release
+A bare `npm install primeng@^22` — roughly 84 MB as first created on 2026-07-27, and 26 MB
+when restored by the peer-free command below — made to see how PrimeNG's own v22 release
 approached Angular 22. **It cannot serve that purpose, and the attempt was abandoned on
 2026-07-27.** The published package contains zero `.ts` sources — only `.d.ts` and compiled
 `.mjs` — so the only route to the information runs through decompiling or un-minifying
@@ -236,6 +237,33 @@ lawful to learn.
 It is retained as licensing evidence: it is the artifact behind the boundary claims in
 section 3, and re-verifying those claims against a live install is cheaper than re-deriving
 them. Reading it at the code level remains prohibited; it is a specimen, not a source.
+
+**Restoring it in a fresh clone.** `ref/` is gitignored, so a new working copy has none of
+this, and the two `git clone` lines in `.gitignore` rebuild only the first two directories.
+Restoring just those turns `ref-quarantine` red — correctly, because the register above then
+declares eight rows that are not on disk. The third directory is rebuilt with:
+
+```bash
+mkdir -p ref/primeng.dev
+cd ref/primeng.dev
+printf '{"name":"primeng-dev-specimen","version":"0.0.0","private":true}\n' > package.json
+npm install primeng@22.0.0 --legacy-peer-deps
+```
+
+Two traps, both of which have already been hit:
+
+- **The local `package.json` is required, not tidiness.** Without it, npm walks up the tree,
+  finds the workspace root manifest, and dies on `EUNSUPPORTEDPROTOCOL — Unsupported URL Type
+  "catalog:"`. The local manifest stops that walk, and marking it `private` is what keeps the
+  specimen out of the workspace it is quarantined from.
+- **`--legacy-peer-deps` keeps Angular out of the directory.** A specimen with no peers
+  installed is a specimen that cannot be built against, which is the state section 3 requires.
+
+`primeng@22.0.0` declares its `@primeuix/*` and `@primeicons/*` dependencies as `^` ranges, so
+this command reproduces the exact versions in the register only for as long as those remain
+the latest releases — verified true on 2026-07-31. Once PrimeTek ships a newer minor, each
+row has to be pinned individually, which is one more reason the re-report trigger below fires
+on a new PrimeTek release.
 
 **Re-report trigger.** Revisit this entry when any of the following happens:
 
