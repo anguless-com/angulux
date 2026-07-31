@@ -1,7 +1,13 @@
-# Upstream reference checkouts — 137MB, with nested .git directories.
+# Upstream reference checkouts — ~113 MB, with nested .git directories.
 # Never committed: reproducible from the commit SHAs recorded in PROVENANCE.md.
+#
+# THREE directories, not two. PROVENANCE.md section 7 registers all three, and
+# `ref-quarantine` fails the build when the register and the disk disagree — so a clone
+# that restores only the first two goes red. The third is a commercial specimen: park it,
+# never build it, never read it (section 3).
 #   git clone --depth 1 --branch 21.1.9 git@github.com:primefaces/primeng.git ref/primeng
 #   git clone --depth 1 git@github.com:primefaces/primeuix.git ref/primeuix
+#   # ref/primeng.dev — see PROVENANCE.md section 7 for the command and its two traps
 ref/
 
 # Maintainer working notes. Never published.
