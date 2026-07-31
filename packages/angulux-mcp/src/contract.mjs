@@ -31,8 +31,13 @@ const isBool = (v) => typeof v === 'boolean';
 
 function checkModuleSummary(entry, where, problems) {
     if (!isString(entry?.name)) problems.push(`${where}: name must be a string`);
-    if (!isString(entry?.entrypoint)) {
-        problems.push(`${where}: entrypoint must be a string`);
+    // `null` means the module has no bare entry point at all (no `ng-package.json`, so
+    // ng-packagr never emits one). Handing back a specifier that throws on import is worse
+    // than admitting there is none — the same reasoning as the scope check just below.
+    if (entry?.entrypoint === null) {
+        // nothing to validate; absence is the claim
+    } else if (!isString(entry?.entrypoint)) {
+        problems.push(`${where}: entrypoint must be a string or null`);
     } else if (!entry.entrypoint.startsWith(SCOPE)) {
         // The R0 defect that shipped: `angulux/button` does not resolve. The package is
         // scoped, and an import specifier that fails is worse than no answer at all.

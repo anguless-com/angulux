@@ -160,7 +160,21 @@ function renderDeclaration(declaration) {
 
 /** One module's page. Also the body reused verbatim inside llms-full.txt. */
 export function renderModulePage(module) {
-    const lines = [`# ${module.name}`, '', `\`\`\`ts`, `import { … } from '${module.entrypoint}';`, '```', ''];
+    // No entry point means there is nothing importable to show. Printing the template anyway
+    // is how `@anguless/angulux/types` came to be advertised on a page while throwing
+    // ERR_PACKAGE_PATH_NOT_EXPORTED in any real install — a copyable code block is the most
+    // trusted thing on the page, so a false one is worse than none.
+    const lines = module.entrypoint
+        ? [`# ${module.name}`, '', '```ts', `import { … } from '${module.entrypoint}';`, '```', '']
+        : [
+              `# ${module.name}`,
+              '',
+              `**There is no \`@anguless/angulux/${module.name}\` import path.** This directory is a`,
+              `namespace rather than an entry point: its contents are imported one level down, as`,
+              `\`@anguless/angulux/${module.name}/<name>\`. Importing the bare path fails with`,
+              '`ERR_PACKAGE_PATH_NOT_EXPORTED`.',
+              ''
+          ];
 
     if (module.declarations.length === 0) {
         lines.push(

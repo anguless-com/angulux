@@ -25,8 +25,8 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, relative, sep } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { resolve, relative, sep, join } from 'node:path';
 
 import { extractModule, sourceFilesOf } from './extract.mjs';
 
@@ -91,7 +91,18 @@ export function buildCorpus() {
             // `@anguless/angulux/card`. Publishing the unscoped form would have taught every
             // assistant an import that does not resolve, which is the precise failure this
             // corpus exists to prevent.
-            entrypoint: `@anguless/angulux/${name}`,
+            //
+            // READ FROM DISK, NOT ASSUMED. This used to be an unconditional template, and it
+            // was wrong for exactly one module: `types` has no `ng-package.json`, so ng-packagr
+            // never emits a bare `@anguless/angulux/types` entry point — only the per-module
+            // `types/<name>` ones. The generated page printed that import anyway, and in a real
+            // consumer install it throws ERR_PACKAGE_PATH_NOT_EXPORTED. Same failure the
+            // paragraph above congratulates itself for avoiding, arrived at from the other side.
+            //
+            // `ng-package.json` IS the rule: ng-packagr creates a secondary entry point for
+            // each directory that has one. Deriving it here means `check:corpus`, which
+            // regenerates and compares byte for byte, now also guards this — no new gate needed.
+            entrypoint: existsSync(join(dir, 'ng-package.json')) ? `@anguless/angulux/${name}` : null,
             description: '',
             declarations: extractModule(dir)
         };
