@@ -6,10 +6,11 @@
  *
  * Three jobs, none of them optional if the package is going to be published:
  *
- * 1. Copy `LICENSE` and `NOTICE`. LICENSE keeps PrimeTek's copyright notice, which MIT
- *    requires; NOTICE carries the attribution and the trademark disclaimer. Publishing
- *    without either is a license violation, so a missing file fails the build rather than
- *    being skipped.
+ * 1. Copy `LICENSE`, `NOTICE` and `README.md`. LICENSE keeps PrimeTek's copyright notice,
+ *    which MIT requires; NOTICE carries the attribution and the trademark disclaimer;
+ *    README is what npmjs.com renders as the package page, and it is the only place that
+ *    points a reader at the documentation. A missing file fails the build rather than being
+ *    skipped — README used to be the exception, and it is the one that went missing.
  *
  * 2. **Resolve the `catalog:` and `workspace:` protocols in the artifact's package.json.**
  *    Both are pnpm-only. `pnpm publish` resolves them; `npm publish` does NOT — it pushes
@@ -55,10 +56,28 @@ if (!fs.existsSync(notice)) {
 }
 fs.copySync(notice, path.join(OUTPUT_PATH, 'NOTICE'));
 
-const readme = path.resolve(__root, 'README.md');
-if (fs.existsSync(readme)) fs.copySync(readme, path.join(OUTPUT_PATH, 'README.md'));
+/* README is resolved from the WORKSPACE, not from `__root`.
 
-console.log(`✓ postbuild: copied LICENSE + NOTICE${fs.existsSync(readme) ? ' + README.md' : ''} to ${OUTPUT_PATH}`);
+   `__root` is `PKG_DIR`, which the library build sets to `packages/angulux` — a directory that
+   has never contained a README. So this looked for a file that could not be there, and because
+   the check was `if (exists)` rather than a hard failure, it skipped silently on every build.
+   The published `@anguless/angulux@22.0.0-rc.0` therefore carries no README at all, and
+   `npm view @anguless/angulux readme` answers "No README data found": the package page on
+   npmjs.com is blank, and the links to llms.txt live in the README that never shipped.
+
+   Missing now fails the build, like LICENSE and NOTICE. The three files are equally required
+   for a package anyone is expected to find, and this one proved that the odd one out is the
+   one that goes missing in production. */
+const readme = path.resolve(__workspace, 'README.md');
+if (!fs.existsSync(readme)) {
+    console.error('✗ postbuild: no README.md at the workspace root.');
+    console.error('  npm renders it as the package page; without it the page is blank and');
+    console.error('  nothing points a reader at the documentation — stopping the build.');
+    process.exit(1);
+}
+fs.copySync(readme, path.join(OUTPUT_PATH, 'README.md'));
+
+console.log(`✓ postbuild: copied LICENSE + NOTICE + README.md to ${OUTPUT_PATH}`);
 
 // ── Resolve catalog:/workspace: in the artifact package.json ─────────────────
 /**

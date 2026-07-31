@@ -16,7 +16,7 @@
  */
 
 import { mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 
 import { renderSite } from './render-llms.mjs';
 import { validateCorpus } from './contract.mjs';
@@ -38,7 +38,13 @@ rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
 const files = renderSite(corpus);
-for (const [name, contents] of files) writeFileSync(resolve(OUT, name), contents);
+for (const [name, contents] of files) {
+    const target = resolve(OUT, name);
+    // `llms/index.html` is nested. Without this the write throws ENOENT on a clean checkout
+    // and only for that one entry, which reads as a corrupt corpus rather than a missing dir.
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, contents);
+}
 writeFileSync(resolve(OUT, '.nojekyll'), '');
 
 const pages = [...files.keys()].filter((name) => name.endsWith('.md')).length;
