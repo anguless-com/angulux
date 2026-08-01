@@ -1,6 +1,7 @@
 # Releasing
 
-Two independent trains live in this repository. Nobody edits a version number by hand.
+Two independent trains live in this repository. No released version number is chosen by hand —
+each is computed from the commits, recorded as a git tag, and never written back to the branch.
 
 | Train | Packages | Line | Git tag | Config |
 |---|---|---|---|---|
@@ -45,6 +46,55 @@ Hence two rules the workflow now follows:
 
 The fork train runs **before** the angulux train: `angulux` depends on all four, so the
 dependency has to be on the registry before the dependent is.
+
+## Why a release does not commit anything
+
+A release writes **one git tag per train** and **one GitHub release**. It does not commit, it
+does not push a branch, and there is no `CHANGELOG.md` in this repository. The generated notes
+live on the GitHub release, which is the same text a committed changelog would have carried.
+
+That is not a stylistic preference. `@semantic-release/git` — which commits the version bump
+and the changelog — pushes with `git push --tags <url> HEAD:main`, and `main` is protected:
+
+```
+remote: error: GH006: Protected branch update failed for refs/heads/main.
+remote: - Changes must be made through a pull request.
+remote: - Required status check "CI" is expected.
+```
+
+The second condition cannot be satisfied by construction: the release commit carries
+`[skip ci]`, so it never gets a CI run to satisfy the required check with. The arrangement had
+no working path, and the first non-dry-run release — 2026-08-01, run `30684835229` — died
+there. It failed **closed**: `prepare` runs before `publish`, so nothing reached the registry,
+no tag moved, and `main` was untouched.
+
+Two things make removing the plugin safe rather than merely convenient:
+
+- **semantic-release's own push is `git push --tags <repositoryUrl>`** — tags only, no branch
+  ref (`lib/git.js`, v24.2.9). With the plugin gone, no part of a release addresses `main`.
+- **Nothing downstream reads the committed version.** semantic-release derives the next
+  version from tags, not from a manifest. Both trains detect "a release happened" by comparing
+  the on-disk version before and after, which `@semantic-release/npm` (root `package.json`) and
+  `@semantic-release/exec` (the four fork manifests) write during `prepare` — inside the same
+  run, with or without a commit.
+
+**Consequence to know:** the versions in the committed manifests are not the released versions
+and will drift further with every release. Read the tags, or the registry. The one place that
+mattered is handled explicitly — see below.
+
+### The fork version the `angulux` package declares
+
+`packages/angulux/package.json` depends on the four forks through `workspace:^`, and
+`postbuild` resolves that by reading each fork's `package.json` off disk. Those files used to
+be right because the fork train committed its bump to `main` and the angulux job checked `main`
+out. Nothing commits now, so the angulux job stamps them first, from the newest
+`angulux-forks-v*` tag, before building.
+
+Without that step `angulux@22.1.0` would declare `^1.0.0` while shipping beside
+`angulux-utils@1.1.0` — installable, since `^1.0.0` admits `1.1.0`, but a floor unrelated to
+what was built and tested together. The tag is the right source because it is correct in all
+three cases: the fork train just ran, it was skipped for lack of changes, or it last ran in an
+earlier release.
 
 ## Path gating: why a `feat(table)` does not bump the fork family
 

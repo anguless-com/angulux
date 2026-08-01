@@ -41,8 +41,8 @@ env:
     NODE_VERSION: '22'
     # Release tooling stays OUT of devDependencies on purpose: this repository's dependency tree
     # IS its license risk surface (see SECURITY.md) and its lockfile is evidence. It is installed
-    # into $RUNNER_TEMP instead — outside the repository entirely, so it cannot reach the manifest,
-    # the lockfile, or the release commit — and reached through NODE_PATH.
+    # into $RUNNER_TEMP instead — outside the repository entirely, so it cannot reach the manifest
+    # or the lockfile — and reached through NODE_PATH.
     #
     # It used to run through `npx -p semantic-release -p @semantic-release/...`. That never worked:
     # semantic-release loads plugins with resolve-from(cwd, name), i.e. out of the PROJECT's
@@ -53,13 +53,16 @@ env:
     # resolve.
     #
     # Pinned exactly, like everything else this repository installs — no ^, no ~.
+    #
+    # @semantic-release/git and @semantic-release/changelog were removed on 2026-08-01: the git
+    # plugin pushes the release commit to `main`, which branch protection rejects, and the
+    # changelog plugin only ever existed to produce a file for that commit to carry. See
+    # release/README.md — "Why a release does not commit anything".
     SR_TOOLING: >-
         semantic-release@24.2.9
         @semantic-release/commit-analyzer@13.0.1
         @semantic-release/release-notes-generator@14.1.1
-        @semantic-release/changelog@7.0.0
         @semantic-release/exec@7.1.0
-        @semantic-release/git@11.0.1
         @semantic-release/github@12.0.9
         @semantic-release/npm@13.1.5
         conventional-changelog-conventionalcommits@8.0.0
@@ -207,9 +210,9 @@ jobs:
                   done
 
             # Computes the version, stamps it into all four package.json files (via
-            # release/set-fork-versions.mjs), writes the changelog, commits, tags, and
-            # creates the GitHub release. It does NOT publish — npmPublish is false and
-            # the publish step below runs under OIDC.
+            # release/set-fork-versions.mjs), tags, and creates the GitHub release. It does
+            # NOT commit — see release/README.md, "Why a release does not commit anything" —
+            # and it does NOT publish; the publish step below runs under OIDC.
             - name: Version before
               id: before
               run: echo "version=$(node -p "require('./packages/angulux-styled/package.json').version")" >> "$GITHUB_OUTPUT"
@@ -335,7 +338,8 @@ jobs:
               with:
                   fetch-depth: 0
                   persist-credentials: false
-                  # Pick up the commit the fork train may have just pushed.
+                  # `main` is unchanged by a release — nothing commits any more — but the tag
+                  # the fork train just pushed is fetched here, and the next step reads it.
                   ref: main
 
             - uses: actions/setup-node@v7
@@ -351,6 +355,31 @@ jobs:
 
             - name: Install
               run: corepack pnpm install --frozen-lockfile
+
+            # `angulux` depends on the four forks through `workspace:^`, and postbuild resolves
+            # that by reading each fork's package.json off disk (tools/build/postbuild.mjs).
+            #
+            # Those files used to be correct here because @semantic-release/git committed the
+            # fork bump to `main` and this job checked `main` out. Nothing commits any more, so
+            # on disk they sit at whatever was last committed by hand — 1.0.0, permanently.
+            # Without this step `angulux@22.1.0` would ship declaring `^1.0.0` while the fork it
+            # was released beside is 1.1.0: installable, because ^1.0.0 admits 1.1.0, but a
+            # floor that has nothing to do with what was tested together.
+            #
+            # The tag is the record the fork train leaves, and it is correct whether that train
+            # just ran, was skipped for lack of changes, or ran in an earlier release.
+            - name: Stamp the fork versions from their release tag
+              run: |
+                  set -euo pipefail
+                  tag=$(git tag --list 'angulux-forks-v*' --sort=-v:refname | head -n 1)
+                  if [ -z "$tag" ]; then
+                      echo "::error::no angulux-forks-v* tag exists, so the fork version the"
+                      echo "workspace: ranges should resolve to cannot be established. Seed the"
+                      echo "tags before releasing — see release/README.md."
+                      exit 1
+                  fi
+                  echo "resolving workspace: ranges against $tag"
+                  node release/set-fork-versions.mjs "${tag#angulux-forks-v}"
 
             - name: Build
               run: |
