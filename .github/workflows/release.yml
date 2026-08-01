@@ -187,10 +187,24 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: false
 
+            # Deliberately no `registry-url:`. It makes setup-node write an .npmrc containing
+            # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`, and this workflow has no
+            # NODE_AUTH_TOKEN on purpose — publishing authenticates through OIDC.
+            #
+            # npm does not read an unset variable as "no credential". It sends the unexpanded
+            # string as the token, the registry rejects it, and the rejection surfaces as
+            #
+            #     npm error 404 Not Found - PUT https://registry.npmjs.org/@anguless%2f…
+            #     npm error 404 … could not be found or you do not have permission to access it
+            #
+            # which reads like a missing package rather than a failed login. That is what the
+            # release of 2026-08-01 (run 30686755583) died on, after tagging.
+            #
+            # Without the file, npm falls back to the default registry with no credential
+            # configured, which is the state its OIDC exchange expects.
             - uses: actions/setup-node@v7
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  registry-url: 'https://registry.npmjs.org'
 
             - name: Enable corepack
               run: corepack enable
@@ -260,6 +274,28 @@ jobs:
                   done
                   [ "$bad" -eq 0 ] || exit 1
                   echo "all four at $expected"
+
+            # The failure this guards against is silent by construction: a credential npm
+            # cannot resolve is not refused locally, it is sent, and the registry answers 404 —
+            # indistinguishable from a package that does not exist. Assert the state OIDC needs
+            # rather than discovering it from a misleading error after the tag has moved.
+            - name: No npm credential is configured
+              if: steps.after.outputs.released == 'true'
+              run: |
+                  set -euo pipefail
+                  token=$(npm config get "//registry.npmjs.org/:_authToken" 2>/dev/null || true)
+                  case "$token" in
+                      '' | undefined | null)
+                          echo "no registry credential configured — OIDC supplies one at publish time"
+                          ;;
+                      *)
+                          echo "::error::an npm registry credential is configured; this workflow publishes"
+                          echo "through OIDC and must have none. If it came from setup-node's"
+                          echo "registry-url input, remove it — an unset NODE_AUTH_TOKEN is sent"
+                          echo "verbatim and the registry rejects it as a 404."
+                          exit 1
+                          ;;
+                  esac
 
             - name: Publish to npm
               if: steps.after.outputs.released == 'true'
@@ -342,10 +378,24 @@ jobs:
                   # the fork train just pushed is fetched here, and the next step reads it.
                   ref: main
 
+            # Deliberately no `registry-url:`. It makes setup-node write an .npmrc containing
+            # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`, and this workflow has no
+            # NODE_AUTH_TOKEN on purpose — publishing authenticates through OIDC.
+            #
+            # npm does not read an unset variable as "no credential". It sends the unexpanded
+            # string as the token, the registry rejects it, and the rejection surfaces as
+            #
+            #     npm error 404 Not Found - PUT https://registry.npmjs.org/@anguless%2f…
+            #     npm error 404 … could not be found or you do not have permission to access it
+            #
+            # which reads like a missing package rather than a failed login. That is what the
+            # release of 2026-08-01 (run 30686755583) died on, after tagging.
+            #
+            # Without the file, npm falls back to the default registry with no credential
+            # configured, which is the state its OIDC exchange expects.
             - uses: actions/setup-node@v7
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  registry-url: 'https://registry.npmjs.org'
 
             - name: Enable corepack
               run: corepack enable
@@ -451,6 +501,26 @@ jobs:
                       exit 1
                   fi
                   echo "dist carries $actual, as released"
+
+            # See the fork job for why this exists — a credential npm cannot resolve is sent
+            # rather than refused, and the registry answers 404.
+            - name: No npm credential is configured
+              if: steps.after.outputs.released == 'true'
+              run: |
+                  set -euo pipefail
+                  token=$(npm config get "//registry.npmjs.org/:_authToken" 2>/dev/null || true)
+                  case "$token" in
+                      '' | undefined | null)
+                          echo "no registry credential configured — OIDC supplies one at publish time"
+                          ;;
+                      *)
+                          echo "::error::an npm registry credential is configured; this workflow publishes"
+                          echo "through OIDC and must have none. If it came from setup-node's"
+                          echo "registry-url input, remove it — an unset NODE_AUTH_TOKEN is sent"
+                          echo "verbatim and the registry rejects it as a 404."
+                          exit 1
+                          ;;
+                  esac
 
             - name: Publish to npm
               if: steps.after.outputs.released == 'true'

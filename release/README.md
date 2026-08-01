@@ -124,6 +124,28 @@ Requirements the workflow already handles: `id-token: write` on the publishing j
 `>= 11.5.1` (it upgrades npm, since the one bundled with Node 22 is older), and
 `npm publish --provenance`.
 
+### No `registry-url:` on `setup-node`, and a gate that says so
+
+`actions/setup-node` writes an `.npmrc` when given `registry-url`, containing
+`//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`. This workflow has no `NODE_AUTH_TOKEN`
+by design, and npm does **not** read an unset variable as "no credential" — it sends the
+unexpanded string as the token. The registry rejects it, and the rejection arrives as:
+
+```
+npm error 404 Not Found - PUT https://registry.npmjs.org/@anguless%2fangulux-styled
+npm error 404 … could not be found or you do not have permission to access it
+```
+
+which reads like a missing package rather than a failed login. The release of 2026-08-01
+([run 30686755583](https://github.com/anguless-com/angulux/actions/runs/30686755583)) died
+there — after semantic-release had already tagged and cut the GitHub release, so the repository
+was left claiming a version the registry did not have.
+
+The input is therefore gone from both publishing jobs, and a **`No npm credential is
+configured`** step asserts the state OIDC expects before either job publishes. It is a guard
+against a re-add, and against the shape of this bug generally: an auth failure that presents
+as a 404 is one nobody debugs as an auth failure.
+
 ### ⚠️ The first publish of each package cannot use OIDC
 
 A trusted publisher is configured **on an existing package** on npmjs.com. A package that
@@ -249,10 +271,25 @@ than three steps later inside semantic-release's plugin loader.
   `npm deprecate @anguless/angulux@x.y.z "broken, use x.y.z+1"`. The scope is not optional:
   nothing is published under the bare `angulux` — npm's typosquat filter refused it — so a
   command naming it fails instead of doing anything.
-- **semantic-release tagged but publishing failed.** Re-run the workflow. Both publish steps
-  ask `npm view` about the version first and **stop** if it is already on the registry — they
-  do not skip past it, because a version that exists after semantic-release just minted it
-  means the computed version is wrong or an earlier run published without tagging. Investigate
-  the tags rather than re-running again.
+- **semantic-release tagged but publishing failed.** This happened on 2026-08-01 and a plain
+  re-run does **not** fix it. semantic-release sees its own tag, finds no commits after it,
+  concludes no release is warranted, and the publish step — gated on `released == 'true'` —
+  is skipped. The run goes green having published nothing.
+
+  Delete the tag and the GitHub release it created, fix the cause, then run again:
+
+  ```bash
+  gh release delete angulux-forks-v1.1.0 --yes
+  git push origin :refs/tags/angulux-forks-v1.1.0
+  ```
+
+  That is safe only while the version is absent from the registry — check with
+  `npm view <name>@<version> version` first. Once a version is published, the tag is the
+  record of it and deleting it makes the history lie.
+
+  The publish steps themselves ask `npm view` about the version first and **stop** if it is
+  already on the registry — they do not skip past it, because a version that exists after
+  semantic-release just minted it means the computed version is wrong or an earlier run
+  published without tagging. Investigate the tags rather than re-running again.
 - **The wrong version was computed.** Check the seeded tags above; that is almost always
   the cause.
