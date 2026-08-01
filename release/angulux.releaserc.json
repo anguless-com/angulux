@@ -6,7 +6,22 @@
         "manifest is silently reverted by the next prebuild. Targeting packages/angulux here",
         "produced a pipeline that tagged a release and published nothing, with a green run.",
         "Root is private:true, so npmPublish stays false and nothing is published from here —",
-        "the workflow publishes packages/angulux/dist explicitly, under OIDC."
+        "the workflow publishes packages/angulux/dist explicitly, under OIDC.",
+        "",
+        "There is deliberately no @semantic-release/git here, and therefore no changelog file.",
+        "That plugin commits the version bump and pushes it to `main`, which is a protected",
+        "branch: `Changes must be made through a pull request` and `Required status check CI is",
+        "expected`. The second condition is unsatisfiable by construction — the release commit",
+        "carries [skip ci], so it never gets a CI run to satisfy the check with.",
+        "",
+        "semantic-release's own push is `git push --tags <url>` — tags only, no branch ref — so",
+        "without this plugin nothing in a release touches `main` at all. The git tag and the",
+        "GitHub release (which carries the same generated notes) are the record.",
+        "",
+        "Consequence: the version in the root package.json on `main` stays at whatever was last",
+        "committed by hand and is NOT the released version. Nothing reads it as one —",
+        "semantic-release derives the next version from the tags, and the build stamps dist from",
+        "the root manifest as written during prepare, inside the same run."
     ],
     "$schema": "https://json.schemastore.org/semantic-release.json",
     "branches": [
@@ -55,23 +70,9 @@
             }
         ],
         [
-            "@semantic-release/changelog",
-            {
-                "changelogFile": "CHANGELOG.md",
-                "changelogTitle": "# Changelog\n\nGenerated from Conventional Commits by semantic-release. Do not edit by hand."
-            }
-        ],
-        [
             "@semantic-release/npm",
             {
                 "npmPublish": false
-            }
-        ],
-        [
-            "@semantic-release/git",
-            {
-                "assets": ["CHANGELOG.md", "package.json"],
-                "message": "chore(release): angulux ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
             }
         ],
         [

@@ -15,8 +15,7 @@
 # `catalog:` and `workspace:` protocols. npm cannot resolve either.
 #
 # So: an isolated tree in $RUNNER_TEMP, reached through NODE_PATH. Nothing lands in the
-# repository, which means the tooling cannot leak into the manifest, the lockfile, or the
-# commit that @semantic-release/git makes.
+# repository, which means the tooling cannot leak into the manifest or the lockfile.
 #
 # Reads $SR_TOOLING (exact pins, set in the workflow env). Writes NODE_PATH to $GITHUB_ENV and
 # the tooling's bin directory to $GITHUB_PATH, so later steps just run `semantic-release`.
