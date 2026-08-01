@@ -91,7 +91,11 @@ export function validateCorpus(corpus) {
     for (const [index, module] of modules.entries()) {
         const at = `modules[${index}]`;
         if (!isString(module.name)) problems.push(`${at}: name must be a string`);
-        if (!isString(module.entrypoint)) problems.push(`${at}: entrypoint must be a string`);
+        // `null` is a real answer, not a missing field: a module without `ng-package.json` has
+        // no bare entry point, and saying so beats printing one that throws on import.
+        if (module.entrypoint !== null && !isString(module.entrypoint)) {
+            problems.push(`${at}: entrypoint must be a string or null`);
+        }
         if (!isString(module.description)) problems.push(`${at}: description must be a string`);
 
         if (!Array.isArray(module.declarations)) {

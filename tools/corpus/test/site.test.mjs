@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -171,9 +171,35 @@ test('a type containing a pipe cannot break the table it sits in', () => {
 });
 
 test('every page shows the import specifier that actually resolves', () => {
-    for (const module of corpus.modules) {
+    for (const module of corpus.modules.filter((m) => m.entrypoint)) {
         assert.match(renderModulePage(module), /from '@anguless\/angulux\//);
     }
+});
+
+test('a module has an entry point if and only if it has an ng-package.json', () => {
+    // ng-packagr emits a secondary entry point for each directory carrying one. This is the
+    // rule the corpus must follow rather than assume: it was assumed, and it was wrong for
+    // `types`, whose page advertised an import that throws ERR_PACKAGE_PATH_NOT_EXPORTED in
+    // any real install. Checked in both directions so neither a missing nor an invented entry
+    // point can pass.
+    for (const module of corpus.modules) {
+        const declared = existsSync(resolve(repoRoot, 'packages/angulux/src', module.name, 'ng-package.json'));
+        assert.equal(
+            module.entrypoint !== null,
+            declared,
+            `${module.name}: entrypoint=${JSON.stringify(module.entrypoint)} but ng-package.json ${declared ? 'exists' : 'does not exist'}`
+        );
+    }
+});
+
+test('a module with no entry point says so instead of printing a broken import', () => {
+    const orphan = corpus.modules.find((m) => m.entrypoint === null);
+
+    assert.ok(orphan, 'expected at least one module without an entry point (types)');
+    const page = renderModulePage(orphan);
+
+    assert.ok(!page.includes(`from '@anguless/angulux/${orphan.name}'`), 'printed the import that does not resolve');
+    assert.match(page, /ERR_PACKAGE_PATH_NOT_EXPORTED/);
 });
 
 test('llms-full.txt contains every module', () => {
