@@ -1,8 +1,8 @@
 {
     "agl-motion": {
         "via": "transitive",
-        "renderedBy": "agl-dialog, agl-select, agl-multiselect",
-        "note": "the transition wrapper of every overlay; the 'facet dialog' scenario opens a dialog, so it is constructed and torn down"
+        "renderedBy": "agl-overlay",
+        "note": "agl-overlay is the only production template that renders the motion COMPONENT; agl-select and agl-multiselect render agl-overlay, so the 'select' and 'multiselect' scenarios construct and tear it down. Note agl-dialog reaches motion through the [aglMotion] DIRECTIVE, which is a different declaration and not in this set"
     },
     "[aglMenuItemContent]": {
         "via": "transitive",
@@ -47,9 +47,8 @@
         "note": "treetable constructs it to render the table body; every visible row goes through it"
     },
     "agl-treeTableToggler": {
-        "via": "transitive",
-        "renderedBy": "agl-treetable",
-        "note": "the expand/collapse control; the 'treetable' scenario clicks it, taking 1 row to 3"
+        "via": "template",
+        "note": "the expand/collapse control; the 'treetable' scenario clicks it, taking 1 row to 3. It is NOT rendered by agl-treetable — treetable projects a caller-supplied body template, and apps/verify/src/app.ts puts the toggler in that template itself"
     },
     "agl-treeTableCellEditor": {
         "via": "template",
