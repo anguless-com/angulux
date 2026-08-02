@@ -114,12 +114,12 @@ for (const f of files) {
     }
 }
 
-console.log(`  file duoc sua      : ${touchedFiles}`);
-console.log(`  them Eager  (ngoai icons/): ${added.Eager}`);
-console.log(`  them OnPush (trong icons/): ${added.OnPush}`);
-console.log(`  dong import bo sung: ${importsAdded}`);
-console.log(`  theo module (ngoai icons/):`);
+console.log(`  files changed        : ${touchedFiles}`);
+console.log(`  Eager added  (outside icons/): ${added.Eager}`);
+console.log(`  OnPush added (inside icons/) : ${added.OnPush}`);
+console.log(`  import lines added   : ${importsAdded}`);
+console.log(`  by module (outside icons/):`);
 for (const [m, n] of Object.entries(byModule).sort((a, b) => b[1] - a[1])) {
     if (m !== 'icons') console.log(`      ${m.padEnd(16)} ${n}`);
 }
-if (DRY) console.log('  (--dry: khong ghi gi)');
+if (DRY) console.log('  (--dry: nothing written)');

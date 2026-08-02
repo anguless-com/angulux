@@ -21,10 +21,29 @@
  *
  *   2. UNACCENTED VIETNAMESE — the half that actually escapes. Typing Vietnamese without
  *      diacritics is normal here (`pham vi khop, khong co ro ri`), and no diacritic
- *      regex will ever see it. So there is a second pass over a small closed list of
+ *      regex will ever see it. So there is a second pass over a closed list of
  *      function words that are common in Vietnamese and are not English words. Function
  *      words, not content words: they appear in every Vietnamese sentence, so recall is
  *      high, and matching whole words only keeps false positives near zero.
+ *
+ *      That second detector ran for weeks at a recall it never measured. On 2026-08-02 a
+ *      wide-net sweep found 18 unaccented lines across 10 tracked files that it had let
+ *      through — every developer script in `tools/` had Vietnamese console output and
+ *      comments in it. Two causes, both fixed here:
+ *        • the word list was too short (`tong`, `muc`, `cach`, `thay` were simply absent);
+ *        • requiring TWO listed words on one line dropped whole sentences that happened to
+ *          contain only one, e.g. `Khong tim thay pnpm-workspace.yaml khi do nguoc tu …`.
+ *      So the list is now two tiers. STRONG words fire on their own: grammar words whose
+ *      spelling exists in no English word, no plausible code identifier, and no personal
+ *      name. WEAK words keep the original two-distinct-hits rule, which is what makes it
+ *      safe to include the near-misses. Deliberately NOT promoted to STRONG: `mot` and
+ *      `moi` (ordinary French, and the inherited fixtures are French), `nhung`, `nhat`,
+ *      `trinh`, `dieu`, `nguyen`, `huong` (common Vietnamese names — a contributor list
+ *      would light the guard up), and `tim`, `sung`, `sang`, `con`, `ban`, `thu`, `se`,
+ *      `da`, `de`, `vi` (plain English, the original draft's mistakes).
+ *
+ * Recall is no longer taken on faith: `tools/test/check-language.test.mjs` replays all 18
+ * lines from that sweep and fails if any stops being caught.
  *
  * Usage:
  *   node tools/check-language.mjs            # check, exit 1 on any finding
@@ -34,15 +53,28 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, extname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const root = process.cwd();
 const VERBOSE = process.argv.includes('--verbose');
 
 /** Characters that are Vietnamese and effectively not anything else. */
-const VN_CHARS = /[ăâđêôơưĂÂĐÊÔƠƯ]|[ạảấầẩẫậắằẳẵặẹẻếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỵỷỹ]|[ẠẢẤẦẨẪẬẮẰẲẴẶẸẺẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỴỶỸ]/;
+export const VN_CHARS = /[ăâđêôơưĂÂĐÊÔƠƯ]|[ạảấầẩẫậắằẳẵặẹẻếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỵỷỹ]|[ẠẢẤẦẨẪẬẮẰẲẴẶẸẺẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỴỶỸ]/;
 
 /**
- * Vietnamese words that are not English words, whole-word and case-insensitive.
+ * STRONG — one occurrence is already proof. Admission test, all three must hold:
+ * the spelling is not an English word, not plausible as a code identifier or an
+ * abbreviation, and not a Vietnamese personal name. These are grammar words, so they
+ * carry no name risk and a single one of them cannot land in an English sentence.
+ */
+export const VN_WORDS_STRONG = [
+    'khong', 'duoc', 'truoc', 'hoac', 'nhieu', 'khop', 'nguoi', 'buoc', 'luoc', 'khoang',
+    'duoi', 'deu', 'nua', 'cung', 'cua', 'voi', 'neu', 'tong', 'muc', 'cach',
+    'chua', 'phai', 'nguon', 'phien', 'khac', 'giai', 'trong', 'ngoai', 'thuoc'
+];
+
+/**
+ * WEAK — two distinct hits on one line, the original rule.
  *
  * Two rules learned by getting this wrong first:
  *   • Every entry must fail as English. `them`, `thu`, `ban`, `se`, `da`, `de`, `vi` were
@@ -51,17 +83,49 @@ const VN_CHARS = /[ăâđêôơưĂÂĐÊÔƠƯ]|[ạảấầẩẫậắằẳ
  *   • ONE hit is not evidence. Vietnamese prose puts several of these in every sentence,
  *     so requiring TWO DISTINCT hits on a line keeps recall high while dropping the
  *     accidental single-word collisions that make a guard get switched off.
+ * The tier exists so that words failing only the second test — near-misses like `mot`
+ * and `moi`, and names like `nhung` and `trinh` — still contribute recall without ever
+ * being able to fail a build on their own.
  */
-const VN_WORDS = [
-    'khong', 'nhung', 'duoc', 'phai', 'ngoai', 'cua', 'voi', 'truoc', 'neu', 'roi',
-    'chua', 'bang', 'tung', 'nhat', 'pham', 'khop', 'thieu', 'kiem', 'chay', 'canh',
-    'nguon', 'phien', 'quyen', 'nhiem', 'chung', 'hien', 'kich', 'cong', 'viec', 'tep',
-    'giai', 'thuc', 'hanh', 'xoa', 'doan', 'luong', 'tuong', 'truong', 'trinh', 'muon',
-    'nghia', 'rieng', 'chinh', 'diem', 'dieu', 'hoac', 'nham', 'vao', 'ra', 'tai'
+export const VN_WORDS_WEAK = [
+    'nhung', 'roi', 'bang', 'tung', 'nhat', 'pham', 'thieu', 'kiem', 'chay', 'canh',
+    'quyen', 'nhiem', 'chung', 'hien', 'kich', 'cong', 'viec', 'tep', 'thuc', 'hanh',
+    'xoa', 'doan', 'luong', 'tuong', 'truong', 'trinh', 'muon', 'nghia', 'rieng',
+    'chinh', 'diem', 'dieu', 'nham', 'vao', 'ra', 'tai',
+    // added 2026-08-02 after the wide-net sweep — every one of these appeared in a real
+    // Vietnamese line that the guard had been letting through
+    'mot', 'moi', 'thay', 'dong', 'khai', 'bao', 'chuyen', 'thuong', 'duong', 'huong',
+    'viet', 'giay', 'phep', 'trang', 'phan', 'tinh', 'khi', 'dau', 'sau', 'cho', 'xem',
+    'sot', 'vua', 'loi', 'lop', 'hon', 'cao', 'nghe', 'tim',
+    // `cac` was STRONG for one run and immediately fired on `cac@6.7.14` in pnpm-lock.yaml —
+    // `cac` is a real npm package. It fails the "not plausible as an identifier" half of the
+    // STRONG admission test, so it lives here. Dependency names are the lockfile's own facts.
+    'cac',
+    // second pass of the same sweep: translating the flagged lines exposed neighbours the
+    // guard still could not see (`dong import bo sung`, `tham chieu con sot`, `Da sua … tren
+    // … file`). Fixing only what the guard reports is how the hole got here in the first place.
+    'chieu', 'tham', 'sua', 'tren', 'nguoc', 'goc', 'ghi', 'luu', 'hoan', 'doi', 'lieu',
+    'thoi', 'tiep', 'toan', 'xuat', 'phuc'
 ];
-const VN_WORD_RE = new RegExp(`\\b(?:${[...new Set(VN_WORDS)].join('|')})\\b`, 'gi');
-/** Two distinct words on one line — see the note above on why one is not enough. */
-const vnWordHits = (line) => [...new Set([...line.matchAll(VN_WORD_RE)].map((m) => m[0].toLowerCase()))];
+
+const reOf = (words) => new RegExp(`\\b(?:${[...new Set(words)].join('|')})\\b`, 'gi');
+const STRONG_RE = reOf(VN_WORDS_STRONG);
+const WEAK_RE = reOf([...VN_WORDS_STRONG, ...VN_WORDS_WEAK]);
+
+const distinct = (line, re) => [...new Set([...line.matchAll(re)].map((m) => m[0].toLowerCase()))];
+
+/**
+ * The whole decision for one line, in one place so the tests can drive it directly.
+ * Returns null when the line is clean.
+ */
+export function classifyLine(line) {
+    if (VN_CHARS.test(line)) return { kind: 'accented', hits: [] };
+    const strong = distinct(line, STRONG_RE);
+    if (strong.length >= 1) return { kind: 'unaccented', hits: strong };
+    const all = distinct(line, WEAK_RE);
+    if (all.length >= 2) return { kind: 'unaccented', hits: all };
+    return null;
+}
 
 /**
  * Files exempt from BOTH detectors.
@@ -83,41 +147,23 @@ const EXEMPT = [
     /^NOTICE$/,
     // This file. A language guard necessarily contains the characters and words it forbids,
     // the same way a lint rule contains the pattern it bans. Self-exempt, not weakened.
-    /^tools\/check-language\.mjs$/
+    /^tools\/check-language\.mjs$/,
+    // Its test, for the same reason and a stronger one: the regression corpus IS the
+    // Vietnamese the guard must keep catching. Translating it would delete the evidence.
+    /^tools\/test\/check-language\.test\.mjs$/
 ];
 
 /** Binary-ish extensions never worth scanning. */
 const SKIP_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.tgz', '.zip', '.lock']);
 
-const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 64 * 1024 * 1024 })
-    .toString()
-    .split('\0')
-    .filter(Boolean)
-    .filter((f) => !SKIP_EXT.has(extname(f).toLowerCase()))
-    .filter((f) => !EXEMPT.some((re) => re.test(f)));
-
-const accented = [];
-const unaccented = [];
-
-for (const f of files) {
-    const p = join(root, f);
-    if (!existsSync(p)) continue;
-    let text;
-    try {
-        text = readFileSync(p, 'utf8');
-    } catch {
-        continue;
-    }
-    if (text.includes('\0')) continue; // binary
-
-    text.split('\n').forEach((line, i) => {
-        if (VN_CHARS.test(line)) {
-            accented.push({ f, line: i + 1, text: line.trim().slice(0, 90) });
-            return;
-        }
-        const hits = vnWordHits(line);
-        if (hits.length >= 2) unaccented.push({ f, line: i + 1, text: line.trim().slice(0, 90), hit: hits.join(' ') });
-    });
+/** Every tracked file the guard is responsible for — exported so the test can assert scope. */
+export function scannedFiles() {
+    return execFileSync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 64 * 1024 * 1024 })
+        .toString()
+        .split('\0')
+        .filter(Boolean)
+        .filter((f) => !SKIP_EXT.has(extname(f).toLowerCase()))
+        .filter((f) => !EXEMPT.some((re) => re.test(f)));
 }
 
 const report = (list, title, hint) => {
@@ -134,12 +180,40 @@ const report = (list, title, hint) => {
     if (!VERBOSE && entries.length > 12) console.error(`  … and ${entries.length - 12} more file(s) (--verbose for all)`);
 };
 
-if (!accented.length && !unaccented.length) {
-    console.log(`✓ check-language: ${files.length} tracked files, no Vietnamese left.`);
-    process.exit(0);
+function main() {
+    const files = scannedFiles();
+    const accented = [];
+    const unaccented = [];
+
+    for (const f of files) {
+        const p = join(root, f);
+        if (!existsSync(p)) continue;
+        let text;
+        try {
+            text = readFileSync(p, 'utf8');
+        } catch {
+            continue;
+        }
+        if (text.includes('\0')) continue; // binary
+
+        text.split('\n').forEach((line, i) => {
+            const verdict = classifyLine(line);
+            if (!verdict) return;
+            const where = { f, line: i + 1, text: line.trim().slice(0, 90), hit: verdict.hits.join(' ') };
+            (verdict.kind === 'accented' ? accented : unaccented).push(where);
+        });
+    }
+
+    if (!accented.length && !unaccented.length) {
+        console.log(`✓ check-language: ${files.length} tracked files, no Vietnamese left.`);
+        process.exit(0);
+    }
+
+    report(accented, '✗ VIETNAMESE (accented)', 'Translate to English. Inherited French fixtures are NOT matched here.');
+    report(unaccented, '✗ VIETNAMESE (unaccented)', 'This group escapes every diacritic filter — which is why the detector exists.');
+    console.error('');
+    process.exit(1);
 }
 
-report(accented, '✗ VIETNAMESE (accented)', 'Translate to English. Inherited French fixtures are NOT matched here.');
-report(unaccented, '✗ VIETNAMESE (unaccented)', 'This group escapes every diacritic filter — which is why the detector exists.');
-console.error('');
-process.exit(1);
+// Importing this module (the test does) must not run the scan or call process.exit.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

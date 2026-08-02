@@ -100,7 +100,7 @@ for (const f of files) {
     }
 }
 
-console.log(`  file spec duoc sua : ${touchedFiles} / ${files.length}`);
-console.log(`  them Eager         : ${added}`);
-console.log(`  dong import bo sung: ${importsAdded}`);
-if (DRY) console.log('  (--dry: khong ghi gi)');
+console.log(`  spec files changed : ${touchedFiles} / ${files.length}`);
+console.log(`  Eager added        : ${added}`);
+console.log(`  import lines added : ${importsAdded}`);
+if (DRY) console.log('  (--dry: nothing written)');

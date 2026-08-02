@@ -72,18 +72,18 @@ if (!findings.length) {
     process.exit(0);
 }
 
-console.log(`  Tim thay ${findings.length} cho doi NUA VOI, tren ${new Set(findings.map((x) => x.file)).size} file:\n`);
+console.log(`  Found ${findings.length} HALF-RENAMED site(s) across ${new Set(findings.map((x) => x.file)).size} file(s):\n`);
 const byAttr = {};
 for (const f of findings) byAttr[f.attr] = (byAttr[f.attr] || 0) + f.count;
 for (const [a, n] of Object.entries(byAttr).sort((x, y) => y[1] - x[1])) {
-    console.log(`    ${a.padEnd(24)} -> ${aglOf(a).padEnd(26)} ${n} tham chieu con sot`);
+    console.log(`    ${a.padEnd(24)} -> ${aglOf(a).padEnd(26)} ${n} reference(s) left`);
 }
 console.log('');
 for (const f of findings.slice(0, 15)) console.log(`    ${f.file}:  .${f.attr} x${f.count}`);
-if (findings.length > 15) console.log(`    ... va ${findings.length - 15} cho nua`);
+if (findings.length > 15) console.log(`    ... and ${findings.length - 15} more site(s)`);
 
 if (FIX) {
-    console.log(`\n✓ Da sua ${fixedRefs} tham chieu tren ${fixedFiles} file.`);
+    console.log(`\n✓ Repaired ${fixedRefs} reference(s) across ${fixedFiles} file(s).`);
 } else {
     console.log('\n  (re-run with --fix to repair)');
     process.exit(1);

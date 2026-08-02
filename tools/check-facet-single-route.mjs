@@ -262,8 +262,8 @@ if (problems.length) {
         console.error(`      ${msg}`);
     }
     console.error('\n  Each slot has exactly one route: `<ng-template #x>` read by `contentChild(\'x\')`,');
-    console.error("  and it must be CALLED wherever it is read — see .agl memory");
-    console.error('  decision-facet-api-mot-cach-duy-nhat-ng-template.\n');
+    console.error('  and it must be CALLED wherever it is read. A slot that is read but never');
+    console.error('  called always looks truthy, so it renders nothing and throws nothing.\n');
     process.exit(1);
 }
 

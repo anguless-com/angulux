@@ -112,7 +112,7 @@ for (const [name, version] of TARGETS) {
         name,
         version,
         file,
-        license: md.license ?? '(xem LICENSE trong tarball)',
+        license: md.license ?? '(see LICENSE inside the tarball)',
         tarball: url,
         publishedAt: await pkgTime(name, version),
         sha256: digest,
@@ -135,4 +135,4 @@ const manifest = {
 };
 fs.mkdirSync(path.dirname(MANIFEST), { recursive: true });
 fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 4) + '\n');
-console.log(`\n✓ da ghi provenance/manifest.json — ${artifacts.length} artifact, tong ${(artifacts.reduce((a, b) => a + b.bytes, 0) / 1024 / 1024).toFixed(1)} MB`);
+console.log(`\n✓ wrote provenance/manifest.json — ${artifacts.length} artifact(s), ${(artifacts.reduce((a, b) => a + b.bytes, 0) / 1024 / 1024).toFixed(1)} MB total`);

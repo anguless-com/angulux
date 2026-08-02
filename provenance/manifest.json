@@ -1,7 +1,7 @@
 {
     "_comment": "Offline record of the upstream MIT artifacts. primefaces/primeng is archived; a registry tarball (carrying the registry's own publish timestamp and integrity hash) is stronger evidence than a shallow clone. See PROVENANCE.md.",
     "archivedAt": "2026-07-23T09:39:32.938Z",
-    "note": "Moi ban cao hon cac version duoi day deu da chuyen sang giay phep thuong mai PrimeUI.",
+    "note": "Every version above the ones listed below carries the commercial PrimeUI license.",
     "artifacts": [
         {
             "name": "primeng",

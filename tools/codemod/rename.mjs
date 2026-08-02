@@ -57,11 +57,11 @@ function transform(text) {
     let t = text;
 
     // --- 1. import path + package name ---
-    // Duong dan co the NHIEU DOAN: primeng/types/button, primeng/icons/baseicon,
+    // An import path can have MANY SEGMENTS: primeng/types/button, primeng/icons/baseicon,
     // primeng/ts-helpers. The first version matched only one segment and missed 388 imports.
     t = t.replace(/(['"])primeng((?:\/[a-zA-Z0-9._-]+)*)\1/g, (_, q, rest) => `${q}angulux${rest}${q}`);
 
-    // --- 2. khai bao selector trong decorator ---
+    // --- 2. selector declaration inside the decorator ---
     t = t.replace(/(selector:\s*)('([^']*)')/g, (full, head, _q, inner) => {
         const parts = inner.split(',').map((raw) => {
             const s = raw.trim();
@@ -73,15 +73,15 @@ function transform(text) {
         return head + "'" + parts.join(',') + "'";
     });
 
-    // --- 3. the phan tu trong template ---
+    // --- 3. element tags in templates ---
     for (const e of ELEMS) {
         t = t.replaceAll(`<${e}`, `<${aglElem(e)}`);
         t = t.replaceAll(`</${e}>`, `</${aglElem(e)}>`);
     }
 
-    // --- 4. thuoc tinh directive trong template ---
-    // Chi thay khi dung nhu THUOC TINH: dung sau khoang trang / dau [ / dau (,
-    // va theo sau la '=', ']', ')', khoang trang, '/' hoac '>'.
+    // --- 4. directive attributes in templates ---
+    // Replace only in ATTRIBUTE position: preceded by whitespace, '[' or '(',
+    // and followed by '=', ']', ')', whitespace, '/' or '>'.
     for (const a of ATTRS) {
         const re = new RegExp(`(?<=[\\s\\[(])${a}(?=[=\\]) \\t\\n/>])`, 'g');
         t = t.replace(re, aglAttr(a));
@@ -129,7 +129,7 @@ if (VERIFY) {
         try {
             orig = execSync(`git show HEAD:${f}`, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
         } catch {
-            continue; // file moi, khong co ban goc de so
+            continue; // new file — there is no original to compare against
         }
         checked++;
         if (untransform(now) !== orig) {
@@ -156,7 +156,7 @@ for (const f of files) {
         if (!DRY) fs.writeFileSync(f, after);
     } else untouched++;
 }
-console.log(`  file quet   : ${files.length}`);
-console.log(`  file doi    : ${changed}`);
-console.log(`  file giu nguyen: ${untouched}`);
-if (DRY) console.log('  (--dry: khong ghi gi)');
+console.log(`  files scanned  : ${files.length}`);
+console.log(`  files changed  : ${changed}`);
+console.log(`  files untouched: ${untouched}`);
+if (DRY) console.log('  (--dry: nothing written)');
