@@ -112,7 +112,7 @@ const payload = {
 };
 
 console.log(`  source            : ${path.relative(root, SRC)}`);
-console.log(`  tong thu muc      : ${dirs.size}`);
+console.log(`  total directories : ${dirs.size}`);
 console.log(`  seed (direct imports) : ${SEEDS.length}${missingSeeds.length ? `  ⚠ not found: ${missingSeeds.join(', ')}` : ''}`);
 console.log(`  CLOSURE (warranted)   : ${inScope.length}`);
 console.log(`  pulled-in infra       : ${infra.length} -> ${infra.join(' ')}`);

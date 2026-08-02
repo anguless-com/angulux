@@ -21,7 +21,7 @@ function findWorkspaceRoot(from) {
         if (parent === dir) break;
         dir = parent;
     }
-    throw new Error(`Khong tim thay pnpm-workspace.yaml khi do nguoc tu ${from}`);
+    throw new Error(`No pnpm-workspace.yaml found while walking up from ${from}`);
 }
 
 export function resolvePath(metaUrl) {

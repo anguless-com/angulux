@@ -186,7 +186,7 @@ interface Product {
             <div class="probe" id="probe-multiselect">count={{ selectedCities?.length ?? 0 }}</div>
         </section>
 
-        <!-- ── 7. facet: canh lop loi <ng-content select="…"> vua va ───── -->
+        <!-- ── 7. facet (the layered <ng-content select="…"> edge case) ─── -->
         <section id="sec-facet">
             <h2>facet (card + dialog)</h2>
             <!-- card has migrated to PA-1: the agl-header/agl-footer facet route is gone, so the
