@@ -354,10 +354,22 @@ const UPSTREAM_MODULE_COUNT = 117;
  * them would serve neither: the assistant page would gain sales copy and this one would open
  * with a table of file formats.
  *
- * WHY IT ARGUES AGAINST ITSELF. Three of the four options in the table are not angulux, and the
+ * WHY IT ARGUES AGAINST ITSELF. Four of the five options in the table are not angulux, and the
  * blocker is described as the one line it actually is. A reader who discovers on their own that
  * `--legacy-peer-deps` would have worked stops believing the rest of the page, and the rest of
  * the page is the part that matters. The honest version is also the more persuasive one.
+ *
+ * WHY IT NAMES A LARGER RIVAL AND SENDS READERS THERE FIRST. OpenNG's optimus-ui is the bigger
+ * MIT continuation of PrimeNG 21 and was already well known in the Angular community before
+ * this page existed — a first draft omitted it and thereby implied angulux was *the* community
+ * fork, which is false. Anyone comparing options finds OpenNG within one search, so the only
+ * question is whether they find it here or discover this page hid it.
+ *
+ * NO RIVAL STATISTICS ANYWHERE IN THIS PAGE. Star counts, contributor counts and peer ranges all
+ * move, and a generated page that quotes them is wrong on a delay, silently, with nobody having
+ * touched it — the same failure mode as any hand-typed count. So the comparison is stated only
+ * in terms that stay true (more contributors, larger surface, foundation-shaped) and the reader
+ * is handed the two `npm view` commands to check the volatile part themselves.
  */
 export function renderMigratePage(corpus) {
     const declarations = corpus.modules.reduce((n, m) => n + m.declarations.length, 0);
@@ -374,6 +386,11 @@ export function renderMigratePage(corpus) {
             'Rewrite onto another component library',
             'Weeks to months',
             'Every template you have already written, and the theme built around it.'
+        ],
+        [
+            `<a href="https://github.com/openng-org/optimus-ui">OpenNG's optimus-ui</a> — the larger community continuation of PrimeNG 21`,
+            'A rename, same as below',
+            'Nothing obvious. It has far more contributors than this project and is organised as a maintenance foundation. Look at it before you look at mine.'
         ],
         [
             `Move to angulux`,
@@ -434,6 +451,25 @@ paragraph.</p>
             ${options}
     </tbody>
 </table>
+
+<h2>You should look at OpenNG first</h2>
+<p>Angulux is not the only MIT continuation of PrimeNG 21, and it is not the biggest.
+<a href="https://github.com/openng-org/optimus-ui">OpenNG's optimus-ui</a> has substantially
+more contributors than this project, is organised as a maintenance foundation rather than one
+person's fork, and carries more of PrimeNG's component surface. For most teams that is the
+better answer, and you should evaluate it before you evaluate this.</p>
+<p>The honest difference is scope of ambition. OpenNG is continuing PrimeNG. Angulux warrants a
+deliberately smaller surface — ${corpus.modules.length} modules — and spends the surplus on
+things that are unusual to find in a fork: a recorded provenance chain for every inherited file,
+a build that fails if a post-MIT PrimeTek package enters the dependency tree, and a generated
+API corpus that AI assistants can query instead of guessing.</p>
+<p>If you want the largest MIT component set, that is not this. If you need to prove to somebody
+where the code came from, this project was built around that question from the first commit.</p>
+<p><strong>On Angular 22 specifically: check, do not take my word.</strong> Peer ranges move, and
+a page claiming a rival does not support something is a page that becomes wrong without anyone
+editing it. Run this and believe the output:</p>
+<pre><code>npm view @openng/optimus-ui peerDependencies
+npm view @anguless/angulux peerDependencies</code></pre>
 
 <h2>What Angulux is</h2>
 <p>A fork of PrimeNG 21.1.9 — the last MIT release — brought up on Angular 22 and kept MIT. It
