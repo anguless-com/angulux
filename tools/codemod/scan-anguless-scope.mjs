@@ -132,11 +132,32 @@ const REGISTRY_ID_SCOPE = [
         'GOVERNANCE.md', 'SUPPORT.md', '.github/pull_request_template.md'],
 ].filter((f) => fs.existsSync(f));
 
+// The same defect one layer out: a registry URL — a shields.io badge, or an npmjs.com link —
+// naming a package that was never published. This is worse than the command form, not better.
+// `npm view` at least exits non-zero; a badge renders `npm | package not found` on the public
+// package page and nothing in CI ever looks at it.
+//
+// Found 2026-08-02 on README.md line 7, pointing at bare `angulux`. It had been wrong since the
+// scope rename in #67 and stayed invisible for nine days, because the README only reached
+// npmjs.com with the 22.1.0 publish. The five names below are scope-only; `angulux-migrate` and
+// `angulux-license-guard` ARE published bare and must not be flagged.
+const SCOPED_ONLY = new Set(['angulux', 'angulux-utils', 'angulux-styled', 'angulux-styles', 'angulux-motion']);
+const REGISTRY_URL = /(?:npmjs\.com\/package\/|shields\.io\/npm\/[a-z]+\/)([@\w./-]+)/g;
+
 const registryIdFails = [];
 for (const p of REGISTRY_ID_SCOPE) {
-    for (const m of fs.readFileSync(p, 'utf8').matchAll(NPM_INVOCATION)) {
+    const src = fs.readFileSync(p, 'utf8');
+
+    for (const m of src.matchAll(NPM_INVOCATION)) {
         const bare = m[1].match(BARE_REGISTRY_ID);
         if (bare) registryIdFails.push(`${path.relative(root, p)}: \`${m[0].trim().slice(0, 72)}\` → bare \`${bare[1]}\`, must be \`@anguless/${bare[1]}\``);
+    }
+
+    for (const m of src.matchAll(REGISTRY_URL)) {
+        const name = m[1].replace(/\.svg$/, '').replace(/\/+$/, '');
+        if (SCOPED_ONLY.has(name)) {
+            registryIdFails.push(`${path.relative(root, p)}: URL \`${m[0].slice(0, 72)}\` → bare \`${name}\`, must be \`@anguless/${name}\``);
+        }
     }
 }
 
@@ -201,12 +222,14 @@ if (couplingFails.length) {
 
 if (registryIdFails.length) {
     failed = true;
-    console.error(`\n✗ registry ids: ${registryIdFails.length} npm command(s) name a package that is not published:`);
+    console.error(`\n✗ registry ids: ${registryIdFails.length} reference(s) name a package that is not published:`);
     for (const c of registryIdFails) console.error(`      · ${c}`);
     console.error('  A command aimed at an unpublished name does not report "not found" — npm exits');
     console.error('  non-zero and any `if` around it falls through. See BL-53.');
+    console.error('  A URL aimed at one is quieter still: the badge just renders "package not');
+    console.error('  found" on the public package page, and no gate ever looked at it.');
 } else {
-    console.log(`✓ registry ids: no bare name passed to npm view/publish/deprecate/… in ${REGISTRY_ID_SCOPE.length} workflow + doc file(s).`);
+    console.log(`✓ registry ids: no bare name in an npm command or a registry URL, across ${REGISTRY_ID_SCOPE.length} workflow + doc file(s).`);
 }
 
 if (filterFails.length) {

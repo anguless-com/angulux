@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/anguless-com/angulux/actions/workflows/ci.yml/badge.svg)](https://github.com/anguless-com/angulux/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![npm](https://img.shields.io/npm/v/angulux.svg)](https://www.npmjs.com/package/angulux)
+[![npm](https://img.shields.io/npm/v/@anguless/angulux)](https://www.npmjs.com/package/@anguless/angulux)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/anguless-com/angulux/badge)](https://scorecard.dev/viewer/?uri=github.com/anguless-com/angulux)
 
 ```bash
