@@ -387,3 +387,33 @@ test('the migration page never claims feature parity', () => {
         assert.doesNotMatch(page, phrase);
     }
 });
+
+test('the migration page names the larger rival and sends the reader there first', () => {
+    // OpenNG's optimus-ui is the bigger MIT continuation of PrimeNG 21. The first draft of this
+    // page omitted it and thereby implied angulux was THE community fork, which is false.
+    // Anyone comparing options finds OpenNG in one search; the only question is whether they
+    // find it here, or discover that this page hid it.
+    const page = site.get('primeng-21-to-angular-22/index.html');
+
+    assert.match(page, /openng-org\/optimus-ui/);
+    assert.match(page, /not the only MIT continuation/i);
+    // Not a footnote: the reader is told to evaluate it BEFORE this project.
+    assert.match(page, /before you evaluate this/i);
+});
+
+test('the migration page quotes no statistic about a rival', () => {
+    // Star counts, contributor counts and peer ranges move. A generated page that quotes them
+    // goes wrong on a delay, silently, with nobody having touched it — the same failure as any
+    // hand-typed count, except the drift happens in someone else's repository where no gate here
+    // can see it. The comparison may only use terms that stay true, plus the two `npm view`
+    // commands that let the reader check the volatile part.
+    const page = site.get('primeng-21-to-angular-22/index.html');
+    const openngSection = page.slice(page.indexOf('<h2>You should look at OpenNG first</h2>'), page.indexOf('<h2>What Angulux is</h2>'));
+
+    assert.ok(openngSection.length > 0, 'the OpenNG section is gone');
+    // No bare numbers at all in that section, other than the module count this repo can prove.
+    const numbers = [...openngSection.matchAll(/\b\d+\b/g)].map((m) => m[0]).filter((n) => n !== String(corpus.modules.length) && n !== '21' && n !== '22');
+    assert.deepEqual(numbers, [], `the OpenNG section quotes numbers that will drift: ${numbers}`);
+    // And it hands over the means to check rather than asserting the answer.
+    assert.match(page, /npm view @openng\/optimus-ui peerDependencies/);
+});
