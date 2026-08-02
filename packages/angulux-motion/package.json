@@ -14,6 +14,7 @@
         "primeuix"
     ],
     "license": "MIT",
+    "homepage": "https://angulux.anguless.com/",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/anguless-com/angulux.git",
