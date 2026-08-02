@@ -44,6 +44,20 @@
                             "group": "Emits",
                             "deprecated": null
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "loadingicon",
+                            "field": "loadingIconTemplate",
+                            "description": "Custom loading icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom icon template.",
+                            "deprecated": null
+                        }
                     ]
                 },
                 {
@@ -62,7 +76,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         }

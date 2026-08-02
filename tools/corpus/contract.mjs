@@ -123,6 +123,32 @@ export function validateCorpus(corpus) {
                     checkInput(member, `${dAt}.${key}[${i}] (${member?.name ?? '?'})`, problems, { isOutput });
                 }
             }
+
+            // Slots are a THIRD member kind, not a flavour of input. `<ng-template #header>` is
+            // content projection: it is filled in the caller's markup, carries no type and no
+            // default, and cannot be set programmatically. Validating it through checkInput
+            // would have meant inventing `type`, `default` and `signal` fields for it — the
+            // corpus would then state four facts about every slot, three of them made up.
+            if (!Array.isArray(declaration.slots)) {
+                problems.push(`${dAt}: slots must be an array`);
+            } else {
+                for (const [s, slot] of declaration.slots.entries()) {
+                    const sAt = `${dAt}.slots[${s}] (${slot?.name ?? '?'})`;
+                    if (slot === null || typeof slot !== 'object') {
+                        problems.push(`${sAt}: must be an object`);
+                        continue;
+                    }
+                    // `name` is what the caller writes after the `#`; `field` is what the module
+                    // reads it back as. Both, because the two differ in three modules and every
+                    // answer that names only one of them is uncheckable against the source.
+                    for (const field of ['name', 'field', 'description']) {
+                        if (!isString(slot[field])) problems.push(`${sAt}: ${field} must be a string`);
+                    }
+                    if (slot.deprecated !== null && !isString(slot.deprecated)) {
+                        problems.push(`${sAt}: deprecated must be the reason string, or null`);
+                    }
+                }
+            }
         }
     }
 

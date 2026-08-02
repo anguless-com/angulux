@@ -115,6 +115,13 @@ const LOOKUP = {
         const payload = await call('get_module', { name: q.module, declaration: q.declaration });
         assert.equal(payload.found, true, `${q.module}/${q.declaration} not found`);
         return payload.module.declarations[0].inputs.some((i) => i.name === q.member) ? 'yes' : 'no';
+    },
+
+    slot: async (q, call) => {
+        const payload = await call('get_module', { name: q.module, declaration: q.declaration });
+        assert.equal(payload.found, true, `${q.module}/${q.declaration} not found`);
+        const slot = payload.module.declarations[0].slots.find((s) => s.field === q.member);
+        return slot ? `#${slot.name}` : null;
     }
 };
 
@@ -132,7 +139,11 @@ const CORRECTION = {
     supported: (q) => ({ args: { module: q.module }, mentions: 'not in the supported closure' }),
     deprecated: (q) => ({ args: { module: q.module, inputs: [q.member] }, mentions: 'deprecated' }),
     inputExists: (q) =>
-        q.expect === 'no' ? { args: { module: q.module, inputs: [q.member] }, mentions: 'is not an input' } : null
+        q.expect === 'no' ? { args: { module: q.module, inputs: [q.member] }, mentions: 'is not an input' } : null,
+    // The mis-spelling, not the PrimeNG spelling. Both are wrong, but this is the one that
+    // costs a debugging session: `#loadingIcon` looks right, compiles, renders nothing, and
+    // reports nothing. Being told it "does not exist" would send someone to the component.
+    slot: (q) => ({ args: { module: q.module, slots: [q.mistake] }, mentions: q.expect })
 };
 
 test('EVERY question is answerable from the tools, in at most two calls', async () => {
@@ -154,8 +165,8 @@ test('the PrimeNG answer never appears in what the lookup hands back', async () 
     // Only where the wrong answer is a concrete identifier. For yes/no questions the "wrong
     // answer" is the string "yes", which appears in payloads for unrelated reasons — asserting
     // its absence there would be a test that passes by accident.
-    const concrete = QUESTIONS.filter((q) => q.kind === 'selector' || q.kind === 'entrypoint');
-    assert.equal(concrete.length, 10, 'expected 10 questions with a concrete wrong answer');
+    const concrete = QUESTIONS.filter((q) => ['selector', 'entrypoint', 'slot'].includes(q.kind));
+    assert.equal(concrete.length, 14, 'expected 14 questions with a concrete wrong answer');
 
     for (const q of concrete) {
         const { state, call } = session();

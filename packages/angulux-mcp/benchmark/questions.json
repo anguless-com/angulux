@@ -1,7 +1,7 @@
 {
     "_comment": "A FIXED benchmark set, derived once from corpus/corpus.json and then committed. questions.test.mjs re-verifies every expectation against the corpus on each run, so a library change turns the suite red instead of letting the benchmark quietly measure nothing.",
     "corpusSourceHash": "a37ce49d789fe814bc63187c3c434c359e3d60561c0dc22f5e6b42b0ba80a3f9",
-    "count": 20,
+    "count": 24,
     "questions": [
         {
             "id": "Q01",
@@ -174,6 +174,50 @@
             "ask": "In angulux, does `Button` (module `button`) declare an input named `severity2`? Answer yes or no.",
             "expect": "no",
             "primeNgWrongAnswer": "yes"
+        },
+        {
+            "id": "Q21",
+            "kind": "slot",
+            "module": "card",
+            "declaration": "Card",
+            "member": "headerTemplate",
+            "ask": "In angulux, what markup fills the header slot of `agl-card`?",
+            "expect": "#header",
+            "mistake": "Header",
+            "primeNgWrongAnswer": "<p-header>"
+        },
+        {
+            "id": "Q22",
+            "kind": "slot",
+            "module": "button",
+            "declaration": "Button",
+            "member": "loadingIconTemplate",
+            "ask": "In angulux, what markup supplies a custom loading icon to `agl-button`?",
+            "expect": "#loadingicon",
+            "mistake": "loadingIcon",
+            "primeNgWrongAnswer": "pTemplate=\"loadingicon\""
+        },
+        {
+            "id": "Q23",
+            "kind": "slot",
+            "module": "dialog",
+            "declaration": "Dialog",
+            "member": "_closeiconTemplate",
+            "ask": "In angulux, what markup replaces the close icon of `agl-dialog`?",
+            "expect": "#closeicon",
+            "mistake": "closeIcon",
+            "primeNgWrongAnswer": "pTemplate=\"closeicon\""
+        },
+        {
+            "id": "Q24",
+            "kind": "slot",
+            "module": "table",
+            "declaration": "ColumnFilter",
+            "member": "filterTemplate",
+            "ask": "In angulux, what markup provides a custom filter element to `agl-columnFilter`?",
+            "expect": "#filter",
+            "mistake": "Filter",
+            "primeNgWrongAnswer": "pTemplate=\"filter\""
         }
     ]
 }

@@ -2,7 +2,7 @@
 /**
  * run — the two-arm hallucination benchmark (AC-12).
  *
- * Asks the same 20 questions twice: once with the angulux MCP server's tools attached, once
+ * Asks the same 24 questions twice: once with the angulux MCP server's tools attached, once
  * with no tools at all. The second arm is the control, and it is recorded whichever way it
  * goes — a benchmark that only publishes the flattering number is an advertisement.
  *

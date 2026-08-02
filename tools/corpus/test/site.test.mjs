@@ -155,6 +155,25 @@ test('a deprecated input is marked on the page a reader actually lands on', () =
     assert.match(renderModulePage(button), /\*\*Deprecated:\*\* use aglButtonLabel directive instead\./);
 });
 
+test('a slot is printed as the markup that fills it, not as the field that reads it', () => {
+    // A page saying `loadingIconTemplate` is accurate about the class and useless about the
+    // markup: nobody can type that anywhere. The only string that binds is `#loadingicon`, and
+    // getting it wrong fails silently — Angular matches reference names exactly and says
+    // nothing when one misses.
+    const page = renderModulePage(corpus.modules.find((m) => m.name === 'button'));
+
+    assert.match(page, /<ng-template #loadingicon>/);
+    assert.match(page, /\| Slot \| Read as \| Description \|/);
+});
+
+test('the index states the one way a slot is filled, since the retired ways fail silently', () => {
+    // `pTemplate="header"` is a plain static attribute with nothing to match it: no error, no
+    // warning, an empty slot. A reader who never learns that spends the debugging session
+    // looking at the component instead of at their own markup.
+    assert.match(site.get('llms.txt'), /<ng-template #name>/);
+    assert.match(site.get('llms.txt'), /191 template slots/);
+});
+
 test('a type containing a pipe cannot break the table it sits in', () => {
     // "'small' | 'large' | undefined" is a real type in this library and an unescaped pipe
     // would silently split the row into extra columns.
@@ -262,7 +281,17 @@ test('a value containing a backslash cannot smuggle a live delimiter into a row'
                         signal: false
                     }
                 ],
-                outputs: []
+                outputs: [],
+                // The slot table is newer than the escaping fix, so it gets the same hostile
+                // value rather than being trusted to have inherited the lesson.
+                slots: [
+                    {
+                        name: 'evilslot',
+                        field: 'evilTemplate',
+                        description: `trailing ${BACKSLASH}`,
+                        deprecated: null
+                    }
+                ]
             }
         ]
     };
@@ -271,7 +300,8 @@ test('a value containing a backslash cannot smuggle a live delimiter into a row'
         .split('\n')
         .filter((line) => line.startsWith('| `'));
 
-    assert.equal(rows.length, 1);
-    // 5 live delimiters bound 4 columns.
-    assert.equal(liveDelimiters(rows[0]), 5, `row broke into extra columns: ${rows[0]}`);
+    assert.equal(rows.length, 2);
+    // 5 live delimiters bound the input row's 4 columns; the slot row has 3.
+    assert.equal(liveDelimiters(rows[0]), 5, `input row broke into extra columns: ${rows[0]}`);
+    assert.equal(liveDelimiters(rows[1]), 4, `slot row broke into extra columns: ${rows[1]}`);
 });

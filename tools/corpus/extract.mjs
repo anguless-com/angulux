@@ -126,7 +126,7 @@ function typeTextOf(node, sourceFile, call) {
  * Extract every documentable declaration from one file.
  *
  * @param {string} filePath absolute path to a .ts file
- * @returns {Array<{name:string,kind:string,selector:string,description:string,inputs:Array,outputs:Array}>}
+ * @returns {Array<{name:string,kind:string,selector:string,description:string,inputs:Array,outputs:Array,slots:Array}>}
  */
 export function extractFile(filePath) {
     // Normalise line endings at the door. Git checks this tree out as CRLF on Windows and LF
@@ -147,6 +147,7 @@ export function extractFile(filePath) {
 
         const inputs = [];
         const outputs = [];
+        const slots = [];
 
         for (const member of statement.members) {
             const isAccessorOrProperty =
@@ -163,6 +164,29 @@ export function extractFile(filePath) {
             if (hasDecorator(member, 'Output')) {
                 const { description, group, deprecated } = doc;
                 outputs.push({ name, type: typeTextOf(member, sourceFile), description, group, deprecated, signal: false });
+                continue;
+            }
+
+            // A template slot: `headerTemplate = contentChild<TemplateRef<void>>('header')`.
+            //
+            // BL-35 left exactly one way to fill a slot — `<ng-template #header>` — and the
+            // string literal is the only part of that declaration a caller ever writes. It is
+            // therefore the only part a model can get wrong, and it appears nowhere else in the
+            // corpus: it is not an input, not an output, and not derivable from the field name
+            // (`_closeiconTemplate` fills `#closeicon`, `template` fills `#template`).
+            //
+            // The field travels with it because the module's own JSDoc, its gate and its specs
+            // all speak in field names, so an answer that mentions only one of the two cannot be
+            // checked against the source.
+            const slotCall = signalCall(member, ['contentChild']);
+            if (slotCall) {
+                const [first] = slotCall.arguments;
+                // `contentChild(ButtonIcon)` queries a directive rather than naming a template —
+                // `button` has two of those. Only a string literal names a slot a caller can fill.
+                if (first && ts.isStringLiteralLike(first)) {
+                    const { description, deprecated } = doc;
+                    slots.push({ name: first.text, field: name, description, deprecated });
+                }
                 continue;
             }
 
@@ -192,7 +216,8 @@ export function extractFile(filePath) {
             selector: selectorOf(decorator, sourceFile),
             description: docFor(statement, text).description,
             inputs,
-            outputs
+            outputs,
+            slots
         });
     }
 
