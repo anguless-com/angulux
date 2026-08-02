@@ -297,6 +297,10 @@ footer { margin-top: 3rem; font-size: .875rem; color: #666; }
 <h1>Angulux</h1>
 <p class="lede">${inlineCode(summaryOf(corpus))}</p>
 
+<p>Arrived here as a person rather than a crawler, because PrimeNG 22 is no longer MIT?
+Read <a href="${html(BASE_URL)}primeng-21-to-angular-22">PrimeNG 21 on Angular 22, without a
+license</a> instead — this page is written for assistants.</p>
+
 <h2>Files</h2>
 <table>
     <thead><tr><th>URL</th><th>What it is</th></tr></thead>
@@ -321,6 +325,154 @@ an input absent here does not exist.</p>
 <h2>MCP</h2>
 <p>An assistant that speaks MCP can query the same corpus instead of fetching pages. See the
 <a href="https://github.com/anguless-com/angulux#for-assistants-that-speak-mcp">repository</a>.</p>
+
+<footer>
+<a href="https://github.com/anguless-com/angulux">Source</a> · MIT ·
+forked from PrimeNG 21.1.9, the last MIT release
+</footer>
+</body>
+</html>
+`.replace(/\r\n/g, '\n');
+}
+
+/**
+ * The number of module directories in PrimeNG 21.1.9.
+ *
+ * Safe to hold as a literal precisely because 21.1.9 is frozen: it is the last MIT release and
+ * no further one will ever be cut, so this count cannot drift the way a number describing
+ * living code would. Everything else on the migration page is derived from the corpus, and the
+ * count of unported modules is derived from this minus that — never typed twice.
+ */
+const UPSTREAM_MODULE_COUNT = 117;
+
+/**
+ * The migration page — the one page written for a person rather than an assistant.
+ *
+ * WHY IT IS SEPARATE from the root. The root page answers "what is the API", to a model that
+ * has never seen this library. This one answers "PrimeNG 22 is not MIT any more, now what",
+ * to a developer whose `ng update` just stopped. Same project, different question, and merging
+ * them would serve neither: the assistant page would gain sales copy and this one would open
+ * with a table of file formats.
+ *
+ * WHY IT ARGUES AGAINST ITSELF. Three of the four options in the table are not angulux, and the
+ * blocker is described as the one line it actually is. A reader who discovers on their own that
+ * `--legacy-peer-deps` would have worked stops believing the rest of the page, and the rest of
+ * the page is the part that matters. The honest version is also the more persuasive one.
+ */
+export function renderMigratePage(corpus) {
+    const declarations = corpus.modules.reduce((n, m) => n + m.declarations.length, 0);
+    const unported = UPSTREAM_MODULE_COUNT - corpus.modules.length;
+
+    const options = [
+        [
+            `Install PrimeNG 21 anyway, with <code>--legacy-peer-deps</code>`,
+            'Minutes',
+            'Nothing today. But you are pinned to a release that will never be patched again, on a framework it was never released for.'
+        ],
+        ['Buy a PrimeNG 22 license', 'Money, per seat', 'Nothing technical. This is the supported path and it works.'],
+        [
+            'Rewrite onto another component library',
+            'Weeks to months',
+            'Every template you have already written, and the theme built around it.'
+        ],
+        [
+            `Move to angulux`,
+            'A codemod run, then fix what it reports',
+            `${unported} modules that are not ported, and the <code>p-*</code> element names.`
+        ]
+    ]
+        .map(([what, cost, gives]) => `<tr><td>${what}</td><td>${cost}</td><td>${gives}</td></tr>`)
+        .join('\n            ');
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrimeNG 21 on Angular 22, without a license — Angulux</title>
+<meta name="description" content="PrimeNG 22 is no longer MIT. What your options actually are if you are on PrimeNG 21 and need Angular 22, including the three that are not Angulux.">
+<link rel="canonical" href="${html(BASE_URL)}primeng-21-to-angular-22">
+<link rel="icon" href="${html(BASE_URL)}favicon.svg" type="image/svg+xml">
+<style>
+:root { color-scheme: light dark; }
+body { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem;
+       font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif; }
+h1 { font-size: 1.9rem; margin: 0 0 .35rem; }
+h2 { font-size: 1.15rem; margin: 2.25rem 0 .6rem; }
+.lede { color: #555; margin: 0 0 1.75rem; }
+table { border-collapse: collapse; width: 100%; margin: .5rem 0 1rem; }
+th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #8883; vertical-align: top; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .875em; }
+pre { background: #8881; padding: .8rem 1rem; border-radius: 6px; overflow-x: auto; }
+footer { margin-top: 3rem; font-size: .875rem; color: #666; }
+@media (prefers-color-scheme: dark) { .lede, footer { color: #aaa; } }
+</style>
+</head>
+<body>
+<h1>PrimeNG 21 on Angular 22, without a license</h1>
+<p class="lede">If <code>ng update</code> to Angular 22 stopped on a PrimeNG peer dependency, this
+page is the whole decision — including the three options that are not this project.</p>
+
+<h2>What actually changed</h2>
+<p>PrimeNG releases up to and including 21.1.9 are MIT. From 22 they are not. Nothing in your
+application stopped working and Angular 22 did not break anything: the license terms of new
+releases changed, and that is the entire event.</p>
+
+<h2>What is actually blocking the install</h2>
+<p>One line. PrimeNG 21.1.9 declares a peer dependency that does not admit Angular 22, so the
+package manager refuses. <strong>The library itself runs on Angular 22</strong> — that was
+measured before this fork existed, not assumed. So
+<code>npm install --legacy-peer-deps</code> will unblock you this afternoon, on a release that
+will never be patched again.</p>
+<p>Anyone telling you that you <em>must</em> pay or <em>must</em> migrate is skipping this
+paragraph.</p>
+
+<h2>Your options</h2>
+<table>
+    <thead><tr><th>Option</th><th>Costs</th><th>What you give up</th></tr></thead>
+    <tbody>
+            ${options}
+    </tbody>
+</table>
+
+<h2>What Angulux is</h2>
+<p>A fork of PrimeNG 21.1.9 — the last MIT release — brought up on Angular 22 and kept MIT. It
+ships ${corpus.modules.length} of PrimeNG's ${UPSTREAM_MODULE_COUNT} modules,
+${declarations} components and directives in total. The other ${unported} are kept in the
+repository, unported and unpublished, rather than deleted.</p>
+
+<h2>What it costs you, concretely</h2>
+<table>
+    <thead><tr><th>Changes</th><th>Does not change</th></tr></thead>
+    <tbody>
+            <tr><td>Element names: <code>p-table</code> → <code>agl-table</code></td><td><strong>CSS class names stay <code>p-*</code></strong> — your theme and every style override survive untouched</td></tr>
+            <tr><td>Imports: <code>primeng/table</code> → <code>@anguless/angulux/table</code></td><td>Inputs, outputs and component behaviour — the 22.x API is frozen deliberately</td></tr>
+            <tr><td>${unported} modules are not available</td><td>Your existing templates, apart from the renames above</td></tr>
+    </tbody>
+</table>
+
+<h2>Find out what it would cost you, without committing</h2>
+<pre><code>npx angulux-migrate</code></pre>
+<p>Reports only. It writes nothing at all unless you pass <code>--write</code>, and
+<code>--write</code> refuses to run outside a clean git tree, so there is always something to
+revert to.</p>
+
+<h2>For whoever has to sign this off</h2>
+<p>The provenance question — <em>can we prove this is lawfully MIT?</em> — is answered in the
+repository rather than asserted here: every inherited file's origin is recorded, and a check
+that fails the build if a post-MIT PrimeTek package ever enters the dependency tree runs on
+every commit.</p>
+
+<h2>Where this project is honest about being weak</h2>
+<ul>
+<li>It is young, and small. Judge it on the gates and the provenance record, not on a logo wall.</li>
+<li>The 22.x API is frozen on purpose. Redesign is queued behind the Angular 23 release.</li>
+<li>If you depend on one of the ${unported} unported modules, this is not ready for you today.</li>
+</ul>
+
+<h2>Install</h2>
+<pre><code>npm i @anguless/angulux</code></pre>
+<p>Then <a href="${html(BASE_URL)}">the module index</a> for the API of everything shipped.</p>
 
 <footer>
 <a href="https://github.com/anguless-com/angulux">Source</a> · MIT ·
@@ -394,6 +546,10 @@ export function renderSite(corpus) {
     const landing = renderIndexHtml(corpus);
     files.set('index.html', landing);
     files.set('llms/index.html', landing);
+    // A directory index, so the address is `/primeng-21-to-angular-22` with no extension —
+    // this is the one URL meant to be pasted into a forum reply, and `.html` in a shared link
+    // reads as an artefact of the tooling rather than a page someone wrote.
+    files.set('primeng-21-to-angular-22/index.html', renderMigratePage(corpus));
     files.set('robots.txt', renderRobotsTxt());
     files.set('favicon.svg', renderFaviconSvg());
     files.set('CNAME', renderCname());
