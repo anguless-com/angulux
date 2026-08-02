@@ -241,7 +241,7 @@ check_usage({ selector: 'p-button', entrypoint: 'primeng/button' })
   → import specifier `primeng/button` does not resolve; use `@anguless/angulux/button`
 ```
 
-A test drives the real binary over stdio and proves all 20 benchmark questions are answerable in
+A test drives the real binary over stdio and proves all 24 benchmark questions are answerable in
 at most two tool calls, with PrimeNG's answer absent from the reply. That is a claim about the
 data, not about assistants: whether a model actually consults the server instead of guessing is
 **not measured** — see the package README.

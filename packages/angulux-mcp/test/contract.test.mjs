@@ -24,6 +24,7 @@ const valid = {
     check_usage: { ok: false, problems: ['selector `p-button` is PrimeNG; angulux uses `agl-button`'] },
     corpus_info: {
         libraryVersion: '22.0.0-rc.0',
+        libraryVersionNote: 'the version committed in this checkout, not the published one',
         sourceHash: 'a'.repeat(64),
         closureCount: 64,
         generatedFormatVersion: '1'
@@ -112,6 +113,38 @@ test('a summary without counts is not a summary', () => {
     assert.match(validateToolResult('get_module', countless).join('\n'), /inputCount/);
 });
 
+test('a summary must NAME its slots, not count them', () => {
+    // The one asymmetry in the summary view, so it is pinned rather than left to habit. An
+    // input can be fetched by name afterwards; a slot name cannot be guessed from anything
+    // else in the payload, and a caller holding `slotCount: 3` still writes `#loadingIcon`
+    // for `#loadingicon` — which binds to nothing and reports nothing.
+    const counted = {
+        found: true,
+        view: 'summary',
+        module: {
+            name: 'button',
+            entrypoint: '@anguless/angulux/button',
+            description: '',
+            declarations: [{ name: 'Button', kind: 'component', selector: 'agl-button', inputCount: 1, outputCount: 0, slots: 3 }]
+        }
+    };
+    assert.match(validateToolResult('get_module', counted).join('\n'), /must name its slots/);
+});
+
+test('a fourth kind of member does not exist, so search_api may not invent one', () => {
+    const bad = { matches: [{ module: 'card', declaration: 'Card', member: 'header', kind: 'template' }] };
+    assert.match(validateToolResult('search_api', bad).join('\n'), /kind must be one of/);
+});
+
+test('corpus_info carries the caveat with the version, or not at all', () => {
+    // A bare `22.0.0-rc.0` against npm's `22.1.0` reads as a stale server. It is not: a
+    // release stamps the version in CI and does not commit it back. Someone acting on that
+    // misreading regenerates a corpus that was already byte-correct.
+    const bare = { ...valid.corpus_info };
+    delete bare.libraryVersionNote;
+    assert.match(validateToolResult('corpus_info', bare).join('\n'), /libraryVersionNote/);
+});
+
 test('a "declaration" view carrying more than one declaration is rejected', () => {
     const two = {
         found: true,
@@ -121,8 +154,8 @@ test('a "declaration" view carrying more than one declaration is rejected', () =
             entrypoint: '@anguless/angulux/button',
             description: '',
             declarations: [
-                { name: 'Button', kind: 'component', selector: 'agl-button', inputs: [], outputs: [] },
-                { name: 'ButtonDirective', kind: 'directive', selector: '[aglButton]', inputs: [], outputs: [] }
+                { name: 'Button', kind: 'component', selector: 'agl-button', inputs: [], outputs: [], slots: [] },
+                { name: 'ButtonDirective', kind: 'directive', selector: '[aglButton]', inputs: [], outputs: [], slots: [] }
             ]
         }
     };

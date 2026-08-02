@@ -121,8 +121,12 @@ test('--sample takes one question per kind, not five of the same', () => {
     // first five are all selector questions. That measures one question type while reading
     // like it measured the benchmark.
     const sample = sampleOnePerKind(questions);
+    // Derived from the set, not typed in. This test read `5` until a sixth kind was added, and
+    // a hardcoded count turns "the sample covers every kind" into "the sample is five long" —
+    // which is exactly the trap the sample exists to avoid, one level up.
+    const kinds = new Set(questions.map((q) => q.kind));
 
-    assert.equal(sample.length, 5);
-    assert.equal(new Set(sample.map((q) => q.kind)).size, 5, 'every kind must be represented exactly once');
-    assert.notDeepEqual(sample.map((q) => q.id), questions.slice(0, 5).map((q) => q.id));
+    assert.equal(sample.length, kinds.size);
+    assert.deepEqual(new Set(sample.map((q) => q.kind)), kinds, 'every kind must be represented exactly once');
+    assert.notDeepEqual(sample.map((q) => q.id), questions.slice(0, kinds.size).map((q) => q.id));
 });

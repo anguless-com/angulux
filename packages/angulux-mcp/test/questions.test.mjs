@@ -32,13 +32,17 @@ const DERIVE = {
     entrypoint: (q) => corpus.moduleByName(q.module).entrypoint,
     supported: (q) => (corpus.moduleByName(q.module) ? 'yes' : 'no'),
     deprecated: (q) => (inputOf(q.module, q.declaration, q.member)?.deprecated ? 'yes' : 'no'),
-    inputExists: (q) => (inputOf(q.module, q.declaration, q.member) ? 'yes' : 'no')
+    inputExists: (q) => (inputOf(q.module, q.declaration, q.member) ? 'yes' : 'no'),
+    // Keyed on the FIELD, resolved to the reference name. Those are the two halves nobody can
+    // derive from each other — `_closeiconTemplate` reads `#closeicon` — so a question that
+    // hardcoded either one would stop measuring the day a module renamed the other.
+    slot: (q) => `#${declarationOf(q.module, q.declaration)?.slots.find((s) => s.field === q.member)?.name}`
 };
 
-test('the set is exactly 20 questions with unique ids', () => {
-    assert.equal(set.count, 20);
-    assert.equal(set.questions.length, 20);
-    assert.equal(new Set(set.questions.map((q) => q.id)).size, 20);
+test('the set is exactly 24 questions with unique ids', () => {
+    assert.equal(set.count, 24);
+    assert.equal(set.questions.length, 24);
+    assert.equal(new Set(set.questions.map((q) => q.id)).size, 24);
 });
 
 test('EVERY expected answer still matches the corpus', () => {
@@ -69,7 +73,21 @@ test('the unsupported-module questions really are unsupported', () => {
 
 test('the set is not all one kind — a single trick would not be evidence', () => {
     const kinds = new Set(set.questions.map((q) => q.kind));
-    assert.deepEqual([...kinds].sort(), ['deprecated', 'entrypoint', 'inputExists', 'selector', 'supported']);
+    assert.deepEqual([...kinds].sort(), ['deprecated', 'entrypoint', 'inputExists', 'selector', 'slot', 'supported']);
+});
+
+test('every slot question carries the mis-spelling that fails silently', () => {
+    // `mistake` is what the correction path feeds back in. It has to differ from the answer by
+    // CASE only: a slot name that does not match exactly binds to nothing, and Angular reports
+    // that the same way it reports success — silence.
+    const slots = set.questions.filter((q) => q.kind === 'slot');
+    assert.equal(slots.length, 4);
+
+    for (const q of slots) {
+        assert.ok(q.mistake, `${q.id} has no recorded mis-spelling`);
+        assert.notEqual(`#${q.mistake}`, q.expect, `${q.id}: the mis-spelling is the right answer`);
+        assert.equal(`#${q.mistake.toLowerCase()}`, q.expect.toLowerCase(), `${q.id}: the two differ by more than case`);
+    }
 });
 
 test('"yes" is not always the right answer', () => {

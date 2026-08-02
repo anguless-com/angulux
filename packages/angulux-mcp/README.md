@@ -74,7 +74,7 @@ inventing tools for data that does not exist would produce confident empty answe
 | --- | --- |
 | `list_modules` | you need the supported module list, or just an import specifier — all 64 for a fraction of what one large module costs |
 | `get_module` | you are about to write markup. Pass `summary: true` first for an unfamiliar module, then `declaration` for the one you need |
-| `search_api` | you know the input or output name but not which component declares it |
+| `search_api` | you know the input, output or slot name but not which component declares it |
 | `check_usage` | **before recommending angulux code you did not read out of the corpus** |
 | `corpus_info` | an answer looks inconsistent with the code in front of you — compare the hash |
 
@@ -101,6 +101,34 @@ That last case is why the corpus is keyed by declaration rather than by module: 
 name can exist twice with different deprecation status, and collapsing them would let whichever
 came last silently decide the answer.
 
+It also answers the two mistakes that make no noise at all — template slots:
+
+```
+check_usage({ selector: '[pTemplate]', module: 'card' })
+
+  `[pTemplate]` is the retired template directive; angulux has exactly one route per slot —
+    `<ng-template #NAME>`, read by `contentChild('NAME')`. An unmatched
+    `pTemplate=`/`aglTemplate=` throws nothing and renders nothing.
+    `card` slots: #header, #title, #subtitle, #content, #footer.
+```
+
+```
+check_usage({ module: 'button', slots: ['loadingIcon'] })
+
+  `<ng-template #loadingIcon>` never binds — `button` spells that slot `#loadingicon`, and a
+    reference name that does not match exactly fails silently
+```
+
+Both are worth their own answer because neither produces an error. `pTemplate="header"` is a
+plain static attribute; with no directive to match it Angular says nothing, the build stays
+green, and the slot renders empty. Twenty-seven of those sat broken inside this repository
+across three commits before a gate went looking. A model told only "that selector does not
+exist" reaches next for `<p-header>`, which BL-35 also deleted.
+
+The slot **name** is recorded next to the field that reads it because neither can be derived
+from the other: `loadingIconTemplate` fills `#loadingicon`, `_closeiconTemplate` fills
+`#closeicon`, and `template` fills `#template`.
+
 ### `get_module` views
 
 `table` declares 25 things, one of which carries 83 inputs. Fetching all of it costs ~70 KB in
@@ -111,6 +139,10 @@ a single tool result, so the response says which view it is:
 | `full` | everything (default) |
 | `summary` | declaration names, kinds, selectors and member **counts** — 14× smaller on `table`, 45× on `multiselect` |
 | `declaration` | one declaration, in full |
+
+The summary **names** its slots while it only counts everything else. An input can be looked up
+afterwards by name; a slot name cannot be guessed from anything else in the payload, and a
+caller holding `slotCount: 3` still writes `#loadingIcon` for `#loadingicon`.
 
 Truncating silently would have been worse than the size: a caller could not tell a small module
 from a trimmed one.
@@ -124,6 +156,14 @@ from a trimmed one.
   corpus marks the rest as undeclared rather than omitting the field, so the gap stays visible
   to a reading model instead of being filled with a guess.
 - **69 inputs are deprecated.** Each carries its replacement.
+- **The published version, as opposed to this checkout's.** `corpus_info.libraryVersion` reads
+  the root manifest, and a release stamps the version in CI without committing it back — so it
+  trails npm by design and says so in `libraryVersionNote`. `sourceHash` is the staleness
+  signal that cannot drift: it digests the exact files that fed the corpus.
+
+It **does** know all **191 template slots** across 31 modules, which is the same number
+`check-facet-single-route.mjs` counts by a completely different method — an AST walk against a
+positional regex scan. Where the two agree, the number is evidence.
 
 ## What this server is proven to do — and what it is not
 
@@ -132,7 +172,7 @@ all, and saying so is cheaper than being caught overstating it.
 
 ### ✅ Proven: the answer is here, and PrimeNG's is not
 
-`test/sufficiency.test.mjs` drives the real binary over real stdio and asserts, for all **20**
+`test/sufficiency.test.mjs` drives the real binary over real stdio and asserts, for all **24**
 benchmark questions:
 
 - every question is answerable in **at most two tool calls** — measured by counting calls, not
@@ -162,8 +202,8 @@ that spend was declined on 2026-07-30. It is an **opt-in tool, not a gate**.
 If you want the number, one command — and the result gets committed whichever way it goes:
 
 ```
-node packages/angulux-mcp/benchmark/run.mjs --sample --effort medium   # 5 questions, one per kind
-node packages/angulux-mcp/benchmark/run.mjs                            # all 20
+node packages/angulux-mcp/benchmark/run.mjs --sample --effort medium   # 6 questions, one per kind
+node packages/angulux-mcp/benchmark/run.mjs                            # all 24
 ```
 
 Prefer `--sample` over `--limit 5` for a cheap probe: the question set is grouped by kind, so
