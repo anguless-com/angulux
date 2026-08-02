@@ -19,6 +19,14 @@
  * drift it exists to detect. `sourceHash` digests exactly the files that fed the corpus, so
  * it changes when and only when the corpus should.
  *
+ * WHICH LEAVES ONE THING IT CANNOT SEE, AND THAT IS WHAT `version` IS FOR.
+ *
+ * `sourceHash` covers the INPUT. Change this generator instead — teach it a new field — and
+ * every record gains a key while the digest stays byte-identical, because not one library file
+ * moved. That happened when slots were added: the corpus grew 191 records and the hash did not
+ * blink. So the format number is bumped whenever a record's SHAPE changes, and a consumer that
+ * caches on the hash alone has the one field that tells it the shape moved underneath.
+ *
  * Usage:
  *   node tools/corpus/generate.mjs           # write corpus/corpus.json
  *   node tools/corpus/generate.mjs --check   # print what would be written, write nothing
@@ -109,7 +117,8 @@ export function buildCorpus() {
     });
 
     return {
-        generator: { version: '1', sourceHash: sourceHashOf(files), closureCount: closure.length },
+        // 1 -> 2: declarations gained `slots`. See the header for why the hash cannot say this.
+        generator: { version: '2', sourceHash: sourceHashOf(files), closureCount: closure.length },
         modules
     };
 }

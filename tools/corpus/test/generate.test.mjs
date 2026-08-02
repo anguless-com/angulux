@@ -48,6 +48,35 @@ test('provenance is a content hash, not a commit SHA', () => {
     assert.equal(generator.closureCount, 64);
 });
 
+test('a record shape change must bump the format version — the hash cannot say it', () => {
+    // The gap this closes, found the hard way. `sourceHash` digests the library files that fed
+    // the corpus, so it moves when the LIBRARY moves. Change the generator instead — teach it
+    // to record slots — and every declaration gains a key while the digest stays byte-identical,
+    // because not one library file was touched. A consumer caching on the hash alone would go
+    // on reading a shape that no longer exists.
+    //
+    // So the shape is registered per version here. Adding a field without bumping fails on the
+    // key comparison; bumping without registering the new shape fails on the lookup. Neither
+    // can pass quietly, which is the only reason this is a test rather than a convention.
+    const SHAPES = {
+        2: ['name', 'kind', 'selector', 'description', 'inputs', 'outputs', 'slots']
+    };
+
+    const corpus = buildCorpus();
+    const expected = SHAPES[corpus.generator.version];
+    assert.ok(expected, `format version ${corpus.generator.version} has no registered record shape`);
+
+    for (const module of corpus.modules) {
+        for (const declaration of module.declarations) {
+            assert.deepEqual(
+                Object.keys(declaration).sort(),
+                [...expected].sort(),
+                `${module.name}/${declaration.name} does not match the shape declared for format ${corpus.generator.version}`
+            );
+        }
+    }
+});
+
 test('a module that declares nothing is still present', () => {
     const empty = buildCorpus().modules.filter((m) => m.declarations.length === 0);
 

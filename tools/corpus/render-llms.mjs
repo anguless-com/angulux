@@ -37,6 +37,7 @@ export const BASE_URL = 'https://angulux.anguless.com/';
 const summaryOf = (corpus) => {
     const declarations = corpus.modules.reduce((n, m) => n + m.declarations.length, 0);
     const inputs = corpus.modules.reduce((n, m) => n + m.declarations.reduce((k, d) => k + d.inputs.length, 0), 0);
+    const slots = corpus.modules.reduce((n, m) => n + m.declarations.reduce((k, d) => k + d.slots.length, 0), 0);
     const deprecated = corpus.modules.reduce(
         (n, m) => n + m.declarations.reduce((k, d) => k + d.inputs.filter((i) => i.deprecated !== null).length, 0),
         0
@@ -48,8 +49,9 @@ const summaryOf = (corpus) => {
         `\`@anguless/angulux/<module>\` — ` +
         `code written against PrimeNG's \`p-*\` selectors will not work. This index covers ` +
         `${corpus.modules.length} supported modules, ${declarations} components and directives, ` +
-        `${inputs} inputs, of which ${deprecated} are deprecated. Every page is generated from ` +
-        `the library's own source, so an input absent here does not exist.`
+        `${inputs} inputs, of which ${deprecated} are deprecated, and ${slots} template slots — ` +
+        `every one of them filled with \`<ng-template #name>\`, never PrimeNG's \`pTemplate=\`. ` +
+        `Every page is generated from the library's own source, so an input absent here does not exist.`
     );
 };
 
@@ -150,6 +152,24 @@ function renderDeclaration(declaration) {
                     (output) => `| \`${cell(output.name)}\` | \`${cell(output.type)}\` | ${cell(output.description)} |`
                 ),
                 ['Output', 'Type', 'Description']
+            ),
+            ''
+        );
+    }
+
+    if (declaration.slots.length) {
+        // Printed as the markup a caller writes, not as the field name. Angulux fills a slot
+        // exactly one way since BL-35, and PrimeNG's two retired ways — `pTemplate="header"`
+        // and `<p-header>` — both fail SILENTLY here: an unmatched template attribute renders
+        // an empty slot with no error at build time or runtime. A page that listed
+        // `headerTemplate` would be accurate about the class and useless about the markup.
+        lines.push(
+            ...table(
+                declaration.slots.map((slot) => {
+                    const note = slot.deprecated ? ` **Deprecated:** ${cell(slot.deprecated)}` : '';
+                    return `| \`<ng-template #${cell(slot.name)}>\` | \`${cell(slot.field)}\` | ${cell(slot.description)}${note} |`;
+                }),
+                ['Slot', 'Read as', 'Description']
             ),
             ''
         );

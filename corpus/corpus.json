@@ -1,6 +1,6 @@
 {
     "generator": {
-        "version": "1",
+        "version": "2",
         "sourceHash": "a37ce49d789fe814bc63187c3c434c359e3d60561c0dc22f5e6b42b0ba80a3f9",
         "closureCount": 64
     },
@@ -33,7 +33,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -138,7 +139,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -174,7 +176,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -290,7 +293,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "Badge",
@@ -359,7 +363,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -421,7 +426,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -477,7 +483,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -593,7 +600,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -608,7 +616,8 @@
                     "selector": "",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -634,7 +643,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -680,7 +690,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ButtonIcon",
@@ -719,7 +730,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ButtonDirective",
@@ -908,7 +920,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "Button",
@@ -1212,6 +1225,26 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingicon",
+                            "field": "loadingIconTemplate",
+                            "description": "Custom loading icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom icon template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -1268,7 +1301,39 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "title",
+                            "field": "titleTemplate",
+                            "description": "Custom title template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "subtitle",
+                            "field": "subtitleTemplate",
+                            "description": "Custom subtitle template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        }
+                    ]
                 }
             ]
         },
@@ -1383,7 +1448,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -1614,6 +1680,14 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "icon",
+                            "field": "checkboxIconTemplate",
+                            "description": "Custom checkbox icon template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -1736,6 +1810,14 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "removeicon",
+                            "field": "removeIconTemplate",
+                            "description": "Custom remove icon template.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -1908,7 +1990,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -2278,6 +2361,50 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "rejecticon",
+                            "field": "rejectIconTemplate",
+                            "description": "Custom reject icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "accepticon",
+                            "field": "acceptIconTemplate",
+                            "description": "Custom accept icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "message",
+                            "field": "messageTemplate",
+                            "description": "Custom message template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headless",
+                            "field": "headlessTemplate",
+                            "description": "Custom headless template.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -2992,6 +3119,86 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "date",
+                            "field": "dateTemplate",
+                            "description": "Custom template for date cells.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom template for header section.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom template for footer section.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "disabledDate",
+                            "field": "disabledDateTemplate",
+                            "description": "Custom template for disabled date cells.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "decade",
+                            "field": "decadeTemplate",
+                            "description": "Custom template for decade view.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "previousicon",
+                            "field": "previousIconTemplate",
+                            "description": "Custom template for previous month icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "nexticon",
+                            "field": "nextIconTemplate",
+                            "description": "Custom template for next month icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "triggericon",
+                            "field": "triggerIconTemplate",
+                            "description": "Custom template for trigger icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "clearicon",
+                            "field": "clearIconTemplate",
+                            "description": "Custom template for clear icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "decrementicon",
+                            "field": "decrementIconTemplate",
+                            "description": "Custom template for decrement icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "incrementicon",
+                            "field": "incrementIconTemplate",
+                            "description": "Custom template for increment icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "inputicon",
+                            "field": "inputIconTemplate",
+                            "description": "Custom template for input icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "buttonbar",
+                            "field": "buttonBarTemplate",
+                            "description": "Custom template for button bar.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -3535,6 +3742,50 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "_headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "content",
+                            "field": "_contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "_footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "closeicon",
+                            "field": "_closeiconTemplate",
+                            "description": "Custom close icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "maximizeicon",
+                            "field": "_maximizeiconTemplate",
+                            "description": "Custom maximize icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "minimizeicon",
+                            "field": "_minimizeiconTemplate",
+                            "description": "Custom minimize icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headless",
+                            "field": "_headlessTemplate",
+                            "description": "Custom headless template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -3591,7 +3842,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -3838,6 +4090,38 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "closeicon",
+                            "field": "closeIconTemplate",
+                            "description": "Custom close icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headless",
+                            "field": "headlessTemplate",
+                            "description": "Custom headless template to replace the entire drawer content.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -3913,7 +4197,8 @@
                             "deprecated": null,
                             "signal": true
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "FileUpload",
@@ -4391,6 +4676,62 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "file",
+                            "field": "fileTemplate",
+                            "description": "Custom file template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "toolbar",
+                            "field": "toolbarTemplate",
+                            "description": "Custom toolbar template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "chooseicon",
+                            "field": "chooseIconTemplate",
+                            "description": "Custom choose icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filelabel",
+                            "field": "fileLabelTemplate",
+                            "description": "Custom file label template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "uploadicon",
+                            "field": "uploadIconTemplate",
+                            "description": "Custom upload icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "cancelicon",
+                            "field": "cancelIconTemplate",
+                            "description": "Custom cancel icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "empty",
+                            "field": "emptyTemplate",
+                            "description": "Custom empty state template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -4406,7 +4747,8 @@
                     "selector": "agl-fluid",
                     "description": "Fluid is a layout component to make descendant components span full width of their container.",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -4432,7 +4774,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -4478,7 +4821,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -4493,7 +4837,8 @@
                     "selector": "[data-p-icon=\"angle-double-down\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleDoubleLeftIcon",
@@ -4501,7 +4846,8 @@
                     "selector": "[data-p-icon=\"angle-double-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleDoubleRightIcon",
@@ -4509,7 +4855,8 @@
                     "selector": "[data-p-icon=\"angle-double-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleDoubleUpIcon",
@@ -4517,7 +4864,8 @@
                     "selector": "[data-p-icon=\"angle-double-up\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleDownIcon",
@@ -4525,7 +4873,8 @@
                     "selector": "[data-p-icon=\"angle-down\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleLeftIcon",
@@ -4533,7 +4882,8 @@
                     "selector": "[data-p-icon=\"angle-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleRightIcon",
@@ -4541,7 +4891,8 @@
                     "selector": "[data-p-icon=\"angle-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "AngleUpIcon",
@@ -4549,7 +4900,8 @@
                     "selector": "[data-p-icon=\"angle-up\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowDownIcon",
@@ -4557,7 +4909,8 @@
                     "selector": "[data-p-icon=\"arrow-down\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowDownLeftIcon",
@@ -4565,7 +4918,8 @@
                     "selector": "[data-p-icon=\"arrow-down-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowDownRightIcon",
@@ -4573,7 +4927,8 @@
                     "selector": "[data-p-icon=\"arrow-down-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowLeftIcon",
@@ -4581,7 +4936,8 @@
                     "selector": "[data-p-icon=\"arrow-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowRightIcon",
@@ -4589,7 +4945,8 @@
                     "selector": "[data-p-icon=\"arrow-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ArrowUpIcon",
@@ -4597,7 +4954,8 @@
                     "selector": "[data-p-icon=\"arrow-up\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "BanIcon",
@@ -4605,7 +4963,8 @@
                     "selector": "[data-p-icon=\"ban\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "BarsIcon",
@@ -4613,7 +4972,8 @@
                     "selector": "[data-p-icon=\"bars\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "BaseIcon",
@@ -4632,7 +4992,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "BlankIcon",
@@ -4640,7 +5001,8 @@
                     "selector": "[data-p-icon=\"blank\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CalendarIcon",
@@ -4648,7 +5010,8 @@
                     "selector": "[data-p-icon=\"calendar\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CaretLeftIcon",
@@ -4656,7 +5019,8 @@
                     "selector": "[data-p-icon=\"caret-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CaretRightIcon",
@@ -4664,7 +5028,8 @@
                     "selector": "[data-p-icon=\"caret-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CheckIcon",
@@ -4672,7 +5037,8 @@
                     "selector": "[data-p-icon=\"check\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ChevronDownIcon",
@@ -4680,7 +5046,8 @@
                     "selector": "[data-p-icon=\"chevron-down\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ChevronLeftIcon",
@@ -4688,7 +5055,8 @@
                     "selector": "[data-p-icon=\"chevron-left\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ChevronRightIcon",
@@ -4696,7 +5064,8 @@
                     "selector": "[data-p-icon=\"chevron-right\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ChevronUpIcon",
@@ -4704,7 +5073,8 @@
                     "selector": "[data-p-icon=\"chevron-up\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ExclamationTriangleIcon",
@@ -4712,7 +5082,8 @@
                     "selector": "[data-p-icon=\"exclamation-triangle\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "EyeIcon",
@@ -4720,7 +5091,8 @@
                     "selector": "[data-p-icon=\"eye\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "EyeSlashIcon",
@@ -4728,7 +5100,8 @@
                     "selector": "[data-p-icon=\"eyeslash\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "FilterIcon",
@@ -4736,7 +5109,8 @@
                     "selector": "[data-p-icon=\"filter\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "FilterFillIcon",
@@ -4744,7 +5118,8 @@
                     "selector": "[data-p-icon=\"filter-fill\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "FilterSlashIcon",
@@ -4752,7 +5127,8 @@
                     "selector": "[data-p-icon=\"filter-slash\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "HomeIcon",
@@ -4760,7 +5136,8 @@
                     "selector": "[data-p-icon=\"home\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "InfoCircleIcon",
@@ -4768,7 +5145,8 @@
                     "selector": "[data-p-icon=\"info-circle\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "MinusIcon",
@@ -4776,7 +5154,8 @@
                     "selector": "[data-p-icon=\"minus\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "PencilIcon",
@@ -4784,7 +5163,8 @@
                     "selector": "[data-p-icon=\"pencil\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "PlusIcon",
@@ -4792,7 +5172,8 @@
                     "selector": "[data-p-icon=\"plus\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "RefreshIcon",
@@ -4800,7 +5181,8 @@
                     "selector": "[data-p-icon=\"refresh\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SearchIcon",
@@ -4808,7 +5190,8 @@
                     "selector": "[data-p-icon=\"search\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SearchMinusIcon",
@@ -4816,7 +5199,8 @@
                     "selector": "[data-p-icon=\"search-minus\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SearchPlusIcon",
@@ -4824,7 +5208,8 @@
                     "selector": "[data-p-icon=\"search-plus\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SortAltIcon",
@@ -4832,7 +5217,8 @@
                     "selector": "[data-p-icon=\"sort-alt\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SortAmountDownIcon",
@@ -4840,7 +5226,8 @@
                     "selector": "[data-p-icon=\"sort-amount-down\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SortAmountUpAltIcon",
@@ -4848,7 +5235,8 @@
                     "selector": "[data-p-icon=\"sort-amount-up-alt\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SpinnerIcon",
@@ -4856,7 +5244,8 @@
                     "selector": "[data-p-icon=\"spinner\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "StarIcon",
@@ -4864,7 +5253,8 @@
                     "selector": "[data-p-icon=\"star\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "StarFillIcon",
@@ -4872,7 +5262,8 @@
                     "selector": "[data-p-icon=\"star-fill\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ThLargeIcon",
@@ -4880,7 +5271,8 @@
                     "selector": "[data-p-icon=\"th-large\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TimesIcon",
@@ -4888,7 +5280,8 @@
                     "selector": "[data-p-icon=\"times\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TimesCircleIcon",
@@ -4896,7 +5289,8 @@
                     "selector": "[data-p-icon=\"times-circle\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TrashIcon",
@@ -4904,7 +5298,8 @@
                     "selector": "[data-p-icon=\"trash\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "UndoIcon",
@@ -4912,7 +5307,8 @@
                     "selector": "[data-p-icon=\"undo\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "UploadIcon",
@@ -4920,7 +5316,8 @@
                     "selector": "[data-p-icon=\"upload\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "WindowMaximizeIcon",
@@ -4928,7 +5325,8 @@
                     "selector": "[data-p-icon=\"window-maximize\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "WindowMinimizeIcon",
@@ -4936,7 +5334,8 @@
                     "selector": "[data-p-icon=\"window-minimize\"]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -4972,7 +5371,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -5359,6 +5759,26 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "clearicon",
+                            "field": "clearIconTemplate",
+                            "description": "Custom clear icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "incrementbuttonicon",
+                            "field": "incrementButtonIconTemplate",
+                            "description": "Custom increment button icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "decrementbuttonicon",
+                            "field": "decrementButtonIconTemplate",
+                            "description": "Custom decrement button icon template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -5455,7 +5875,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -5520,7 +5941,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "Menu",
@@ -5702,6 +6124,32 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "start",
+                            "field": "startTemplate",
+                            "description": "Defines template option for start.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "end",
+                            "field": "endTemplate",
+                            "description": "Defines template option for end.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Custom item template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "submenuheader",
+                            "field": "submenuHeaderTemplate",
+                            "description": "Custom submenu header template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -5866,6 +6314,26 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "container",
+                            "field": "containerTemplate",
+                            "description": "Custom template of the message container.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom template of the message icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "closeicon",
+                            "field": "closeIconTemplate",
+                            "description": "Custom template of the close icon.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -6138,7 +6606,8 @@
                             "deprecated": null,
                             "signal": true
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "MotionDirective",
@@ -6382,7 +6851,8 @@
                             "deprecated": null,
                             "signal": true
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -6545,7 +7015,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "MultiSelect",
@@ -7293,6 +7764,110 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Custom item template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "group",
+                            "field": "groupTemplate",
+                            "description": "Custom group template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loader",
+                            "field": "loaderTemplate",
+                            "description": "Custom loader template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filter",
+                            "field": "filterTemplate",
+                            "description": "Custom filter template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "emptyfilter",
+                            "field": "emptyFilterTemplate",
+                            "description": "Custom empty filter template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "empty",
+                            "field": "emptyTemplate",
+                            "description": "Custom empty template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "selecteditems",
+                            "field": "selectedItemsTemplate",
+                            "description": "Custom selected items template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingicon",
+                            "field": "loadingIconTemplate",
+                            "description": "Custom loading icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filtericon",
+                            "field": "filterIconTemplate",
+                            "description": "Custom filter icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "removetokenicon",
+                            "field": "removeTokenIconTemplate",
+                            "description": "Custom remove token icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "chipicon",
+                            "field": "chipIconTemplate",
+                            "description": "Custom chip icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "clearicon",
+                            "field": "clearIconTemplate",
+                            "description": "Custom clear icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "dropdownicon",
+                            "field": "dropdownIconTemplate",
+                            "description": "Custom dropdown icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "itemcheckboxicon",
+                            "field": "itemCheckboxIconTemplate",
+                            "description": "Custom item checkbox icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headercheckboxicon",
+                            "field": "headerCheckboxIconTemplate",
+                            "description": "Custom header checkbox icon template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -7604,6 +8179,14 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Content template of the component.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -7839,6 +8422,38 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "dropdownicon",
+                            "field": "dropdownIconTemplate",
+                            "description": "Template for the dropdown icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "firstpagelinkicon",
+                            "field": "firstPageLinkIconTemplate",
+                            "description": "Template for the first page link icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "previouspagelinkicon",
+                            "field": "previousPageLinkIconTemplate",
+                            "description": "Template for the previous page link icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "lastpagelinkicon",
+                            "field": "lastPageLinkIconTemplate",
+                            "description": "Template for the last page link icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "nextpagelinkicon",
+                            "field": "nextPageLinkIconTemplate",
+                            "description": "Template for the next page link icon.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -7965,7 +8580,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "Password",
@@ -8259,6 +8875,44 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom template of content.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom template of footer.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom template of header.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "clearicon",
+                            "field": "clearIconTemplate",
+                            "description": "Custom template of clear icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "hideicon",
+                            "field": "hideIconTemplate",
+                            "description": "Custom template of hide icon.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "showicon",
+                            "field": "showIconTemplate",
+                            "description": "Custom template of show icon.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -8422,6 +9076,14 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -8508,7 +9170,15 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Template of the content.",
+                            "deprecated": null
+                        }
+                    ]
                 }
             ]
         },
@@ -8574,7 +9244,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -8715,7 +9386,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -8730,7 +9402,8 @@
                     "selector": "[aglRipple]",
                     "description": "Ripple directive adds ripple effect to the host element.",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -9031,6 +9704,32 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Content template of the component.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Item template of the component.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loader",
+                            "field": "loaderTemplate",
+                            "description": "Loader template of the component.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadericon",
+                            "field": "loaderIconTemplate",
+                            "description": "Loader icon template of the component.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -9204,7 +9903,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "Select",
@@ -9806,6 +10506,86 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Custom item template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "group",
+                            "field": "groupTemplate",
+                            "description": "Custom group template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loader",
+                            "field": "loaderTemplate",
+                            "description": "Custom loader template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "selectedItem",
+                            "field": "selectedItemTemplate",
+                            "description": "Custom selected item template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filter",
+                            "field": "filterTemplate",
+                            "description": "Custom filter template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "emptyfilter",
+                            "field": "emptyFilterTemplate",
+                            "description": "Custom empty filter template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "empty",
+                            "field": "emptyTemplate",
+                            "description": "Custom empty template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "dropdownicon",
+                            "field": "dropdownIconTemplate",
+                            "description": "Custom dropdown icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingicon",
+                            "field": "loadingIconTemplate",
+                            "description": "Custom loading icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "clearicon",
+                            "field": "clearIconTemplate",
+                            "description": "Custom clear icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filtericon",
+                            "field": "filterIconTemplate",
+                            "description": "Custom filter icon template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -9979,6 +10759,14 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Custom item template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -10065,7 +10853,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -10413,6 +11202,20 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "dropdownicon",
+                            "field": "dropdownIconTemplate",
+                            "description": "Custom dropdown icon template.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -11453,6 +12256,182 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "_headerTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headergrouped",
+                            "field": "_headerGroupedTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "body",
+                            "field": "_bodyTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingbody",
+                            "field": "_loadingBodyTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "caption",
+                            "field": "_captionTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "_footerTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footergrouped",
+                            "field": "_footerGroupedTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "summary",
+                            "field": "_summaryTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "colgroup",
+                            "field": "_colGroupTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "expandedrow",
+                            "field": "_expandedRowTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "groupheader",
+                            "field": "_groupHeaderTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "groupfooter",
+                            "field": "_groupFooterTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozenexpandedrow",
+                            "field": "_frozenExpandedRowTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozenbody",
+                            "field": "_frozenBodyTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "emptymessage",
+                            "field": "_emptyMessageTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorleft",
+                            "field": "_paginatorLeftTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorright",
+                            "field": "_paginatorRightTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatordropdownitem",
+                            "field": "_paginatorDropdownItemTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingicon",
+                            "field": "_loadingIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "reorderindicatorupicon",
+                            "field": "_reorderIndicatorUpIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "reorderindicatordownicon",
+                            "field": "_reorderIndicatorDownIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "sorticon",
+                            "field": "_sortIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "checkboxicon",
+                            "field": "_checkboxIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headercheckboxicon",
+                            "field": "_headerCheckboxIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatordropdownicon",
+                            "field": "_paginatorDropdownIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorfirstpagelinkicon",
+                            "field": "_paginatorFirstPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorlastpagelinkicon",
+                            "field": "_paginatorLastPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorpreviouspagelinkicon",
+                            "field": "_paginatorPreviousPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatornextpagelinkicon",
+                            "field": "_paginatorNextPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        }
                     ]
                 },
                 {
@@ -11522,7 +12501,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "RowGroupHeader",
@@ -11530,7 +12510,8 @@
                     "selector": "[aglRowGroupHeader]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "FrozenColumn",
@@ -11559,7 +12540,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SortableColumn",
@@ -11588,7 +12570,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SortIcon",
@@ -11607,7 +12590,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SelectableRow",
@@ -11646,7 +12630,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SelectableRowDblClick",
@@ -11685,7 +12670,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ContextMenuRow",
@@ -11724,7 +12710,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "RowToggler",
@@ -11753,7 +12740,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ResizableColumn",
@@ -11772,7 +12760,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ReorderableColumn",
@@ -11791,7 +12780,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "EditableColumn",
@@ -11850,7 +12840,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "EditableRow",
@@ -11879,7 +12870,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "InitEditableRow",
@@ -11887,7 +12879,8 @@
                     "selector": "[aglInitEditableRow]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "SaveEditableRow",
@@ -11895,7 +12888,8 @@
                     "selector": "[aglSaveEditableRow]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CancelEditableRow",
@@ -11903,7 +12897,8 @@
                     "selector": "[aglCancelEditableRow]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "CellEditor",
@@ -11911,7 +12906,21 @@
                     "selector": "agl-cellEditor",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "input",
+                            "field": "_inputTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "output",
+                            "field": "_outputTemplate",
+                            "description": "",
+                            "deprecated": null
+                        }
+                    ]
                 },
                 {
                     "name": "TableRadioButton",
@@ -11980,7 +12989,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TableCheckbox",
@@ -12059,7 +13069,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TableHeaderCheckbox",
@@ -12108,7 +13119,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ReorderableRowHandle",
@@ -12116,7 +13128,8 @@
                     "selector": "[aglReorderableRowHandle]",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ReorderableRow",
@@ -12145,7 +13158,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "ColumnFilter",
@@ -12461,6 +13475,44 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "header",
+                            "field": "headerTemplate",
+                            "description": "Custom header template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filter",
+                            "field": "filterTemplate",
+                            "description": "Custom filter template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "footerTemplate",
+                            "description": "Custom footer template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "filtericon",
+                            "field": "filterIconTemplate",
+                            "description": "Custom filter icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "removeruleicon",
+                            "field": "removeRuleIconTemplate",
+                            "description": "Custom remove rule button icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "addruleicon",
+                            "field": "addRuleIconTemplate",
+                            "description": "Custom add rule button icon template.",
+                            "deprecated": null
+                        }
                     ]
                 },
                 {
@@ -12630,7 +13682,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -12656,7 +13709,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TabList",
@@ -12664,7 +13718,21 @@
                     "selector": "agl-tablist",
                     "description": "TabList is a helper component for Tabs component.",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "previcon",
+                            "field": "prevIconTemplate",
+                            "description": "A template reference variable that represents the previous icon in a UI component.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "nexticon",
+                            "field": "nextIconTemplate",
+                            "description": "A template reference variable that represents the next icon in a UI component.",
+                            "deprecated": null
+                        }
+                    ]
                 },
                 {
                     "name": "TabPanel",
@@ -12683,7 +13751,15 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "content",
+                            "description": "Template for initializing complex content when lazy is enabled.",
+                            "deprecated": null
+                        }
+                    ]
                 },
                 {
                     "name": "TabPanels",
@@ -12691,7 +13767,8 @@
                     "selector": "agl-tabpanels",
                     "description": "TabPanels is a helper component for Tabs component.",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "Tabs",
@@ -12750,7 +13827,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -12816,7 +13894,15 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom icon template.",
+                            "deprecated": null
+                        }
+                    ]
                 }
             ]
         },
@@ -12911,7 +13997,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 }
             ]
         },
@@ -13138,7 +14225,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "TieredMenu",
@@ -13334,6 +14422,20 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "submenuicon",
+                            "field": "submenuIconTemplate",
+                            "description": "Custom submenu icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "item",
+                            "field": "itemTemplate",
+                            "description": "Custom item template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -13390,7 +14492,27 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "opposite",
+                            "field": "oppositeTemplate",
+                            "description": "Custom opposite item template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "marker",
+                            "field": "markerTemplate",
+                            "description": "Custom marker template.",
+                            "deprecated": null
+                        }
+                    ]
                 }
             ]
         },
@@ -13541,7 +14663,8 @@
                             "deprecated": null,
                             "signal": false
                         }
-                    ]
+                    ],
+                    "slots": []
                 },
                 {
                     "name": "Toast",
@@ -13698,6 +14821,20 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "message",
+                            "field": "template",
+                            "description": "Custom message template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headless",
+                            "field": "headlessTemplate",
+                            "description": "Custom headless template.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -13864,6 +15001,20 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "icon",
+                            "field": "iconTemplate",
+                            "description": "Custom icon template.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "content",
+                            "field": "contentTemplate",
+                            "description": "Custom content template.",
+                            "deprecated": null
+                        }
                     ]
                 }
             ]
@@ -13988,6 +15139,14 @@
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
+                        }
+                    ],
+                    "slots": [
+                        {
+                            "name": "handle",
+                            "field": "handleTemplate",
+                            "description": "Custom handle template.",
+                            "deprecated": null
                         }
                     ]
                 }
@@ -14225,7 +15384,8 @@
                             "signal": true
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },
@@ -15024,6 +16184,164 @@
                             "deprecated": null,
                             "signal": false
                         }
+                    ],
+                    "slots": [
+                        {
+                            "name": "colgroup",
+                            "field": "_colGroupTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "caption",
+                            "field": "_captionTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "header",
+                            "field": "_headerTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "body",
+                            "field": "_bodyTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "footer",
+                            "field": "_footerTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "summary",
+                            "field": "_summaryTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "emptymessage",
+                            "field": "_emptyMessageTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorleft",
+                            "field": "_paginatorLeftTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorright",
+                            "field": "_paginatorRightTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatordropdownitem",
+                            "field": "_paginatorDropdownItemTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozenheader",
+                            "field": "_frozenHeaderTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozenbody",
+                            "field": "_frozenBodyTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozenfooter",
+                            "field": "_frozenFooterTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "frozencolgroup",
+                            "field": "_frozenColGroupTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loadingicon",
+                            "field": "_loadingIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "reorderindicatorupicon",
+                            "field": "_reorderIndicatorUpIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "reorderindicatordownicon",
+                            "field": "_reorderIndicatorDownIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "sorticon",
+                            "field": "_sortIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "checkboxicon",
+                            "field": "_checkboxIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "headercheckboxicon",
+                            "field": "_headerCheckboxIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "togglericon",
+                            "field": "_togglerIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorfirstpagelinkicon",
+                            "field": "_paginatorFirstPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorlastpagelinkicon",
+                            "field": "_paginatorLastPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatorpreviouspagelinkicon",
+                            "field": "_paginatorPreviousPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "paginatornextpagelinkicon",
+                            "field": "_paginatorNextPageLinkIconTemplate",
+                            "description": "",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "loader",
+                            "field": "_loaderTemplate",
+                            "description": "",
+                            "deprecated": null
+                        }
                     ]
                 },
                 {
@@ -15083,7 +16401,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTScrollableView",
@@ -15122,7 +16441,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTSortableColumn",
@@ -15151,7 +16471,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTSortIcon",
@@ -15190,7 +16511,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTResizableColumn",
@@ -15209,7 +16531,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTReorderableColumn",
@@ -15228,7 +16551,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTSelectableRow",
@@ -15257,7 +16581,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTSelectableRowDblClick",
@@ -15286,7 +16611,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTContextMenuRow",
@@ -15315,7 +16641,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTCheckbox",
@@ -15344,7 +16671,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTHeaderCheckbox",
@@ -15352,7 +16680,8 @@
                     "selector": "agl-treeTableHeaderCheckbox",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TTEditableColumn",
@@ -15391,7 +16720,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TreeTableCellEditor",
@@ -15399,7 +16729,21 @@
                     "selector": "agl-treeTableCellEditor, agl-treetablecelleditor, agl-treetable-cell-editor",
                     "description": "",
                     "inputs": [],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": [
+                        {
+                            "name": "input",
+                            "field": "inputTemplate",
+                            "description": "Editing state of the cell.",
+                            "deprecated": null
+                        },
+                        {
+                            "name": "output",
+                            "field": "outputTemplate",
+                            "description": "Display state of the cell.",
+                            "deprecated": null
+                        }
+                    ]
                 },
                 {
                     "name": "TTRow",
@@ -15418,7 +16762,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 },
                 {
                     "name": "TreeTableToggler",
@@ -15437,7 +16782,8 @@
                             "signal": false
                         }
                     ],
-                    "outputs": []
+                    "outputs": [],
+                    "slots": []
                 }
             ]
         },

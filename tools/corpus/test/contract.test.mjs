@@ -67,6 +67,25 @@ test('a deprecated input keeps its reason, because a model must not recommend it
     for (const input of deprecated) assert.equal(typeof input.deprecated, 'string');
 });
 
+test('a slot that lost its name is rejected — the name is the only part a caller writes', () => {
+    const corpus = fixture();
+    delete corpus.modules[0].declarations[0].slots[0].name;
+    assert.match(validateCorpus(corpus).join('\n'), /slots\[0\].*name must be a string/s);
+});
+
+test('a slot keeps BOTH names, because one cannot be derived from the other', () => {
+    // `loadingIconTemplate` fills `<ng-template #loadingicon>` — all lowercase. Anyone deriving
+    // the slot from the field would write `#loadingIcon`, which is not a name Angular matches:
+    // the template silently never binds, and nothing anywhere throws. This is exactly the
+    // failure the corpus records both names to prevent, so the fixture pins a slot where the
+    // two genuinely differ rather than one where the derivation would have worked by luck.
+    const slot = fixture()
+        .modules[0].declarations.flatMap((d) => d.slots)
+        .find((s) => s.name === 'loadingicon');
+    assert.ok(slot, 'fixture must cover a slot whose name differs from its field');
+    assert.notEqual(slot.name, slot.field.replace(/Template$/, ''));
+});
+
 test('ANCHOR: every fact in the fixture is really in button.ts, in the RIGHT class', () => {
     // This test previously only asked "does this string appear somewhere in the file?", and
     // that weakness let a real error through: the fixture credited `Button` with a
@@ -120,6 +139,21 @@ test('ANCHOR: every fact in the fixture is really in button.ts, in the RIGHT cla
             assert.ok(
                 body.includes(`@Output() ${output.name}`),
                 `${declaration.name}.${output.name} is not declared inside ${declaration.name}`
+            );
+        }
+
+        for (const slot of declaration.slots) {
+            // Field AND literal name in one assertion, because the pair is the fact. Checking
+            // them separately would pass on a fixture that credited `iconTemplate` with the
+            // `loadingicon` slot — both halves present in the file, the pairing invented.
+            assert.match(
+                body,
+                new RegExp(`${slot.field}\\s*=\\s*contentChild[^(\\n]*\\(\\s*'${slot.name}'`),
+                `${declaration.name} does not declare \`${slot.field} = contentChild('${slot.name}')\``
+            );
+            assert.ok(
+                body.includes(slot.description.split('\n')[0]),
+                `${declaration.name}.${slot.field}'s description is not inside ${declaration.name}`
             );
         }
     }

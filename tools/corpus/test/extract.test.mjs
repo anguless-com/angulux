@@ -107,3 +107,46 @@ test('outputs come through with type and group', () => {
     assert.equal(onClick.group, 'Emits');
     assert.match(onClick.description, /^Callback to execute when button is clicked\./);
 });
+
+test('every named slot the text contains, the AST also found', () => {
+    const text = source();
+    const all = declarations();
+
+    // Same two-measurement rule as the decorators above. The regex is the one
+    // `check-facet-single-route.mjs` has been running against the whole library since BL-35,
+    // so agreement here is agreement with the gate that counts 191 of these.
+    const byRegex = (text.match(/\w+\s*=\s*contentChild(?:\.required)?[^(\n]*\(\s*'[a-zA-Z]+'/g) || []).length;
+    assert.equal(all.flatMap((d) => d.slots).length, byRegex, 'contentChild slot count disagrees with the AST');
+});
+
+test('a contentChild that queries a directive is NOT a slot', () => {
+    // `contentChild(ButtonIcon)` and `contentChild(ButtonLabel)` are directive queries: nothing
+    // a caller fills with `<ng-template #…>`. Recording them would put two slot names into the
+    // corpus that cannot be written in markup — the kind of confident fiction this whole corpus
+    // exists to keep out. They are why the extractor requires a string literal.
+    // On ButtonDirective, which is where those two queries actually live — Button's three
+    // contentChild calls all name templates, so asserting there would prove nothing.
+    //
+    // Counted, not filtered. Asking "did a slot come back NAMED ButtonIcon" passes with the
+    // string-literal check removed too: an identifier has no `.text`, so the bad record
+    // arrives as `name: undefined` and matches no filter. Zero is the fact that separates them.
+    assert.match(source(), /contentChild\(ButtonIcon\)/, 'button.ts must still contain a directive query');
+    assert.equal(find('ButtonDirective').slots.length, 0, 'a directive query was recorded as a fillable slot');
+
+    const slots = find('Button').slots;
+    assert.equal(slots.length, 3);
+    assert.ok(
+        slots.every((slot) => typeof slot.name === 'string' && slot.name.length > 0),
+        'every slot must carry the name a caller writes'
+    );
+});
+
+test('a slot carries the name a caller writes, which is not the field name', () => {
+    const slot = find('Button').slots.find((s) => s.field === 'loadingIconTemplate');
+
+    // `#loadingicon`, not `#loadingIcon`. Angular matches template reference names exactly and
+    // says nothing when one does not match, so the wrong casing here is an invisible failure.
+    assert.equal(slot.name, 'loadingicon');
+    assert.equal(slot.description, 'Custom loading icon template.');
+    assert.equal(slot.deprecated, null);
+});
