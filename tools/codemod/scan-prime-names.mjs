@@ -42,10 +42,15 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, exemptionState, templateLiterals } from './name-scan-lib.mjs';
+
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const SRC = join(ROOT, 'packages/angulux/src');
 const ATTIC = join(ROOT, 'packages/angulux/attic');
 const SELECTORS = JSON.parse(readFileSync(join(ROOT, 'tools/codemod/selectors.json'), 'utf8'));
+const EXCEPTIONS = JSON.parse(readFileSync(join(ROOT, 'tools/codemod/name-exceptions.json'), 'utf8'));
+const angularMajor = () => angularMajorFrom(readFileSync(join(ROOT, 'pnpm-workspace.yaml'), 'utf8'));
+
 
 /**
  * Case-INSENSITIVE lookup, and it has to be: the allowlist records names the way the
@@ -85,6 +90,7 @@ function walk(dir, out = []) {
 
 /** Line number for an offset — reporting only. */
 const lineOf = (text, idx) => text.slice(0, idx).split('\n').length;
+
 
 const findings = [];
 let SCOPE = 'src';
@@ -190,6 +196,25 @@ for (const [scope, dir] of [
             record(file, original, m.index, 'public-prop', m[1], false);
         }
 
+        // ── Group 3b: the SIGNAL form of the same thing ──
+        // Group 3 required a decorator, and this repo is Angular 22: it writes
+        // `pFoo = input()`, not `@Input() pFoo`. Counted in src/ on 2026-08-03: decorator
+        // form 0, signal form 16 — so the gate's most important detector was watching a
+        // syntax the codebase had almost stopped using, and 16 branded inputs shipped.
+        for (const m of original.matchAll(/\b(p[A-Z][a-zA-Z0-9]*)\s*=\s*(?:input|output|model)\b/g)) {
+            record(file, original, m.index, 'public-prop-signal', m[1], false);
+        }
+
+        // ── Group 11: directive attributes used in inline templates ──
+        // Element tags have had a generic net since the beginning (group 6); attributes only
+        // ever had the 35-name allowlist, so an unlisted one was invisible. Upstream declares
+        // 54 of them. Scoped to template literals — see templateLiterals() for why.
+        for (const { start, body } of templateLiterals(original)) {
+            for (const m of body.matchAll(TEMPLATE_ATTR_RE)) {
+                record(file, original, start + m.index, 'template-attribute', m[1], false);
+            }
+        }
+
         // ── Group 5: import paths still pointing at primeng ──
         for (const m of original.matchAll(/(['"])primeng(?:\/[^'"]*)?\1/g)) {
             record(file, original, m.index, 'import-path', m[0], false);
@@ -237,13 +262,24 @@ const KIND_LABEL = {
     'import-path': "import paths still pointing at 'primeng'",
     'template-tag': 'element tags in templates',
     'exported-brand-symbol': 'EXPORTED SYMBOLS carrying the PrimeTek trademark',
+    'public-prop-signal': 'public signal inputs/outputs (`pFoo = input()`) — invisible to the decorator matcher',
+    'template-attribute': 'directive attributes used in inline templates',
     'brand-string': 'brand strings in code/JSDoc (leak into IntelliSense)',
     'brand-dom-attribute': "brand DOM attributes (leak into the consumer's HTML)",
     'attic-leak': 'src/ importing from attic/'
 };
 
-const srcFindings = findings.filter((f) => f.scope === 'src');
+const allSrcFindings = findings.filter((f) => f.scope === 'src');
 const atticFindings = findings.filter((f) => f.scope === 'attic');
+
+/**
+ * Apply `name-exceptions.json` — and enforce it in both directions, because an exception
+ * list nobody checks is the same hazard as the blind spot it was created for.
+ */
+const namesInSrc = new Set(allSrcFindings.map((f) => f.detail));
+const { exempt: EXEMPT, problems: listProblems } = exemptionState(EXCEPTIONS, angularMajor(), namesInSrc);
+const exempted = allSrcFindings.filter((f) => EXEMPT.has(f.detail));
+const srcFindings = allSrcFindings.filter((f) => !EXEMPT.has(f.detail));
 
 const report = (list, header) => {
     const byKind = {};
@@ -267,6 +303,23 @@ if (atticFindings.length) {
     console.log('\n── attic/ inventory (informational — verbatim upstream, not built, not published) ──\n');
     for (const [kind, items] of Object.entries(byKind)) console.log(`  ·  ${KIND_LABEL[kind] ?? kind}: ${items.length}`);
     console.log('');
+}
+
+if (exempted.length) {
+    // Printed on every green run on purpose. This debt is in the PUBLISHED public API; the
+    // one thing it must never do is become quiet.
+    const names = [...new Set(exempted.map((f) => f.detail))].sort();
+    console.log(`\n⏳ ACCEPTED, NOT FIXED — ${names.length} PrimeNG-branded name(s) still in the public API, ${exempted.length} occurrence(s):\n`);
+    console.log(`     ${names.join(' ')}`);
+    console.log(`     Renaming them is breaking, and GOVERNANCE.md freezes the ${EXCEPTIONS.untilAngularMajor}.x API.`);
+    console.log(`     This list expires by itself when @angular/core moves past ^${EXCEPTIONS.untilAngularMajor} — see tools/codemod/name-exceptions.json.\n`);
+}
+
+if (listProblems.length) {
+    console.error('\n✗ scan-prime-names: tools/codemod/name-exceptions.json is out of date\n');
+    for (const p of listProblems) console.error(`   ${p}`);
+    console.error('');
+    process.exit(1);
 }
 
 if (!srcFindings.length) {

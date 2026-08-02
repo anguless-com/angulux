@@ -1,0 +1,23 @@
+{
+    "_comment": "PrimeNG-branded names that are still in the PUBLIC API and cannot be renamed yet. This file exists so the debt is visible and counted instead of invisible — it is NOT a way to make check:names quiet. Every entry is enforced in both directions: an entry naming something that no longer exists in src/ FAILS (the list cannot rot), and the whole list EXPIRES mechanically, see _expiry.",
+    "_why": "These 16 signal inputs came verbatim from upstream PrimeNG (ref/primeng/.../button.ts declares `pButtonUnstyled = input<...>()`). They survived the rename because both the codemod and this gate only ever matched the DECORATOR form `@Input() pFoo`, and Angular 22 code writes `pFoo = input()`. They are advertised in corpus/ and shipped in @anguless/angulux@22.x, so renaming them is a BREAKING change and GOVERNANCE.md freezes the 22.x public API.",
+    "_expiry": "untilAngularMajor is read against `catalogs.angular22['@angular/core']` in pnpm-workspace.yaml. The moment that range moves to ^23, every entry here expires and check:names goes red — which is exactly the window (angulux 23.0.0) where renaming a public input is free. This is a deadline the build enforces, not a note someone has to remember.",
+    "untilAngularMajor": 22,
+    "publicApiNames": [
+        "pBadgePT",
+        "pBadgeUnstyled",
+        "pButtonPT",
+        "pButtonUnstyled",
+        "pButtonLabelPT",
+        "pButtonLabelUnstyled",
+        "pButtonIconPT",
+        "pInputTextPT",
+        "pInputTextUnstyled",
+        "pPasswordPT",
+        "pPasswordUnstyled",
+        "pTextareaPT",
+        "pTextareaUnstyled",
+        "pTooltipPT",
+        "pTooltipUnstyled"
+    ]
+}
