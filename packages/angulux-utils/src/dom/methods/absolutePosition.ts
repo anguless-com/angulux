@@ -5,8 +5,15 @@ import getWindowScrollLeft from './getWindowScrollLeft';
 import getWindowScrollTop from './getWindowScrollTop';
 import isRTL from './isRTL';
 
+/**
+ * `target` is guarded alongside `element`, not just documented as required. Callers reach
+ * this with a missing target through ordinary use — an overlay whose anchor was captured
+ * from `event.currentTarget`, which the DOM clears the moment dispatch ends — and the three
+ * dereferences below turn that into a TypeError that takes down the host application. A
+ * mispositioned overlay is a visual defect; a thrown TypeError is an outage.
+ */
 export default function absolutePosition(element: HTMLElement, target: HTMLElement, gutter: boolean = true): void {
-    if (element) {
+    if (element && target) {
         const elementDimensions = element.offsetParent ? { width: element.offsetWidth, height: element.offsetHeight } : getHiddenElementDimensions(element);
         const elementOuterHeight = elementDimensions.height;
         const elementOuterWidth = elementDimensions.width;

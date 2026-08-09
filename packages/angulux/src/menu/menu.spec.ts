@@ -1021,6 +1021,51 @@ describe('Menu', () => {
             expect(menuInstance.visible).toBe(false);
         });
 
+        it('should anchor to event.target when the open is deferred past dispatch', async () => {
+            component.popup = true;
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+
+            // A consumer that defers the open — queueMicrotask, an awaited promise, a debounce —
+            // hands show() an event the DOM has already finished dispatching. currentTarget is
+            // null by then; target is not. Without the fallback, the anchor is lost.
+            const button = document.createElement('button');
+            document.body.appendChild(button);
+
+            let dispatched: Event | undefined;
+            button.addEventListener('click', (e) => (dispatched = e));
+            button.click();
+
+            expect(dispatched).toBeTruthy();
+            expect(dispatched!.currentTarget).toBeNull();
+
+            menuInstance.show(dispatched);
+
+            expect(menuInstance.target).toBe(button);
+
+            button.remove();
+        });
+
+        it('should not throw while positioning when no anchor could be resolved', async () => {
+            component.popup = true;
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+
+            // Belt to the fallback's braces: even with no anchor at all, opening the overlay
+            // must degrade to a mispositioned menu rather than a TypeError that reaches the
+            // host application.
+            menuInstance.show({});
+
+            expect(menuInstance.target).toBeUndefined();
+
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+
+            expect(() => menuInstance.onOverlayBeforeEnter({ element: container } as any)).not.toThrow();
+
+            container.remove();
+        });
+
         it('should handle overlay click', async () => {
             component.popup = true;
             fixture.changeDetectorRef.markForCheck();

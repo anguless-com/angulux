@@ -126,6 +126,8 @@ export class DomHandler {
             return getComputedStyle(el).getPropertyValue('position') === 'relative' ? el : getClosestRelativeElement(el.parentElement);
         };
 
+        if (!element || !target) return;
+
         const elementDimensions = element.offsetParent ? { width: element.offsetWidth, height: element.offsetHeight } : this.getHiddenElementDimensions(element);
         const targetHeight = target.offsetHeight;
         const targetOffset = target.getBoundingClientRect();
@@ -177,6 +179,11 @@ export class DomHandler {
     }
 
     public static absolutePosition(element: any, target: any, gutter: boolean = true): void {
+        // Latent rather than live: the only internal caller, alignOverlay, already guards both.
+        // This is public API though, so an outside caller can reach the dereferences below with
+        // a missing anchor. Same guard as the angulux-utils helper of the same name.
+        if (!element || !target) return;
+
         const elementDimensions = element.offsetParent ? { width: element.offsetWidth, height: element.offsetHeight } : this.getHiddenElementDimensions(element);
         const elementOuterHeight = elementDimensions.height;
         const elementOuterWidth = elementDimensions.width;

@@ -465,7 +465,11 @@ export class Menu extends BaseComponent<MenuPassThrough> {
             this.container = undefined;
         }
 
-        this.target = event.currentTarget;
+        // `currentTarget` is only populated while the event is being dispatched, so a caller
+        // that defers the open — a queued task, an awaited promise, a debounce — hands us an
+        // event whose currentTarget has already been cleared to null. Fall back to `target`,
+        // which survives dispatch, the way popover already does.
+        this.target = event.currentTarget || event.target;
         this.visible = true;
         this.preventDocumentDefault = true;
         this.overlayVisible = true;
