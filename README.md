@@ -93,11 +93,18 @@ closes a class of failure that has already happened in this repository.
 npm run check     # all thirteen, no build needed
 ```
 
-One more gate, `check:publishable`, runs after the build rather than inside that suite: it
-packs every package and reads `package.json` back **out of the tarball**, so what gets
-inspected is the exact bytes npm would receive. It exists because a guard that read the
-source tree instead once passed while three packages were about to publish an
-uninstallable `workspace:` dependency.
+Two further checks run after the build rather than inside that suite, because neither has
+anything to inspect until there is a build to inspect. Both look at the artifact instead of
+the source it came from:
+
+| Check | What it refuses to let ship |
+|---|---|
+| `check:publishable` | packs every package and reads `package.json` back **out of the tarball**, so what gets inspected is the exact bytes npm would receive. It exists because a guard that read the source tree instead once passed while three packages were about to publish an uninstallable `workspace:` dependency |
+| `check:dts` | compiles the **emitted `.d.ts`** with `skipLibCheck: false`. Every tsconfig here sets it to `true`, which means our own declarations are the one thing no build in this repository type-checks — a consumer who turns it off compiles them for real, and if they do not stand up alone that consumer's build breaks while ours stays green |
+
+Both refuse to run against nothing, and `check:dts` goes further: it reports success only
+after a deliberately broken declaration has been put through the same program and rejected.
+A type-check aimed at zero files does not say "I found nothing" — it says "no errors".
 
 Two of them — `check:license` and `check:catalog` — **also run daily on a schedule**, and
 that is not redundancy. A pull-request run only proves the tree was clean *at our last
