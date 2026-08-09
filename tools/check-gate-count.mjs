@@ -37,6 +37,20 @@
  * ("the other five") were deleted from README rather than made checkable, because a figure the
  * reader can compute is not worth a guard.
  *
+ * A FOURTH HOLE, found on 2026-08-09 while adding `check:dts`:
+ *
+ * 4. It only knew about GATES — the `check:*` scripts the aggregate `check` script runs. The
+ *    ones that run after the build instead, because they inspect artifacts rather than source,
+ *    were invisible to it. `check:publishable` had lived in a prose paragraph for exactly that
+ *    reason: the table was the only machine-read surface, and a post-build check listed there
+ *    was reported as an invented gate. So the very check most able to stop an irreversible
+ *    publish was documented in the one form this guard cannot read — the failure the header
+ *    above warns about, reproduced by the guard's own blind spot.
+ *
+ *    Both kinds are now derived from package.json and required to appear in README. Which
+ *    table a row sits in is left to the author; that every `check:*` script is documented
+ *    exactly once, and that README invents none, is not.
+ *
  * Usage: node tools/check-gate-count.mjs
  */
 
@@ -49,9 +63,17 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(resolve(repoRoot, f), 'utf8');
 
 /** The authoritative source: the `check:*` gates the aggregate `check` script actually runs. */
-const checkScript = JSON.parse(read('package.json')).scripts.check;
-const GATE_NAMES = [...checkScript.matchAll(/\bnpm run (check:[\w:-]+)/g)].map((m) => m[1]);
+const scripts = JSON.parse(read('package.json')).scripts;
+const GATE_NAMES = [...scripts.check.matchAll(/\bnpm run (check:[\w:-]+)/g)].map((m) => m[1]);
 const GATES = GATE_NAMES.length;
+
+/**
+ * The rest: `check:*` scripts that exist but are not in the aggregate suite. Today that means
+ * the ones needing a completed build, which run after it in CI and in the release workflow.
+ * They are derived rather than listed so that adding one cannot skip the documentation.
+ */
+const ALL_CHECKS = Object.keys(scripts).filter((k) => /^check:/.test(k));
+const POST_BUILD = ALL_CHECKS.filter((c) => !GATE_NAMES.includes(c));
 
 /**
  * Number words, so a sentence can be checked as readily as a badge.
@@ -132,10 +154,19 @@ for (const [file, rx] of SITES) {
  */
 const README_GATE_ROW = /^\|\s*`(check:[\w:-]+)`\s*\|/gm;
 const listed = [...read('README.md').matchAll(README_GATE_ROW)].map((m) => m[1]);
-const missing = GATE_NAMES.filter((g) => !listed.includes(g));
-const extra = listed.filter((g) => !GATE_NAMES.includes(g));
-for (const g of missing) problems.push(['README.md', `gate table is missing \`${g}\` — it runs in \`npm run check\``]);
-for (const g of extra) problems.push(['README.md', `gate table lists \`${g}\`, which \`npm run check\` does not run`]);
+
+for (const g of GATE_NAMES.filter((g) => !listed.includes(g))) {
+    problems.push(['README.md', `no row for \`${g}\` — it runs in \`npm run check\``]);
+}
+for (const c of POST_BUILD.filter((c) => !listed.includes(c))) {
+    problems.push(['README.md', `no row for \`${c}\` — it is a check:* script, so it has to be documented too`]);
+}
+for (const c of listed.filter((c) => !ALL_CHECKS.includes(c))) {
+    problems.push(['README.md', `lists \`${c}\`, which is not a script in package.json`]);
+}
+for (const c of [...new Set(listed.filter((c, i) => listed.indexOf(c) !== i))]) {
+    problems.push(['README.md', `lists \`${c}\` more than once — two rows drift apart, and the reader believes whichever they read first`]);
+}
 
 if (problems.length) {
     console.error(`\n✗ the documented gate count is out of sync (actual: ${GATES})\n`);
@@ -153,5 +184,5 @@ if (problems.length) {
 
 console.log(
     `✓ check-gate-count: all ${SITES.length} documented sites agree the suite has ${GATES} gates, ` +
-        `and README lists all ${GATES} by name.`
+        `and README names all ${GATES} plus the ${POST_BUILD.length} post-build check(s): ${POST_BUILD.join(', ')}.`
 );

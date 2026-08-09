@@ -138,6 +138,14 @@ jobs:
             - name: The tarballs would be safe to publish
               run: npm run check:publishable
 
+            # Every tsconfig here sets skipLibCheck: true, so our own emitted .d.ts are the
+            # one thing no build in this repository ever type-checks. A consumer who turns
+            # skipLibCheck off compiles them for real; if they do not stand up alone, their
+            # build breaks and ours stays green. Runs after the build because there are no
+            # declarations to inspect before it.
+            - name: The shipped declarations survive skipLibCheck false
+              run: npm run check:dts
+
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
 

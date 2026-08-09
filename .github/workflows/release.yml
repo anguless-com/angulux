@@ -129,6 +129,13 @@ jobs:
             - name: The tarballs are safe to publish
               run: npm run check:publishable
 
+            # The same reasoning one step further in: a published version cannot be taken
+            # back, and declarations that only fail under `skipLibCheck: false` fail in the
+            # consumer's build, never in ours. Every tsconfig here sets skipLibCheck true, so
+            # this is the only place our own emitted .d.ts are compiled for real.
+            - name: The shipped declarations are safe to publish
+              run: npm run check:dts
+
             - name: Which trains have changes
               id: paths
               run: |
