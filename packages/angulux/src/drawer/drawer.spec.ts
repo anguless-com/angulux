@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { Drawer } from './drawer';
-import { settled, waitUntil } from '../spec-helpers';
+import { waitUntil } from '../spec-helpers';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
