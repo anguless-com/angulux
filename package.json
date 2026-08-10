@@ -56,7 +56,7 @@
         "@angular/forms": "catalog:angular22",
         "@angular/platform-browser": "catalog:angular22",
         "@angular/router": "catalog:angular22",
-        "@playwright/test": "1.62.0",
+        "@playwright/test": "1.62.1",
         "@types/jasmine": "6.0.0",
         "@types/node": "26.1.2",
         "chart.js": "catalog:",
