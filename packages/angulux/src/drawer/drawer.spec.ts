@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { Drawer } from './drawer';
+import { waitUntil } from '../spec-helpers';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -284,7 +285,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             expect(drawerContainer).toBeTruthy();
@@ -421,8 +421,7 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            // Wait for show method to be called
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await waitUntil(() => showSpy.calls.any(), testFixture);
 
             expect(showSpy).toHaveBeenCalled();
         });
@@ -459,8 +458,7 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            // Wait for animation and event emission
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await waitUntil(() => testComponent.showCount === 1, testFixture);
 
             expect(testComponent.showCount).toBe(1);
         });
@@ -469,13 +467,11 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Use the close method to trigger hide event
             drawerComponent.close(new Event('click'));
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             expect(testComponent.hideCount).toBe(1);
         });
@@ -485,8 +481,7 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            // Wait for animation and event emission
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await waitUntil(() => testComponent.visibleChangeCount > 0, testFixture);
 
             expect(testComponent.visibleChangeCount).toBeGreaterThan(0);
         });
@@ -495,14 +490,12 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const closeButton = testFixture.debugElement.query(By.css('agl-button'));
             if (closeButton) {
                 closeButton.triggerEventHandler('onClick', new Event('click'));
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 expect(testComponent.visible).toBe(false);
             } else {
@@ -530,14 +523,12 @@ describe('Drawer', () => {
             testComponent.closeOnEscape = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Call onKeyDown method directly
             const escapeEvent = new KeyboardEvent('keydown', { code: 'Escape' });
             drawerComponent.onKeyDown(escapeEvent);
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // The onKeyDown method calls hide(false) which should emit visibleChange
             // Check that the component's closeOnEscape property is working
@@ -549,7 +540,6 @@ describe('Drawer', () => {
             testComponent.closeOnEscape = false;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             // Call onKeyDown method directly
@@ -557,7 +547,6 @@ describe('Drawer', () => {
             drawerComponent.onKeyDown(escapeEvent);
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             expect(testComponent.visible).toBe(true);
         });
@@ -566,7 +555,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const closeButton = testFixture.debugElement.query(By.css('agl-button'));
             if (closeButton) {
@@ -574,7 +562,6 @@ describe('Drawer', () => {
                 closeButton.triggerEventHandler('keydown.enter', enterEvent);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 expect(testComponent.visible).toBe(false);
             } else {
@@ -594,7 +581,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -617,7 +603,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -639,7 +624,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -661,7 +645,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -683,7 +666,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -705,7 +687,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -727,7 +708,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // In test environment, verify component is configured for templates
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -757,7 +737,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Check if modal property is set correctly on component
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -773,7 +752,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Check if modal property is set correctly on component
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -787,7 +765,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Test that dismissible property is correctly set
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -805,14 +782,12 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const mask = document.querySelector('.p-drawer-mask');
             if (mask) {
                 (mask as HTMLElement).click();
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 expect(testComponent.visible).toBe(true);
             }
@@ -834,7 +809,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             expect(drawerContainer).toBeTruthy();
@@ -844,7 +818,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const drawerContainer = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
             expect(drawerContainer).toBeTruthy();
@@ -857,7 +830,6 @@ describe('Drawer', () => {
             testComponent.closable = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Check if ariaCloseLabel property is set on the drawer component
             const drawerComponent = testFixture.debugElement.query(By.directive(Drawer)).componentInstance;
@@ -876,7 +848,6 @@ describe('Drawer', () => {
             testComponent.closable = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const closeButton = testFixture.debugElement.query(By.css('agl-button'));
             expect(closeButton).toBeTruthy();
@@ -887,7 +858,6 @@ describe('Drawer', () => {
             testComponent.closable = false;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const closeButton = testFixture.debugElement.query(By.css('agl-button'));
             expect(closeButton).toBeFalsy();
@@ -897,7 +867,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             expect(drawerContainer).toBeTruthy();
@@ -921,7 +890,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const headerElement = testFixture.debugElement.query(By.css('[data-pc-section="header"]'));
             expect(headerElement).toBeTruthy();
@@ -937,7 +905,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const titleElement = testFixture.debugElement.query(By.css('.p-drawer-title'));
             expect(titleElement).toBeFalsy();
@@ -975,17 +942,14 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             testComponent.visible = false;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             expect(testComponent.visible).toBe(true);
         });
@@ -1029,8 +993,6 @@ describe('Drawer', () => {
             await fixture1.whenStable();
             fixture2.changeDetectorRef.markForCheck();
             await fixture2.whenStable();
-            // Wait for queueMicrotask in onVisibleChange and animations
-            await new Promise((resolve) => setTimeout(resolve, 500));
 
             expect(component1.visible).toBe(true);
             expect(component2.visible).toBe(true);
@@ -1047,7 +1009,6 @@ describe('Drawer', () => {
             testComponent.visible = true;
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const content = testFixture.debugElement.query(By.css('[data-pc-section="content"]'));
             expect(content).toBeTruthy();
@@ -1059,7 +1020,6 @@ describe('Drawer', () => {
             emptyFixture.componentInstance.visible = true;
             emptyFixture.changeDetectorRef.markForCheck();
             await emptyFixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const content = emptyFixture.debugElement.query(By.css('[data-pc-section="content"]'));
             expect(content).toBeTruthy();
@@ -1096,7 +1056,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase1Component);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1151,7 +1110,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase2Component);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1204,7 +1162,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase3Component);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1259,7 +1216,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase4Component);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1308,7 +1264,6 @@ describe('Drawer', () => {
                 const component = testFixture.componentInstance;
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const header = testFixture.debugElement.query(By.css('[data-pc-section="header"]'));
                 if (header) {
@@ -1354,7 +1309,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase6InlineComponent);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1378,7 +1332,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase6InlineObjectComponent);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const root = testFixture.debugElement.query(By.css('[data-pc-name="drawer"]'));
                 if (root) {
@@ -1430,7 +1383,6 @@ describe('Drawer', () => {
                 const testFixture = TestBed.createComponent(TestPTCase7GlobalComponent);
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const drawers = testFixture.debugElement.queryAll(By.directive(Drawer));
                 expect(drawers.length).toBe(2);
@@ -1478,7 +1430,6 @@ describe('Drawer', () => {
 
                 testFixture.changeDetectorRef.markForCheck();
                 await testFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 expect(component.afterViewInitCalled).toBe(true);
                 expect(component.afterViewCheckedCalled).toBe(true);

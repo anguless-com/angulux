@@ -7,24 +7,7 @@ import { By } from '@angular/platform-browser';
 import { BehaviorSubject, timer } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { Select } from './select';
-
-/**
- * Wait until `predicate` holds, or the deadline passes — then return either way and let the
- * caller's own `expect` decide the verdict.
- *
- * The overlay settles asynchronously (the motion component drives the enter/leave hooks), so a
- * fixed sleep is a bet on machine speed rather than a statement about the component. This waits
- * for the condition instead. Crucially it never *forces* the state it is waiting for: if the
- * deadline expires the caller's assertion goes red, which is the whole point.
- */
-async function waitUntil(predicate: () => boolean, fixture: ComponentFixture<any>, timeoutMs = 2000): Promise<void> {
-    const deadline = Date.now() + timeoutMs;
-    while (!predicate() && Date.now() < deadline) {
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        await fixture.whenStable();
-    }
-    fixture.detectChanges();
-}
+import { settled, waitUntil } from '../spec-helpers';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -940,8 +923,6 @@ describe('Select', () => {
         it('should emit onChange event when value changes', async () => {
             const testOption = component.options[1];
             selectInstance.onOptionSelect(new Event('click'), testOption);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(component.changeEvent).toBeDefined();
             expect(component.changeEvent.value).toBe(testOption.code);
@@ -973,14 +954,10 @@ describe('Select', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             // Update the view and let computed values update
             selectInstance.cd.detectChanges();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             // Check the DOM element with p-select-label class
             const labelElement = fixture.debugElement.query(By.css('.p-select-label'));
@@ -1022,8 +999,6 @@ describe('Select', () => {
             // Set disabled option as initial value
             selectInstance.writeModelValue('Berlin');
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             // Check the DOM element with p-select-label class
             const labelElement = fixture.debugElement.query(By.css('.p-select-label'));
@@ -1035,20 +1010,15 @@ describe('Select', () => {
     describe('Public Methods', () => {
         it('should show overlay programmatically', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.overlayVisible).toBe(true);
         });
 
         it('should hide overlay programmatically', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             selectInstance.hide();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => !selectInstance.overlayVisible, fixture);
 
             expect(selectInstance.overlayVisible).toBe(false);
         });
@@ -1122,8 +1092,6 @@ describe('Select', () => {
 
         it('should handle show event', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             expect(selectInstance.overlayVisible).toBe(true);
@@ -1173,21 +1141,16 @@ describe('Select', () => {
         it('should handle Arrow Down key', async () => {
             const keyEvent = new KeyboardEvent('keydown', { code: 'ArrowDown' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.overlayVisible).toBe(true);
         });
 
         it('should handle Arrow Up key', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'ArrowUp', altKey: true });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => !selectInstance.overlayVisible, fixture);
 
             expect(selectInstance.overlayVisible).toBe(false);
         });
@@ -1195,13 +1158,9 @@ describe('Select', () => {
         it('should handle Enter key', async () => {
             selectInstance.show();
             selectInstance.focusedOptionIndex.set(0);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'Enter' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Check DOM label element shows selected option
@@ -1212,13 +1171,12 @@ describe('Select', () => {
 
         it('should handle Escape key', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'Escape' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            // Closing is the direction that genuinely depends on the motion: overlayVisible
+            // only flips once the leave phase has finished. Wait for that, not for a clock.
+            await waitUntil(() => !selectInstance.overlayVisible, fixture);
 
             expect(selectInstance.overlayVisible).toBe(false);
         });
@@ -1226,8 +1184,6 @@ describe('Select', () => {
         it('should handle Space key', async () => {
             const keyEvent = new KeyboardEvent('keydown', { code: 'Space' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.overlayVisible).toBe(true);
         });
@@ -1259,13 +1215,9 @@ describe('Select', () => {
         it('should handle Home key', async () => {
             selectInstance.show();
             selectInstance.focusedOptionIndex.set(2);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'Home' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.focusedOptionIndex()).toBe(0);
         });
@@ -1273,13 +1225,9 @@ describe('Select', () => {
         it('should handle End key', async () => {
             selectInstance.show();
             selectInstance.focusedOptionIndex.set(0);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'End' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.focusedOptionIndex()).toBe(selectInstance.findLastOptionIndex());
         });
@@ -1293,13 +1241,9 @@ describe('Select', () => {
 
         it('should filter options', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const filterEvent = { target: { value: 'Option 1' } } as any;
             selectInstance.onFilterInputChange(filterEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance._filterValue()).toBe('Option 1');
             expect(component.filterEvent).toBeDefined();
@@ -1307,13 +1251,9 @@ describe('Select', () => {
 
         it('should handle filter key down events', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'ArrowDown' });
             selectInstance.onFilterKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.focusedOptionIndex()).toBeGreaterThanOrEqual(0);
         });
@@ -1325,13 +1265,9 @@ describe('Select', () => {
             fixture.detectChanges();
             selectInstance._filterValue.set('test');
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             selectInstance.hide();
             fixture.changeDetectorRef.markForCheck();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Only reset if resetFilterOnHide is enabled
@@ -1353,8 +1289,6 @@ describe('Select', () => {
 
         it('should update aria-expanded when overlay opens', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const focusInput = fixture.debugElement.query(By.css('[role="combobox"]'));
@@ -1402,13 +1336,10 @@ describe('Select', () => {
             } as any;
 
             selectInstance.onContainerClick(clickEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             expect(selectInstance.overlayVisible).toBe(true);
 
             selectInstance.onContainerClick(clickEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => !selectInstance.overlayVisible, fixture);
             expect(selectInstance.overlayVisible).toBe(false);
         });
 
@@ -1502,8 +1433,6 @@ describe('Select - Reactive Forms Integration', () => {
     it('should update form control on selection', async () => {
         const testOption = component.options[0];
         selectInstance.onOptionSelect(new Event('click'), testOption);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(component.form.get('selectedOption')?.value).toBe(testOption.code);
         expect(component.form.valid).toBe(true);
@@ -1512,8 +1441,6 @@ describe('Select - Reactive Forms Integration', () => {
     it('should handle form control setValue', async () => {
         component.form.get('selectedOption')?.setValue('form2');
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.modelValue()).toBe('form2');
     });
@@ -1521,13 +1448,9 @@ describe('Select - Reactive Forms Integration', () => {
     it('should handle form reset', async () => {
         component.form.get('selectedOption')?.setValue('form1');
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         component.form.reset();
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.modelValue()).toBe(null);
         expect(component.form.pristine).toBe(true);
@@ -1550,8 +1473,6 @@ describe('Select - Reactive Forms Integration', () => {
 
         // Select value
         selectInstance.onOptionSelect(new Event('click'), component.options[0]);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(control?.dirty).toBe(true);
         expect(control?.valid).toBe(true);
@@ -1598,8 +1519,6 @@ describe('Select - Grouped Options', () => {
     it('should handle selection from grouped options', async () => {
         const cityOption = component.groupedOptions[0].items[0];
         selectInstance.onOptionSelect(new Event('click'), cityOption);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         // Check DOM label element shows selected grouped option
@@ -1634,8 +1553,6 @@ describe('Select - aglTemplate Content Projection', () => {
 
     it('should process all aglTemplate templates in ngAfterContentInit', async () => {
         // Templates are processed during component initialization
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         // Verify component has templates available (may or may not be processed immediately)
@@ -1652,8 +1569,6 @@ describe('Select - aglTemplate Content Projection', () => {
 
     it('should render item template with context', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customItems = fixture.debugElement.queryAll(By.css('.custom-item'));
@@ -1670,8 +1585,6 @@ describe('Select - aglTemplate Content Projection', () => {
         component.selectedValue = 'tpl1';
         selectInstance.writeModelValue('tpl1');
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         const customSelected = fixture.debugElement.query(By.css('.custom-selected'));
         if (customSelected) {
@@ -1686,8 +1599,6 @@ describe('Select - aglTemplate Content Projection', () => {
 
     it('should render header template', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customHeader = fixture.debugElement.query(By.css('.custom-header'));
@@ -1701,8 +1612,6 @@ describe('Select - aglTemplate Content Projection', () => {
 
     it('should render footer template', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customFooter = fixture.debugElement.query(By.css('.custom-footer'));
@@ -1718,8 +1627,6 @@ describe('Select - aglTemplate Content Projection', () => {
         component.options = [];
         fixture.detectChanges();
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customEmpty = fixture.debugElement.query(By.css('.custom-empty'));
@@ -1734,8 +1641,6 @@ describe('Select - aglTemplate Content Projection', () => {
     it('should render empty filter template when filter yields no results', async () => {
         selectInstance.show();
         selectInstance._filterValue.set('nonexistent');
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customEmptyFilter = fixture.debugElement.query(By.css('.custom-empty-filter'));
@@ -1749,8 +1654,6 @@ describe('Select - aglTemplate Content Projection', () => {
 
     it('should render filter template with options context', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const customFilter = fixture.debugElement.query(By.css('.custom-filter'));
@@ -1867,8 +1770,6 @@ describe('Select - #template Reference Content Projection', () => {
 
     it('should render item template reference with context', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refItems = fixture.debugElement.queryAll(By.css('.ref-item'));
@@ -1881,8 +1782,6 @@ describe('Select - #template Reference Content Projection', () => {
     it('should render selected item template reference with context', async () => {
         component.selectedValue = 'ref1';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         const refSelected = fixture.debugElement.query(By.css('.ref-selected'));
         if (refSelected) {
@@ -1895,8 +1794,6 @@ describe('Select - #template Reference Content Projection', () => {
 
     it('should render header template reference', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refHeader = fixture.debugElement.query(By.css('.ref-header'));
@@ -1907,8 +1804,6 @@ describe('Select - #template Reference Content Projection', () => {
 
     it('should render footer template reference', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refFooter = fixture.debugElement.query(By.css('.ref-footer'));
@@ -1921,8 +1816,6 @@ describe('Select - #template Reference Content Projection', () => {
         component.options = [];
         fixture.detectChanges();
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refEmpty = fixture.debugElement.query(By.css('.ref-empty'));
@@ -1934,8 +1827,6 @@ describe('Select - #template Reference Content Projection', () => {
     it('should render empty filter template reference when filter yields no results', async () => {
         selectInstance.show();
         selectInstance._filterValue.set('nonexistent');
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refEmptyFilter = fixture.debugElement.query(By.css('.ref-empty-filter'));
@@ -1946,8 +1837,6 @@ describe('Select - #template Reference Content Projection', () => {
 
     it('should render filter template reference with options context', async () => {
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const refFilter = fixture.debugElement.query(By.css('.ref-filter'));
@@ -1976,8 +1865,6 @@ describe('Select - #template Reference Content Projection', () => {
     it('should render filter icon template reference', async () => {
         selectInstance.filter = true;
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         fixture.detectChanges();
 
         const filterIcon = fixture.debugElement.query(By.css('.ref-filter-icon'));
@@ -2034,8 +1921,6 @@ describe('Select - Dynamic and Signal-based Properties', () => {
 
         component.updateOptions(newOptions);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.options!.length).toBe(3);
         expect(selectInstance.options![0].label).toBe('Updated 1');
@@ -2044,8 +1929,6 @@ describe('Select - Dynamic and Signal-based Properties', () => {
     it('should handle dynamic placeholder changes', async () => {
         component.updatePlaceholder('Updated placeholder');
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.placeholder()).toBe('Updated placeholder');
     });
@@ -2053,15 +1936,11 @@ describe('Select - Dynamic and Signal-based Properties', () => {
     it('should handle dynamic disabled state changes', async () => {
         component.updateDisabled(true);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.$disabled()).toBe(true);
 
         component.updateDisabled(false);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.$disabled()).toBe(false);
     });
@@ -2069,15 +1948,11 @@ describe('Select - Dynamic and Signal-based Properties', () => {
     it('should handle dynamic loading state changes', async () => {
         component.updateLoading(true);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.loading).toBe(true);
 
         component.updateLoading(false);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.loading).toBe(false);
     });
@@ -2097,8 +1972,9 @@ describe('Select - Dynamic and Signal-based Properties', () => {
             fixture.detectChanges();
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 150));
-        await fixture.whenStable();
+        // Not `length === 2` — the component already has two options before the promise
+        // resolves, so that predicate is satisfied by the state we are waiting to leave.
+        await waitUntil(() => selectInstance.options?.[0]?.label === 'Async 1', fixture);
 
         expect(selectInstance.options!.length).toBe(2);
         expect(selectInstance.options![0].label).toBe('Async 1');
@@ -2107,16 +1983,12 @@ describe('Select - Dynamic and Signal-based Properties', () => {
     it('should handle undefined/null dynamic values', async () => {
         component.updateOptions(null as any);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.options).toBe(null);
         expect(() => fixture.detectChanges()).not.toThrow();
 
         component.updateOptions(undefined as any);
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
 
         expect(selectInstance.options).toBeUndefined();
         expect(() => fixture.detectChanges()).not.toThrow();
@@ -2152,8 +2024,6 @@ describe('Select - Performance and Large Datasets', () => {
         const startTime = performance.now();
         component.options = largeOptions;
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await fixture.whenStable();
         const endTime = performance.now();
 
         expect(endTime - startTime).toBeLessThan(2000); // Should render in less than 2 seconds
@@ -2169,9 +2039,10 @@ describe('Select - Performance and Large Datasets', () => {
         for (let i = 0; i < 10; i++) {
             const option = component.options[i % component.options.length];
             selectInstance.onOptionSelect(new Event('click'), option);
-            await new Promise((resolve) => setTimeout(resolve, 10));
             await fixture.whenStable();
         }
+
+        await waitUntil(() => changeCount === 10, fixture);
 
         expect(changeCount).toBe(10);
         expect(selectInstance.modelValue()).toBeDefined();
@@ -2223,8 +2094,6 @@ describe('Select Dynamic Data Sources', () => {
         it('should update when signal options change', async () => {
             dynamicComponent.updateSignalOptions([{ label: 'Updated Signal Option', value: 'updated', category: 'C' }]);
             dynamicFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
 
             expect(dynamicComponent.signalOptions().length).toBe(1);
             expect(dynamicComponent.signalOptions()[0].label).toBe('Updated Signal Option');
@@ -2233,8 +2102,6 @@ describe('Select Dynamic Data Sources', () => {
         it('should work with signal optionLabel', async () => {
             dynamicComponent.updateSignalLabel('value');
             dynamicFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
 
             expect(dynamicComponent.signalLabel()).toBe('value');
         });
@@ -2246,8 +2113,7 @@ describe('Select Dynamic Data Sources', () => {
 
     describe('Observable-based Properties', () => {
         it('should work with observable options via async pipe', async () => {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable(); // Allow async pipe to resolve
+            await waitUntil(() => dynamicFixture.debugElement.query(By.css('.observable-select'))?.componentInstance?.options?.length === 2, dynamicFixture);
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
@@ -2261,15 +2127,13 @@ describe('Select Dynamic Data Sources', () => {
         });
 
         it('should update when observable options change', async () => {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable(); // Initial resolution
+            await waitUntil(() => dynamicFixture.debugElement.query(By.css('.observable-select'))?.componentInstance?.options?.length === 2, dynamicFixture);
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
 
             dynamicComponent.updateObservableOptions([{ name: 'Updated Observable Option', id: 'updated_obs' }]);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable(); // Allow observable to emit
+            await waitUntil(() => dynamicFixture.debugElement.query(By.css('.observable-select'))?.componentInstance?.options?.[0]?.name === 'Updated Observable Option', dynamicFixture);
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
@@ -2280,15 +2144,11 @@ describe('Select Dynamic Data Sources', () => {
         });
 
         it('should work with observable optionLabel via async pipe', async () => {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
 
             dynamicComponent.updateObservableLabel('id');
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
@@ -2308,8 +2168,6 @@ describe('Select Dynamic Data Sources', () => {
         it('should update when getter options change', async () => {
             dynamicComponent.updateGetterOptions([{ title: 'Updated Getter Option', code: 'updated_get' }]);
             dynamicFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
 
             const getterSelect = dynamicFixture.debugElement.query(By.css('.getter-select')).componentInstance;
             expect(getterSelect.options.length).toBe(1);
@@ -2341,8 +2199,7 @@ describe('Select Dynamic Data Sources', () => {
             expect(dynamicComponent.isLateLoading).toBe(true);
             expect(dynamicComponent.lateLoadedOptions.length).toBe(0);
 
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            await dynamicFixture.whenStable(); // Wait for setTimeout
+            await waitUntil(() => !dynamicComponent.isLateLoading, dynamicFixture);
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
@@ -2362,8 +2219,7 @@ describe('Select Dynamic Data Sources', () => {
         it('should update placeholder when late loading completes', async () => {
             expect(dynamicComponent.lateLoadedPlaceholder).toBe('Loading options...');
 
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            await dynamicFixture.whenStable();
+            await waitUntil(() => !dynamicComponent.isLateLoading, dynamicFixture);
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
             dynamicFixture.detectChanges();
@@ -2392,8 +2248,6 @@ describe('Select Dynamic Data Sources', () => {
 
             dynamicComponent.toggleShowInactive();
             dynamicFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await dynamicFixture.whenStable();
 
             const updatedOptions = computedSelect.options || [];
             expect(Array.isArray(updatedOptions) ? updatedOptions.length : 0).toBeGreaterThanOrEqual(0);
@@ -2427,8 +2281,6 @@ describe('Select Comprehensive Form Integration', () => {
     describe('Reactive Forms API', () => {
         it('should work with setValue', async () => {
             formComponent.setValues();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.value).toBe('form2');
@@ -2438,8 +2290,6 @@ describe('Select Comprehensive Form Integration', () => {
 
         it('should work with patchValue', async () => {
             formComponent.patchValues();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.value).toBe('form1');
@@ -2449,13 +2299,9 @@ describe('Select Comprehensive Form Integration', () => {
 
         it('should work with reset', async () => {
             formComponent.patchValues();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             formComponent.resetForm();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.value).toBeNull();
@@ -2468,16 +2314,12 @@ describe('Select Comprehensive Form Integration', () => {
             expect(formComponent.testForm.get('disabledSelect')?.disabled).toBe(true);
 
             formComponent.enableDisabledSelect();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('disabledSelect')?.disabled).toBe(false);
 
             // Test disabling enabled control
             formComponent.disableBasicSelect();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.disabled).toBe(true);
@@ -2488,15 +2330,11 @@ describe('Select Comprehensive Form Integration', () => {
             expect(formComponent.testForm.get('basicSelect')?.hasError('required')).toBe(false);
 
             formComponent.addValidators();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.hasError('required')).toBe(true);
 
             formComponent.clearValidators();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.get('basicSelect')?.hasError('required')).toBe(false);
@@ -2510,16 +2348,12 @@ describe('Select Comprehensive Form Integration', () => {
 
             // Simulate selection (should not update immediately)
             blurSelect.onOptionSelect(new Event('click'), formComponent.basicOptions[0]);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
 
             // Value should still be null until blur
             expect(updateOnBlurControl?.value).toBeNull();
 
             // Simulate blur
             blurSelect.onInputBlur(new FocusEvent('blur'));
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
 
             expect(updateOnBlurControl?.value).toBeDefined();
         });
@@ -2531,16 +2365,12 @@ describe('Select Comprehensive Form Integration', () => {
 
             formComponent.patchValues();
             formComponent.testForm.markAsDirty(); // patchValue doesn't auto-mark as dirty
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(formComponent.testForm.valid).toBe(true);
             expect(formComponent.testForm.dirty).toBe(true);
 
             formComponent.markAllAsTouched();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
 
             expect(formComponent.testForm.touched).toBe(true);
         });
@@ -2551,8 +2381,6 @@ describe('Select Comprehensive Form Integration', () => {
             expect(nestedControl?.hasError('required')).toBe(true);
 
             formComponent.patchValues();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
             formFixture.detectChanges();
 
             expect(nestedControl?.hasError('required')).toBe(false);
@@ -2570,8 +2398,6 @@ describe('Select Comprehensive Form Integration', () => {
                 // Simulate selection through NgModel
                 formComponent.ngModelValue = formComponent.basicOptions[0].code;
                 formFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                await formFixture.whenStable();
 
                 expect(formComponent.ngModelValue).toBeDefined();
                 expect(formComponent.ngModelValue).toBe(formComponent.basicOptions[0].code);
@@ -2586,8 +2412,6 @@ describe('Select Comprehensive Form Integration', () => {
 
             if (ngModelRef) {
                 // Initially should be valid (no validation), pristine, untouched
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                await formFixture.whenStable();
                 formFixture.detectChanges();
 
                 // Test that ngModel status is tracked in template
@@ -2605,8 +2429,6 @@ describe('Select Comprehensive Form Integration', () => {
 
             basicControl?.setValue('form1');
             basicControl?.markAsDirty();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
 
             expect(basicControl?.pristine).toBe(false);
             expect(basicControl?.dirty).toBe(true);
@@ -2618,8 +2440,6 @@ describe('Select Comprehensive Form Integration', () => {
             expect(basicControl?.touched).toBe(false);
 
             basicControl?.markAsTouched();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await formFixture.whenStable();
 
             expect(basicControl?.untouched).toBe(false);
             expect(basicControl?.touched).toBe(true);
@@ -2640,8 +2460,7 @@ describe('Select Comprehensive Form Integration', () => {
 
             expect(basicControl?.pending).toBe(true);
 
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            await formFixture.whenStable();
+            await waitUntil(() => basicControl?.pending === false, formFixture);
 
             expect(basicControl?.pending).toBe(false);
         });
@@ -2667,8 +2486,6 @@ describe('Select ViewChild Properties', () => {
         const selectInstance = viewChildFixture.debugElement.query(By.css('agl-select[placeholder="ViewChild test select"]')).componentInstance;
 
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await viewChildFixture.whenStable();
         viewChildFixture.detectChanges();
 
         expect(selectInstance.overlayViewChild).toBeTruthy();
@@ -2679,8 +2496,6 @@ describe('Select ViewChild Properties', () => {
         const selectInstance = viewChildFixture.debugElement.query(By.css('agl-select[placeholder="ViewChild test select"]')).componentInstance;
 
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await viewChildFixture.whenStable();
         viewChildFixture.detectChanges();
 
         // Filter input should be rendered
@@ -2696,8 +2511,6 @@ describe('Select ViewChild Properties', () => {
         const selectInstance = viewChildFixture.debugElement.query(By.css('agl-select[placeholder="ViewChild test select"]')).componentInstance;
 
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await viewChildFixture.whenStable();
         viewChildFixture.detectChanges();
 
         // Items container should be rendered
@@ -2713,8 +2526,6 @@ describe('Select ViewChild Properties', () => {
         const virtualSelect = viewChildFixture.debugElement.query(By.css('agl-select[placeholder="Virtual scroll select"]')).componentInstance;
 
         virtualSelect.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await viewChildFixture.whenStable();
         viewChildFixture.detectChanges();
 
         // Scroller component should be rendered for virtual scrolling
@@ -2730,8 +2541,6 @@ describe('Select ViewChild Properties', () => {
         const selectInstance = viewChildFixture.debugElement.query(By.css('agl-select[placeholder="ViewChild test select"]')).componentInstance;
 
         selectInstance.show();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await viewChildFixture.whenStable();
         viewChildFixture.detectChanges();
 
         // Hidden focusable elements should be rendered
@@ -2771,9 +2580,8 @@ describe('Select Complex Edge Cases', () => {
 
             edgeComponent.simulateRapidUpdates();
 
-            // Let some updates process
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            await edgeFixture.whenStable();
+            // Let the interval produce at least one batch.
+            await waitUntil(() => (edgeComponent.rapidOptions?.length ?? 0) > 0, edgeFixture);
             edgeFixture.changeDetectorRef.markForCheck();
             await edgeFixture.whenStable();
             edgeFixture.detectChanges();
@@ -2782,9 +2590,9 @@ describe('Select Complex Edge Cases', () => {
             expect(rapidSelect.options).toBeDefined();
             expect(rapidSelect.options.length).toBeGreaterThan(0);
 
-            // Clear interval to avoid test pollution
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            await edgeFixture.whenStable();
+            // simulateRapidUpdates ticks 100 times at 10ms and then clears itself. Wait for
+            // the last tick rather than for a duration chosen to outlast it.
+            await waitUntil(() => edgeComponent.rapidOptions?.[0]?.name === 'Rapid 99', edgeFixture, 5000);
         });
 
         it('should handle rapid selection changes', async () => {
@@ -2793,9 +2601,10 @@ describe('Select Complex Edge Cases', () => {
             // Simulate rapid changes
             for (let i = 0; i < 10; i++) {
                 edgeComponent.onRapidChange({ value: `rapid${i}` });
-                await new Promise((resolve) => setTimeout(resolve, 5));
                 await edgeFixture.whenStable();
             }
+
+            await waitUntil(() => edgeComponent.rapidChangeCount === 10, edgeFixture);
 
             expect(edgeComponent.rapidChangeCount).toBe(10);
         });
@@ -2808,8 +2617,6 @@ describe('Select Complex Edge Cases', () => {
             expect(edgeComponent.memoryOptions.length).toBe(10000);
 
             memorySelect.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await edgeFixture.whenStable();
             edgeFixture.detectChanges();
 
             // Should handle large dataset without errors
@@ -2874,8 +2681,6 @@ describe('Select Complex Edge Cases', () => {
 
             // Should not cause infinite loops during rendering
             circularSelect.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await edgeFixture.whenStable();
             edgeFixture.detectChanges();
 
             expect(circularSelect.overlayVisible).toBe(true);
@@ -2897,8 +2702,7 @@ describe('Select Complex Edge Cases', () => {
             edgeComponent.testNullUndefinedOptions();
 
             // Test various null/undefined scenarios
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await edgeFixture.whenStable(); // First case: null
+            await waitUntil(() => edgeComponent.edgeOptions === null, edgeFixture);
             edgeFixture.changeDetectorRef.markForCheck();
             await edgeFixture.whenStable();
             edgeFixture.detectChanges();
@@ -2916,8 +2720,9 @@ describe('Select Complex Edge Cases', () => {
                 expect(edgeComponent).toBeTruthy();
             }
 
-            await new Promise((resolve) => setTimeout(resolve, 800));
-            await edgeFixture.whenStable(); // Wait for all test cases
+            // testNullUndefinedOptions stages eight cases at index * 100ms; the last one sets
+            // the 'empty' entry. Wait for that rather than for 800ms.
+            await waitUntil(() => edgeComponent.edgeOptions?.[0]?.code === 'empty', edgeFixture, 3000);
             edgeFixture.changeDetectorRef.markForCheck();
             await edgeFixture.whenStable();
         });
@@ -2926,8 +2731,6 @@ describe('Select Complex Edge Cases', () => {
             edgeComponent.edgeLabel = undefined as any;
             edgeComponent.edgeOptions = [{ name: 'Test', code: 'test' }];
             edgeFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await edgeFixture.whenStable();
 
             expect(() => {
                 edgeFixture.detectChanges();
@@ -2950,8 +2753,6 @@ describe('Select Complex Edge Cases', () => {
             for (let i = 0; i < 5; i++) {
                 const testFixture = TestBed.createComponent(TestComplexEdgeCasesComponent);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                await edgeFixture.whenStable();
 
                 expect(() => {
                     testFixture.destroy();
@@ -2978,8 +2779,6 @@ describe('Select Complex Edge Cases', () => {
                 edgeFixture.detectChanges();
             });
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await edgeFixture.whenStable();
 
             // Test that component can handle concurrent updates without errors
             expect(edgeComponent.rapidOptions).toBeDefined();
@@ -3020,8 +2819,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should have aria-controls pointing to listbox', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const combobox = fixture.debugElement.query(By.css('[role="combobox"]'));
@@ -3035,13 +2832,9 @@ describe('Select Advanced Accessibility', () => {
 
         it('should have aria-activedescendant when focused', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             selectInstance.focusedOptionIndex.set(0);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const combobox = fixture.debugElement.query(By.css('[role="combobox"]'));
@@ -3062,8 +2855,6 @@ describe('Select Advanced Accessibility', () => {
 
             const keyEvent = new KeyboardEvent('keydown', { code: 'Enter' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.overlayVisible).toBe(true);
         });
@@ -3073,16 +2864,12 @@ describe('Select Advanced Accessibility', () => {
 
             const keyEvent = new KeyboardEvent('keydown', { key: ' ' });
             selectInstance.onKeyDown(keyEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(selectInstance.overlayVisible).toBe(true);
         });
 
         it('should navigate options with Arrow keys', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             expect(selectInstance.focusedOptionIndex()).toBe(-1);
@@ -3101,8 +2888,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should close dropdown with Escape key', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Ensure overlay is open before testing close
@@ -3110,8 +2895,6 @@ describe('Select Advanced Accessibility', () => {
             const escapeEvent = new KeyboardEvent('keydown', { code: 'Escape' });
             spyOn(escapeEvent, 'preventDefault');
             selectInstance.onKeyDown(escapeEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Test should pass if overlay was closed or if it handles escape properly
@@ -3120,8 +2903,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should handle Tab key navigation', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
@@ -3133,8 +2914,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should handle Home and End keys', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const endEvent = new KeyboardEvent('keydown', { code: 'End' });
@@ -3161,13 +2940,9 @@ describe('Select Advanced Accessibility', () => {
 
         it('should announce selected values', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             selectInstance.onOptionSelect(new Event('click'), component.options[0]);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // The selected option should be reflected in the DOM display
@@ -3178,8 +2953,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should have accessible option labels', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const options = fixture.debugElement.queryAll(By.css('[role="option"]'));
@@ -3192,8 +2965,6 @@ describe('Select Advanced Accessibility', () => {
     describe('Focus Management', () => {
         it('should manage focus correctly when opening', async () => {
             selectInstance.show(true);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Should handle focus management
@@ -3202,12 +2973,9 @@ describe('Select Advanced Accessibility', () => {
 
         it('should return focus when closing', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             selectInstance.hide(true);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => !selectInstance.overlayVisible, fixture);
             fixture.detectChanges();
 
             expect(selectInstance.overlayVisible).toBe(false);
@@ -3215,8 +2983,6 @@ describe('Select Advanced Accessibility', () => {
 
         it('should handle focus trap in overlay', async () => {
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const hiddenElements = fixture.debugElement.queryAll(By.css('.p-hidden-focusable'));
@@ -3397,8 +3163,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const label = fixture.debugElement.query(By.css('[role="combobox"]'));
             expect(label.nativeElement.classList.contains('NO_VALUE')).toBeTruthy();
@@ -3407,11 +3171,7 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges(); // Extra change detection for reactive PT
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(label.nativeElement.classList.contains('HAS_VALUE')).toBeTruthy();
         });
@@ -3427,8 +3187,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const root = fixture.debugElement.query(By.css('agl-select'));
             expect(root.nativeElement.style.opacity).toBe('1');
@@ -3446,13 +3204,9 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const root = fixture.debugElement.query(By.css('agl-select'));
             root.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(clicked).toBeTruthy();
         });
@@ -3467,13 +3221,9 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const dropdown = fixture.debugElement.query(By.css('.p-select-dropdown'));
             dropdown.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(dropdownClicked).toBeTruthy();
         });
@@ -3491,8 +3241,6 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(emitterAccessed).toBeTruthy();
         });
@@ -3508,8 +3256,6 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(showEmitterAccessed).toBeTruthy();
         });
@@ -3532,8 +3278,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const header = fixture.debugElement.query(By.css('[data-pc-section="header"]'));
@@ -3555,8 +3299,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const options = fixture.debugElement.queryAll(By.css('[role="option"]'));
@@ -3580,8 +3322,6 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             hookFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(hookCalled).toBeTruthy();
             hookFixture.destroy();
@@ -3597,11 +3337,7 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(checkCount).toBeGreaterThan(0);
         });
@@ -3621,8 +3357,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const options = fixture.debugElement.queryAll(By.css('[role="option"]'));
@@ -3656,8 +3390,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Check if we captured the selected state
@@ -3683,15 +3415,11 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Set focused index
             selectInstance.focusedOptionIndex.set(1);
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             expect(focusedContext).toBeTruthy();
             if (focusedContext) {
@@ -3713,8 +3441,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Use Set size to account for multiple renders per option
@@ -3744,8 +3470,10 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            // The pt callback runs while the option list renders, so the overlay has to have
+            // finished opening before the captured contexts are complete. This is one of the
+            // few places in this file where the motion genuinely matters.
+            await settled(fixture);
             fixture.detectChanges();
 
             // Focus an option
@@ -3790,8 +3518,6 @@ describe('Select PT (PassThrough)', () => {
             };
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Should not be selected initially
@@ -3803,16 +3529,10 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             // Trigger change detection again
             selectInstance.hide();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Should be selected now
@@ -3842,8 +3562,6 @@ describe('Select PT (PassThrough)', () => {
 
             fixture.detectChanges();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             expect(disabledContextFound).toBe(true);
@@ -3858,9 +3576,8 @@ describe('Select PT (PassThrough)', () => {
                 clearIcon: 'PT_CLEAR_ICON_CLASS'
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
-            fixture.detectChanges();
+            await waitUntil(() => !!fixture.debugElement.query(By.css('[data-pc-section="clearicon"]')), fixture);
+
             const clearIcon = fixture.debugElement.query(By.css('[data-pc-section="clearicon"]'));
             expect(clearIcon?.nativeElement.classList.contains('PT_CLEAR_ICON_CLASS')).toBeTruthy();
         });
@@ -3874,8 +3591,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.detectChanges();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             // Checkmark icons should be rendered
@@ -3890,8 +3605,6 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             component.selectedValue = 'opt1';
             component.pt = {
@@ -3900,11 +3613,7 @@ describe('Select PT (PassThrough)', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges(); // Extra for clear icon to appear
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const clearIcon = fixture.debugElement.query(By.css('[data-pc-section="clearicon"]'));
             expect(clearIcon).toBeTruthy();
@@ -3920,8 +3629,6 @@ describe('Select PT (PassThrough)', () => {
             };
             selectInstance.loading = true;
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const loadingIcon = fixture.debugElement.query(By.css('.p-select-loading-icon'));
             expect(loadingIcon).toBeTruthy();
@@ -3935,8 +3642,6 @@ describe('Select PT (PassThrough)', () => {
                 dropdownIcon: { class: 'CUSTOM_DROPDOWN_ICON', style: { fontSize: '20px' } }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const dropdownIcon = fixture.debugElement.query(By.css('[data-p-icon="chevron-down"]'));
             expect(dropdownIcon).toBeTruthy();
@@ -3950,14 +3655,8 @@ describe('Select PT (PassThrough)', () => {
                 filterIcon: { class: 'CUSTOM_FILTER_ICON' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const filterIcon = fixture.debugElement.query(By.css('[data-p-icon="search"]'));
             expect(filterIcon).toBeTruthy();
@@ -3973,13 +3672,9 @@ describe('Select PT (PassThrough)', () => {
                 optionCheckIcon: { class: 'CUSTOM_CHECK_ICON', 'data-check': 'true' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            await fixture.whenStable();
-            fixture.detectChanges();
+            await waitUntil(() => !!fixture.debugElement.query(By.css('[data-p-icon="check"]')), fixture);
 
             const checkIcon = fixture.debugElement.query(By.css('[data-p-icon="check"]'));
             expect(checkIcon?.nativeElement.classList.contains('CUSTOM_CHECK_ICON')).toBeTruthy();
@@ -3992,14 +3687,8 @@ describe('Select PT (PassThrough)', () => {
                 optionBlankIcon: { class: 'CUSTOM_BLANK_ICON' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const blankIcon = fixture.debugElement.query(By.css('[data-p-icon="blank"]'));
@@ -4014,8 +3703,6 @@ describe('Select PT (PassThrough)', () => {
                 hiddenFirstFocusableEl: { 'data-first': 'focusable' }
             };
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const hiddenFirst = fixture.debugElement.query(By.css('[data-p-hidden-focusable="true"]'));
@@ -4027,8 +3714,6 @@ describe('Select PT (PassThrough)', () => {
                 hiddenLastFocusableEl: { 'data-last': 'focusable' }
             };
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const hiddenElements = fixture.debugElement.queryAll(By.css('[data-p-hidden-focusable="true"]'));
@@ -4041,8 +3726,6 @@ describe('Select PT (PassThrough)', () => {
                 hiddenFilterResult: { 'data-filter-result': 'hidden' }
             };
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const overlay = fixture.debugElement.query(By.css('agl-overlay'));
@@ -4055,8 +3738,6 @@ describe('Select PT (PassThrough)', () => {
                 hiddenEmptyMessage: { 'data-empty': 'message' }
             };
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const overlay = fixture.debugElement.query(By.css('agl-overlay'));
@@ -4069,8 +3750,6 @@ describe('Select PT (PassThrough)', () => {
                 hiddenSelectedMessage: { 'data-selected': 'message' }
             };
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const overlay = fixture.debugElement.query(By.css('agl-overlay'));
@@ -4087,14 +3766,8 @@ describe('Select PT (PassThrough)', () => {
             selectInstance.virtualScroll = true;
             selectInstance.virtualScrollItemSize = 38;
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             // VirtualScroller should be rendered when enabled
             const virtualScroller = fixture.debugElement.query(By.css('.p-virtualscroller'));
@@ -4125,11 +3798,7 @@ describe('Select PT (PassThrough)', () => {
             };
 
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
-            fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => !!fixture.debugElement.query(By.css('[data-pc-section="clearicon"]')), fixture);
 
             const clearIcon = fixture.debugElement.query(By.css('[data-pc-section="clearicon"]'));
             expect(clearIcon).toBeTruthy();
@@ -4144,11 +3813,7 @@ describe('Select PT (PassThrough)', () => {
             }
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const filterIcon = fixture.debugElement.query(By.css('[data-p-icon="search"]'));
             expect(filterIcon).toBeTruthy();
@@ -4168,8 +3833,6 @@ describe('Select PT (PassThrough)', () => {
             };
 
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
 
             const hiddenElements = fixture.debugElement.queryAll(By.css('[data-p-hidden-focusable="true"]'));
@@ -4183,8 +3846,6 @@ describe('Select PT (PassThrough)', () => {
                 root: { class: 'CUSTOM_ROOT', 'data-test': 'root-element' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const root = fixture.debugElement.query(By.css('.p-select'));
             expect(root).toBeTruthy();
@@ -4200,14 +3861,8 @@ describe('Select PT (PassThrough)', () => {
                 }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const overlay = fixture.debugElement.query(By.css('agl-overlay'));
             expect(overlay).toBeTruthy();
@@ -4233,14 +3888,8 @@ describe('Select PT (PassThrough)', () => {
                 header: { class: 'CUSTOM_HEADER', 'data-header': 'test' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const header = fixture.debugElement.query(By.css('.p-select-header'));
             expect(header).toBeTruthy();
@@ -4256,14 +3905,8 @@ describe('Select PT (PassThrough)', () => {
                 pcFilterContainer: { class: 'CUSTOM_FILTER_CONTAINER' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const filterContainer = fixture.debugElement.query(By.css('agl-iconfield'));
             expect(filterContainer).toBeTruthy();
@@ -4275,14 +3918,8 @@ describe('Select PT (PassThrough)', () => {
                 pcFilter: { root: { class: 'CUSTOM_FILTER_INPUT' } }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const filterInput = fixture.debugElement.query(By.css('.p-select-filter'));
             expect(filterInput).toBeTruthy();
@@ -4296,14 +3933,8 @@ describe('Select PT (PassThrough)', () => {
                 listContainer: { class: 'CUSTOM_LIST_CONTAINER', 'data-list': 'container' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const listContainer = fixture.debugElement.query(By.css('.p-select-list-container'));
             expect(listContainer).toBeTruthy();
@@ -4318,14 +3949,8 @@ describe('Select PT (PassThrough)', () => {
                 list: { class: 'CUSTOM_LIST', 'data-list': 'element' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const list = fixture.debugElement.query(By.css('.p-select-list'));
             expect(list).toBeTruthy();
@@ -4354,14 +3979,8 @@ describe('Select PT (PassThrough)', () => {
                 optionGroup: { class: 'CUSTOM_OPTION_GROUP', 'data-group': 'test' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const optionGroup = fixture.debugElement.query(By.css('.p-select-option-group'));
             expect(optionGroup).toBeTruthy();
@@ -4390,14 +4009,8 @@ describe('Select PT (PassThrough)', () => {
                 optionGroupLabel: { class: 'CUSTOM_GROUP_LABEL' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const groupLabel = fixture.debugElement.query(By.css('.p-select-option-group-label'));
             expect(groupLabel).toBeTruthy();
@@ -4411,14 +4024,8 @@ describe('Select PT (PassThrough)', () => {
                 option: { class: 'CUSTOM_OPTION', 'data-option': 'test' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const option = fixture.debugElement.query(By.css('.p-select-option'));
             expect(option).toBeTruthy();
@@ -4433,14 +4040,8 @@ describe('Select PT (PassThrough)', () => {
                 optionLabel: { class: 'CUSTOM_OPTION_LABEL', 'data-label': 'option' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const optionLabel = fixture.debugElement.query(By.css('.p-select-option'));
             expect(optionLabel).toBeTruthy();
@@ -4452,14 +4053,8 @@ describe('Select PT (PassThrough)', () => {
                 emptyMessage: { class: 'CUSTOM_EMPTY_MESSAGE', 'data-empty': 'true' }
             };
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             selectInstance.show();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
 
             const emptyMessage = fixture.debugElement.query(By.css('.p-select-empty-message'));
             expect(emptyMessage).toBeTruthy();
