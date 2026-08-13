@@ -204,7 +204,6 @@ describe('RadioButton', () => {
             const inputElement = fixture.debugElement.query(By.css('input'));
 
             inputElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -215,7 +214,6 @@ describe('RadioButton', () => {
             const inputElement = fixture.debugElement.query(By.css('input'));
 
             inputElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.clickEvents.length).toBe(1);
@@ -248,7 +246,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -257,7 +254,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(false);
@@ -303,7 +299,6 @@ describe('RadioButton', () => {
             const firstInput = fixture.debugElement.queryAll(By.css('input'))[0];
             firstInput.nativeElement.click();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.selectedOption).toBe('option1');
@@ -313,7 +308,6 @@ describe('RadioButton', () => {
             const secondInput = fixture.debugElement.queryAll(By.css('input'))[1];
             secondInput.nativeElement.click();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.selectedOption).toBe('option2');
@@ -325,7 +319,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstances[0].checked).toBeFalsy();
@@ -354,7 +347,6 @@ describe('RadioButton', () => {
         it('should integrate with reactive forms', async () => {
             const firstInput = fixture.debugElement.queryAll(By.css('input'))[0];
             firstInput.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.radioForm.get('selectedValue')?.value).toBe('value1');
@@ -373,7 +365,6 @@ describe('RadioButton', () => {
         it('should update form when radio button changes', async () => {
             const secondInput = fixture.debugElement.queryAll(By.css('input'))[1];
             secondInput.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.radioForm.get('selectedValue')?.value).toBe('value2');
@@ -392,14 +383,12 @@ describe('RadioButton', () => {
         it('should reset form correctly', async () => {
             const firstInput = fixture.debugElement.queryAll(By.css('input'))[0];
             firstInput.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.radioForm.get('selectedValue')?.value).toBe('value1');
 
             component.radioForm.reset();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.radioForm.get('selectedValue')?.value).toBe(null);
@@ -432,7 +421,6 @@ describe('RadioButton', () => {
 
             const inputElement = fixture.debugElement.query(By.css('input'));
             inputElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBeFalsy();
@@ -490,7 +478,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -521,7 +508,6 @@ describe('RadioButton', () => {
             const inputElement = fixture.debugElement.query(By.css('input'));
             inputElement.nativeElement.click();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -534,7 +520,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -543,7 +528,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(false);
@@ -578,7 +562,6 @@ describe('RadioButton', () => {
 
             inputElement.nativeElement.click();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(inputElement.nativeElement.getAttribute('aria-checked')).toBe('true');
@@ -626,7 +609,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(false);
@@ -635,7 +617,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(false);
@@ -647,7 +628,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -659,7 +639,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(true);
@@ -668,7 +647,6 @@ describe('RadioButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(radioInstance.checked).toBe(false);
@@ -691,7 +669,6 @@ describe('RadioButton', () => {
             inputElement.nativeElement.dispatchEvent(new Event('change'));
             inputElement.nativeElement.dispatchEvent(new Event('change'));
             inputElement.nativeElement.dispatchEvent(new Event('change'));
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             // Each change should trigger the onClick event
@@ -778,7 +755,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase1Component);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -824,7 +800,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase2Component);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -863,7 +838,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase3Component);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -907,7 +881,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase4Component);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -953,7 +926,6 @@ describe('RadioButton', () => {
                 const testFixture = TestBed.createComponent(TestPTCase5Component);
                 const component = testFixture.componentInstance;
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const boxEl = testFixture.debugElement.query(By.css('[data-pc-section="box"]'));
@@ -986,7 +958,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase6InlineComponent);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -1014,7 +985,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase6InlineObjectComponent);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -1054,7 +1024,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCase7GlobalComponent);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
@@ -1099,13 +1068,11 @@ describe('RadioButton', () => {
                 const testFixture = TestBed.createComponent(TestPTCase8HooksComponent);
                 const component = testFixture.componentInstance;
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 expect(component.hooksCalled.some((h) => h.includes('onAfterView'))).toBe(true);
 
                 testFixture.destroy();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
             });
         });
@@ -1136,7 +1103,6 @@ describe('RadioButton', () => {
 
                 const testFixture = TestBed.createComponent(TestPTCoverageComponent);
                 testFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await testFixture.whenStable();
 
                 const rootEl = testFixture.debugElement.query(By.css('[data-pc-name="radiobutton"]'));
