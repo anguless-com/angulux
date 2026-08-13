@@ -386,7 +386,6 @@ describe('SplitButton', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(splitButtonInstance.model).toEqual(newModel);
@@ -544,7 +543,6 @@ describe('SplitButton', () => {
             const clickSpy = spyOn(component, 'onButtonClick');
 
             defaultButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -555,7 +553,6 @@ describe('SplitButton', () => {
             const dropdownClickSpy = spyOn(component, 'onDropdownClick');
 
             dropdownButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -566,7 +563,6 @@ describe('SplitButton', () => {
             expect(splitButtonInstance.isExpanded()).toBe(false);
 
             dropdownButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -577,14 +573,12 @@ describe('SplitButton', () => {
         it('should hide menu when default button is clicked', async () => {
             // First show the menu
             splitButtonInstance.onShow();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
             expect(splitButtonInstance.isExpanded()).toBe(true);
 
             // Then click default button to hide it
             defaultButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -595,7 +589,6 @@ describe('SplitButton', () => {
             const showSpy = spyOn(component, 'onMenuShow');
 
             splitButtonInstance.onShow();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(showSpy).toHaveBeenCalled();
@@ -606,7 +599,6 @@ describe('SplitButton', () => {
             const hideSpy = spyOn(component, 'onMenuHide');
 
             splitButtonInstance.onHide();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(hideSpy).toHaveBeenCalled();
@@ -624,7 +616,6 @@ describe('SplitButton', () => {
 
             defaultButton.click();
             dropdownButton.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(clickSpy).not.toHaveBeenCalled();
@@ -640,7 +631,6 @@ describe('SplitButton', () => {
             const toggleSpy = spyOn(splitButtonInstance.menu!, 'toggle');
 
             splitButtonInstance.onDropdownButtonKeydown(keydownEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -655,7 +645,6 @@ describe('SplitButton', () => {
             const toggleSpy = spyOn(splitButtonInstance.menu!, 'toggle');
 
             splitButtonInstance.onDropdownButtonKeydown(keydownEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(preventDefaultSpy).toHaveBeenCalled();
@@ -668,7 +657,6 @@ describe('SplitButton', () => {
             const preventDefaultSpy = spyOn(keydownEvent, 'preventDefault');
 
             splitButtonInstance.onDropdownButtonKeydown(keydownEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(preventDefaultSpy).not.toHaveBeenCalled();
@@ -856,7 +844,6 @@ describe('SplitButton', () => {
         it('should execute menu item commands', async () => {
             const commandFixture = TestBed.createComponent(TestCommandSplitButtonComponent);
             commandFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await commandFixture.whenStable();
 
             const commandComponent = commandFixture.componentInstance;
@@ -873,7 +860,6 @@ describe('SplitButton', () => {
 
         it('should handle menu show/hide', async () => {
             splitButtonInstance.onShow();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -881,7 +867,6 @@ describe('SplitButton', () => {
 
             // Hide menu programmatically
             splitButtonInstance.onHide();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -903,7 +888,6 @@ describe('SplitButton', () => {
             it('should handle aglTemplate content processing', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const splitButtonInstance = templateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -922,7 +906,6 @@ describe('SplitButton', () => {
             it('should process _contentTemplate from aglTemplate="content"', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const splitButtonInstance = templateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -934,7 +917,6 @@ describe('SplitButton', () => {
             it('should process _dropdownIconTemplate from aglTemplate="dropdownicon"', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const splitButtonInstance = templateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -946,7 +928,6 @@ describe('SplitButton', () => {
             it('should render custom content template with aglTemplate', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const customContent = templateFixture.debugElement.queryAll(By.css('.custom-content'));
@@ -958,7 +939,6 @@ describe('SplitButton', () => {
             it('should render custom dropdown icon template with aglTemplate', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const splitButtonInstance = templateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -977,7 +957,6 @@ describe('SplitButton', () => {
             it('should handle #content template processing', async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateSplitButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await contentTemplateFixture.whenStable();
 
                 const splitButtonInstance = contentTemplateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -996,7 +975,6 @@ describe('SplitButton', () => {
             it("should resolve the content slot into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateSplitButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await contentTemplateFixture.whenStable();
 
                 const splitButtonInstance = contentTemplateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -1009,7 +987,6 @@ describe('SplitButton', () => {
             it("should resolve the dropdownIcon slot into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateSplitButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await contentTemplateFixture.whenStable();
 
                 const splitButtonInstance = contentTemplateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -1028,7 +1005,6 @@ describe('SplitButton', () => {
                 // Test aglTemplate rendering
                 const pTemplateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 pTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await pTemplateFixture.whenStable();
 
                 const pTemplateSplitButton = pTemplateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -1038,7 +1014,6 @@ describe('SplitButton', () => {
                 // Test #content template rendering
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateSplitButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await contentTemplateFixture.whenStable();
 
                 const contentTemplateSplitButton = contentTemplateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -1060,7 +1035,6 @@ describe('SplitButton', () => {
             it('should handle ngAfterContentInit template processing correctly', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplateSplitButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await templateFixture.whenStable();
 
                 const splitButtonInstance = templateFixture.debugElement.query(By.directive(SplitButton)).componentInstance;
@@ -1091,7 +1065,6 @@ describe('SplitButton', () => {
 
         it('should update aria-expanded when menu is shown', async () => {
             splitButtonInstance.onShow();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 

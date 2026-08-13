@@ -544,7 +544,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -559,7 +558,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -572,7 +570,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -585,7 +582,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -598,7 +594,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -611,7 +606,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -624,7 +618,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -637,7 +630,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
@@ -653,7 +645,6 @@ describe('ConfirmDialog', () => {
                 const pTemplateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
                 pTemplateFixture.changeDetectorRef.markForCheck();
                 await pTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const pTemplateConfirmDialog = pTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
                 expect(pTemplateConfirmDialog.headerTemplate()).toBeDefined();
@@ -663,7 +654,6 @@ describe('ConfirmDialog', () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateConfirmDialogComponent);
                 contentTemplateFixture.changeDetectorRef.markForCheck();
                 await contentTemplateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const contentTemplateConfirmDialog = contentTemplateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
                 expect(contentTemplateConfirmDialog.headerTemplate()).toBeDefined();
@@ -679,7 +669,6 @@ describe('ConfirmDialog', () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePConfirmDialogComponent);
                 templateFixture.changeDetectorRef.markForCheck();
                 await templateFixture.whenStable();
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
                 const confirmDialogInstance = templateFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance;
 
