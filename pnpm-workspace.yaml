@@ -19,7 +19,7 @@ catalog:
     # is a version that drifts.
     '@modelcontextprotocol/sdk': 1.30.0
     # Benchmark harness only (devDependency of angulux-mcp, which is private and unpublished).
-    '@anthropic-ai/sdk': 0.115.0
+    '@anthropic-ai/sdk': 0.117.1
 
 # ---------------------------------------------------------------------------
 # angular22 catalog — two groups, two opposite rules:

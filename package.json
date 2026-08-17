@@ -58,7 +58,7 @@
         "@angular/router": "catalog:angular22",
         "@playwright/test": "1.62.1",
         "@types/jasmine": "6.0.0",
-        "@types/node": "26.1.2",
+        "@types/node": "26.2.0",
         "chart.js": "catalog:",
         "cross-env": "^10.1.0",
         "fs-extra": "^11.3.2",
