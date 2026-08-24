@@ -1,18 +1,29 @@
-# Publishes the LLM-facing documentation: llms.txt, llms-full.txt and one page per warranted
-# module. Built from the COMMITTED corpus, which `check:corpus` already guarantees matches the
-# library — so this workflow never re-derives anything and cannot publish a third opinion.
+# Publishes the documentation site — both halves of it, from one build.
+#
+#   • The LLM-facing half (llms.txt, llms-full.txt, one page per module) is rendered from the
+#     COMMITTED corpus, which `check:corpus` already guarantees matches the library. This
+#     workflow never re-derives it and so cannot publish a third opinion.
+#   • The human-facing half (`apps/showcase`) is an Angular app whose API tables come from
+#     that same corpus and whose demos run against the BUILT library. That is why this
+#     workflow now installs and builds: a demo compiled against anything other than what the
+#     package publishes would be a demo of something nobody can install.
 #
 # It deploys only the generated `site/` directory. That is the point of building into a
 # dedicated folder rather than serving the repository: `docs/specs/` is internal-only and
 # gitignored, and a workflow that published a whole directory tree would be one mistake away
 # from putting it on the public web.
 #
-# The canonical URL is https://angulux.anguless.com/ — a subdomain of a domain already owned,
-# which is a HOST ROOT and therefore the address assistants probe by convention
-# (https://<host>/llms.txt). The `CNAME` that puts it there is emitted into the artifact by
-# build-site, not left to the repository setting alone: a workflow deploy replaces the whole
-# published tree, so a domain configured only in settings is one deploy away from silently
-# reverting to the github.io path while every generated link still names the custom domain.
+# ADDRESSES THAT MUST NOT MOVE. The canonical URL is https://angulux.anguless.com/ — a
+# subdomain of a domain already owned, which is a HOST ROOT and therefore the address
+# assistants probe by convention (https://<host>/llms.txt). `merge-showcase.mjs` hands the
+# root `index.html` to the showcase and treats every other collision as a hard error, so
+# `llms.txt`, `llms-full.txt` and every `<module>.md` keep the address they were published
+# at. The corpus landing page is unchanged and still served at /llms/.
+#
+# The `CNAME` that puts the site there is emitted into the artifact by build-site, not left
+# to the repository setting alone: a workflow deploy replaces the whole published tree, so a
+# domain configured only in settings is one deploy away from silently reverting to the
+# github.io path while every generated link still names the custom domain.
 #
 # GitHub 301s the old https://anguless-com.github.io/angulux/* here, so nothing an assistant
 # cached goes stale. The PATH does change — the `/angulux/` prefix is dropped — which is why
@@ -22,10 +33,15 @@ name: Pages
 on:
     push:
         branches: [main]
-        # Only when something that can change the output changes.
+        # Only when something that can change the output changes. `packages/**` is in the
+        # list because the site now RUNS the library: a component whose rendering changes
+        # changes every demo of it, and a site that kept showing the previous behaviour
+        # would be wrong in the one way this whole feature exists to prevent.
         paths:
             - 'corpus/**'
             - 'tools/corpus/**'
+            - 'apps/showcase/**'
+            - 'packages/**'
             - '.github/workflows/pages.yml'
     workflow_dispatch:
 
@@ -61,8 +77,36 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
-            - name: Build the site from the committed corpus
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            # Dependency order is real: the library imports from all four. Building them
+            # in the wrong order fails in a way that reads like a missing dependency.
+            - name: Build the forked packages
+              run: |
+                  set -euo pipefail
+                  for p in utils styled motion styles; do
+                      echo "::group::angulux-$p"
+                      (cd "packages/angulux-$p" && corepack pnpm run build)
+                      echo "::endgroup::"
+                  done
+
+            - name: Build the library
+              run: corepack pnpm --filter @anguless/angulux run build
+
+            # The showcase's tsconfig points at packages/angulux/dist, so this step is what
+            # makes every demo on the site a demo of the published package.
+            - name: Build the showcase
+              run: corepack pnpm --filter @angulux/showcase run build
+
+            - name: Render the LLM-facing files from the committed corpus
               run: node tools/corpus/build-site.mjs
+
+            - name: Merge the showcase in, refusing to overwrite a published address
+              run: node tools/corpus/merge-showcase.mjs
 
             - uses: actions/configure-pages@v6
 
