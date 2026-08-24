@@ -149,6 +149,13 @@ jobs:
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
 
+            # The showcase compiles against `packages/angulux/dist` with strictTemplates on,
+            # so this is where a demo using an input the library does not have becomes a red
+            # build. Without it the first thing to notice would be the Pages workflow, which
+            # runs on `main` — the site would break at deploy time, after review.
+            - name: Build the showcase
+              run: corepack pnpm --filter @angulux/showcase run build
+
             - name: Upload the built package
               uses: actions/upload-artifact@v7
               with:
