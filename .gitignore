@@ -50,3 +50,9 @@ docs/specs/
 
 # Generated LLM-facing site, built from the committed corpus by the Pages workflow.
 site/
+
+# Showcase payloads: the API sliced out of the committed corpus, and the demo code extracted
+# from the committed demo files. Both derive from tracked sources and are rebuilt by the
+# app's own prebuild step — committing them would create a second copy that can go stale
+# without anything noticing, which is the exact failure the extraction exists to prevent.
+apps/showcase/public/

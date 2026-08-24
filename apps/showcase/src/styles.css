@@ -1,0 +1,349 @@
+/* Chrome only. Component styling arrives at runtime from @primeuix/themes through
+   `provideAngulux`, exactly as it does in a consumer app — so nothing here restyles a
+   component, and a component that looks wrong on this site looks wrong in production too. */
+
+:root {
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --bg-code: #f1f5f9;
+    --text: #0f172a;
+    --text-soft: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --warn: #b45309;
+    --warn-soft: #fffbeb;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0b1120;
+        --bg-soft: #111827;
+        --bg-code: #0f172a;
+        --text: #e2e8f0;
+        --text-soft: #94a3b8;
+        --border: #1e293b;
+        --accent: #60a5fa;
+        --accent-soft: #172554;
+        --warn: #fbbf24;
+        --warn-soft: #291a04;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+}
+
+a {
+    color: var(--accent);
+}
+
+code,
+pre {
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+}
+
+/* ── shell ─────────────────────────────────────────────────────────────── */
+
+.shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.sidebar {
+    border-right: 1px solid var(--border);
+    background: var(--bg-soft);
+    padding: 1.25rem 0.75rem 3rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.brand {
+    display: block;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    padding: 0 0.5rem 0.25rem;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.brand small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    letter-spacing: 0;
+}
+
+.nav-heading {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+    padding: 1.25rem 0.5rem 0.35rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.28rem 0.5rem;
+    border-radius: 6px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.nav-link:hover {
+    background: var(--bg);
+}
+
+.nav-link.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.nav-badge {
+    font-size: 0.65rem;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 0.4rem;
+}
+
+.content {
+    padding: 2.5rem 3rem 6rem;
+    max-width: 62rem;
+}
+
+/* ── page furniture ────────────────────────────────────────────────────── */
+
+.page-title {
+    font-size: 2rem;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.03em;
+}
+
+.entrypoint {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin: 0 0 2rem;
+}
+
+.section-title {
+    font-size: 1.15rem;
+    margin: 3rem 0 0.35rem;
+    letter-spacing: -0.01em;
+}
+
+.section-text {
+    color: var(--text-soft);
+    margin: 0 0 1rem;
+}
+
+/* The demo surface. Every demo file is required to have exactly one of these — it is the
+   boundary `build-demos.mjs` cuts the template snippet on. */
+.card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+}
+
+/* Demos whose component IS the layout — cards, tabs, tables. Centring them in a flex row
+   would misrepresent how they behave in a real page. */
+.card-block {
+    display: block;
+}
+
+.note {
+    background: var(--warn-soft);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* ── code block ────────────────────────────────────────────────────────── */
+
+.code {
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 10px 10px;
+    background: var(--bg-code);
+    overflow: hidden;
+}
+
+.code-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.code-tab {
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+    cursor: pointer;
+}
+
+.code-tab.active {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.code-copy {
+    margin-left: auto;
+}
+
+.code pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.55;
+}
+
+/* ── api tables ────────────────────────────────────────────────────────── */
+
+.decl {
+    margin-top: 2rem;
+}
+
+.decl-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.decl-name {
+    font-size: 1.05rem;
+    font-weight: 650;
+}
+
+.kind {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.05rem 0.5rem;
+    color: var(--text-soft);
+}
+
+.selector {
+    font-family: ui-monospace, monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 0.75rem 0 0;
+}
+
+/* Fixed layout, explicit widths. With `auto` the browser sizes columns from content, and the
+   widest content in an API table is the type expression — so the column carrying the least
+   information ends up eating the row, pushing Description off the viewport entirely. Fixed
+   layout inverts that: the prose column gets the space, and types wrap. */
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.82rem;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+th {
+    background: var(--bg-soft);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+tr:last-child td {
+    border-bottom: 0;
+}
+
+td.mono {
+    font-family: ui-monospace, monospace;
+    overflow-wrap: anywhere;
+}
+
+.t-inputs col:nth-child(1),
+.t-outputs col:nth-child(1) {
+    width: 22%;
+}
+
+.t-inputs col:nth-child(2) {
+    width: 24%;
+}
+
+.t-inputs col:nth-child(3) {
+    width: 12%;
+}
+
+.t-outputs col:nth-child(2) {
+    width: 28%;
+}
+
+.t-slots col:nth-child(1) {
+    width: 25%;
+}
+
+.deprecated {
+    color: var(--warn);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 900px) {
+    .shell {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .content {
+        padding: 1.5rem 1.25rem 4rem;
+    }
+}
