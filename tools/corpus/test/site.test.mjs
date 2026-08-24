@@ -92,6 +92,7 @@ test('a hostile corpus value cannot inject markup into the landing page', () => 
                 name: '<script>alert(1)</script>',
                 entrypoint: '@anguless/angulux/x',
                 description: '',
+                ngModules: [],
                 declarations: []
             }
         ]
@@ -262,6 +263,7 @@ test('a value containing a backslash cannot smuggle a live delimiter into a row'
         name: 'evil',
         entrypoint: '@anguless/angulux/evil',
         description: '',
+        ngModules: [],
         declarations: [
             {
                 name: 'Evil',

@@ -325,3 +325,39 @@ export function sourceFilesOf(moduleDir) {
 export function extractModule(moduleDir) {
     return sourceFilesOf(moduleDir).flatMap((file) => extractFile(file));
 }
+
+/**
+ * The `@NgModule` classes a module declares.
+ *
+ * This file used to skip them, and the reasoning was sound as far as it went: an NgModule has
+ * no selector, no inputs and no slots, so listing it among the DECLARATIONS would pad the
+ * corpus with rows a caller cannot use. That is still true, which is why this is a separate
+ * module-level field rather than a fifth declaration kind.
+ *
+ * What the old reasoning missed is that the import line is not a declaration either, and it
+ * is the one thing a reader needs before anything else on the page can be used. Knowing that
+ * `agl-button` takes a `label` is worth nothing without knowing to write
+ * `import { ButtonModule } from '@anguless/angulux/button'` — and the module pages printed
+ * `import { … }` with an ellipsis, because nothing in the corpus knew the name.
+ *
+ * A module may legitimately have none: `icons` exports standalone components under their own
+ * entry points and has no NgModule at all. An empty array is that answer, and the renderer
+ * says so rather than printing an import that does not exist.
+ */
+export function extractNgModules(moduleDir) {
+    const found = [];
+
+    for (const file of sourceFilesOf(moduleDir)) {
+        const text = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+        const sourceFile = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+
+        for (const statement of sourceFile.statements) {
+            if (!ts.isClassDeclaration(statement) || !statement.name) continue;
+            if (!hasDecorator(statement, 'NgModule')) continue;
+
+            found.push(statement.name.text);
+        }
+    }
+
+    return found;
+}

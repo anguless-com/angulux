@@ -107,6 +107,18 @@ test('ANCHOR: every fact in the fixture is really in button.ts, in the RIGHT cla
         return { body: source.slice(start, end), above: source.slice(0, start) };
     };
 
+    // The import line is the most trusted thing on a module page, so the name in it is the
+    // last thing that may be taken on trust. `@NgModule` above the class, not merely the
+    // class: a plain exported class of the same name would satisfy a looser check and would
+    // not be importable as a module.
+    for (const ngModule of fixture().modules[0].ngModules) {
+        assert.match(
+            source,
+            new RegExp(`@NgModule\\(\\{[\\s\\S]*?\\}\\)\\s*export class ${ngModule}\\b`),
+            `${ngModule} is not an @NgModule in the source`
+        );
+    }
+
     for (const declaration of fixture().modules[0].declarations) {
         const { body, above } = regionOf(declaration.name);
 

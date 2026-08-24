@@ -38,6 +38,8 @@ export interface ApiModule {
     name: string;
     entrypoint: string;
     description: string;
+    /** What a reader imports. Empty when the module's exports are standalone, as `icons` is. */
+    ngModules: string[];
     declarations: ApiDeclaration[];
 }
 

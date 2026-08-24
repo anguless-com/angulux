@@ -222,8 +222,23 @@ export function renderModulePage(module, moduleOf = () => null) {
     // is how `@anguless/angulux/types` came to be advertised on a page while throwing
     // ERR_PACKAGE_PATH_NOT_EXPORTED in any real install — a copyable code block is the most
     // trusted thing on the page, so a false one is worse than none.
+    // The import line, with the name actually in it. It printed `import { … }` until format 4,
+    // because nothing in the corpus knew what to write there — and a copyable code block is
+    // the most trusted thing on the page, so an unusable one is worse than none. A module with
+    // no NgModule says so instead of inventing one: `icons` exports standalone components
+    // under their own entry points and has none.
     const lines = module.entrypoint
-        ? [`# ${module.name}`, '', '```ts', `import { … } from '${module.entrypoint}';`, '```', '']
+        ? [
+              `# ${module.name}`,
+              '',
+              '```ts',
+              module.ngModules.length ? `import { ${module.ngModules.join(', ')} } from '${module.entrypoint}';` : `import { … } from '${module.entrypoint}';`,
+              '```',
+              '',
+              ...(module.ngModules.length
+                  ? []
+                  : ['This module declares no NgModule. Its exports are standalone and are imported directly, by name.', ''])
+          ]
         : [
               `# ${module.name}`,
               '',
