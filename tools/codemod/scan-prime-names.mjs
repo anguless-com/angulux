@@ -25,8 +25,15 @@
  *   node tools/codemod/scan-prime-names.mjs --fix      # fix the auto-fixable groups
  *   node tools/codemod/scan-prime-names.mjs --verbose  # print every location
  *
- * SCOPE. `src/` is strict: any finding fails the build. `attic/` is reported as an
- * inventory only. Attic holds unported PrimeNG modules kept verbatim on purpose —
+ * SCOPE. `src/` and `apps/showcase/src/` are strict: any finding fails the build. `attic/`
+ * is reported as an inventory only.
+ *
+ * The showcase was added on 2026-08-24, before inheriting demos from the MIT PrimeNG
+ * showcase. It belongs in the strict set for a reason worth stating: a demo file is almost
+ * entirely BARE STRINGS — template markup, plus the same text shown to the reader as code to
+ * copy — which is the exact shape this whole script exists to catch, and TypeScript reports
+ * none of it. It is also the highest-exposure surface in the project: `src/` leaks a name
+ * into a consumer's IntelliSense, the showcase leaks it onto the public web. Attic holds unported PrimeNG modules kept verbatim on purpose —
  * their 177 `primeng/*` imports are the point, not a defect, and "fixing" them would
  * destroy the very provenance that makes attic worth keeping. What IS enforced for
  * attic is that nothing in `src/` may import from it (group 10), so attic can never
@@ -42,11 +49,12 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, exemptionState, templateLiterals } from './name-scan-lib.mjs';
+import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, exemptionState, templateLiterals } from './name-scan-lib.mjs';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const SRC = join(ROOT, 'packages/angulux/src');
 const ATTIC = join(ROOT, 'packages/angulux/attic');
+const SHOWCASE = join(ROOT, 'apps/showcase/src');
 const SELECTORS = JSON.parse(readFileSync(join(ROOT, 'tools/codemod/selectors.json'), 'utf8'));
 const EXCEPTIONS = JSON.parse(readFileSync(join(ROOT, 'tools/codemod/name-exceptions.json'), 'utf8'));
 const angularMajor = () => angularMajorFrom(readFileSync(join(ROOT, 'pnpm-workspace.yaml'), 'utf8'));
@@ -142,9 +150,33 @@ const BRAND_STRING = /prime(?:ng|faces|tek|react|vue)\s*\.\s*(?:org|dev|com|net)
 /** Group 9 — DOM attributes written into the consumer's rendered HTML. */
 const BRAND_DOM_ATTR = /\bdata-prime[a-z]*(?:-[a-z]+)*/gi;
 
+/**
+ * Attribution regions — see `attributionRanges` in name-scan-lib for what they excuse and why.
+ * Every one is printed on every green run: a declared hole in a gate is allowed to exist, and
+ * is never allowed to be quiet. Same rule as the accepted-debt banner.
+ */
+const attributionRegions = [];
+
+function attributionsIn(file, text) {
+    const regions = attributionRanges(text);
+
+    for (const region of regions) {
+        if (region.size > ATTRIBUTION_MAX) {
+            record(file, text, region.start, 'attribution-oversized', `${region.size} chars — the cap is ${ATTRIBUTION_MAX}`, false);
+        } else {
+            attributionRegions.push({ file: relative(ROOT, file), line: lineOf(text, region.start), size: region.size });
+        }
+    }
+
+    return regions;
+}
+
+const inAttribution = (regions, idx) => regions.some((r) => idx >= r.start && idx < r.end);
+
 for (const [scope, dir] of [
     ['src', SRC],
-    ['attic', ATTIC]
+    ['attic', ATTIC],
+    ['showcase', SHOWCASE]
 ]) {
     SCOPE = scope;
     for (const file of walk(dir)) {
@@ -231,17 +263,21 @@ for (const [scope, dir] of [
         }
 
         // ── Group 8: brand strings in code and JSDoc ──
+        const attributions = attributionsIn(file, original);
+
         for (const m of original.matchAll(BRAND_STRING)) {
-            record(file, original, m.index, 'brand-string', m[0], false);
+            if (!inAttribution(attributions, m.index)) record(file, original, m.index, 'brand-string', m[0], false);
         }
 
         // ── Group 9: brand DOM attributes ──
         for (const m of original.matchAll(BRAND_DOM_ATTR)) {
-            record(file, original, m.index, 'brand-dom-attribute', m[0], false);
+            if (!inAttribution(attributions, m.index)) record(file, original, m.index, 'brand-dom-attribute', m[0], false);
         }
 
-        // ── Group 10: src must never import from attic ──
-        if (scope === 'src') {
+        // ── Group 10: nothing shipped or published may import from attic ──
+        // The showcase is held to this too: a demo importing an unported module would
+        // document, on the public web, an API that is not in any release.
+        if (scope !== 'attic') {
             for (const m of original.matchAll(/from\s+(['"])[^'"]*\battic\b[^'"]*\1/g)) {
                 record(file, original, m.index, 'attic-leak', m[0], false);
             }
@@ -266,20 +302,29 @@ const KIND_LABEL = {
     'template-attribute': 'directive attributes used in inline templates',
     'brand-string': 'brand strings in code/JSDoc (leak into IntelliSense)',
     'brand-dom-attribute': "brand DOM attributes (leak into the consumer's HTML)",
-    'attic-leak': 'src/ importing from attic/'
+    'attic-leak': 'src/ importing from attic/',
+    'attribution-oversized': 'attribution region larger than the cap — narrow it or split it'
 };
 
-const allSrcFindings = findings.filter((f) => f.scope === 'src');
+const allStrictFindings = findings.filter((f) => f.scope !== 'attic');
 const atticFindings = findings.filter((f) => f.scope === 'attic');
 
 /**
  * Apply `name-exceptions.json` — and enforce it in both directions, because an exception
  * list nobody checks is the same hazard as the blind spot it was created for.
+ *
+ * The exemptions are EARNED by `src/`, so the staleness check reads `src/` alone: the debt
+ * being accepted is branded names in the PUBLISHED public API, and only src can hold that.
+ * They are then HONOURED everywhere, showcase included — a demo of `pButtonLabelPT` has to
+ * write `pButtonLabelPT`, because that is the input the shipped library actually has.
+ * Folding the showcase into the staleness check instead would let a demo keep an entry alive
+ * after src stopped declaring it, which is precisely the quiet state the two-way rule exists
+ * to prevent.
  */
-const namesInSrc = new Set(allSrcFindings.map((f) => f.detail));
+const namesInSrc = new Set(findings.filter((f) => f.scope === 'src').map((f) => f.detail));
 const { exempt: EXEMPT, problems: listProblems } = exemptionState(EXCEPTIONS, angularMajor(), namesInSrc);
-const exempted = allSrcFindings.filter((f) => EXEMPT.has(f.detail));
-const srcFindings = allSrcFindings.filter((f) => !EXEMPT.has(f.detail));
+const exempted = allStrictFindings.filter((f) => EXEMPT.has(f.detail));
+const strictFindings = allStrictFindings.filter((f) => !EXEMPT.has(f.detail));
 
 const report = (list, header) => {
     const byKind = {};
@@ -315,6 +360,14 @@ if (exempted.length) {
     console.log(`     This list expires by itself when @angular/core moves past ^${EXCEPTIONS.untilAngularMajor} — see tools/codemod/name-exceptions.json.\n`);
 }
 
+if (attributionRegions.length) {
+    // Printed on every run, green included — a declared hole in a gate must stay visible.
+    console.log(`\n📎 ATTRIBUTION REGIONS — ${attributionRegions.length}, where PrimeTek brand PROSE is allowed and nothing else is:\n`);
+    for (const r of attributionRegions) console.log(`     ${r.file}:${r.line}  (${r.size} chars)`);
+    console.log(`\n     MIT obliges retaining the copyright notice; these are where it is retained.`);
+    console.log(`     Selectors, imports and branded API names are still failures inside them.\n`);
+}
+
 if (listProblems.length) {
     console.error('\n✗ scan-prime-names: tools/codemod/name-exceptions.json is out of date\n');
     for (const p of listProblems) console.error(`   ${p}`);
@@ -322,14 +375,14 @@ if (listProblems.length) {
     process.exit(1);
 }
 
-if (!srcFindings.length) {
-    console.log('✓ scan-prime-names: no PrimeNG names left in selector/API/trademark positions in src/.');
+if (!strictFindings.length) {
+    console.log('✓ scan-prime-names: no PrimeNG names left in selector/API/trademark positions in src/ or apps/showcase/src/.');
     process.exit(0);
 }
 
-report(srcFindings, FIX ? '\n── src/: FIXED / REMAINING ──\n' : '\n── src/: PRIMENG NAMES LEFT ──\n');
+report(strictFindings, FIX ? '\n── src/ + apps/showcase/src/: FIXED / REMAINING ──\n' : '\n── src/ + apps/showcase/src/: PRIMENG NAMES LEFT ──\n');
 
-const remaining = srcFindings.filter((f) => !(FIX && f.fixable));
+const remaining = strictFindings.filter((f) => !(FIX && f.fixable));
 if (remaining.length) {
     if (!FIX) console.log('  Run with --fix to fix the auto-fixable groups.\n');
     process.exit(1);
