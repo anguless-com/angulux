@@ -16,6 +16,8 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { parseWorkspace } from './workspace-catalog.mjs';
+
 const root = process.cwd();
 const wsPath = join(root, 'pnpm-workspace.yaml');
 
@@ -25,45 +27,6 @@ const ok = [];
 if (!existsSync(wsPath)) {
   console.error('✗ No pnpm-workspace.yaml found — the workspace is not set up.');
   process.exit(1);
-}
-
-/** Minimal parser, just enough for the catalog shape (avoids a YAML dependency). */
-function parseWorkspace(text) {
-  const out = { packages: [], catalog: {}, catalogs: {} };
-  const lines = text.split('\n');
-  let section = null;
-  let subCatalog = null;
-  for (const raw of lines) {
-    if (!raw.trim() || raw.trimStart().startsWith('#')) continue;
-    const indent = raw.length - raw.trimStart().length;
-    const line = raw.trim();
-
-    if (indent === 0) {
-      section = line.replace(/:$/, '');
-      subCatalog = null;
-      continue;
-    }
-    if (section === 'packages') {
-      const m = line.match(/^-\s*['"]?(.+?)['"]?$/);
-      if (m) out.packages.push(m[1]);
-      continue;
-    }
-    if (section === 'catalog') {
-      const m = line.match(/^['"]?([^'":]+)['"]?\s*:\s*['"]?([^'"]+)['"]?$/);
-      if (m) out.catalog[m[1]] = m[2].trim();
-      continue;
-    }
-    if (section === 'catalogs') {
-      if (line.endsWith(':') && indent <= 4) {
-        subCatalog = line.replace(/:$/, '');
-        out.catalogs[subCatalog] = {};
-        continue;
-      }
-      const m = line.match(/^['"]?([^'":]+)['"]?\s*:\s*['"]?([^'"]+)['"]?$/);
-      if (m && subCatalog) out.catalogs[subCatalog][m[1]] = m[2].trim();
-    }
-  }
-  return out;
 }
 
 const ws = parseWorkspace(readFileSync(wsPath, 'utf8'));

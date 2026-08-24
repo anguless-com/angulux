@@ -27,7 +27,7 @@ env:
 
 jobs:
     gates:
-        name: Gates (14)
+        name: Gates (15)
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
@@ -131,7 +131,7 @@ jobs:
               run: npm run test:tools
 
             # Needs a completed build, which is why it is here rather than in `npm run check`
-            # — that suite is fourteen gates and needs no build, which is what keeps it fast.
+            # — that suite is fifteen gates and needs no build, which is what keeps it fast.
             # It packs each package and reads package.json back out of the TARBALL, because
             # three of the forked packages once passed a guard that inspected the wrong path
             # while carrying `workspace:^` into a published dependency.
