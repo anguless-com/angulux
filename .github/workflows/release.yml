@@ -6,9 +6,21 @@
 # The trains are separate because binding the forked primeuix packages to Angular's major
 # would state a compatibility constraint that does not exist: they do not depend on Angular.
 #
-# Each train is gated on paths. semantic-release on its own would compute a bump from every
-# commit since its last tag, so a `feat(table)` would bump the fork family too. The path gate
-# below stops that: if no file under the train's packages changed, the train does not run.
+# Each train is gated on paths, and that gate answers exactly one question: does this train
+# RUN. It has never filtered commits, and the previous version of this paragraph implied it
+# did. Measured on 2026-08-14 during the 22.2.0 release: both trains printed `Analysis of 17
+# commits complete` — the same seventeen — so `feat(mcp)` and `feat(site)` bumped both to a
+# minor and were published under **Features** in both sets of release notes, despite being in
+# no released package at all.
+#
+# Two mechanisms now, for two different questions:
+#
+#   • the path gate below decides whether a train runs;
+#   • `release/rail-filter.mjs` decides which commits it counts, wrapping commit-analyzer and
+#     release-notes-generator so the version and the notes are made of the same subset.
+#
+# Both read their path lists from `release/rails.mjs`. One definition, because two copies is
+# how a gate and a filter come to cover different things.
 #
 # PUBLISHING: npm Trusted Publishing (OIDC). No NPM_TOKEN. See release/README.md for the
 # one-time setup — and for why the FIRST publish of a package cannot use OIDC.
@@ -150,13 +162,23 @@ jobs:
                   a_base=$(since 'angulux-v*')
                   f_base=$(since 'angulux-forks-v*')
 
-                  if [ -n "$(git diff --name-only "$a_base"..HEAD -- packages/angulux/)" ]; then
+                  # The same path lists rail-filter.mjs uses, read from the same file. Left
+                  # unquoted on purpose: each is a list of paths for `git diff -- …`.
+                  a_paths=$(node release/rails.mjs angulux)
+                  f_paths=$(node release/rails.mjs forks)
+
+                  # shellcheck disable=SC2086
+                  a_changed=$(git diff --name-only "$a_base"..HEAD -- $a_paths)
+                  # shellcheck disable=SC2086
+                  f_changed=$(git diff --name-only "$f_base"..HEAD -- $f_paths)
+
+                  if [ -n "$a_changed" ]; then
                       echo "angulux=true" >> "$GITHUB_OUTPUT"
                   else
                       echo "angulux=false" >> "$GITHUB_OUTPUT"
                   fi
 
-                  if [ -n "$(git diff --name-only "$f_base"..HEAD -- packages/angulux-styled/ packages/angulux-utils/ packages/angulux-styles/ packages/angulux-motion/)" ]; then
+                  if [ -n "$f_changed" ]; then
                       echo "forks=true" >> "$GITHUB_OUTPUT"
                   else
                       echo "forks=false" >> "$GITHUB_OUTPUT"
@@ -167,8 +189,8 @@ jobs:
                       echo ""
                       echo "| train | base | changed |"
                       echo "|---|---|---|"
-                      echo "| angulux | \`$a_base\` | $( [ -n "$(git diff --name-only "$a_base"..HEAD -- packages/angulux/)" ] && echo yes || echo no ) |"
-                      echo "| forks | \`$f_base\` | $( [ -n "$(git diff --name-only "$f_base"..HEAD -- packages/angulux-styled/ packages/angulux-utils/ packages/angulux-styles/ packages/angulux-motion/)" ] && echo yes || echo no ) |"
+                      echo "| angulux | \`$a_base\` | $( [ -n "$a_changed" ] && echo yes || echo no ) |"
+                      echo "| forks | \`$f_base\` | $( [ -n "$f_changed" ] && echo yes || echo no ) |"
                   } >> "$GITHUB_STEP_SUMMARY"
 
     # ---------------------------------------------------------------------------
