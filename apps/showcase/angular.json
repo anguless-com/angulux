@@ -1,0 +1,40 @@
+{
+    "$schema": "../../node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "projects": {
+        "showcase": {
+            "projectType": "application",
+            "root": "",
+            "sourceRoot": "src",
+            "architect": {
+                "build": {
+                    "builder": "@angular/build:application",
+                    "options": {
+                        "browser": "src/main.ts",
+                        "index": "src/index.html",
+                        "tsConfig": "tsconfig.json",
+                        "styles": ["src/styles.css", "node_modules/primeicons/primeicons.css"],
+                        "assets": [{ "glob": "**/*", "input": "public" }]
+                    },
+                    "configurations": {
+                        "production": {
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false
+                        },
+                        "development": {
+                            "optimization": false,
+                            "sourceMap": true
+                        }
+                    },
+                    "defaultConfiguration": "production"
+                },
+                "serve": {
+                    "builder": "@angular/build:dev-server",
+                    "options": { "buildTarget": "showcase:build:development" }
+                }
+            }
+        }
+    },
+    "cli": { "analytics": false }
+}

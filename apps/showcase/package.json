@@ -1,0 +1,32 @@
+{
+    "name": "@angulux/showcase",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Documentation site for humans — the counterpart to the generated llms.txt corpus, built from the same corpus so the two cannot disagree. Never published to npm.",
+    "scripts": {
+        "generate": "node scripts/build-api.mjs && node scripts/build-demos.mjs",
+        "prebuild": "pnpm run generate",
+        "build": "ng build showcase",
+        "prestart": "pnpm run generate",
+        "start": "ng serve showcase --port 4211"
+    },
+    "dependencies": {
+        "@angular/common": "catalog:angular22",
+        "@angular/compiler": "catalog:angular22",
+        "@angular/core": "catalog:angular22",
+        "@angular/forms": "catalog:angular22",
+        "@angular/platform-browser": "catalog:angular22",
+        "@angular/router": "catalog:angular22",
+        "@primeuix/themes": "catalog:",
+        "primeicons": "catalog:",
+        "rxjs": "catalog:angular22",
+        "tslib": "catalog:angular22",
+        "zone.js": "catalog:angular22"
+    },
+    "devDependencies": {
+        "@angular/build": "catalog:angular22",
+        "@angular/cli": "catalog:angular22",
+        "@angular/compiler-cli": "catalog:angular22",
+        "typescript": "catalog:angular22"
+    }
+}

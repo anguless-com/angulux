@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, exemptionState, templateLiterals } from '../codemod/name-scan-lib.mjs';
+import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, exemptionState, templateLiterals } from '../codemod/name-scan-lib.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const at = (p) => join(repoRoot, p);
@@ -96,4 +96,50 @@ test('the gate runs green and says the debt out loud on every run', () => {
     assert.match(out, /ACCEPTED, NOT FIXED — 15 PrimeNG-branded name\(s\) still in the public API/);
     assert.match(out, /expires by itself when @angular\/core moves past \^22/);
     assert.match(out, /✓ scan-prime-names: no PrimeNG names left/);
+});
+
+/**
+ * Added 2026-08-24 with `apps/showcase/`. The guard had scanned `packages/angulux/src` and
+ * `attic/` only, so the documentation site — the highest-exposure surface in the project, and
+ * the one about to receive ~600 demo files inherited from the MIT PrimeNG showcase — was
+ * outside every net. Proven by probe before the fix: the same file containing
+ * `'<p-button>'` failed in `src/` and passed in `apps/showcase/`.
+ */
+
+test('the strict scope covers the showcase, and says so', () => {
+    const out = execFileSync(process.execPath, [at('tools/codemod/scan-prime-names.mjs')], { cwd: repoRoot, encoding: 'utf8' });
+    assert.match(out, /no PrimeNG names left in selector\/API\/trademark positions in src\/ or apps\/showcase\/src\//);
+});
+
+test('an attribution region is recognised in BOTH comment syntaxes', () => {
+    // The HTML form is the one that matters: the notice has to live where it is RENDERED,
+    // and inside an Angular template `/* … */` is not a comment but text the reader sees.
+    const html = attributionRanges('<!-- prime-names:attribution why -->Copyright PrimeTek<!-- prime-names:end -->');
+    assert.equal(html.length, 1);
+    assert.equal(html[0].size, 'Copyright PrimeTek'.length);
+
+    const js = attributionRanges('/* prime-names:attribution why */\nCopyright PrimeTek\n/* prime-names:end */');
+    assert.equal(js.length, 1);
+
+    assert.deepEqual(attributionRanges('const x = 1; // PrimeTek'), [], 'no marker, no excuse');
+});
+
+test('a marker that is never closed excuses nothing', () => {
+    // Otherwise the cheapest way to silence the gate would be to open a region and forget it.
+    assert.deepEqual(attributionRanges('<!-- prime-names:attribution -->PrimeTek everywhere below'), []);
+    assert.deepEqual(attributionRanges('/* prime-names:attribution */ PrimeTek'), []);
+});
+
+test('the cap is small enough that a region has to be read, not skimmed', () => {
+    assert.equal(ATTRIBUTION_MAX, 2000, 'raising this is a deliberate act: it is how much brand prose goes unchecked');
+
+    const [region] = attributionRanges(`<!-- prime-names:attribution -->${'x'.repeat(3000)}<!-- prime-names:end -->`);
+    assert.ok(region.size > ATTRIBUTION_MAX, 'the scanner reports the size so it can enforce the cap');
+});
+
+test('every declared attribution region is announced on green runs', () => {
+    // A hole in a gate is allowed to exist. It is never allowed to be quiet.
+    const out = execFileSync(process.execPath, [at('tools/codemod/scan-prime-names.mjs')], { cwd: repoRoot, encoding: 'utf8' });
+    assert.match(out, /📎 ATTRIBUTION REGIONS/);
+    assert.match(out, /apps.showcase.src.pages.home\.ts/, 'the site renders the MIT notice, so it must hold a declared region');
 });

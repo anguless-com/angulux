@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Thirteen gates run on every commit and every pull request. They do not check style — each one
+Fourteen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -87,10 +87,11 @@ closes a class of failure that has already happened in this repository.
 | `check:action-inputs` | a workflow passing a `with:` key that its action does not declare — YAML nobody validates until it silently does nothing |
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
+| `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all thirteen, no build needed
+npm run check     # all fourteen, no build needed
 ```
 
 Two further checks run after the build rather than inside that suite, because neither has
@@ -121,7 +122,7 @@ type-check cannot see a render bug.
 Current evidence, reproducible from a clean checkout:
 
 ```
-13/13 gates          exit 0
+14/14 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
 browser gate         13/13 passed
@@ -182,7 +183,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 13 gates
+npm run check                                   # the 14 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do
@@ -198,6 +199,21 @@ npx playwright test --config e2e/playwright.config.ts   # browser gate → 13/13
 `pnpm` runs through corepack and is not on `PATH`; use `corepack pnpm`. Karma needs
 `CHROME_BIN` set if Chrome is not at the default location.
 
+## Documentation
+
+<https://angulux.anguless.com> is the documentation site: a page per module with runnable
+demos, and an API reference for all 64 modules generated from `corpus/corpus.json` — the same
+corpus that produces the files in the next section, so the two cannot say different things
+about the same API.
+
+It is built from `apps/showcase`, which is a workspace app and is never published to npm.
+Its demos compile against `packages/angulux/dist`, not against `src`, so every demo on the
+site is a demo of the package a user actually installs. The code shown under each demo is
+EXTRACTED from the demo that just ran rather than written alongside it, and `check:demo-code`
+fails the build if a demo stops being extractable, if a page entry names one demo and loads
+another, or if a module is documented that no release contains. See `apps/showcase/README.md`
+for the rules a demo file has to follow.
+
 ## Documentation for AI assistants
 
 Angulux is new, so no model has seen it. Ask an assistant about it and it will answer with
@@ -206,7 +222,7 @@ so it does not have to guess:
 
 | URL | What it is |
 | --- | --- |
-| [the index page](https://angulux.anguless.com/) | what is here, for a reader who trimmed the URL back to the host; also served at [`/llms`](https://angulux.anguless.com/llms) |
+| [the index page](https://angulux.anguless.com/llms) | what is here, for a reader who trimmed the URL back to the host. The host root now serves the documentation site for humans, so this page lives at `/llms` |
 | [`llms.txt`](https://angulux.anguless.com/llms.txt) | the index, in the [llms.txt](https://llmstxt.org) format |
 | [`llms-full.txt`](https://angulux.anguless.com/llms-full.txt) | every module's API in one file |
 | `<module>.md` | one page per module, e.g. [`button.md`](https://angulux.anguless.com/button.md) |

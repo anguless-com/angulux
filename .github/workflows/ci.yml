@@ -27,7 +27,7 @@ env:
 
 jobs:
     gates:
-        name: Gates (13)
+        name: Gates (14)
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v7
@@ -131,7 +131,7 @@ jobs:
               run: npm run test:tools
 
             # Needs a completed build, which is why it is here rather than in `npm run check`
-            # — that suite is thirteen gates and needs no build, which is what keeps it fast.
+            # — that suite is fourteen gates and needs no build, which is what keeps it fast.
             # It packs each package and reads package.json back out of the TARBALL, because
             # three of the forked packages once passed a guard that inspected the wrong path
             # while carrying `workspace:^` into a published dependency.
@@ -148,6 +148,13 @@ jobs:
 
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
+
+            # The showcase compiles against `packages/angulux/dist` with strictTemplates on,
+            # so this is where a demo using an input the library does not have becomes a red
+            # build. Without it the first thing to notice would be the Pages workflow, which
+            # runs on `main` — the site would break at deploy time, after review.
+            - name: Build the showcase
+              run: corepack pnpm --filter @angulux/showcase run build
 
             - name: Upload the built package
               uses: actions/upload-artifact@v7

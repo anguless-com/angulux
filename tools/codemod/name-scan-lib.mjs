@@ -49,6 +49,30 @@ export const TEMPLATE_ATTR_RE = /(?<=[\s[(])(p[A-Z][a-zA-Z0-9]*)(?=[=\])\s/>])/g
 export const SIGNAL_PROP_RE = /\b(p[A-Z][a-zA-Z0-9]*)\s*=\s*(?:input|output|model)\b/g;
 
 /**
+ * The declared regions where a PrimeTek brand string is not a defect.
+ *
+ * MIT does not merely permit the copyright notice, it OBLIGES it, and the showcase renders
+ * that notice to readers — so a gate that forbade the words outright would be a gate that
+ * keeps a licence violation green. This is the narrow hole that lets the notice exist:
+ *
+ *   • Both comment syntaxes, because the notice lives where it is RENDERED — inside an
+ *     Angular template, where `/* … *​/` is not a comment at all but text the reader sees.
+ *   • Only brand PROSE is excused by it. Callers apply it to groups 8 and 9 and to nothing
+ *     else, so a selector, a `primeng/*` import or a branded input inside a region still
+ *     fails: no licence obligation has ever required shipping those.
+ *   • Capped, so nobody can quietly wrap a whole file in it.
+ *
+ * Returns [{start, end, size}] over the whole marker, `size` being the excused body.
+ */
+export const ATTRIBUTION_MAX = 2000;
+
+const ATTRIBUTION_RE = /(?:\/\*|<!--)\s*prime-names:attribution\b(?:(?!\*\/|-->)[\s\S])*(?:\*\/|-->)([\s\S]*?)(?:\/\*|<!--)\s*prime-names:end\s*(?:\*\/|-->)/g;
+
+export function attributionRanges(text) {
+    return [...text.matchAll(ATTRIBUTION_RE)].map((m) => ({ start: m.index, end: m.index + m[0].length, size: m[1].length }));
+}
+
+/**
  * The Angular major this line is bound to, read from the catalog that feeds the published
  * peerDependencies. `name-exceptions.json` expires against it.
  */

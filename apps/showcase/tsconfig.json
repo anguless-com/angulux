@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "lib": ["dom", "dom.iterable", "ES2022"],
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "strict": false,
+        /* Same choice as the verification app, for the same reason: point at `dist/`, never
+           at `src/`. A documentation site built against the source tree would document an
+           API no user can install. Built against `dist/`, every demo on the site is a demo
+           of the published package — and a demo that breaks against `dist/` is telling you
+           something real about what shipped. */
+        "paths": {
+            "@anguless/angulux/types/*": ["../../packages/angulux/dist/types/*"],
+            "@anguless/angulux/*": ["../../packages/angulux/dist/*"]
+        }
+    },
+    "angularCompilerOptions": {
+        "strictTemplates": true
+    },
+    "files": ["src/main.ts"],
+    "include": ["src/**/*.ts"]
+}
