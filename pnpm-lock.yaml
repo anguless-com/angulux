@@ -171,6 +171,9 @@ importers:
       '@primeuix/themes':
         specifier: 'catalog:'
         version: 2.0.3
+      chart.js:
+        specifier: 'catalog:'
+        version: 4.5.1
       primeicons:
         specifier: 'catalog:'
         version: 7.0.0

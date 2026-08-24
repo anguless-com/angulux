@@ -18,6 +18,7 @@
         "@angular/platform-browser": "catalog:angular22",
         "@angular/router": "catalog:angular22",
         "@primeuix/themes": "catalog:",
+        "chart.js": "catalog:",
         "primeicons": "catalog:",
         "rxjs": "catalog:angular22",
         "tslib": "catalog:angular22",
