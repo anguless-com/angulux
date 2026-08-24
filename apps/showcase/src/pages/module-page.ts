@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common';
-import { Component, effect, input, signal, Type } from '@angular/core';
+import { Component, computed, effect, input, signal, Type } from '@angular/core';
 import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
 import { ApiGroup, ApiTable } from '../components/api-table';
 import { DemoCode } from '../components/demo-code';
@@ -30,6 +30,13 @@ interface LoadedSection {
         } @else if (api(); as api) {
             <h1 class="page-title">{{ api.name }}</h1>
             <p class="entrypoint">{{ api.entrypoint }}</p>
+
+            <!-- The import, with the name in it. Everything else on this page is unusable
+                 without it, and a reader should not have to open a demo's Component tab to
+                 find out what to write. -->
+            <div class="code">
+                <pre><code>{{ importLine() }}</code></pre>
+            </div>
 
             @if (api.description) {
                 <p class="section-text">{{ api.description }}</p>
@@ -69,6 +76,21 @@ export class ModulePage {
 
     /** The module's own declarations, each followed by the ancestors it inherits from. */
     readonly groups = signal<ApiGroup[]>([]);
+
+    /**
+     * A module with no NgModule is not a defect and must not be papered over: `icons` exports
+     * standalone components under their own entry points, so the honest line names the module
+     * path and says the exports come one at a time.
+     */
+    readonly importLine = computed(() => {
+        const api = this.api();
+
+        if (!api) return '';
+
+        return api.ngModules.length
+            ? `import { ${api.ngModules.join(', ')} } from '${api.entrypoint}';`
+            : `// ${api.name} exports standalone symbols — import them by name from '${api.entrypoint}/<name>'`;
+    });
 
     constructor() {
         effect(() => {

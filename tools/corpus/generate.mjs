@@ -36,7 +36,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, relative, sep, join } from 'node:path';
 
-import { extractModule, sourceFilesOf } from './extract.mjs';
+import { extractModule, extractNgModules, sourceFilesOf } from './extract.mjs';
 
 const repoRoot = resolve(import.meta.dirname, '../..');
 const SRC = resolve(repoRoot, 'packages/angulux/src');
@@ -112,13 +112,16 @@ export function buildCorpus() {
             // regenerates and compares byte for byte, now also guards this — no new gate needed.
             entrypoint: existsSync(join(dir, 'ng-package.json')) ? `@anguless/angulux/${name}` : null,
             description: '',
+            ngModules: extractNgModules(dir),
             declarations: extractModule(dir)
         };
     });
 
     return {
-        // 1 -> 2: declarations gained `slots`. See the header for why the hash cannot say this.
-        generator: { version: '3', sourceHash: sourceHashOf(files), closureCount: closure.length },
+        // 1 -> 2: declarations gained `slots`. 2 -> 3: aliases and `extends`. 3 -> 4: modules
+        // gained `ngModules`, the name a reader imports. See the header for why the hash is blind
+        // to all three.
+        generator: { version: '4', sourceHash: sourceHashOf(files), closureCount: closure.length },
         modules
     };
 }

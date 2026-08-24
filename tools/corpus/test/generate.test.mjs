@@ -62,14 +62,35 @@ test('a record shape change must bump the format version — the hash cannot say
         2: ['name', 'kind', 'selector', 'description', 'inputs', 'outputs', 'slots'],
         // 3 adds `extends`. Angular inherits inputs, and `BaseInput` alone publishes ten of
         // them, so `min` and `max` were real on `agl-inputNumber` and absent from the corpus.
-        3: ['name', 'kind', 'selector', 'extends', 'description', 'inputs', 'outputs', 'slots']
+        3: ['name', 'kind', 'selector', 'extends', 'description', 'inputs', 'outputs', 'slots'],
+        // 4 changes no declaration key. The registry covered declarations only, so a
+        // module-level field could be added with the version left alone and nothing here
+        // would have said a word — the same blind spot one level up. MODULE_SHAPES closes it.
+        4: ['name', 'kind', 'selector', 'extends', 'description', 'inputs', 'outputs', 'slots']
+    };
+
+    const MODULE_SHAPES = {
+        2: ['name', 'entrypoint', 'description', 'declarations'],
+        3: ['name', 'entrypoint', 'description', 'declarations'],
+        // 4 adds `ngModules` — the name a reader imports, which is not a declaration and was
+        // therefore in neither place until now.
+        4: ['name', 'entrypoint', 'description', 'ngModules', 'declarations']
     };
 
     const corpus = buildCorpus();
     const expected = SHAPES[corpus.generator.version];
+    const expectedModule = MODULE_SHAPES[corpus.generator.version];
+
     assert.ok(expected, `format version ${corpus.generator.version} has no registered record shape`);
+    assert.ok(expectedModule, `format version ${corpus.generator.version} has no registered MODULE shape`);
 
     for (const module of corpus.modules) {
+        assert.deepEqual(
+            Object.keys(module).sort(),
+            [...expectedModule].sort(),
+            `${module.name} does not match the module shape declared for format ${corpus.generator.version}`
+        );
+
         for (const declaration of module.declarations) {
             assert.deepEqual(
                 Object.keys(declaration).sort(),

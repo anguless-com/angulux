@@ -9,6 +9,9 @@
             "name": "button",
             "entrypoint": "@anguless/angulux/button",
             "description": "",
+            "ngModules": [
+                "ButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "Button",

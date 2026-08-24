@@ -97,6 +97,16 @@ export function validateCorpus(corpus) {
     for (const [index, module] of modules.entries()) {
         const at = `modules[${index}]`;
         if (!isString(module.name)) problems.push(`${at}: name must be a string`);
+        // The name a reader IMPORTS. Not a declaration — an NgModule has no selector, no
+        // inputs and no slots, and listing it among them would pad the corpus with rows
+        // nobody can use. But it is the one thing needed before anything else on the page
+        // can be: `label` on `agl-button` is worth nothing without `ButtonModule`. An empty
+        // array is a real answer — `icons` exports standalone components and has none.
+        if (!Array.isArray(module.ngModules)) {
+            problems.push(`${at}: ngModules must be an array`);
+        } else if (!module.ngModules.every(isString)) {
+            problems.push(`${at}: every ngModules entry must be a string`);
+        }
         // `null` is a real answer, not a missing field: a module without `ng-package.json` has
         // no bare entry point, and saying so beats printing one that throws on import.
         if (module.entrypoint !== null && !isString(module.entrypoint)) {

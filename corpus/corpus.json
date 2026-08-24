@@ -1,6 +1,6 @@
 {
     "generator": {
-        "version": "3",
+        "version": "4",
         "sourceHash": "d0d4f27f70fb3f349d8bef7a80a1be97544ea2ae6216ec88404857efaf322a96",
         "closureCount": 64
     },
@@ -9,12 +9,18 @@
             "name": "api",
             "entrypoint": "@anguless/angulux/api",
             "description": "",
+            "ngModules": [
+                "SharedModule"
+            ],
             "declarations": []
         },
         {
             "name": "autofocus",
             "entrypoint": "@anguless/angulux/autofocus",
             "description": "",
+            "ngModules": [
+                "AutoFocusModule"
+            ],
             "declarations": [
                 {
                     "name": "AutoFocus",
@@ -44,6 +50,9 @@
             "name": "avatar",
             "entrypoint": "@anguless/angulux/avatar",
             "description": "",
+            "ngModules": [
+                "AvatarModule"
+            ],
             "declarations": [
                 {
                     "name": "Avatar",
@@ -160,6 +169,9 @@
             "name": "avatargroup",
             "entrypoint": "@anguless/angulux/avatargroup",
             "description": "",
+            "ngModules": [
+                "AvatarGroupModule"
+            ],
             "declarations": [
                 {
                     "name": "AvatarGroup",
@@ -200,6 +212,9 @@
             "name": "badge",
             "entrypoint": "@anguless/angulux/badge",
             "description": "",
+            "ngModules": [
+                "BadgeModule"
+            ],
             "declarations": [
                 {
                     "name": "BadgeDirective",
@@ -405,12 +420,14 @@
             "name": "base",
             "entrypoint": "@anguless/angulux/base",
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "basecomponent",
             "entrypoint": "@anguless/angulux/basecomponent",
             "description": "",
+            "ngModules": [],
             "declarations": [
                 {
                     "name": "BaseComponent",
@@ -473,6 +490,7 @@
             "name": "baseeditableholder",
             "entrypoint": "@anguless/angulux/baseeditableholder",
             "description": "",
+            "ngModules": [],
             "declarations": [
                 {
                     "name": "BaseEditableHolder",
@@ -535,6 +553,7 @@
             "name": "baseinput",
             "entrypoint": "@anguless/angulux/baseinput",
             "description": "",
+            "ngModules": [],
             "declarations": [
                 {
                     "name": "BaseInput",
@@ -663,6 +682,7 @@
             "name": "basemodelholder",
             "entrypoint": "@anguless/angulux/basemodelholder",
             "description": "",
+            "ngModules": [],
             "declarations": [
                 {
                     "name": "BaseModelHolder",
@@ -680,6 +700,9 @@
             "name": "bind",
             "entrypoint": "@anguless/angulux/bind",
             "description": "",
+            "ngModules": [
+                "BindModule"
+            ],
             "declarations": [
                 {
                     "name": "Bind",
@@ -709,6 +732,9 @@
             "name": "button",
             "entrypoint": "@anguless/angulux/button",
             "description": "",
+            "ngModules": [
+                "ButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "ButtonLabel",
@@ -1368,6 +1394,9 @@
             "name": "card",
             "entrypoint": "@anguless/angulux/card",
             "description": "",
+            "ngModules": [
+                "CardModule"
+            ],
             "declarations": [
                 {
                     "name": "Card",
@@ -1461,6 +1490,9 @@
             "name": "chart",
             "entrypoint": "@anguless/angulux/chart",
             "description": "",
+            "ngModules": [
+                "ChartModule"
+            ],
             "declarations": [
                 {
                     "name": "UIChart",
@@ -1588,6 +1620,9 @@
             "name": "checkbox",
             "entrypoint": "@anguless/angulux/checkbox",
             "description": "",
+            "ngModules": [
+                "CheckboxModule"
+            ],
             "declarations": [
                 {
                     "name": "Checkbox",
@@ -1850,6 +1885,9 @@
             "name": "chip",
             "entrypoint": "@anguless/angulux/chip",
             "description": "",
+            "ngModules": [
+                "ChipModule"
+            ],
             "declarations": [
                 {
                     "name": "Chip",
@@ -1993,6 +2031,9 @@
             "name": "colorpicker",
             "entrypoint": "@anguless/angulux/colorpicker",
             "description": "",
+            "ngModules": [
+                "ColorPickerModule"
+            ],
             "declarations": [
                 {
                     "name": "ColorPicker",
@@ -2182,12 +2223,16 @@
             "name": "config",
             "entrypoint": "@anguless/angulux/config",
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "confirmdialog",
             "entrypoint": "@anguless/angulux/confirmdialog",
             "description": "",
+            "ngModules": [
+                "ConfirmDialogModule"
+            ],
             "declarations": [
                 {
                     "name": "ConfirmDialog",
@@ -2633,6 +2678,9 @@
             "name": "datepicker",
             "entrypoint": "@anguless/angulux/datepicker",
             "description": "",
+            "ngModules": [
+                "DatePickerModule"
+            ],
             "declarations": [
                 {
                     "name": "DatePicker",
@@ -3499,6 +3547,9 @@
             "name": "dialog",
             "entrypoint": "@anguless/angulux/dialog",
             "description": "",
+            "ngModules": [
+                "DialogModule"
+            ],
             "declarations": [
                 {
                     "name": "Dialog",
@@ -4141,6 +4192,9 @@
             "name": "divider",
             "entrypoint": "@anguless/angulux/divider",
             "description": "",
+            "ngModules": [
+                "DividerModule"
+            ],
             "declarations": [
                 {
                     "name": "Divider",
@@ -4203,12 +4257,16 @@
             "name": "dom",
             "entrypoint": "@anguless/angulux/dom",
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "drawer",
             "entrypoint": "@anguless/angulux/drawer",
             "description": "",
+            "ngModules": [
+                "DrawerModule"
+            ],
             "declarations": [
                 {
                     "name": "Drawer",
@@ -4506,6 +4564,9 @@
             "name": "fileupload",
             "entrypoint": "@anguless/angulux/fileupload",
             "description": "",
+            "ngModules": [
+                "FileUploadModule"
+            ],
             "declarations": [
                 {
                     "name": "FileContent",
@@ -5173,6 +5234,9 @@
             "name": "fluid",
             "entrypoint": "@anguless/angulux/fluid",
             "description": "",
+            "ngModules": [
+                "FluidModule"
+            ],
             "declarations": [
                 {
                     "name": "Fluid",
@@ -5190,6 +5254,9 @@
             "name": "focustrap",
             "entrypoint": "@anguless/angulux/focustrap",
             "description": "",
+            "ngModules": [
+                "FocusTrapModule"
+            ],
             "declarations": [
                 {
                     "name": "FocusTrap",
@@ -5219,6 +5286,9 @@
             "name": "iconfield",
             "entrypoint": "@anguless/angulux/iconfield",
             "description": "",
+            "ngModules": [
+                "IconFieldModule"
+            ],
             "declarations": [
                 {
                     "name": "IconField",
@@ -5270,6 +5340,7 @@
             "name": "icons",
             "entrypoint": "@anguless/angulux/icons",
             "description": "",
+            "ngModules": [],
             "declarations": [
                 {
                     "name": "AngleDoubleDownIcon",
@@ -5839,6 +5910,9 @@
             "name": "inputicon",
             "entrypoint": "@anguless/angulux/inputicon",
             "description": "",
+            "ngModules": [
+                "InputIconModule"
+            ],
             "declarations": [
                 {
                     "name": "InputIcon",
@@ -5879,6 +5953,9 @@
             "name": "inputnumber",
             "entrypoint": "@anguless/angulux/inputnumber",
             "description": "",
+            "ngModules": [
+                "InputNumberModule"
+            ],
             "declarations": [
                 {
                     "name": "InputNumber",
@@ -6325,6 +6402,9 @@
             "name": "inputtext",
             "entrypoint": "@anguless/angulux/inputtext",
             "description": "",
+            "ngModules": [
+                "InputTextModule"
+            ],
             "declarations": [
                 {
                     "name": "InputText",
@@ -6431,6 +6511,9 @@
             "name": "menu",
             "entrypoint": "@anguless/angulux/menu",
             "description": "",
+            "ngModules": [
+                "MenuModule"
+            ],
             "declarations": [
                 {
                     "name": "MenuItemContent",
@@ -6730,6 +6813,9 @@
             "name": "message",
             "entrypoint": "@anguless/angulux/message",
             "description": "",
+            "ngModules": [
+                "MessageModule"
+            ],
             "declarations": [
                 {
                     "name": "Message",
@@ -6931,6 +7017,9 @@
             "name": "motion",
             "entrypoint": "@anguless/angulux/motion",
             "description": "",
+            "ngModules": [
+                "MotionModule"
+            ],
             "declarations": [
                 {
                     "name": "Motion",
@@ -7502,6 +7591,9 @@
             "name": "multiselect",
             "entrypoint": "@anguless/angulux/multiselect",
             "description": "",
+            "ngModules": [
+                "MultiSelectModule"
+            ],
             "declarations": [
                 {
                     "name": "MultiSelectItem",
@@ -8611,6 +8703,9 @@
             "name": "overlay",
             "entrypoint": "@anguless/angulux/overlay",
             "description": "",
+            "ngModules": [
+                "OverlayModule"
+            ],
             "declarations": [
                 {
                     "name": "Overlay",
@@ -8963,6 +9058,9 @@
             "name": "paginator",
             "entrypoint": "@anguless/angulux/paginator",
             "description": "",
+            "ngModules": [
+                "PaginatorModule"
+            ],
             "declarations": [
                 {
                     "name": "Paginator",
@@ -9253,6 +9351,9 @@
             "name": "password",
             "entrypoint": "@anguless/angulux/password",
             "description": "",
+            "ngModules": [
+                "PasswordModule"
+            ],
             "declarations": [
                 {
                     "name": "PasswordDirective",
@@ -9754,6 +9855,9 @@
             "name": "popover",
             "entrypoint": "@anguless/angulux/popover",
             "description": "",
+            "ngModules": [
+                "PopoverModule"
+            ],
             "declarations": [
                 {
                     "name": "Popover",
@@ -9941,6 +10045,9 @@
             "name": "progressbar",
             "entrypoint": "@anguless/angulux/progressbar",
             "description": "",
+            "ngModules": [
+                "ProgressBarModule"
+            ],
             "declarations": [
                 {
                     "name": "ProgressBar",
@@ -10043,6 +10150,9 @@
             "name": "progressspinner",
             "entrypoint": "@anguless/angulux/progressspinner",
             "description": "",
+            "ngModules": [
+                "ProgressSpinnerModule"
+            ],
             "declarations": [
                 {
                     "name": "ProgressSpinner",
@@ -10116,6 +10226,9 @@
             "name": "radiobutton",
             "entrypoint": "@anguless/angulux/radiobutton",
             "description": "",
+            "ngModules": [
+                "RadioButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "RadioButton",
@@ -10272,6 +10385,9 @@
             "name": "ripple",
             "entrypoint": "@anguless/angulux/ripple",
             "description": "",
+            "ngModules": [
+                "RippleModule"
+            ],
             "declarations": [
                 {
                     "name": "Ripple",
@@ -10289,6 +10405,9 @@
             "name": "scroller",
             "entrypoint": "@anguless/angulux/scroller",
             "description": "",
+            "ngModules": [
+                "ScrollerModule"
+            ],
             "declarations": [
                 {
                     "name": "Scroller",
@@ -10646,6 +10765,9 @@
             "name": "select",
             "entrypoint": "@anguless/angulux/select",
             "description": "",
+            "ngModules": [
+                "SelectModule"
+            ],
             "declarations": [
                 {
                     "name": "SelectItem",
@@ -11581,6 +11703,9 @@
             "name": "selectbutton",
             "entrypoint": "@anguless/angulux/selectbutton",
             "description": "",
+            "ngModules": [
+                "SelectButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "SelectButton",
@@ -11779,6 +11904,9 @@
             "name": "skeleton",
             "entrypoint": "@anguless/angulux/skeleton",
             "description": "",
+            "ngModules": [
+                "SkeletonModule"
+            ],
             "declarations": [
                 {
                     "name": "Skeleton",
@@ -11874,6 +12002,9 @@
             "name": "splitbutton",
             "entrypoint": "@anguless/angulux/splitbutton",
             "description": "",
+            "ngModules": [
+                "SplitButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "SplitButton",
@@ -12272,6 +12403,9 @@
             "name": "table",
             "entrypoint": "@anguless/angulux/table",
             "description": "",
+            "ngModules": [
+                "TableModule"
+            ],
             "declarations": [
                 {
                     "name": "Table",
@@ -14967,6 +15101,9 @@
             "name": "tabs",
             "entrypoint": "@anguless/angulux/tabs",
             "description": "",
+            "ngModules": [
+                "TabsModule"
+            ],
             "declarations": [
                 {
                     "name": "Tab",
@@ -15124,6 +15261,9 @@
             "name": "tag",
             "entrypoint": "@anguless/angulux/tag",
             "description": "",
+            "ngModules": [
+                "TagModule"
+            ],
             "declarations": [
                 {
                     "name": "Tag",
@@ -15204,6 +15344,9 @@
             "name": "textarea",
             "entrypoint": "@anguless/angulux/textarea",
             "description": "",
+            "ngModules": [
+                "TextareaModule"
+            ],
             "declarations": [
                 {
                     "name": "Textarea",
@@ -15309,6 +15452,9 @@
             "name": "tieredmenu",
             "entrypoint": "@anguless/angulux/tieredmenu",
             "description": "",
+            "ngModules": [
+                "TieredMenuModule"
+            ],
             "declarations": [
                 {
                     "name": "TieredMenuSub",
@@ -15790,6 +15936,9 @@
             "name": "timeline",
             "entrypoint": "@anguless/angulux/timeline",
             "description": "",
+            "ngModules": [
+                "TimelineModule"
+            ],
             "declarations": [
                 {
                     "name": "Timeline",
@@ -15871,6 +16020,9 @@
             "name": "toast",
             "entrypoint": "@anguless/angulux/toast",
             "description": "",
+            "ngModules": [
+                "ToastModule"
+            ],
             "declarations": [
                 {
                     "name": "ToastItem",
@@ -16226,6 +16378,9 @@
             "name": "togglebutton",
             "entrypoint": "@anguless/angulux/togglebutton",
             "description": "",
+            "ngModules": [
+                "ToggleButtonModule"
+            ],
             "declarations": [
                 {
                     "name": "ToggleButton",
@@ -16421,6 +16576,9 @@
             "name": "toggleswitch",
             "entrypoint": "@anguless/angulux/toggleswitch",
             "description": "",
+            "ngModules": [
+                "ToggleSwitchModule"
+            ],
             "declarations": [
                 {
                     "name": "ToggleSwitch",
@@ -16566,6 +16724,9 @@
             "name": "tooltip",
             "entrypoint": "@anguless/angulux/tooltip",
             "description": "",
+            "ngModules": [
+                "TooltipModule"
+            ],
             "declarations": [
                 {
                     "name": "Tooltip",
@@ -16826,6 +16987,9 @@
             "name": "treetable",
             "entrypoint": "@anguless/angulux/treetable",
             "description": "",
+            "ngModules": [
+                "TreeTableModule"
+            ],
             "declarations": [
                 {
                     "name": "TreeTable",
@@ -18350,24 +18514,28 @@
             "name": "ts-helpers",
             "entrypoint": "@anguless/angulux/ts-helpers",
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "types",
             "entrypoint": null,
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "usestyle",
             "entrypoint": "@anguless/angulux/usestyle",
             "description": "",
+            "ngModules": [],
             "declarations": []
         },
         {
             "name": "utils",
             "entrypoint": "@anguless/angulux/utils",
             "description": "",
+            "ngModules": [],
             "declarations": []
         }
     ]
