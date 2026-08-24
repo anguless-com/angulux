@@ -41,7 +41,7 @@ UI and wire-format changes need the browser gate — type-checking and unit test
 structurally cannot see render and serialization bugs.
 -->
 
-- [ ] `npm run check` — 13/13 gates green
+- [ ] `npm run check` — 14/14 gates green
 - [ ] `corepack pnpm --filter angulux run test:unit` — spec suite green
 - [ ] `npx playwright test --config e2e/playwright.config.ts` — browser gate green
       *(required for any change to rendering, DOM output, or public wire format)*
