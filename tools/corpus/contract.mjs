@@ -31,7 +31,13 @@ const isString = (v) => typeof v === 'string';
 const isBool = (v) => typeof v === 'boolean';
 
 function checkInput(input, where, problems, { isOutput = false } = {}) {
-    for (const field of ['name', 'type', 'description']) {
+    // `name` is what a CALLER writes and `field` is what the class calls it. They differ for
+    // 58 members here — `@Input('aglAutoFocus') autofocus` and `input(…, { alias: 'aglSize' })`
+    // — and recording only the property name described an API a template cannot use: binding
+    // to an unknown attribute is silent, so nothing would have reported it. Both are required
+    // for the same reason slots require both: the module's JSDoc and its specs speak in field
+    // names, so an answer naming only one of the two cannot be checked against the source.
+    for (const field of ['name', 'field', 'type', 'description']) {
         if (!isString(input[field])) problems.push(`${where}: ${field} must be a string`);
     }
     if (input.group !== null && !isString(input.group)) {
@@ -110,6 +116,14 @@ export function validateCorpus(corpus) {
                 problems.push(`${dAt}: kind must be one of ${[...DECLARATION_KINDS].join(', ')}`);
             }
             if (!isString(declaration.selector)) problems.push(`${dAt}: selector must be a string`);
+            // Angular inherits inputs, and this library leans on that: `BaseInput` alone
+            // publishes ten, so `min` and `max` are real on `agl-inputNumber` while appearing
+            // nowhere in its own entry. Naming the parent is enough — the bases are
+            // `@Directive`s with entries of their own, so a renderer resolves it against this
+            // same corpus. `null` is a real answer for a class that extends nothing.
+            if (declaration.extends !== null && !isString(declaration.extends)) {
+                problems.push(`${dAt}: extends must be the base class name, or null`);
+            }
 
             for (const [key, isOutput] of [
                 ['inputs', false],

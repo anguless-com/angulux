@@ -14,9 +14,11 @@
                     "name": "Button",
                     "kind": "component",
                     "selector": "agl-button",
+                    "extends": "BaseComponent",
                     "inputs": [
                         {
                             "name": "size",
+                            "field": "size",
                             "type": "'small' | 'large' | undefined",
                             "description": "Defines the size of the button.",
                             "group": "Props",
@@ -27,6 +29,7 @@
                         },
                         {
                             "name": "iconPos",
+                            "field": "iconPos",
                             "type": "ButtonIconPosition",
                             "description": "Position of the icon.",
                             "group": "Props",
@@ -39,6 +42,7 @@
                     "outputs": [
                         {
                             "name": "onClick",
+                            "field": "onClick",
                             "type": "EventEmitter<MouseEvent>",
                             "description": "Callback to execute when button is clicked.\nThis event is intended to be used with the <agl-button> component. Using a regular <button> element, use (click).",
                             "group": "Emits",
@@ -64,9 +68,11 @@
                     "name": "ButtonDirective",
                     "kind": "directive",
                     "selector": "[aglButton]",
+                    "extends": "BaseComponent",
                     "inputs": [
                         {
                             "name": "label",
+                            "field": "label",
                             "type": "string | undefined",
                             "description": "Text of the button.",
                             "group": "Props",

@@ -123,8 +123,21 @@ const cell = (value) =>
         .replace(/\|/g, '\\|')
         .replace(/\n/g, ' ');
 
-function renderDeclaration(declaration) {
+function renderDeclaration(declaration, moduleOf = () => null) {
     const lines = [`## ${declaration.name}`, '', `\`${declaration.selector}\` — ${declaration.kind}`, ''];
+
+    // Angular inherits inputs, and this library leans on that hard: `BaseInput` alone
+    // publishes ten, so `min` and `max` are real on `agl-inputNumber` and appear nowhere in
+    // the table below. A reader not told to follow the parent concludes the input does not
+    // exist — and the parent is a `@Directive` with a page of its own, so saying where to
+    // look costs one line and copying the members down would cost `BaseComponent` duplicated
+    // into all 93 of its subclasses.
+    if (declaration.extends) {
+        const home = moduleOf(declaration.extends);
+        const where = home ? ` — see [${home}.md](${home}.md)` : '';
+
+        lines.push(`Inherits every input, output and slot of \`${declaration.extends}\`${where}.`, '');
+    }
 
     if (declaration.description) lines.push(declaration.description, '');
 
@@ -137,7 +150,12 @@ function renderDeclaration(declaration) {
                     // when the truth is "nobody wrote one down".
                     const dflt = input.defaultDeclared ? `\`${cell(input.default)}\`` : '_not documented_';
                     const note = input.deprecated ? ` **Deprecated:** ${cell(input.deprecated)}` : '';
-                    return `| \`${cell(input.name)}\` | \`${cell(input.type)}\` | ${dflt} | ${cell(input.description)}${note} |`;
+                    // The property name, and only when it differs from the published one.
+                    // Binding to the property instead silently does nothing — an unknown
+                    // attribute is not an error — so the distinction has to be visible.
+                    const alias = input.field !== input.name ? ` _(property \`${cell(input.field)}\`)_` : '';
+
+                    return `| \`${cell(input.name)}\` | \`${cell(input.type)}\` | ${dflt} | ${cell(input.description)}${alias}${note} |`;
                 }),
                 ['Input', 'Type', 'Default', 'Description']
             ),
@@ -149,7 +167,11 @@ function renderDeclaration(declaration) {
         lines.push(
             ...table(
                 declaration.outputs.map(
-                    (output) => `| \`${cell(output.name)}\` | \`${cell(output.type)}\` | ${cell(output.description)} |`
+                    (output) => {
+                        const alias = output.field !== output.name ? ` _(property \`${cell(output.field)}\`)_` : '';
+
+                        return `| \`${cell(output.name)}\` | \`${cell(output.type)}\` | ${cell(output.description)}${alias} |`;
+                    }
                 ),
                 ['Output', 'Type', 'Description']
             ),
@@ -179,7 +201,23 @@ function renderDeclaration(declaration) {
 }
 
 /** One module's page. Also the body reused verbatim inside llms-full.txt. */
-export function renderModulePage(module) {
+/**
+ * Which module declares a given class — the lookup `extends` is resolved through.
+ *
+ * Built from the corpus rather than assumed, because the base classes do not live where a
+ * reader would guess: `BaseInput` is its own module, not part of `base`.
+ */
+export function declarationIndex(corpus) {
+    const home = new Map();
+
+    for (const module of corpus.modules) {
+        for (const declaration of module.declarations) home.set(declaration.name, module.name);
+    }
+
+    return (name) => home.get(name) ?? null;
+}
+
+export function renderModulePage(module, moduleOf = () => null) {
     // No entry point means there is nothing importable to show. Printing the template anyway
     // is how `@anguless/angulux/types` came to be advertised on a page while throwing
     // ERR_PACKAGE_PATH_NOT_EXPORTED in any real install — a copyable code block is the most
@@ -205,7 +243,7 @@ export function renderModulePage(module) {
         return lines.join('\n');
     }
 
-    for (const declaration of module.declarations) lines.push(...renderDeclaration(declaration));
+    for (const declaration of module.declarations) lines.push(...renderDeclaration(declaration, moduleOf));
     return lines.join('\n');
 }
 
@@ -214,7 +252,9 @@ export function renderModulePage(module) {
  * one request than sixty-five.
  */
 export function renderLlmsFullTxt(corpus) {
-    return ['# Angulux — full API', '', `> ${summaryOf(corpus)}`, '', ...corpus.modules.map((m) => renderModulePage(m))]
+    const moduleOf = declarationIndex(corpus);
+
+    return ['# Angulux — full API', '', `> ${summaryOf(corpus)}`, '', ...corpus.modules.map((m) => renderModulePage(m, moduleOf))]
         .join('\n')
         .replace(/\r\n/g, '\n');
 }
@@ -577,7 +617,9 @@ export function renderSite(corpus) {
     const files = new Map();
     files.set('llms.txt', renderLlmsTxt(corpus));
     files.set('llms-full.txt', renderLlmsFullTxt(corpus));
-    for (const module of corpus.modules) files.set(`${module.name}.md`, renderModulePage(module));
+    const moduleOf = declarationIndex(corpus);
+
+    for (const module of corpus.modules) files.set(`${module.name}.md`, renderModulePage(module, moduleOf));
 
     const landing = renderIndexHtml(corpus);
     files.set('index.html', landing);

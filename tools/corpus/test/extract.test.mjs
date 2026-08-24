@@ -150,3 +150,54 @@ test('a slot carries the name a caller writes, which is not the field name', () 
     assert.equal(slot.description, 'Custom loading icon template.');
     assert.equal(slot.deprecated, null);
 });
+
+/**
+ * Added with corpus format 3. Both facts below were absent, and both made the published API
+ * reference describe something a template cannot do — silently, because binding to a name
+ * Angular does not know is not an error.
+ */
+
+const AUTOFOCUS = resolve(repoRoot, 'packages/angulux/src/autofocus/autofocus.ts');
+const PASSWORD = resolve(repoRoot, 'packages/angulux/src/password/password.ts');
+
+test('an input published under an alias reports the name a caller writes', () => {
+    // `@Input('aglAutoFocus') autofocus` — the decorator-string form, 34 of them in src.
+    // A reader told to write `autofocus` binds nothing and gets no error to explain it.
+    const [directive] = extractFile(AUTOFOCUS);
+    const [input] = directive.inputs;
+
+    assert.equal(input.name, 'aglAutoFocus', 'name is what goes in the template');
+    assert.equal(input.field, 'autofocus', 'field is what the class calls it');
+});
+
+test('the alias is found in the options object too, not only the decorator', () => {
+    // `size = input(undefined, { alias: 'aglSize' })` — the signal form, 26 of them in src.
+    // Same defect, different syntax; a matcher that knew only one form would have left half
+    // the aliases wrong while looking like it worked.
+    const directive = extractFile(PASSWORD).find((d) => d.name === 'PasswordDirective');
+    const size = directive.inputs.find((i) => i.field === 'size');
+
+    assert.equal(size.name, 'aglSize');
+});
+
+test('a member with no alias has field equal to name, never a missing key', () => {
+    // The contract requires both on every member. An absent `field` would be a second way to
+    // say "no alias", and the renderers would each have to guess which one they were reading.
+    for (const declaration of extractFile(BUTTON)) {
+        for (const member of [...declaration.inputs, ...declaration.outputs]) {
+            assert.equal(typeof member.field, 'string', `${declaration.name}.${member.name} has no field`);
+        }
+    }
+
+    const label = find('Button').inputs.find((i) => i.name === 'label');
+
+    assert.equal(label.field, 'label');
+});
+
+test('the base class is recorded without its type arguments', () => {
+    // `class Button extends BaseComponent<ButtonPassThrough>` resolves to `BaseComponent`,
+    // because that is the name the corpus indexes declarations under. Keeping the generic
+    // would make the lookup miss and the page silently drop ten inherited inputs.
+    assert.equal(find('Button').extends, 'BaseComponent');
+    assert.equal(extractFile(AUTOFOCUS)[0].extends, 'BaseComponent');
+});
