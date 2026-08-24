@@ -118,7 +118,7 @@ export function buildCorpus() {
 
     return {
         // 1 -> 2: declarations gained `slots`. See the header for why the hash cannot say this.
-        generator: { version: '2', sourceHash: sourceHashOf(files), closureCount: closure.length },
+        generator: { version: '3', sourceHash: sourceHashOf(files), closureCount: closure.length },
         modules
     };
 }

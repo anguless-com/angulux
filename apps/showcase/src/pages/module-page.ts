@@ -1,7 +1,7 @@
 import { NgComponentOutlet } from '@angular/common';
 import { Component, effect, input, signal, Type } from '@angular/core';
-import { ApiModule, Demo, loadApiModule, loadDemos } from '../data';
-import { ApiTable } from '../components/api-table';
+import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
+import { ApiGroup, ApiTable } from '../components/api-table';
 import { DemoCode } from '../components/demo-code';
 import { DEMO_SECTIONS, DemoSection } from '../doc/registry';
 
@@ -54,7 +54,7 @@ interface LoadedSection {
 
             <h2 class="section-title">API</h2>
             <p class="section-text">Generated from the committed corpus, which <code>check:corpus</code> holds to the built library.</p>
-            <agl-api-table [declarations]="api.declarations" />
+            <agl-api-table [groups]="groups()" />
         }
     `
 })
@@ -66,6 +66,9 @@ export class ModulePage {
     readonly sections = signal<LoadedSection[]>([]);
 
     readonly notFound = signal(false);
+
+    /** The module's own declarations, each followed by the ancestors it inherits from. */
+    readonly groups = signal<ApiGroup[]>([]);
 
     constructor() {
         effect(() => {
@@ -90,6 +93,7 @@ export class ModulePage {
             }
 
             this.api.set(api);
+            this.groups.set(await this.resolveInheritance(api));
         } catch {
             if (this.module() === name) {
                 this.notFound.set(true);
@@ -112,5 +116,53 @@ export class ModulePage {
         }
 
         this.sections.set(defined.map((section, index) => ({ section, component: components[index], demo: demos[section.id] })));
+    }
+
+    /**
+     * Walk each declaration's `extends` chain and pull in what it publishes.
+     *
+     * The chain is followed rather than flattened into the corpus on purpose: `BaseComponent`
+     * has 93 subclasses, and copying its members into every one would triple the payload and
+     * lose the one fact a reader wants, which is where a member came from.
+     *
+     * A base with nothing to publish is skipped — `BaseModelHolder` declares no inputs, and a
+     * heading over three empty tables tells a reader nothing except that the page is padded.
+     */
+    private async resolveInheritance(api: ApiModule): Promise<ApiGroup[]> {
+        const index = await loadApiIndex();
+        const home = new Map<string, string>();
+
+        for (const entry of index) {
+            for (const declared of entry.declares ?? []) home.set(declared, entry.name);
+        }
+
+        const groups: ApiGroup[] = [];
+
+        for (const declaration of api.declarations) {
+            groups.push({ declaration, inherited: false });
+
+            const seen = new Set<string>([declaration.name]);
+            let parent = declaration.extends;
+
+            while (parent && !seen.has(parent)) {
+                seen.add(parent);
+
+                const module = home.get(parent);
+
+                if (!module) break;
+
+                const ancestor = (await loadApiModule(module)).declarations.find((d) => d.name === parent);
+
+                if (!ancestor) break;
+
+                if (ancestor.inputs.length || ancestor.outputs.length || ancestor.slots.length) {
+                    groups.push({ declaration: ancestor, inherited: true });
+                }
+
+                parent = ancestor.extends;
+            }
+        }
+
+        return groups;
     }
 }

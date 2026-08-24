@@ -26,11 +26,17 @@ mkdirSync(OUT, { recursive: true });
 // The index carries just enough for navigation and for the home page to describe a module
 // without fetching it. `declarationCount` is what lets the nav show which modules are
 // substantial without loading 64 files.
+//
+// `declares` is the lookup that makes inheritance resolvable in the browser. A declaration
+// records the NAME of its base class, and the base classes do not live where a reader would
+// guess — `BaseInput` is its own module, not part of `base` — so the page needs a map from
+// class name to the file that holds it before it can follow the chain.
 const index = corpus.modules.map((module) => ({
     name: module.name,
     entrypoint: module.entrypoint,
     description: module.description ?? '',
-    declarationCount: module.declarations.length
+    declarationCount: module.declarations.length,
+    declares: module.declarations.map((declaration) => declaration.name)
 }));
 
 writeFileSync(resolve(OUT, 'index.json'), JSON.stringify(index));

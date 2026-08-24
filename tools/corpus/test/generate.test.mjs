@@ -59,7 +59,10 @@ test('a record shape change must bump the format version — the hash cannot say
     // key comparison; bumping without registering the new shape fails on the lookup. Neither
     // can pass quietly, which is the only reason this is a test rather than a convention.
     const SHAPES = {
-        2: ['name', 'kind', 'selector', 'description', 'inputs', 'outputs', 'slots']
+        2: ['name', 'kind', 'selector', 'description', 'inputs', 'outputs', 'slots'],
+        // 3 adds `extends`. Angular inherits inputs, and `BaseInput` alone publishes ten of
+        // them, so `min` and `max` were real on `agl-inputNumber` and absent from the corpus.
+        3: ['name', 'kind', 'selector', 'extends', 'description', 'inputs', 'outputs', 'slots']
     };
 
     const corpus = buildCorpus();

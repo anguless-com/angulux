@@ -116,6 +116,61 @@ function signalCall(node, names) {
     return node.initializer;
 }
 
+/**
+ * The name a CALLER writes, when it differs from the name the class uses.
+ *
+ * Angular lets a member be published under a different name, and 60 of them here are:
+ *   `@Input('aglAutoFocus') autofocus`   and   `size = input(…, { alias: 'aglSize' })`
+ *
+ * Recording the property name alone made the corpus describe an API nobody can use — a
+ * template that writes `autofocus` binds nothing, silently, because an unknown attribute on
+ * a element is not an error. Both names are kept, for the same reason slots keep both: the
+ * module's own JSDoc and its specs speak in field names, so an answer naming only one of the
+ * two cannot be checked against the source.
+ */
+function aliasOf(node, wanted, call, sourceFile) {
+    const decorator = decoratorsOf(node).find((d) => decoratorName(d) === wanted);
+    const decoratorArg = decorator && ts.isCallExpression(decorator.expression) ? decorator.expression.arguments[0] : undefined;
+
+    if (decoratorArg && ts.isStringLiteralLike(decoratorArg)) return decoratorArg.text;
+
+    // Both `@Input({ alias: 'x' })` and `input(default, { alias: 'x' })` put it in an options
+    // object; the only difference is which argument that object is.
+    for (const candidate of [decoratorArg, call?.arguments?.[1], call?.arguments?.[0]]) {
+        if (!candidate || !ts.isObjectLiteralExpression(candidate)) continue;
+
+        for (const property of candidate.properties) {
+            if (!ts.isPropertyAssignment(property)) continue;
+            if (property.name.getText(sourceFile) !== 'alias') continue;
+            if (ts.isStringLiteralLike(property.initializer)) return property.initializer.text;
+        }
+    }
+
+    return null;
+}
+
+/** `{ name, field }` — `field` present only when the two differ, as with slots. */
+function published(propertyName, alias) {
+    return alias && alias !== propertyName ? { name: alias, field: propertyName } : { name: propertyName, field: propertyName };
+}
+
+/**
+ * The class this one extends, without its type arguments.
+ *
+ * Angular inputs are inherited, and this library leans on that hard: `BaseInput` alone
+ * publishes ten of them, so `min` and `max` are real on `agl-inputNumber` and appeared
+ * nowhere in the corpus. The bases are `@Directive`s and already have their own entries, so
+ * naming the parent is enough — a renderer can resolve it against the same corpus. Copying
+ * the members down instead would duplicate `BaseComponent` into all 91 of its subclasses and
+ * lose the one fact a reader wants, which is where the member came from.
+ */
+function extendsOf(node, sourceFile) {
+    const clause = node.heritageClauses?.find((h) => h.token === ts.SyntaxKind.ExtendsKeyword);
+    const type = clause?.types?.[0]?.expression;
+
+    return type && ts.isIdentifier(type) ? type.text : null;
+}
+
 function typeTextOf(node, sourceFile, call) {
     if (node.type) return node.type.getText(sourceFile);
     if (call?.typeArguments?.length) return call.typeArguments[0].getText(sourceFile);
@@ -158,12 +213,12 @@ export function extractFile(filePath) {
             const doc = docFor(member, text);
 
             if (hasDecorator(member, 'Input')) {
-                inputs.push({ name, type: typeTextOf(member, sourceFile), ...doc, signal: false });
+                inputs.push({ ...published(name, aliasOf(member, 'Input', null, sourceFile)), type: typeTextOf(member, sourceFile), ...doc, signal: false });
                 continue;
             }
             if (hasDecorator(member, 'Output')) {
                 const { description, group, deprecated } = doc;
-                outputs.push({ name, type: typeTextOf(member, sourceFile), description, group, deprecated, signal: false });
+                outputs.push({ ...published(name, aliasOf(member, 'Output', null, sourceFile)), type: typeTextOf(member, sourceFile), description, group, deprecated, signal: false });
                 continue;
             }
 
@@ -192,7 +247,7 @@ export function extractFile(filePath) {
 
             const inputCall = signalCall(member, ['input']);
             if (inputCall) {
-                inputs.push({ name, type: typeTextOf(member, sourceFile, inputCall), ...doc, signal: true });
+                inputs.push({ ...published(name, aliasOf(member, 'Input', inputCall, sourceFile)), type: typeTextOf(member, sourceFile, inputCall), ...doc, signal: true });
                 continue;
             }
 
@@ -200,7 +255,7 @@ export function extractFile(filePath) {
             if (outputCall) {
                 const { description, group, deprecated } = doc;
                 outputs.push({
-                    name,
+                    ...published(name, aliasOf(member, 'Output', outputCall, sourceFile)),
                     type: typeTextOf(member, sourceFile, outputCall),
                     description,
                     group,
@@ -214,6 +269,7 @@ export function extractFile(filePath) {
             name: statement.name.text,
             kind: DECLARATION_KIND[decoratorName(decorator)],
             selector: selectorOf(decorator, sourceFile),
+            extends: extendsOf(statement, sourceFile),
             description: docFor(statement, text).description,
             inputs,
             outputs,

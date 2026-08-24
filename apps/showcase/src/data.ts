@@ -5,7 +5,10 @@
  */
 
 export interface ApiMember {
+    /** What a caller writes in a template. */
     name: string;
+    /** What the class calls it — the same as `name` unless the member is published under an alias. */
+    field: string;
     type: string;
     description: string;
     group: string;
@@ -23,6 +26,8 @@ export interface ApiDeclaration {
     name: string;
     kind: string;
     selector: string;
+    /** The base class whose inputs, outputs and slots this one also has. */
+    extends: string | null;
     description: string;
     inputs: ApiMember[];
     outputs: ApiMember[];
@@ -41,6 +46,8 @@ export interface ApiIndexEntry {
     entrypoint: string;
     description: string;
     declarationCount: number;
+    /** The classes this module declares — the lookup an `extends` name is resolved through. */
+    declares: string[];
 }
 
 export interface Demo {

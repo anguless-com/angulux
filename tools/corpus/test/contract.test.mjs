@@ -118,10 +118,24 @@ test('ANCHOR: every fact in the fixture is really in button.ts, in the RIGHT cla
             `${declaration.name}'s nearest preceding selector is not ${declaration.selector}`
         );
 
+        // The base class, read from the `extends` clause rather than trusted. Without this the
+        // fixture could name any parent and the validator would be satisfied — and `extends`
+        // is the field a renderer follows to find the ten inputs `BaseInput` publishes, so a
+        // wrong one sends a reader to the wrong page rather than to none.
+        assert.match(
+            source,
+            new RegExp(`export class ${declaration.name}(?:<[^>]*>)?\\s+extends\\s+${declaration.extends}\\b`),
+            `${declaration.name} does not extend ${declaration.extends} in the source`
+        );
+
         for (const input of declaration.inputs) {
+            // `field` is the property the class declares; `name` is what a caller writes.
+            // Checking `field` is what keeps the pair honest — with only `name` checked, an
+            // alias could credit any property with it, and a template binding to the wrong
+            // one fails silently, which is the whole defect the pair was added for.
             assert.ok(
-                body.includes(`${input.name}:`) || body.includes(`get ${input.name}(`),
-                `${declaration.name}.${input.name} is not declared inside ${declaration.name}`
+                body.includes(`${input.field}:`) || body.includes(`get ${input.field}(`),
+                `${declaration.name}.${input.field} is not declared inside ${declaration.name}`
             );
             assert.ok(
                 body.includes(input.description.split('\n')[0]),
@@ -137,7 +151,7 @@ test('ANCHOR: every fact in the fixture is really in button.ts, in the RIGHT cla
 
         for (const output of declaration.outputs) {
             assert.ok(
-                body.includes(`@Output() ${output.name}`),
+                body.includes(`@Output() ${output.field}`),
                 `${declaration.name}.${output.name} is not declared inside ${declaration.name}`
             );
         }

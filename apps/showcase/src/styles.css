@@ -331,6 +331,14 @@ td.mono {
     font-size: 0.75rem;
 }
 
+/* The property name behind an alias. Quieter than the published name on purpose: it is the
+   one a reader must NOT write in a template. */
+.aliased {
+    color: var(--text-soft);
+    font-size: 0.72rem;
+    font-family: ui-monospace, monospace;
+}
+
 @media (max-width: 900px) {
     .shell {
         grid-template-columns: 1fr;

@@ -1,29 +1,52 @@
 import { Component, input } from '@angular/core';
 import { ApiDeclaration } from '../data';
 
+/** A declaration to render, and the class it was inherited from when it is not the module's own. */
+export interface ApiGroup {
+    declaration: ApiDeclaration;
+    inherited: boolean;
+}
+
 /**
  * The API reference, straight from the corpus. `check:corpus` already proves the corpus
  * matches the library, so this table inherits that guarantee instead of making its own claim.
+ *
+ * Two things it goes out of its way to show, because both were once missing and both left the
+ * page describing an API that does not work:
+ *
+ *   • The name a caller WRITES, with the property name noted when the two differ. Binding to
+ *     the property instead does nothing at all, and does it silently — an unknown attribute
+ *     is not an error — so listing one of the pair sends a reader somewhere with no feedback.
+ *   • Inherited members. `BaseInput` alone publishes ten inputs, so `min` and `max` are real
+ *     on `agl-inputNumber` while appearing nowhere in its own tables. A reader who is not
+ *     shown them concludes they do not exist.
  */
 @Component({
     selector: 'agl-api-table',
     standalone: true,
     template: `
-        @for (declaration of declarations(); track declaration.name) {
+        @for (group of groups(); track group.declaration.name) {
             <div class="decl">
-                <div class="decl-head">
-                    <span class="decl-name">{{ declaration.name }}</span>
-                    <span class="kind">{{ declaration.kind }}</span>
-                    @if (declaration.selector) {
-                        <span class="selector">{{ declaration.selector }}</span>
-                    }
-                </div>
+                @if (group.inherited) {
+                    <div class="decl-head">
+                        <span class="decl-name">Inherited from {{ group.declaration.name }}</span>
+                        <span class="kind">inherited</span>
+                    </div>
+                } @else {
+                    <div class="decl-head">
+                        <span class="decl-name">{{ group.declaration.name }}</span>
+                        <span class="kind">{{ group.declaration.kind }}</span>
+                        @if (group.declaration.selector) {
+                            <span class="selector">{{ group.declaration.selector }}</span>
+                        }
+                    </div>
 
-                @if (declaration.description) {
-                    <p class="section-text">{{ declaration.description }}</p>
+                    @if (group.declaration.description) {
+                        <p class="section-text">{{ group.declaration.description }}</p>
+                    }
                 }
 
-                @if (declaration.inputs.length) {
+                @if (group.declaration.inputs.length) {
                     <div class="table-wrap">
                         <table class="t-inputs">
                             <colgroup>
@@ -41,10 +64,13 @@ import { ApiDeclaration } from '../data';
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (member of declaration.inputs; track member.name) {
+                                @for (member of group.declaration.inputs; track member.name) {
                                     <tr>
                                         <td class="mono">
                                             {{ member.name }}
+                                            @if (member.field !== member.name) {
+                                                <div class="aliased">property {{ member.field }}</div>
+                                            }
                                             @if (member.deprecated) {
                                                 <div class="deprecated">deprecated — {{ member.deprecated }}</div>
                                             }
@@ -59,7 +85,7 @@ import { ApiDeclaration } from '../data';
                     </div>
                 }
 
-                @if (declaration.outputs.length) {
+                @if (group.declaration.outputs.length) {
                     <div class="table-wrap">
                         <table class="t-outputs">
                             <colgroup>
@@ -75,9 +101,14 @@ import { ApiDeclaration } from '../data';
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (member of declaration.outputs; track member.name) {
+                                @for (member of group.declaration.outputs; track member.name) {
                                     <tr>
-                                        <td class="mono">{{ member.name }}</td>
+                                        <td class="mono">
+                                            {{ member.name }}
+                                            @if (member.field !== member.name) {
+                                                <div class="aliased">property {{ member.field }}</div>
+                                            }
+                                        </td>
                                         <td class="mono">{{ member.type }}</td>
                                         <td>{{ member.description }}</td>
                                     </tr>
@@ -87,7 +118,7 @@ import { ApiDeclaration } from '../data';
                     </div>
                 }
 
-                @if (declaration.slots.length) {
+                @if (group.declaration.slots.length) {
                     <div class="table-wrap">
                         <table class="t-slots">
                             <colgroup>
@@ -101,9 +132,9 @@ import { ApiDeclaration } from '../data';
                                 </tr>
                             </thead>
                             <tbody>
-                                @for (slot of declaration.slots; track slot.name) {
+                                @for (slot of group.declaration.slots; track slot.name) {
                                     <tr>
-                                        <td class="mono">{{ slot.name }}</td>
+                                        <td class="mono">&lt;ng-template #{{ slot.name }}&gt;</td>
                                         <td>{{ slot.description }}</td>
                                     </tr>
                                 }
@@ -116,5 +147,10 @@ import { ApiDeclaration } from '../data';
     `
 })
 export class ApiTable {
-    readonly declarations = input.required<ApiDeclaration[]>();
+    /**
+     * Each of the module's own declarations, each followed by its inherited ancestors. The
+     * page resolves the chain rather than this component, because only the page can fetch
+     * another module's payload.
+     */
+    readonly groups = input.required<ApiGroup[]>();
 }
