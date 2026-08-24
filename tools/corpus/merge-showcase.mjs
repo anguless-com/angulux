@@ -81,12 +81,24 @@ if (collisions.length) {
     process.exit(1);
 }
 
-cpSync(FROM, OUT, { recursive: true });
+// `errorOnExist` is what makes the refusal real. The pre-flight above exists to print the
+// COMPLETE list in one go, which a throw cannot do — but a check taken a moment before the
+// write is a decision about a state that may have changed since. The filesystem gets the
+// final say, and `index.html` is excluded because it is the one file meant to be replaced.
+cpSync(FROM, OUT, {
+    recursive: true,
+    force: false,
+    errorOnExist: true,
+    filter: (src) => relative(FROM, src).replace(/\\/g, '/') !== TAKEOVER
+});
+
+const shell = readFileSync(join(FROM, TAKEOVER));
+
+// The one deliberate overwrite in this script.
+writeFileSync(join(OUT, TAKEOVER), shell);
 
 // GitHub Pages serves this for any path with no file. It is the app shell, so an unknown
 // route lands in the router rather than on GitHub's 404.
-const shell = readFileSync(join(FROM, TAKEOVER));
-
 writeFileSync(join(OUT, '404.html'), shell);
 
 const corpus = JSON.parse(readFileSync(join(repoRoot, 'corpus/corpus.json'), 'utf8'));
@@ -96,14 +108,21 @@ for (const { name } of corpus.modules) {
     const dir = join(OUT, name);
     const target = join(dir, 'index.html');
 
+    mkdirSync(dir, { recursive: true });
+
+    // `wx` rather than a preceding existsSync: the check and the write are then one syscall,
+    // and the refusal comes from the filesystem instead of from a decision taken a moment
+    // earlier about a state that may since have changed.
     // `<module>.md` is a file and `<module>/` a directory: they coexist, and both are meant to.
-    if (existsSync(target)) {
+    try {
+        writeFileSync(target, shell, { flag: 'wx' });
+    } catch (error) {
+        if (error.code !== 'EEXIST') throw error;
+
         console.error(`✗ merge-showcase: ${name}/index.html already exists — a module name has collided with a rendered page`);
         process.exit(1);
     }
 
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(target, shell);
     routes++;
 }
 

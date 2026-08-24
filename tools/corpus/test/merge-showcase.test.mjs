@@ -84,6 +84,18 @@ test('every module gets a directory index, so the 64 real pages answer 200', () 
     rmSync(f.root, { recursive: true, force: true });
 });
 
+test('running it twice fails rather than quietly rewriting a published tree', () => {
+    // Not a nicety. `build-site.mjs` wipes `site/` before rendering, so a second merge means
+    // the pipeline was not run from the start — and the useful answer to that is a refusal,
+    // not a second copy over the top of the first.
+    const f = fixture();
+
+    assert.equal(f.run().status, 0);
+    assert.equal(f.run().status, 1, 'a merge onto an already-merged site is a mistake, and says so');
+
+    rmSync(f.root, { recursive: true, force: true });
+});
+
 test('it refuses to run against things that are not what it says they are', () => {
     const missingBuild = fixture();
 

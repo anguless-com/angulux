@@ -233,7 +233,10 @@ for (const [scope, dir] of [
         // `pFoo = input()`, not `@Input() pFoo`. Counted in src/ on 2026-08-03: decorator
         // form 0, signal form 16 — so the gate's most important detector was watching a
         // syntax the codebase had almost stopped using, and 16 branded inputs shipped.
-        for (const m of original.matchAll(/\b(p[A-Z][a-zA-Z0-9]*)\s*=\s*(?:input|output|model)\b/g)) {
+        // SIGNAL_PROP_RE rather than a copy of it: `check-names.test.mjs` asserts the debt
+        // list against that same constant, and two spellings of one rule is how the list and
+        // the gate would come to disagree about what a branded input is.
+        for (const m of original.matchAll(SIGNAL_PROP_RE)) {
             record(file, original, m.index, 'public-prop-signal', m[1], false);
         }
 
