@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Fourteen gates run on every commit and every pull request. They do not check style — each one
+Fifteen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -88,10 +88,11 @@ closes a class of failure that has already happened in this repository.
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
 | `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
+| `check:peer-licence` | angulux's own manifest telling a **consumer's** package manager to install a commercially-licensed PrimeTek package — `check:license` proves the tree installed *here* is clean, which is a different question from what the published version ranges admit |
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all fourteen, no build needed
+npm run check     # all fifteen, no build needed
 ```
 
 Two further checks run after the build rather than inside that suite, because neither has
@@ -122,7 +123,7 @@ type-check cannot see a render bug.
 Current evidence, reproducible from a clean checkout:
 
 ```
-14/14 gates          exit 0
+15/15 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
 browser gate         13/13 passed
@@ -183,7 +184,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 14 gates
+npm run check                                   # the 15 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do

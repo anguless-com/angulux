@@ -26,6 +26,25 @@ import { DEMO_SECTIONS } from '../doc/registry';
             <pre><code>pnpm add &#64;anguless/angulux &#64;primeuix/themes</code></pre>
         </div>
 
+        <h2 class="section-title">Why there are two packages</h2>
+        <!-- prime-names:attribution — nominative use, the same grant NOTICE relies on: naming a
+             third party in order to state factually where a dependency comes from and where its
+             MIT line ends. A reader deciding whether to adopt this library is owed that in the
+             place they are reading, not only in the repository. check:names allows brand PROSE
+             inside this region and nothing else. -->
+        <p class="section-text">
+            angulux ships no theme presets of its own, so the preset comes from
+            <code>&#64;primeuix/themes</code> — PrimeTek's package, not ours. It is MIT through <code>2.0.3</code>, and <code>3.0.0</code> is the first commercial release. That
+            release already exists and is what the registry serves as <code>latest</code>, so the MIT line is closed rather than merely paused.
+        </p>
+        <p class="section-text">
+            What that means in practice: angulux declares it as an <strong>optional</strong> peer ranged <code>^2.0.0</code>, and installing angulux alone pulls in zero PrimeTek
+            packages. Drop the second package and <code>provideAngulux()</code> runs unstyled but works. Be clear about what the range buys you, though — it is a
+            <em>warning</em>, not a lock. <code>npm install &#64;primeuix/themes&#64;3</code> still succeeds; it only prints a resolution warning naming the range it broke.
+            If that boundary matters to your legal review, pin the version exactly and run a licence check in your own build.
+        </p>
+        <!-- prime-names:end -->
+
         <h2 class="section-title">Coming from PrimeNG 21?</h2>
         <p class="section-text">
             There is a page for that, and it is honest about the options — most of which are not angulux:

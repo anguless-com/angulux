@@ -27,7 +27,7 @@
         "check:publishable": "node tools/check-publishable.mjs",
         "check:dts": "node tools/check-dts.mjs",
         "check:scope-names": "node tools/codemod/scan-anguless-scope.mjs",
-        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names && npm run check:tsup && npm run check:action-inputs && npm run check:facet-single-route && npm run check:corpus && npm run check:demo-code && npm run check:gate-count",
+        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names && npm run check:tsup && npm run check:action-inputs && npm run check:facet-single-route && npm run check:corpus && npm run check:demo-code && npm run check:peer-licence && npm run check:gate-count",
         "build:lib": "pnpm --filter @anguless/angulux run build",
         "test:lib": "pnpm --filter @anguless/angulux run test:unit",
         "test:tools": "node --test \"packages/angulux-license-guard/test/**/*.test.mjs\" \"packages/angulux-migrate/test/**/*.test.mjs\" \"tools/corpus/test/**/*.test.mjs\" \"tools/test/**/*.test.mjs\" \"packages/angulux-mcp/test/**/*.test.mjs\"",
@@ -35,6 +35,7 @@
         "check:gate-count": "node tools/check-gate-count.mjs",
         "check:corpus": "node tools/check-corpus.mjs",
         "check:demo-code": "node tools/check-demo-code.mjs",
+        "check:peer-licence": "node tools/check-peer-licence.mjs",
         "check:action-inputs": "node tools/check-action-inputs.mjs",
         "check:facet-single-route": "node tools/check-facet-single-route.mjs"
     },
