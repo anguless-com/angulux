@@ -40,9 +40,20 @@ export const RAILS = {
  */
 export const RELEASED_BY_HAND = ['packages/angulux-license-guard/', 'packages/angulux-migrate/'];
 
-/** The files one commit touched, as repo-relative paths. */
+/**
+ * The files one commit touched, as repo-relative paths.
+ *
+ * `git show`, not `git diff-tree`. The first draft used diff-tree and was wrong about the
+ * ROOT commit: with no parent there is nothing to diff against, so it reports no files, and
+ * the root commit would then belong to no train. That is not hypothetical — `release.yml`
+ * falls back to the root commit as the base for a FIRST release of a train, so the one
+ * release where every file is new is exactly the one that would have counted nothing.
+ *
+ * `git show --name-only` handles both, and reports nothing for a merge, which is the case
+ * `commitTouchesRail` handles separately and deliberately.
+ */
 export function filesInCommit(hash, cwd = process.cwd()) {
-    const out = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', hash], { cwd, encoding: 'utf8' });
+    const out = execFileSync('git', ['show', '--name-only', '--format=', hash], { cwd, encoding: 'utf8' });
 
     return out.split('\n').filter(Boolean);
 }

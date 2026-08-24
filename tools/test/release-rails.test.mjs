@@ -1,11 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { RAILS, RELEASED_BY_HAND, commitTouchesRail, filesInCommit } from '../../release/rails.mjs';
+import { RAILS, RELEASED_BY_HAND, commitTouchesRail, filesInCommit, parentCount } from '../../release/rails.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -20,7 +21,41 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
  * and were published under **Features** in both sets of release notes.
  *
  * Nothing broke. A changelog said something untrue, in public, about what a release contains.
+ *
+ * WHY THESE TESTS BUILD THEIR OWN REPOSITORY. The first version asserted against this
+ * repository's history by commit hash, and it was right about the facts and wrong about where
+ * to check them: CI checks out shallow, so every one of those objects was `unknown revision`
+ * on the runner. A test that only passes on a full clone is a test that does not run where it
+ * matters. The evidence from real history is in the commit message; what belongs here is real
+ * GIT behaviour, which a throwaway repository exercises exactly as well — and better, since it
+ * can contain a merge commit, which `main` never does.
  */
+
+/** A throwaway repository, and a `commit(files)` that returns the new hash. */
+function scratchRepo() {
+    const dir = mkdtempSync(join(tmpdir(), 'rails-'));
+    const git = (...args) => execFileSync('git', args, { cwd: dir, encoding: 'utf8' }).trim();
+
+    git('init', '--quiet', '--initial-branch=main');
+    git('config', 'user.email', 'test@example.invalid');
+    git('config', 'user.name', 'test');
+
+    const commit = (files, message = 'test') => {
+        for (const [path, contents] of Object.entries(files)) {
+            const target = join(dir, path);
+
+            mkdirSync(dirname(target), { recursive: true });
+            writeFileSync(target, contents);
+        }
+
+        git('add', '-A');
+        git('commit', '--quiet', '-m', message);
+
+        return git('rev-parse', 'HEAD');
+    };
+
+    return { dir, git, commit, dispose: () => rmSync(dir, { recursive: true, force: true }) };
+}
 
 test('every published package is on a train or declared as released by hand', () => {
     // The drift this catches: a new published package that nobody placed would be covered by
@@ -57,36 +92,96 @@ test('every declared path is a real directory', () => {
     }
 });
 
-test('the commits this session shipped touch NEITHER train', () => {
-    // Real history, not a fixture. All four changed the corpus, the tooling and the docs site,
-    // and none of them changed a published package — yet under the old arrangement every one
-    // would have bumped both trains and been advertised under Features.
-    for (const hash of ['f9b65d0', '812c00b', 'e34a237', 'c8355e4']) {
-        assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repoRoot }), false, `${hash} should not be on the library train`);
-        assert.equal(commitTouchesRail(hash, 'forks', { cwd: repoRoot }), false, `${hash} should not be on the fork train`);
-    }
+test('a commit that touches no published package is on neither train', () => {
+    // The defect, in one assertion. `feat(site)` and `feat(mcp)` looked exactly like this and
+    // bumped both trains to a minor.
+    const repo = scratchRepo();
+    const hash = repo.commit({ 'apps/showcase/src/app.ts': 'x', 'corpus/corpus.json': '{}' });
+
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir }), false);
+    assert.equal(commitTouchesRail(hash, 'forks', { cwd: repo.dir }), false);
+
+    repo.dispose();
+});
+
+test('a commit in one train is counted by that train alone', () => {
+    const repo = scratchRepo();
+    const hash = repo.commit({ 'packages/angulux/src/menu/menu.ts': 'x' });
+
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir }), true);
+    assert.equal(commitTouchesRail(hash, 'forks', { cwd: repo.dir }), false);
+
+    repo.dispose();
 });
 
 test('a commit that spans both trains is counted by both', () => {
-    // `fix(menu)` (#122) changed `packages/angulux/src/menu` AND
-    // `packages/angulux-utils/src/dom/methods/absolutePosition.ts`. The brain recorded it as
-    // library-only and called its appearance in the forks' changelog a defect; the diff says
-    // otherwise, and both trains are right to count it. Kept as a test so the correction is
-    // not re-litigated from memory.
-    const files = filesInCommit('3cabd0f', repoRoot);
+    // Not hypothetical: `fix(menu)` (#122) changed `packages/angulux/src/menu/menu.ts` AND
+    // `packages/angulux-utils/src/dom/methods/absolutePosition.ts`. The brain filed it as
+    // library-only and called its appearance in the forks' changelog part of this defect; the
+    // diff disagrees, and both trains are right to count it.
+    const repo = scratchRepo();
+    const hash = repo.commit({
+        'packages/angulux/src/menu/menu.ts': 'x',
+        'packages/angulux-utils/src/dom/methods/absolutePosition.ts': 'y'
+    });
 
-    assert.ok(
-        files.includes('packages/angulux-utils/src/dom/methods/absolutePosition.ts'),
-        'the premise of this test is that fix(menu) really did touch a fork package'
-    );
-    assert.equal(commitTouchesRail('3cabd0f', 'angulux', { cwd: repoRoot }), true);
-    assert.equal(commitTouchesRail('3cabd0f', 'forks', { cwd: repoRoot }), true);
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir }), true);
+    assert.equal(commitTouchesRail(hash, 'forks', { cwd: repo.dir }), true);
+
+    repo.dispose();
 });
 
-test('a commit in only one train is counted by only that one', () => {
-    // `test(radiobutton)` touched `packages/angulux/src` and nothing else.
-    assert.equal(commitTouchesRail('74f6495', 'angulux', { cwd: repoRoot }), true);
-    assert.equal(commitTouchesRail('74f6495', 'forks', { cwd: repoRoot }), false);
+test('a prefix match is a directory match, not a string match', () => {
+    // `packages/angulux/` must not be satisfied by `packages/angulux-utils/…`. The trailing
+    // slash in every rail entry is what makes that true, and it is easy to drop.
+    const repo = scratchRepo();
+    const hash = repo.commit({ 'packages/angulux-styles/src/index.ts': 'x' });
+
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir }), false, 'angulux-styles is not angulux');
+    assert.equal(commitTouchesRail(hash, 'forks', { cwd: repo.dir }), true);
+
+    repo.dispose();
+});
+
+test('a merge commit is counted, and reported rather than passed over', () => {
+    // `git show --name-only` reports no files for a merge, so a naive read excludes every one. This
+    // repository squash-merges, so a merge on `main` is an anomaly worth surfacing — and
+    // over-releasing is the behaviour being replaced, while losing a real change would be
+    // worse. Only a real merge commit proves the branch, which is the other reason these
+    // tests build a repository instead of reading this one.
+    const repo = scratchRepo();
+
+    repo.commit({ 'README.md': 'base' });
+    repo.git('checkout', '--quiet', '-b', 'side');
+    repo.commit({ 'docs/notes.md': 'side' });
+    repo.git('checkout', '--quiet', 'main');
+    repo.commit({ 'README.md': 'main moved on' });
+    repo.git('merge', '--quiet', '--no-ff', '-m', 'merge side', 'side');
+
+    const hash = repo.git('rev-parse', 'HEAD');
+    const seen = [];
+
+    assert.equal(parentCount(hash, repo.dir), 2, 'the premise is a real merge commit');
+    assert.deepEqual(filesInCommit(hash, repo.dir), [], 'git really does report no files for a merge');
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir, onMerge: (h) => seen.push(h) }), true);
+    assert.deepEqual(seen, [hash], 'and the caller is told, so the anomaly does not pass unseen');
+
+    repo.dispose();
+});
+
+test('the ROOT commit reports its files — the first release of a train depends on it', () => {
+    // The bug the first draft shipped. `git diff-tree` has nothing to diff a parentless commit
+    // against and reports no files, so the root commit belonged to no train — and `release.yml`
+    // falls back to the root commit as the base for a train's FIRST release. The one release
+    // where every file is new is exactly the one that would have counted nothing.
+    const repo = scratchRepo();
+    const hash = repo.commit({ 'packages/angulux/src/menu/menu.ts': 'x' });
+
+    assert.equal(parentCount(hash, repo.dir), 0, 'the premise is a parentless commit');
+    assert.deepEqual(filesInCommit(hash, repo.dir), ['packages/angulux/src/menu/menu.ts']);
+    assert.equal(commitTouchesRail(hash, 'angulux', { cwd: repo.dir }), true);
+
+    repo.dispose();
 });
 
 test('an unknown train is an error, never an empty filter', () => {
