@@ -13,6 +13,12 @@ export interface ApiMember {
     description: string;
     group: string;
     default: string;
+    /**
+     * Whether a default was actually written down. Only 127 of 1205 inputs declare one, so the
+     * common case is "nobody recorded it" — which is not the same as "there is no default", and
+     * a blank cell says the second.
+     */
+    defaultDeclared: boolean;
     deprecated: string | null;
     signal?: boolean;
 }
@@ -98,6 +104,15 @@ function loadJson<T>(path: string): Promise<T> {
 
     return cache.get(path) as Promise<T>;
 }
+
+export interface LibraryVersion {
+    /** The last released version, from the git tag. Null when tags were unavailable at build time. */
+    released: string | null;
+    /** Commits since that tag touching the published package — work documented here but not yet installable. */
+    unreleased: number;
+}
+
+export const loadVersion = () => loadJson<LibraryVersion>('version.json');
 
 export const loadApiIndex = () => loadJson<ApiIndexEntry[]>('api/index.json');
 

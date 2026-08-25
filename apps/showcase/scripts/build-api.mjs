@@ -10,6 +10,7 @@
  * One file per module rather than one big file because the corpus is ~780 KB: a reader who
  * opens `/button` should not download the API of 63 other modules to see it.
  */
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,4 +46,35 @@ for (const module of corpus.modules) {
     writeFileSync(resolve(OUT, `${module.name}.json`), JSON.stringify(module));
 }
 
+/**
+ * Which version of the library this site describes.
+ *
+ * NOT the root `package.json` version. That field says `22.0.0-rc.0`, a version that never
+ * existed on npm — `release/angulux.releaserc.json` explains why at length: semantic-release
+ * derives the version from tags and stamps `dist` during the run, so the committed number is
+ * whatever was last written by hand. Printing it would tell every reader the wrong thing.
+ *
+ * The tag is the record. `unreleased` counts commits since it that touch the published
+ * package, because a site built from `main` documents work nobody can install yet, and
+ * saying "22.2.0" flat would be false in a different way.
+ *
+ * If tags are unavailable — a shallow clone with none fetched — this writes null rather than
+ * guessing, and the page says nothing rather than something untrue.
+ */
+function libraryVersion() {
+    try {
+        const tag = execFileSync('git', ['describe', '--tags', '--match', 'angulux-v*', '--abbrev=0'], { cwd: resolve(HERE, '../../..'), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+        const since = execFileSync('git', ['rev-list', `${tag}..HEAD`, '--', 'packages/angulux/'], { cwd: resolve(HERE, '../../..'), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+
+        return { released: tag.replace(/^angulux-v/, ''), unreleased: since.split('\n').filter(Boolean).length };
+    } catch {
+        return { released: null, unreleased: 0 };
+    }
+}
+
+const version = libraryVersion();
+
+writeFileSync(resolve(OUT, '..', 'version.json'), JSON.stringify(version));
+
 console.log(`api: ${corpus.modules.length} modules from corpus generator v${corpus.generator.version}`);
+console.log(`version: ${version.released ?? 'unknown'}${version.unreleased ? ` +${version.unreleased} unreleased` : ''}`);

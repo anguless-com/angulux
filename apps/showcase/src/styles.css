@@ -87,6 +87,31 @@ pre {
     letter-spacing: 0;
 }
 
+.brand-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem 0;
+    font-size: 0.7rem;
+    color: var(--text-soft);
+}
+
+/* Work that is documented here and not installable yet. Said rather than hidden: a site built
+   from the default branch is always slightly ahead of the registry, and a reader comparing
+   this page to their node_modules deserves to know which way the gap runs. */
+.unreleased {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 0.4rem;
+}
+
+.brand-links {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 0;
+    font-size: 0.75rem;
+}
+
 .nav-heading {
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -329,6 +354,15 @@ td.mono {
 .deprecated {
     color: var(--warn);
     font-size: 0.75rem;
+}
+
+/* "Nobody wrote a default down" — said, rather than left as a blank cell that reads as "there
+   is no default". Only 127 of 1205 inputs declare one, so this is the common case and it has
+   to stay visible. The markdown pages have said it since the corpus existed; this is the
+   renderer that did not. */
+.undocumented {
+    color: var(--text-soft);
+    font-style: italic;
 }
 
 /* The property name behind an alias. Quieter than the published name on purpose: it is the

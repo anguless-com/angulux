@@ -1,6 +1,6 @@
 import { Component, PendingTasks, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { ApiIndexEntry, loadApiIndex } from './data';
+import { ApiIndexEntry, LibraryVersion, loadApiIndex, loadVersion } from './data';
 import { DEMO_SECTIONS } from './doc/registry';
 
 /**
@@ -19,6 +19,26 @@ import { DEMO_SECTIONS } from './doc/registry';
                     angulux
                     <small>MIT fork of PrimeNG 21.1.9, for Angular 22</small>
                 </a>
+
+                <!-- What a reader needs before trusting any page: which version this describes,
+                     and where the code is. The version is the git TAG, not the number in the
+                     root manifest — that one says 22.0.0-rc.0, which never existed on npm. -->
+                @if (version(); as version) {
+                    <div class="brand-meta">
+                        @if (version.released) {
+                            <span>documents {{ version.released }}</span>
+                            @if (version.unreleased) {
+                                <span class="unreleased" title="Changes on main that are not in any release yet">+{{ version.unreleased }} unreleased</span>
+                            }
+                        }
+                    </div>
+                }
+
+                <div class="brand-links">
+                    <a href="https://github.com/anguless-com/angulux">GitHub</a>
+                    <a href="https://www.npmjs.com/package/&#64;anguless/angulux">npm</a>
+                    <a href="llms.txt">llms.txt</a>
+                </div>
 
                 <div class="nav-heading">With demos ({{ documented().length }})</div>
                 @for (module of documented(); track module.name) {
@@ -45,6 +65,8 @@ import { DEMO_SECTIONS } from './doc/registry';
 export class AppComponent {
     private readonly modules = signal<ApiIndexEntry[]>([]);
 
+    readonly version = signal<LibraryVersion | null>(null);
+
     readonly documented = computed(() => this.modules().filter((module) => module.name in DEMO_SECTIONS));
 
     readonly apiOnly = computed(() => this.modules().filter((module) => !(module.name in DEMO_SECTIONS)));
@@ -53,7 +75,10 @@ export class AppComponent {
         // Declared to Angular, not merely started. Prerendering serialises as soon as the
         // application is stable, and a bare promise is invisible to that check — the nav would
         // be rendered empty into every one of the 65 pages.
-        inject(PendingTasks).run(async () => this.modules.set(await loadApiIndex()));
+        const pending = inject(PendingTasks);
+
+        pending.run(async () => this.modules.set(await loadApiIndex()));
+        pending.run(async () => this.version.set(await loadVersion()));
     }
 
     demoCount(name: string): number {
