@@ -1,8 +1,10 @@
 import { NgComponentOutlet } from '@angular/common';
 import { Component, PendingTasks, computed, effect, inject, input, signal, Type } from '@angular/core';
 import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
-import { ApiGroup, ApiTable } from '../components/api-table';
+import { ApiGroup, ApiTable, declarationAnchor } from '../components/api-table';
+import { CodeBlock } from '../components/code-block';
 import { DemoCode } from '../components/demo-code';
+import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS, DemoSection } from '../doc/registry';
 
 interface LoadedSection {
@@ -22,47 +24,70 @@ interface LoadedSection {
 @Component({
     selector: 'agl-module-page',
     standalone: true,
-    imports: [NgComponentOutlet, ApiTable, DemoCode],
+    imports: [NgComponentOutlet, ApiTable, CodeBlock, DemoCode, Toc],
     template: `
-        @if (notFound()) {
-            <h1 class="page-title">{{ module() }}</h1>
-            <p class="note">No module by that name is in the corpus.</p>
-        } @else if (api(); as api) {
-            <h1 class="page-title">{{ api.name }}</h1>
-            <p class="entrypoint">{{ api.entrypoint }}</p>
+        <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
+            <article class="min-w-0 max-w-3xl flex-1">
+                @if (notFound()) {
+                    <h1 class="text-3xl font-semibold tracking-tight">{{ module() }}</h1>
+                    <p class="mt-4 rounded-xl border border-caution bg-caution-soft px-4 py-3 text-sm text-caution">No module by that name is in the corpus.</p>
+                } @else if (api(); as api) {
+                    <header>
+                        <div class="font-mono text-xs text-faint">{{ api.entrypoint }}</div>
+                        <h1 class="mt-1 text-3xl font-semibold tracking-tight">{{ api.name }}</h1>
+                        @if (api.description) {
+                            <p class="mt-2 text-[15px] text-muted">{{ api.description }}</p>
+                        }
+                        <div class="mt-2 flex flex-wrap gap-2 text-xs text-muted">
+                            <span class="rounded-full border border-line px-2 py-0.5">{{ api.declarations.length }} declarations</span>
+                            @if (sections().length) {
+                                <span class="rounded-full bg-brand-soft px-2 py-0.5 text-brand">{{ sections().length }} demos</span>
+                            }
+                        </div>
+                    </header>
 
-            <!-- The import, with the name in it. Everything else on this page is unusable
-                 without it, and a reader should not have to open a demo's Component tab to
-                 find out what to write. -->
-            <div class="code">
-                <pre><code>{{ importLine() }}</code></pre>
-            </div>
+                    <!-- The import, with the name in it. Everything else on this page is unusable
+                         without it, and a reader should not have to open a demo's Component tab to
+                         find out what to write. -->
+                    <div class="mt-6">
+                        <agl-code-block [code]="importLine()" />
+                    </div>
 
-            @if (api.description) {
-                <p class="section-text">{{ api.description }}</p>
-            }
+                    @if (sections().length) {
+                        @for (loaded of sections(); track loaded.section.id) {
+                            <section class="mt-12 scroll-mt-20" [id]="loaded.section.id">
+                                <h2 class="text-xl font-semibold tracking-tight">{{ loaded.section.label }}</h2>
+                                <p class="mb-4 mt-1 text-sm text-muted">{{ loaded.section.description }}</p>
 
-            @if (sections().length) {
-                @for (loaded of sections(); track loaded.section.id) {
-                    <h2 class="section-title" [id]="loaded.section.id">{{ loaded.section.label }}</h2>
-                    <p class="section-text">{{ loaded.section.description }}</p>
+                                <ng-container *ngComponentOutlet="loaded.component" />
 
-                    <ng-container *ngComponentOutlet="loaded.component" />
-
-                    @if (loaded.demo) {
-                        <agl-demo-code [demo]="loaded.demo" />
+                                @if (loaded.demo) {
+                                    <agl-demo-code [demo]="loaded.demo" />
+                                } @else {
+                                    <p class="rounded-b-xl border border-t-0 border-caution bg-caution-soft px-4 py-3 text-sm text-caution">
+                                        Demo "{{ loaded.section.id }}" is registered but was not extracted — run the generate step.
+                                    </p>
+                                }
+                            </section>
+                        }
                     } @else {
-                        <p class="note">Demo "{{ loaded.section.id }}" is registered but was not extracted — run the generate step.</p>
+                        <p class="mt-8 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-muted">
+                            No demos for this module yet. The API reference below is complete: it comes from the corpus, which covers every module the library ships.
+                        </p>
                     }
-                }
-            } @else {
-                <p class="note">No demos for this module yet. The API reference below is complete: it comes from the corpus, which covers every module the library ships.</p>
-            }
 
-            <h2 class="section-title">API</h2>
-            <p class="section-text">Generated from the committed corpus, which <code>check:corpus</code> holds to the built library.</p>
-            <agl-api-table [groups]="groups()" />
-        }
+                    <section class="mt-14 scroll-mt-20" id="api">
+                        <h2 class="text-xl font-semibold tracking-tight">API</h2>
+                        <p class="mt-1 text-sm text-muted">Generated from the committed corpus, which <code class="code-chip">check:corpus</code> holds to the built library.</p>
+                    </section>
+                    <agl-api-table [groups]="groups()" />
+                }
+            </article>
+
+            <aside class="hidden w-52 shrink-0 xl:block">
+                <agl-toc [entries]="toc()" />
+            </aside>
+        </div>
     `
 })
 export class ModulePage {
@@ -90,6 +115,32 @@ export class ModulePage {
         return api.ngModules.length
             ? `import { ${api.ngModules.join(', ')} } from '${api.entrypoint}';`
             : `// ${api.name} exports standalone symbols — import them by name from '${api.entrypoint}/<name>'`;
+    });
+
+    /**
+     * Built from the same two lists the page renders from, so it cannot list a heading the
+     * page does not have.
+     *
+     * Inherited declarations are anchored on the page but left OUT of this list. Nearly every
+     * declaration extends `BaseComponent`, so including them turned the contents of `/table`
+     * into twenty-five identical "↳ BaseComponent" lines with the six names a reader was
+     * looking for buried between them. A table of contents that is mostly one repeated word
+     * is worse than a shorter one.
+     */
+    readonly toc = computed<TocEntry[]>(() => {
+        if (!this.api()) return [];
+
+        const entries: TocEntry[] = this.sections().map((loaded) => ({ id: loaded.section.id, label: loaded.section.label }));
+
+        entries.push({ id: 'api', label: 'API' });
+
+        for (const group of this.groups()) {
+            if (!group.inherited) {
+                entries.push({ id: declarationAnchor(group), label: group.declaration.name, nested: true });
+            }
+        }
+
+        return entries;
     });
 
     /** Captured here: an effect body is not an injection context. */

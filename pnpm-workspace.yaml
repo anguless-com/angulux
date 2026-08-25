@@ -13,6 +13,13 @@ catalog:
     '@primeuix/themes': 2.0.3
     'primeicons': 7.0.0
     'tailwindcss-primeui': 0.6.1
+    # Chrome of the private showcase app only — the shell, the nav, the code blocks, the API
+    # tables. It is deliberately NOT reachable from a demo: demo source is displayed verbatim
+    # and copied by readers, so a utility class inside one would make the copied code depend
+    # on a build step the reader may not have. `check:demo-code` already draws that boundary
+    # for other reasons; this dependency stays on the chrome side of it.
+    'tailwindcss': 4.3.3
+    '@tailwindcss/postcss': 4.3.3
     'chart.js': 4.5.1
     # Used only by the private, unpublished angulux-mcp package. Pinned here rather than as a
     # literal in that package's manifest so check-catalog can see it: a version nothing gates

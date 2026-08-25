@@ -50,7 +50,7 @@ const bootstrap = (context: BootstrapContext) => {
                 provideZonelessChangeDetection(),
                 provideServerRendering(withRoutes(serverRoutes)),
                 provideRouter(routes, withComponentInputBinding()),
-                provideAngulux({ theme: { preset: Aura } })
+                provideAngulux({ theme: { preset: Aura, options: { darkModeSelector: '.dark' } } })
             ]
         },
         context
