@@ -1,391 +1,208 @@
 /* Chrome only. Component styling arrives at runtime from @primeuix/themes through
    `provideAngulux`, exactly as it does in a consumer app — so nothing here restyles a
-   component, and a component that looks wrong on this site looks wrong in production too. */
+   component, and a component that looks wrong on this site looks wrong in production too.
 
-:root {
-    --bg: #ffffff;
-    --bg-soft: #f8fafc;
-    --bg-code: #f1f5f9;
-    --text: #0f172a;
-    --text-soft: #64748b;
-    --border: #e2e8f0;
-    --accent: #2563eb;
-    --accent-soft: #eff6ff;
-    --warn: #b45309;
-    --warn-soft: #fffbeb;
+   ── Why Tailwind is imported in pieces ──────────────────────────────────────────────────
+   `@import 'tailwindcss'` would pull in Preflight, which resets buttons, inputs, borders and
+   headings globally. Every one of those is something an angulux component renders, so
+   Preflight would quietly become a second opinion about how the library looks — and this
+   site would stop being able to tell you the truth about it. The theme and the utilities are
+   what the chrome actually needs; the reset is replaced by the handful of rules below.
+
+   Layer order is the other half of that guarantee. Everything here is layered; the styles
+   @primeuix/themes injects at runtime are not, and unlayered CSS beats layered CSS whatever
+   the specificity. So a utility class cannot override a component even by accident. */
+
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Class-based, not `prefers-color-scheme`, because the header carries a toggle. The same
+   selector is handed to `provideAngulux` so the components switch on the same signal — with
+   the default (`system`) the chrome would follow the button while the components followed the
+   operating system, and the two would disagree the moment anyone used the toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-canvas: #ffffff;
+    --color-surface: #f8fafc;
+    --color-sunken: #f1f5f9;
+    --color-line: #e2e8f0;
+    --color-line-soft: #eef2f6;
+    --color-ink: #0f172a;
+    --color-muted: #64748b;
+    --color-faint: #94a3b8;
+
+    /* Emerald, because the Aura preset the demos run under is emerald. A blue chrome around
+       green components reads as two products stapled together. */
+    --color-brand: #059669;
+    --color-brand-strong: #047857;
+    --color-brand-soft: #ecfdf5;
+
+    --color-caution: #b45309;
+    --color-caution-soft: #fffbeb;
+
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', 'Source Code Pro', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #0b1120;
-        --bg-soft: #111827;
-        --bg-code: #0f172a;
-        --text: #e2e8f0;
-        --text-soft: #94a3b8;
-        --border: #1e293b;
-        --accent: #60a5fa;
-        --accent-soft: #172554;
-        --warn: #fbbf24;
-        --warn-soft: #291a04;
+.dark {
+    --color-canvas: #0a0c10;
+    --color-surface: #0f131a;
+    --color-sunken: #0d1117;
+    --color-line: #1e2732;
+    --color-line-soft: #161d26;
+    --color-ink: #e6edf3;
+    --color-muted: #8b98a9;
+    --color-faint: #6b7887;
+
+    --color-brand: #34d399;
+    --color-brand-strong: #6ee7b7;
+    --color-brand-soft: #04231a;
+
+    --color-caution: #fbbf24;
+    --color-caution-soft: #241a05;
+}
+
+/* ── the reset Preflight is not doing ──────────────────────────────────────────── */
+
+@layer base {
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        /* Anchored headings sit under the sticky header without this. */
+        scroll-padding-top: 5rem;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        margin: 0;
+        background: var(--color-canvas);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+        margin: 0;
+    }
+
+    code,
+    pre {
+        font-family: var(--font-mono);
+    }
+
+    pre {
+        margin: 0;
+    }
+
+    /* The one part of Preflight the chrome genuinely needs. Skipping it left every button on
+       the site — the code tabs, Copy, the theme toggle, the mobile menu — wearing the
+       browser's default grey fill and outset border, which was visible in the first build.
+       Form controls get only the font, not the box: an unstyled `<input>` inside a demo
+       should keep its padding.
+
+       This is safe for the library because of the layer order declared at the top of this
+       file. Everything here is inside `@layer base`; the rules @primeuix/themes injects at
+       runtime are unlayered, and unlayered CSS wins over any layer regardless of specificity.
+       So `agl-button` keeps every one of these properties. The button demo page is the proof
+       and it is checked, not assumed. */
+    button {
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    input,
+    select,
+    textarea {
+        font: inherit;
+        color: inherit;
     }
 }
 
-* {
-    box-sizing: border-box;
+/* ── the two classes that are not chrome ───────────────────────────────────────── */
+
+@layer components {
+    /* The demo surface. Every demo file is required to have exactly one of these, and
+       `check:demo-code` enforces it — it is the boundary `build-demos.mjs` cuts the template
+       snippet on, which is why it stays a real class rather than a pile of utilities. The
+       markup here is shown verbatim to readers and copied into their projects, so a utility
+       class in this position would hand them code that needs a build step they may not have. */
+    .card {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 2rem 1.75rem;
+        border: 1px solid var(--color-line);
+        border-radius: 0.75rem 0.75rem 0 0;
+        background: var(--color-canvas);
+        background-image: radial-gradient(var(--color-line-soft) 1px, transparent 0);
+        background-size: 16px 16px;
+        background-position: -8px -8px;
+    }
+
+    /* Demos whose component IS the layout — cards, tabs, tables. Centring them in a flex row
+       would misrepresent how they behave in a real page. */
+    .card-block {
+        display: block;
+    }
+
+    /* An identifier mentioned inside a sentence. A class rather than six utilities because
+       most of its uses are inside the attribution regions on the home page, and `check:names`
+       caps those at 2000 characters to keep the hole narrow. Spending 350 of them on repeated
+       styling was pushing a licence notice towards a limit that exists for a different
+       reason entirely. */
+    .code-chip {
+        border-radius: 0.25rem;
+        background: var(--color-sunken);
+        padding: 0.1rem 0.3rem;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: var(--color-ink);
+    }
 }
 
-body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    line-height: 1.6;
+/* ── syntax colours ────────────────────────────────────────────────────────────── */
+
+/* A coloured token. `--l` and `--d` are set per token by `agl-code-lines`, from the palette
+   in the payload; which one wins is decided here, in CSS, so a prerendered page is already
+   correct in both themes before any script runs. Deliberately NOT a Tailwind `dark:` variant
+   binding on the element — that would be two arbitrary-value utilities repeated on thousands
+   of spans, to say what two rules say once. */
+.tk {
+    color: var(--l);
 }
 
-a {
-    color: var(--accent);
+.dark .tk {
+    color: var(--d);
 }
 
-code,
-pre {
-    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+/* ── scrollbars in the two scrolling panes ─────────────────────────────────────── */
+
+.thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
 }
 
-/* ── shell ─────────────────────────────────────────────────────────────── */
-
-.shell {
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    min-height: 100vh;
+.thin-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-.sidebar {
-    border-right: 1px solid var(--border);
-    background: var(--bg-soft);
-    padding: 1.25rem 0.75rem 3rem;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-}
-
-.brand {
-    display: block;
-    font-weight: 700;
-    font-size: 1.15rem;
-    letter-spacing: -0.02em;
-    padding: 0 0.5rem 0.25rem;
-    color: var(--text);
-    text-decoration: none;
-}
-
-.brand small {
-    display: block;
-    font-weight: 400;
-    font-size: 0.75rem;
-    color: var(--text-soft);
-    letter-spacing: 0;
-}
-
-.brand-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.35rem 0.5rem 0;
-    font-size: 0.7rem;
-    color: var(--text-soft);
-}
-
-/* Work that is documented here and not installable yet. Said rather than hidden: a site built
-   from the default branch is always slightly ahead of the registry, and a reader comparing
-   this page to their node_modules deserves to know which way the gap runs. */
-.unreleased {
-    border: 1px solid var(--border);
+.thin-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-line);
     border-radius: 999px;
-    padding: 0 0.4rem;
-}
-
-.brand-links {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0.5rem 0.5rem 0;
-    font-size: 0.75rem;
-}
-
-.nav-heading {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-soft);
-    padding: 1.25rem 0.5rem 0.35rem;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.28rem 0.5rem;
-    border-radius: 6px;
-    color: var(--text);
-    text-decoration: none;
-    font-size: 0.875rem;
-}
-
-.nav-link:hover {
-    background: var(--bg);
-}
-
-.nav-link.active {
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-weight: 600;
-}
-
-.nav-badge {
-    font-size: 0.65rem;
-    color: var(--text-soft);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0 0.4rem;
-}
-
-.content {
-    padding: 2.5rem 3rem 6rem;
-    max-width: 62rem;
-}
-
-/* ── page furniture ────────────────────────────────────────────────────── */
-
-.page-title {
-    font-size: 2rem;
-    margin: 0 0 0.25rem;
-    letter-spacing: -0.03em;
-}
-
-.entrypoint {
-    font-size: 0.85rem;
-    color: var(--text-soft);
-    margin: 0 0 2rem;
-}
-
-.section-title {
-    font-size: 1.15rem;
-    margin: 3rem 0 0.35rem;
-    letter-spacing: -0.01em;
-}
-
-.section-text {
-    color: var(--text-soft);
-    margin: 0 0 1rem;
-}
-
-/* The demo surface. Every demo file is required to have exactly one of these — it is the
-   boundary `build-demos.mjs` cuts the template snippet on. */
-.card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-}
-
-/* Demos whose component IS the layout — cards, tabs, tables. Centring them in a flex row
-   would misrepresent how they behave in a real page. */
-.card-block {
-    display: block;
-}
-
-.note {
-    background: var(--warn-soft);
-    border: 1px solid var(--warn);
-    color: var(--warn);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* ── code block ────────────────────────────────────────────────────────── */
-
-.code {
-    border: 1px solid var(--border);
-    border-top: 0;
-    border-radius: 0 0 10px 10px;
-    background: var(--bg-code);
-    overflow: hidden;
-}
-
-.code-tabs {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.35rem 0.5rem;
-    border-bottom: 1px solid var(--border);
-}
-
-.code-tab {
-    background: none;
-    border: 0;
-    border-radius: 6px;
-    padding: 0.2rem 0.6rem;
-    font: inherit;
-    font-size: 0.8rem;
-    color: var(--text-soft);
-    cursor: pointer;
-}
-
-.code-tab.active {
-    background: var(--bg);
-    color: var(--text);
-}
-
-.code-copy {
-    margin-left: auto;
-}
-
-.code pre {
-    margin: 0;
-    padding: 1rem;
-    overflow-x: auto;
-    font-size: 0.8rem;
-    line-height: 1.55;
-}
-
-/* ── api tables ────────────────────────────────────────────────────────── */
-
-.decl {
-    margin-top: 2rem;
-}
-
-.decl-head {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-}
-
-.decl-name {
-    font-size: 1.05rem;
-    font-weight: 650;
-}
-
-.kind {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.05rem 0.5rem;
-    color: var(--text-soft);
-}
-
-.selector {
-    font-family: ui-monospace, monospace;
-    font-size: 0.8rem;
-    color: var(--accent);
-}
-
-.table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin: 0.75rem 0 0;
-}
-
-/* Fixed layout, explicit widths. With `auto` the browser sizes columns from content, and the
-   widest content in an API table is the type expression — so the column carrying the least
-   information ends up eating the row, pushing Description off the viewport entirely. Fixed
-   layout inverts that: the prose column gets the space, and types wrap. */
-table {
-    table-layout: fixed;
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 0.82rem;
-}
-
-th,
-td {
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-}
-
-th {
-    background: var(--bg-soft);
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-tr:last-child td {
-    border-bottom: 0;
-}
-
-td.mono {
-    font-family: ui-monospace, monospace;
-    overflow-wrap: anywhere;
-}
-
-.t-inputs col:nth-child(1),
-.t-outputs col:nth-child(1) {
-    width: 22%;
-}
-
-.t-inputs col:nth-child(2) {
-    width: 24%;
-}
-
-.t-inputs col:nth-child(3) {
-    width: 12%;
-}
-
-.t-outputs col:nth-child(2) {
-    width: 28%;
-}
-
-.t-slots col:nth-child(1) {
-    width: 25%;
-}
-
-.deprecated {
-    color: var(--warn);
-    font-size: 0.75rem;
-}
-
-/* "Nobody wrote a default down" — said, rather than left as a blank cell that reads as "there
-   is no default". Only 127 of 1205 inputs declare one, so this is the common case and it has
-   to stay visible. The markdown pages have said it since the corpus existed; this is the
-   renderer that did not. */
-.undocumented {
-    color: var(--text-soft);
-    font-style: italic;
-}
-
-/* The property name behind an alias. Quieter than the published name on purpose: it is the
-   one a reader must NOT write in a template. */
-.aliased {
-    color: var(--text-soft);
-    font-size: 0.72rem;
-    font-family: ui-monospace, monospace;
-}
-
-@media (max-width: 900px) {
-    .shell {
-        grid-template-columns: 1fr;
-    }
-
-    .sidebar {
-        position: static;
-        height: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .content {
-        padding: 1.5rem 1.25rem 4rem;
-    }
 }

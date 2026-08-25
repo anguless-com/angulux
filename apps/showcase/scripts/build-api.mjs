@@ -15,6 +15,8 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { createTokenizer } from './highlight.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CORPUS = resolve(HERE, '../../../corpus/corpus.json');
 const OUT = resolve(HERE, '../public/api');
@@ -42,8 +44,29 @@ const index = corpus.modules.map((module) => ({
 
 writeFileSync(resolve(OUT, 'index.json'), JSON.stringify(index));
 
+/**
+ * The line a reader has to write before anything else on the page is usable.
+ *
+ * A module with no NgModule is not a defect and must not be papered over: `icons` exports
+ * standalone components under their own entry points, so the honest line names the module
+ * path and says the exports come one at a time.
+ *
+ * Composed here rather than in the page because it is coloured here — and colouring happens
+ * at build time so that a prerendered page arrives already correct (`highlight.mjs` explains
+ * at length). A string built in the browser could not be tokenised without shipping a
+ * highlighter to the browser.
+ */
+const importLine = (module) =>
+    module.ngModules.length
+        ? `import { ${module.ngModules.join(', ')} } from '${module.entrypoint}';`
+        : `// ${module.name} exports standalone symbols — import them by name from '${module.entrypoint}/<name>'`;
+
+const tokenizer = await createTokenizer();
+
 for (const module of corpus.modules) {
-    writeFileSync(resolve(OUT, `${module.name}.json`), JSON.stringify(module));
+    const { tokenize, palette } = tokenizer.scope();
+
+    writeFileSync(resolve(OUT, `${module.name}.json`), JSON.stringify({ ...module, importLine: tokenize(importLine(module), 'source'), palette }));
 }
 
 /**

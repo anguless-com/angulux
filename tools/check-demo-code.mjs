@@ -34,7 +34,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { SHOWCASE_IMPORT_RE, collectDemoFiles, demoId, extractCard, parseRegistry } from '../apps/showcase/scripts/demo-lib.mjs';
+import { SHOWCASE_IMPORT_RE, collectDemoFiles, demoId, extractCard, parseRegistry, readDemo } from '../apps/showcase/scripts/demo-lib.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DOC_DIR = join(ROOT, 'apps/showcase/src/doc');
@@ -52,11 +52,11 @@ if (!existsSync(DOC_DIR)) {
 
 const shipped = new Set(JSON.parse(readFileSync(CORPUS, 'utf8')).modules.map((m) => m.name));
 const files = collectDemoFiles(DOC_DIR);
-const sections = parseRegistry(readFileSync(REGISTRY, 'utf8'));
+const sections = parseRegistry(readDemo(REGISTRY));
 
 // ── 1. SHAPE ──────────────────────────────────────────────────────────────────
 for (const { id, path } of files) {
-    const source = readFileSync(path, 'utf8');
+    const source = readDemo(path);
 
     if (SHOWCASE_IMPORT_RE.test(source)) {
         fail(rel(path), 'imports a showcase component — a demo must be copyable verbatim, so it may contain only the demo');
@@ -97,7 +97,7 @@ for (const { module, id, importPath, exportName } of sections) {
         fail(where, `id does not match the file it loads — '${importPath}' would be extracted as '${derived}'`);
     }
 
-    const source = readFileSync(target, 'utf8');
+    const source = readDemo(target);
 
     if (!new RegExp(`export class ${exportName}\\b`).test(source)) {
         fail(where, `imports { ${exportName} }, which '${importPath}' does not export`);

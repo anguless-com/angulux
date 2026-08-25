@@ -7,6 +7,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="angulux — an MIT fork of PrimeNG 21.1.9 for Angular 22." />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)" />
+        <!--
+            Runs before the first paint, which is the entire reason it is inline and here
+            rather than in the application. The pages are prerendered and served as static
+            HTML, so a reader on dark mode sees a fully painted white page for as long as it
+            takes the bundle to download and boot — and then a flash. Deciding the class
+            synchronously in <head> is the only place that gap does not exist.
+
+            The same `.dark` class drives both halves of the site: the chrome through
+            Tailwind's `dark:` variant, and the angulux components through the
+            `darkModeSelector` handed to `provideAngulux`. One signal, so they cannot disagree.
+        -->
+        <script>
+            (function () {
+                try {
+                    var stored = localStorage.getItem('agl-scheme');
+                    var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+
+                    if (dark) document.documentElement.classList.add('dark');
+                } catch (e) {
+                    /* storage blocked, or no matchMedia: light is the correct fallback */
+                }
+            })();
+        </script>
     </head>
     <body>
         <agl-showcase-root></agl-showcase-root>

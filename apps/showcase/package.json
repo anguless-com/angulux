@@ -30,7 +30,10 @@
         "@angular/compiler-cli": "catalog:angular22",
         "@angular/platform-server": "catalog:angular22",
         "@angular/ssr": "catalog:angular22",
+        "@tailwindcss/postcss": "catalog:",
         "@types/node": "catalog:angular22",
+        "shiki": "catalog:",
+        "tailwindcss": "catalog:",
         "typescript": "catalog:angular22"
     }
 }

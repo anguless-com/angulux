@@ -15,6 +15,9 @@ bootstrapApplication(AppComponent, {
         provideBrowserGlobalErrorListeners(),
         provideZonelessChangeDetection(),
         provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' })),
-        provideAngulux({ theme: { preset: Aura } })
+        /* `.dark`, not the default `system`. The header has a toggle, and on the default the
+           components would keep following the operating system while the chrome followed the
+           button — so a reader who switched would get half a dark page. */
+        provideAngulux({ theme: { preset: Aura, options: { darkModeSelector: '.dark' } } })
     ]
 }).catch((err) => console.error(err));
