@@ -17,6 +17,16 @@ export const serverRoutes: ServerRoute[] = [
         path: '',
         renderMode: RenderMode.Prerender
     },
+    // Same ordering rule as the client routes: named before the parameter, or `:module`
+    // claims them.
+    {
+        path: 'getting-started',
+        renderMode: RenderMode.Prerender
+    },
+    {
+        path: 'theming',
+        renderMode: RenderMode.Prerender
+    },
     {
         path: ':module',
         renderMode: RenderMode.Prerender,

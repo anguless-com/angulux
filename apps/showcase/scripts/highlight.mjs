@@ -31,8 +31,11 @@ import { createHighlighter } from 'shiki';
  */
 const THEMES = { light: 'github-light', dark: 'github-dark' };
 
-/** Angular's own grammars — `[value]="x"` and `@if` are syntax here, not stray punctuation. */
-const LANGS = { template: 'angular-html', source: 'angular-ts' };
+/**
+ * Angular's own grammars — `[value]="x"` and `@if` are syntax here, not stray punctuation.
+ * `shell` is for the guide pages, which show commands as well as code.
+ */
+const LANGS = { template: 'angular-html', source: 'angular-ts', shell: 'shellscript' };
 
 /**
  * `{ color, '--shiki-dark' }` -> one comparable string.
