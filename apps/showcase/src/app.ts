@@ -112,6 +112,21 @@ import { ColorSchemeToggle } from './theme';
                     </div>
                 </div>
 
+                <!-- Always visible, and deliberately not filtered: the filter narrows the 64
+                     modules, and hiding "Getting started" because someone typed a component
+                     name would take the guide away at the moment a newcomer most needs it. -->
+                <div class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-faint">Guide</div>
+                @for (page of GUIDE; track page.path) {
+                    <a
+                        class="block truncate rounded-lg px-2 py-1.5 text-sm text-ink no-underline hover:bg-surface"
+                        [routerLink]="page.path"
+                        routerLinkActive="bg-brand-soft! text-brand! font-medium"
+                        (click)="navOpen.set(false)"
+                    >
+                        {{ page.label }}
+                    </a>
+                }
+
                 @if (matchCount() === 0) {
                     <p class="px-2 py-6 text-sm text-muted">No module matches “{{ query() }}”.</p>
                 }
@@ -153,6 +168,12 @@ import { ColorSchemeToggle } from './theme';
     `
 })
 export class AppComponent {
+    /** Hand-kept, unlike the module list — there is no generated source that knows about these. */
+    readonly GUIDE = [
+        { path: '/getting-started', label: 'Getting started' },
+        { path: '/theming', label: 'Theming' }
+    ];
+
     private readonly modulesAll = signal<ApiIndexEntry[]>([]);
 
     private readonly filterBox = viewChild<ElementRef<HTMLInputElement>>('filterBox');

@@ -4,7 +4,7 @@
     "private": true,
     "description": "Documentation site for humans — the counterpart to the generated llms.txt corpus, built from the same corpus so the two cannot disagree. Never published to npm.",
     "scripts": {
-        "generate": "node scripts/build-api.mjs && node scripts/build-demos.mjs",
+        "generate": "node scripts/build-api.mjs && node scripts/build-demos.mjs && node scripts/build-guide.mjs",
         "prebuild": "pnpm run generate",
         "build": "ng build showcase",
         "prestart": "pnpm run generate",

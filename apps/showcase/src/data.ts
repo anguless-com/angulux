@@ -154,3 +154,17 @@ export const loadApiModule = (name: string) => loadJson<ApiModule>(`api/${name}.
  * opens `/button` should not download the demos of fifty other modules to see it.
  */
 export const loadDemos = (module: string) => loadJson<DemoPayload>(`demos/${module}.json`);
+
+/**
+ * The guide pages' snippets, coloured at build time like everything else.
+ *
+ * ⚠️ Unlike a demo, these are written by hand rather than cut out of a component that ran, so
+ * nothing guarantees they still compile. The guide says so where it matters and sends readers
+ * to the module pages for code that is checked.
+ */
+export interface GuidePayload {
+    palette: [string, string][];
+    snippets: Record<string, CodeLine[]>;
+}
+
+export const loadGuide = () => loadJson<GuidePayload>('guide.json');

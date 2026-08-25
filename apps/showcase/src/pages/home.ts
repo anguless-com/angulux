@@ -1,6 +1,6 @@
 import { Component, PendingTasks, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ApiIndexEntry, loadApiIndex } from '../data';
+import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
@@ -33,14 +33,19 @@ import { DEMO_SECTIONS } from '../doc/registry';
                     them has an API reference here, generated from the same corpus that produces <a class="text-brand hover:underline" href="llms.txt">llms.txt</a>.
                 </p>
 
+                <!-- Get started first, browse second. A stranger who lands here needs a path
+                     through installation before a component gallery means anything. -->
                 <div class="mt-7 flex flex-wrap items-center gap-3">
+                    <a class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white no-underline hover:bg-brand-strong" routerLink="/getting-started">
+                        Get started
+                        <i class="pi pi-arrow-right text-[11px]"></i>
+                    </a>
                     @if (firstDocumented(); as first) {
                         <a
-                            class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white no-underline hover:bg-brand-strong"
+                            class="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-ink no-underline hover:bg-surface"
                             [routerLink]="['/', first]"
                         >
                             Browse the components
-                            <i class="pi pi-arrow-right text-[11px]"></i>
                         </a>
                     }
                     <a
@@ -48,7 +53,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
                         href="https://github.com/anguless-com/angulux"
                     >
                         <i class="pi pi-github text-[13px]"></i>
-                        View on GitHub
+                        GitHub
                     </a>
                 </div>
 
@@ -74,8 +79,14 @@ import { DEMO_SECTIONS } from '../doc/registry';
 
                 <!-- ── install ───────────────────────────────────────────────────────── -->
                 <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="install">Install</h2>
-                <p class="mb-4 mt-1 text-sm text-muted">Two packages, and the second one is optional. The next section explains why.</p>
-                <agl-code-block code="pnpm add &#64;anguless/angulux &#64;primeuix/themes" label="terminal" />
+                <p class="mb-4 mt-1 text-sm text-muted">
+                    Only the first package is required — the next section explains why, and
+                    <a class="text-brand hover:underline" routerLink="/getting-started">Getting started</a> has the three steps after this one.
+                </p>
+                <!-- The same snippet Getting started shows, from the same generated payload. Two
+                     copies of an install command is how a site ends up telling a reader to install
+                     one set of packages on one page and a different set on another. -->
+                <agl-code-block [lines]="install()" [palette]="palette()" label="terminal" />
 
                 <!-- ── licence boundary ──────────────────────────────────────────────── -->
                 <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="two-packages">Why there are two packages</h2>
@@ -171,6 +182,12 @@ import { DEMO_SECTIONS } from '../doc/registry';
 export class HomePage {
     private readonly modules = signal<ApiIndexEntry[]>([]);
 
+    private readonly guide = signal<GuidePayload | null>(null);
+
+    readonly palette = computed(() => this.guide()?.palette ?? []);
+
+    readonly install = computed(() => this.guide()?.snippets['install'] ?? []);
+
     readonly moduleCount = computed(() => this.modules().length);
 
     readonly documented = computed(() => this.modules().filter((module) => module.name in DEMO_SECTIONS));
@@ -195,7 +212,10 @@ export class HomePage {
     ];
 
     constructor() {
-        inject(PendingTasks).run(async () => this.modules.set(await loadApiIndex()));
+        const pending = inject(PendingTasks);
+
+        pending.run(async () => this.modules.set(await loadApiIndex()));
+        pending.run(async () => this.guide.set(await loadGuide()));
     }
 
     demoCount(name: string): number {
