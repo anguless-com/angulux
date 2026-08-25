@@ -36,7 +36,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
                 <!-- Get started first, browse second. A stranger who lands here needs a path
                      through installation before a component gallery means anything. -->
                 <div class="mt-7 flex flex-wrap items-center gap-3">
-                    <a class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white no-underline hover:bg-brand-strong" routerLink="/getting-started">
+                    <a class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-canvas no-underline hover:bg-brand-strong" routerLink="/getting-started">
                         Get started
                         <i class="pi pi-arrow-right text-[11px]"></i>
                     </a>

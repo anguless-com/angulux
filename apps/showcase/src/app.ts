@@ -24,6 +24,17 @@ import { ColorSchemeToggle } from './theme';
         '(document:keydown)': 'onKeydown($event)'
     },
     template: `
+        <!-- FIRST focusable element in the document, and it has to stay first. The nav lists 66
+             links; without this a keyboard user pressed Tab about seventy times before reaching
+             the page they had just navigated to. Hidden until focused, then it is a real button
+             sitting over the header. -->
+        <a
+            href="#content"
+            class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-canvas"
+        >
+            Skip to content
+        </a>
+
         <header class="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur-md">
             <div class="mx-auto flex h-14 max-w-[100rem] items-center gap-3 px-4 lg:px-6">
                 <button
@@ -98,12 +109,17 @@ import { ColorSchemeToggle } from './theme';
                 [class.hidden]="!navOpen()"
             >
                 <div class="sticky top-0 z-10 -mx-3 bg-canvas px-3 pb-3 pt-4">
+                    <!-- The input carries a focus RING, not just a border tint. With outline-none and
+                         only a border-colour change on focus, this was the one focusable element on
+                         the site without a visible ring — 13 of 14 had one, and the exception was the
+                         single input, which is also the one a keyboard user reaches for first.
+                         (No backticks in template comments: they end the TypeScript template literal.) -->
                     <div class="relative">
                         <i class="pi pi-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-faint"></i>
                         <input
                             #filterBox
                             type="search"
-                            class="w-full rounded-lg border border-line bg-surface py-2 pl-8 pr-9 text-sm text-ink outline-none placeholder:text-faint focus:border-brand focus:bg-canvas"
+                            class="w-full rounded-lg border border-line bg-surface py-2 pl-8 pr-9 text-sm text-ink outline-none placeholder:text-faint focus:border-brand focus:bg-canvas focus:ring-2 focus:ring-brand/40"
                             [attr.placeholder]="'Filter ' + modules().length + ' modules'"
                             [value]="query()"
                             (input)="query.set($any($event.target).value)"
@@ -161,7 +177,10 @@ import { ColorSchemeToggle } from './theme';
                 }
             </aside>
 
-            <main class="min-w-0 flex-1">
+            <!-- tabindex="-1" so the skip link can actually MOVE FOCUS here. Without it the browser
+                 scrolls to the anchor and leaves focus where it was, so the next Tab goes straight
+                 back into the nav — the link appears to work and does nothing. -->
+            <main id="content" tabindex="-1" class="min-w-0 flex-1 outline-none">
                 <router-outlet />
             </main>
         </div>
