@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Fifteen gates run on every commit and every pull request. They do not check style — each one
+Sixteen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -85,6 +85,7 @@ closes a class of failure that has already happened in this repository.
 | `check:scope-names` | a bare `angulux`/`angulux-*` package reference surviving where the scoped `@anguless/*` name belongs |
 | `check:tsup` | the bundler leaking outside the four forks' own build scripts |
 | `check:action-inputs` | a workflow passing a `with:` key that its action does not declare — YAML nobody validates until it silently does nothing |
+| `check:release-plugins` | a release train listing the same plugin twice, or naming the wrong rail — the first published `22.2.1` with every changelog entry printed twice, and nothing else noticed because the version and the package were both correct |
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
 | `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
@@ -92,7 +93,7 @@ closes a class of failure that has already happened in this repository.
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all fifteen, no build needed
+npm run check     # all sixteen, no build needed
 ```
 
 Two further checks run after the build rather than inside that suite, because neither has
@@ -123,7 +124,7 @@ type-check cannot see a render bug.
 Current evidence, reproducible from a clean checkout:
 
 ```
-15/15 gates          exit 0
+16/16 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
 browser gate         13/13 passed
@@ -184,7 +185,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 15 gates
+npm run check                                   # the 16 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do
