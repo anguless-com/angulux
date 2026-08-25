@@ -49,6 +49,19 @@ catalogs:
         '@angular/compiler-cli': 22.1.1
         '@angular/cli': 22.1.3
         '@angular/build': 22.1.3
+        # Prerendering only, and only for the private showcase app. Pinned EXACTLY like the
+        # rest of the build tooling — and it has a coupling the others do not: platform-server
+        # peers on an EXACT @angular/core version, while '@angular/core' above is deliberately a
+        # range. Bump this in lockstep with whatever core resolves to, or pnpm reports an unmet
+        # peer. It is NOT peer-bound itself: nothing published depends on it.
+        '@angular/platform-server': 22.1.1
+        # Required by @angular/build even for a purely STATIC prerender: the builder injects
+        # `import { ɵsetAngularAppManifest } from '@angular/ssr'` into the server entry it
+        # generates, so there is no prerendering without it. Its peers ARE ranges, unlike
+        # platform-server's.
+        '@angular/ssr': 22.1.5
+        # Only the showcase's prerender entry needs it, to read the generated payloads off disk.
+        '@types/node': 22.20.1
         'ng-packagr': 22.1.1
         'typescript': 6.0.3
         'rxjs': 7.8.2

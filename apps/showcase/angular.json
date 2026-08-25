@@ -13,8 +13,18 @@
                         "browser": "src/main.ts",
                         "index": "src/index.html",
                         "tsConfig": "tsconfig.json",
-                        "styles": ["src/styles.css", "node_modules/primeicons/primeicons.css"],
-                        "assets": [{ "glob": "**/*", "input": "public" }]
+                        "styles": [
+                            "src/styles.css",
+                            "node_modules/primeicons/primeicons.css"
+                        ],
+                        "assets": [
+                            {
+                                "glob": "**/*",
+                                "input": "public"
+                            }
+                        ],
+                        "server": "src/main.server.ts",
+                        "outputMode": "static"
                     },
                     "configurations": {
                         "production": {
@@ -31,10 +41,14 @@
                 },
                 "serve": {
                     "builder": "@angular/build:dev-server",
-                    "options": { "buildTarget": "showcase:build:development" }
+                    "options": {
+                        "buildTarget": "showcase:build:development"
+                    }
                 }
             }
         }
     },
-    "cli": { "analytics": false }
+    "cli": {
+        "analytics": false
+    }
 }

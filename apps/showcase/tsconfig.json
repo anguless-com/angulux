@@ -8,6 +8,10 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
+        /* Only the prerender entry uses them, to read the generated payloads off disk. Listing
+           "node" explicitly rather than letting every @types package in keeps the browser code
+           from silently gaining APIs it will not have at runtime. */
+        "types": ["node"],
         "strict": false,
         /* Same choice as the verification app, for the same reason: point at `dist/`, never
            at `src/`. A documentation site built against the source tree would document an

@@ -32,7 +32,7 @@
  * Usage: node tools/corpus/merge-showcase.mjs [--from <dir>] [--out <dir>]
  */
 
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '../..');
@@ -101,30 +101,27 @@ writeFileSync(join(OUT, TAKEOVER), shell);
 // route lands in the router rather than on GitHub's 404.
 writeFileSync(join(OUT, '404.html'), shell);
 
+// Every module must already have a page, because the showcase PRERENDERS them: each route is
+// rendered in Node at build time and written as real HTML with its API table in it.
+//
+// This loop used to CREATE those files, copying the empty app shell to each path so the URL
+// would at least answer 200. That was the right thing when the content only existed after a
+// bundle ran, and it is the wrong thing now — a shell written here would silently replace a
+// prerendered page, and the page would still return 200 while containing nothing a search
+// engine can read. So the loop checks instead of writes: a module the prerender missed is a
+// missing page, and this is the only place that would notice.
 const corpus = JSON.parse(readFileSync(join(repoRoot, 'corpus/corpus.json'), 'utf8'));
-let routes = 0;
+const unrendered = corpus.modules.filter(({ name }) => !existsSync(join(OUT, name, 'index.html')));
 
-for (const { name } of corpus.modules) {
-    const dir = join(OUT, name);
-    const target = join(dir, 'index.html');
-
-    mkdirSync(dir, { recursive: true });
-
-    // `wx` rather than a preceding existsSync: the check and the write are then one syscall,
-    // and the refusal comes from the filesystem instead of from a decision taken a moment
-    // earlier about a state that may since have changed.
-    // `<module>.md` is a file and `<module>/` a directory: they coexist, and both are meant to.
-    try {
-        writeFileSync(target, shell, { flag: 'wx' });
-    } catch (error) {
-        if (error.code !== 'EEXIST') throw error;
-
-        console.error(`✗ merge-showcase: ${name}/index.html already exists — a module name has collided with a rendered page`);
-        process.exit(1);
-    }
-
-    routes++;
+if (unrendered.length) {
+    console.error(`✗ merge-showcase: ${unrendered.length} module(s) have no prerendered page:\n`);
+    for (const { name } of unrendered) console.error(`    ${name}`);
+    console.error('\n    The showcase build prerenders one page per corpus module. Check getPrerenderParams in');
+    console.error('    apps/showcase/src/app.routes.server.ts, and that the build printed "Prerendered N static routes".');
+    process.exit(1);
 }
 
-console.log(`✓ merge-showcase: ${incoming.length} file(s) + 404.html + ${routes} module route(s) → ${relative(repoRoot, OUT)}`);
+const routes = corpus.modules.length;
+
+console.log(`✓ merge-showcase: ${incoming.length} file(s) + 404.html, and all ${routes} module page(s) were prerendered → ${relative(repoRoot, OUT)}`);
 console.log(`    root index.html is now the showcase; the LLM index stays at /llms/, llms.txt and every <module>.md are untouched.`);
