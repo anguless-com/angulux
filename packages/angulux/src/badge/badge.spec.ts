@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DebugElement, ElementRef, input, provideZonelessChangeDetection, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DebugElement, ElementRef, input, PLATFORM_ID, provideZonelessChangeDetection, ViewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SharedModule } from '@anguless/angulux/api';
@@ -1268,6 +1268,50 @@ describe('Badge', () => {
 
                 expect(hookCalled).toBe(true);
             });
+        });
+    });
+
+    describe('Server rendering', () => {
+        // The directive built its badge element with the GLOBAL document, which does not exist
+        // outside a browser. On every server render it threw "ReferenceError: document is not
+        // defined" from a lifecycle hook — so the page still rendered and only the badge was
+        // missing, and a consumer running SSR saw an error they could do nothing about, for an
+        // element that appeared on hydration anyway.
+        //
+        // Eighteen components in this library already guard the same way; this one did not.
+        // ButtonDirective.onAfterViewInit is the closest twin.
+        it('builds no element when the platform is not a browser, and does not throw', async () => {
+            TestBed.resetTestingModule();
+            TestBed.configureTestingModule({
+                imports: [BadgeModule, SharedModule],
+                declarations: [TestDirectiveBadgeComponent],
+                providers: [provideZonelessChangeDetection(), { provide: PLATFORM_ID, useValue: 'server' }]
+            });
+
+            const fixture = TestBed.createComponent(TestDirectiveBadgeComponent);
+
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(fixture.nativeElement.querySelector('.p-badge')).toBeNull();
+        });
+
+        it('still builds it in a browser — the guard must not be inverted', async () => {
+            // The regression this pairs with. A guard the wrong way round would remove the badge
+            // everywhere, and the server test above would pass just the same.
+            TestBed.resetTestingModule();
+            TestBed.configureTestingModule({
+                imports: [BadgeModule, SharedModule],
+                declarations: [TestDirectiveBadgeComponent],
+                providers: [provideZonelessChangeDetection(), { provide: PLATFORM_ID, useValue: 'browser' }]
+            });
+
+            const fixture = TestBed.createComponent(TestDirectiveBadgeComponent);
+
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(fixture.nativeElement.querySelector('.p-badge')).not.toBeNull();
         });
     });
 });

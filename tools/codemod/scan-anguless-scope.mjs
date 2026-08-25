@@ -54,7 +54,12 @@ const root = process.cwd();
 // starts with `@`, so this matches ONLY bare (un-scoped) leftovers.
 const BARE = /(['"])(angulux(?:-(?:utils|styled|styles|motion))?)((?:\/[^'"]*)?)\1/g;
 const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
-const P_CLASS_BASELINE = 513; // measured over the scan scope at rename time (BL-29 F2)
+// Measured over the scan scope at rename time (BL-29 F2). It went 513 → 515 on 2026-08-25:
+// two `.p-badge` assertions in `badge.spec.ts`, added with the SSR guard to prove the badge
+// element is still built in a browser and no longer built on the server. The gate cannot tell
+// a new assertion from a rename, and should not try — moving this number is the deliberate act
+// it exists to require.
+const P_CLASS_BASELINE = 515;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];
