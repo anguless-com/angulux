@@ -21,50 +21,121 @@
         "Consequence: the version in the root package.json on `main` stays at whatever was last",
         "committed by hand and is NOT the released version. Nothing reads it as one —",
         "semantic-release derives the next version from the tags, and the build stamps dist from",
-        "the root manifest as written during prepare, inside the same run."
+        "the root manifest as written during prepare, inside the same run.",
+        "",
+        "commit-analyzer and release-notes-generator are wrapped by ./release/rail-filter.mjs.",
+        "The path gate in release.yml decides whether this train RUNS; it never filtered the",
+        "commits, so once a train ran it analysed every commit since its own tag. Measured",
+        "2026-08-14: both trains printed `Analysis of 17 commits complete` — the same seventeen.",
+        "That published a changelog crediting each train with work that is not in it. The wrapper",
+        "hands both plugins only the commits that touched this train, from the path list in",
+        "release/rails.mjs, which release.yml reads too — one definition, so the gate and the",
+        "filter cannot come to cover different things."
     ],
     "$schema": "https://json.schemastore.org/semantic-release.json",
     "branches": [
         "main",
-        { "name": "next", "prerelease": "rc" }
+        {
+            "name": "next",
+            "prerelease": "rc"
+        }
     ],
     "tagFormat": "angulux-v${version}",
     "plugins": [
         [
-            "@semantic-release/commit-analyzer",
+            "./release/rail-filter.mjs",
             {
+                "rail": "angulux",
                 "preset": "conventionalcommits",
                 "releaseRules": [
-                    { "type": "docs", "release": false },
-                    { "type": "test", "release": false },
-                    { "type": "ci", "release": false },
-                    { "type": "chore", "release": false },
-                    { "type": "refactor", "release": "patch" },
-                    { "type": "perf", "release": "patch" },
-                    { "type": "build", "release": "patch" },
-                    { "type": "revert", "release": "patch" }
+                    {
+                        "type": "docs",
+                        "release": false
+                    },
+                    {
+                        "type": "test",
+                        "release": false
+                    },
+                    {
+                        "type": "ci",
+                        "release": false
+                    },
+                    {
+                        "type": "chore",
+                        "release": false
+                    },
+                    {
+                        "type": "refactor",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "perf",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "build",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "revert",
+                        "release": "patch"
+                    }
                 ],
                 "parserOpts": {
-                    "noteKeywords": ["BREAKING CHANGE", "BREAKING-CHANGE"]
+                    "noteKeywords": [
+                        "BREAKING CHANGE",
+                        "BREAKING-CHANGE"
+                    ]
                 }
             }
         ],
         [
-            "@semantic-release/release-notes-generator",
+            "./release/rail-filter.mjs",
             {
+                "rail": "angulux",
                 "preset": "conventionalcommits",
                 "presetConfig": {
                     "types": [
-                        { "type": "feat", "section": "Features" },
-                        { "type": "fix", "section": "Bug fixes" },
-                        { "type": "perf", "section": "Performance" },
-                        { "type": "refactor", "section": "Refactoring" },
-                        { "type": "build", "section": "Build" },
-                        { "type": "revert", "section": "Reverts" },
-                        { "type": "docs", "hidden": true },
-                        { "type": "test", "hidden": true },
-                        { "type": "ci", "hidden": true },
-                        { "type": "chore", "hidden": true }
+                        {
+                            "type": "feat",
+                            "section": "Features"
+                        },
+                        {
+                            "type": "fix",
+                            "section": "Bug fixes"
+                        },
+                        {
+                            "type": "perf",
+                            "section": "Performance"
+                        },
+                        {
+                            "type": "refactor",
+                            "section": "Refactoring"
+                        },
+                        {
+                            "type": "build",
+                            "section": "Build"
+                        },
+                        {
+                            "type": "revert",
+                            "section": "Reverts"
+                        },
+                        {
+                            "type": "docs",
+                            "hidden": true
+                        },
+                        {
+                            "type": "test",
+                            "hidden": true
+                        },
+                        {
+                            "type": "ci",
+                            "hidden": true
+                        },
+                        {
+                            "type": "chore",
+                            "hidden": true
+                        }
                     ]
                 }
             }
@@ -80,7 +151,9 @@
             {
                 "successComment": false,
                 "failComment": false,
-                "releasedLabels": ["released"]
+                "releasedLabels": [
+                    "released"
+                ]
             }
         ]
     ]
