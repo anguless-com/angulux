@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common';
-import { Component, computed, effect, input, signal, Type } from '@angular/core';
+import { Component, PendingTasks, computed, effect, inject, input, signal, Type } from '@angular/core';
 import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
 import { ApiGroup, ApiTable } from '../components/api-table';
 import { DemoCode } from '../components/demo-code';
@@ -92,6 +92,9 @@ export class ModulePage {
             : `// ${api.name} exports standalone symbols — import them by name from '${api.entrypoint}/<name>'`;
     });
 
+    /** Captured here: an effect body is not an injection context. */
+    private readonly pending = inject(PendingTasks);
+
     constructor() {
         effect(() => {
             const name = this.module();
@@ -102,7 +105,7 @@ export class ModulePage {
 
             // `name` is captured so a slow response for a module the reader has already
             // navigated away from cannot overwrite the page they are now looking at.
-            void this.load(name);
+            this.pending.run(() => this.load(name));
         });
     }
 

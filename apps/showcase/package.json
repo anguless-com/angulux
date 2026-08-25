@@ -28,6 +28,9 @@
         "@angular/build": "catalog:angular22",
         "@angular/cli": "catalog:angular22",
         "@angular/compiler-cli": "catalog:angular22",
+        "@angular/platform-server": "catalog:angular22",
+        "@angular/ssr": "catalog:angular22",
+        "@types/node": "catalog:angular22",
         "typescript": "catalog:angular22"
     }
 }

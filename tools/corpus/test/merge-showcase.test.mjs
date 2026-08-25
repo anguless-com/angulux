@@ -20,15 +20,32 @@ const MODULES = JSON.parse(readFileSync(join(repoRoot, 'corpus/corpus.json'), 'u
  * copy order decide.
  */
 
-/** A minimal built site and a minimal showcase build, in a throwaway directory. */
-function fixture({ siteFiles = {}, showcaseFiles = {} } = {}) {
+/**
+ * A minimal built site and a minimal showcase build, in a throwaway directory.
+ *
+ * The showcase build carries one PRERENDERED page per corpus module, because that is what a
+ * real one carries: since prerendering, every route is rendered in Node at build time and
+ * written as real HTML. `omitModules` leaves some out, which is how the coverage check is
+ * tested — it is the only thing that would notice a route the prerender missed.
+ */
+function fixture({ siteFiles = {}, showcaseFiles = {}, omitModules = [] } = {}) {
     const root = mkdtempSync(join(tmpdir(), 'merge-showcase-'));
     const site = join(root, 'site');
     const build = join(root, 'build');
 
     for (const [dir, files] of [
         [site, { 'llms.txt': 'corpus index', 'button.md': '# button', 'llms/index.html': '<p>corpus landing', 'index.html': '<p>corpus landing', ...siteFiles }],
-        [build, { 'index.html': '<agl-showcase-root></agl-showcase-root>', 'main.js': 'boot();', ...showcaseFiles }]
+        [
+            build,
+            {
+                'index.html': '<agl-showcase-root></agl-showcase-root>',
+                'main.js': 'boot();',
+                ...Object.fromEntries(
+                    MODULES.filter((name) => !omitModules.includes(name)).map((name) => [`${name}/index.html`, `<agl-showcase-root>prerendered ${name}</agl-showcase-root>`])
+                ),
+                ...showcaseFiles
+            }
+        ]
     ]) {
         for (const [name, contents] of Object.entries(files)) {
             const target = join(dir, name);
@@ -68,18 +85,34 @@ test('a collision on anything but the root index fails the build', () => {
     rmSync(f.root, { recursive: true, force: true });
 });
 
-test('every module gets a directory index, so the 64 real pages answer 200', () => {
-    // GitHub Pages has no SPA fallback. Without these, every documented URL is a 404 that
-    // only renders correctly because 404.html happens to be the app.
+test('every module page arrives prerendered, and 404.html still catches the rest', () => {
+    // GitHub Pages has no SPA fallback, so every documented URL needs a file. This script used
+    // to CREATE them by copying the app shell — right when the content only existed after a
+    // bundle ran, wrong now that each route is prerendered with its API table already in it.
     const f = fixture();
 
     f.run();
 
     for (const name of [MODULES[0], MODULES.at(-1), 'button']) {
-        assert.match(readFileSync(join(f.site, name, 'index.html'), 'utf8'), /agl-showcase-root/, `${name}/index.html must exist`);
+        assert.match(readFileSync(join(f.site, name, 'index.html'), 'utf8'), new RegExp(`prerendered ${name}`), `${name}/index.html must be the PRERENDERED page, not a shell`);
     }
 
     assert.match(readFileSync(join(f.site, '404.html'), 'utf8'), /agl-showcase-root/, 'and anything else lands in the router, not on GitHub');
+
+    rmSync(f.root, { recursive: true, force: true });
+});
+
+test('a module the prerender missed fails the merge rather than shipping a blank page', () => {
+    // The failure this replaces was silent by construction: a shell written here would answer
+    // 200 with nothing in it, so the page a search engine indexes would be empty while every
+    // link check and every status probe reported success.
+    const f = fixture({ omitModules: ['button', 'dialog'] });
+    const result = f.run();
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /have no prerendered page/);
+    assert.match(result.stderr, /button/);
+    assert.match(result.stderr, /dialog/);
 
     rmSync(f.root, { recursive: true, force: true });
 });

@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, PendingTasks, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiIndexEntry, loadApiIndex } from '../data';
 import { DEMO_SECTIONS } from '../doc/registry';
@@ -104,7 +104,7 @@ export class HomePage {
     readonly documentedCount = computed(() => this.documented().length);
 
     constructor() {
-        loadApiIndex().then((modules) => this.modules.set(modules));
+        inject(PendingTasks).run(async () => this.modules.set(await loadApiIndex()));
     }
 
     demoCount(name: string): number {

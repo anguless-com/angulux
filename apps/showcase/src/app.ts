@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, PendingTasks, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ApiIndexEntry, loadApiIndex } from './data';
 import { DEMO_SECTIONS } from './doc/registry';
@@ -50,7 +50,10 @@ export class AppComponent {
     readonly apiOnly = computed(() => this.modules().filter((module) => !(module.name in DEMO_SECTIONS)));
 
     constructor() {
-        loadApiIndex().then((modules) => this.modules.set(modules));
+        // Declared to Angular, not merely started. Prerendering serialises as soon as the
+        // application is stable, and a bare promise is invisible to that check — the nav would
+        // be rendered empty into every one of the 65 pages.
+        inject(PendingTasks).run(async () => this.modules.set(await loadApiIndex()));
     }
 
     demoCount(name: string): number {

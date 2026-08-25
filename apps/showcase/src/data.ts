@@ -58,22 +58,42 @@ export interface Demo {
     source: string;
 }
 
+/** How a payload is fetched. One implementation per environment — see `useJsonReader`. */
+export type JsonReader = (path: string) => Promise<unknown>;
+
+const viaFetch: JsonReader = (path) =>
+    fetch(path).then((response) => {
+        if (!response.ok) {
+            throw new Error(`${path}: ${response.status}`);
+        }
+
+        return response.json();
+    });
+
+let read: JsonReader = viaFetch;
+
+/**
+ * Replace how payloads are read. Prerendering is the only caller.
+ *
+ * `fetch('api/button.json')` resolves against the document's base URL, which exists in a
+ * browser and does not exist while prerendering in Node: there is no origin, no server, and
+ * nothing listening. Rather than teach the app about two worlds, the server entry hands it a
+ * reader that goes to the generated files on disk — the same bytes the browser would have
+ * downloaded, obtained the only way available where there is no network.
+ */
+export function useJsonReader(reader: JsonReader): void {
+    read = reader;
+    cache.clear();
+}
+
 // Cached per path: the nav and the page both want the index, and a reader clicking through
-// modules should not re-download what has not changed between routes.
+// modules should not re-download what has not changed between routes. During prerendering the
+// same cache spans all 65 routes, so each payload is read from disk once.
 const cache = new Map<string, Promise<unknown>>();
 
 function loadJson<T>(path: string): Promise<T> {
     if (!cache.has(path)) {
-        cache.set(
-            path,
-            fetch(path).then((response) => {
-                if (!response.ok) {
-                    throw new Error(`${path}: ${response.status}`);
-                }
-
-                return response.json();
-            })
-        );
+        cache.set(path, read(path));
     }
 
     return cache.get(path) as Promise<T>;
