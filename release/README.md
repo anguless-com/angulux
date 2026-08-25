@@ -107,11 +107,45 @@ since its last tag. If not, the train is skipped entirely. This is a coarse gate
 deliberately so — it is a rule you can verify by reading four lines of `git diff`, rather
 than a plugin whose behaviour you would have to trust.
 
-**Consequence to know:** within a train, the bump is computed from *all* commits since that
-train's tag, not only the ones touching its paths. A release can therefore be larger than
-strictly necessary (a `feat` elsewhere in a window where a fork file also changed makes the
-fork release a minor). Over-releasing a version is cheap; under-releasing, or releasing the
-wrong content, is not.
+**That paragraph used to end here, with a consequence that turned out to be worse than it
+sounded.** The gate answers one question — does this train RUN — and never filtered commits,
+so a train that ran analysed every commit since its own tag. Measured on 2026-08-14 during
+the `22.2.0` release: both trains printed `Analysis of 17 commits complete`, the same
+seventeen. `feat(mcp)` (a package that is `private: true`) and `feat(site)` (the
+documentation site, in no package at all) bumped both trains to a minor **and were published
+under Features in both sets of release notes**. Over-releasing a version is cheap; a public
+changelog crediting a release with work that is not in it is the thing this project cannot
+afford.
+
+So there are now two mechanisms for two questions. The path gate still decides whether a
+train runs. `release/rail-filter.mjs` wraps `commit-analyzer` and `release-notes-generator`
+and hands each only the commits that touched that train, so the version and the notes are
+made of the same subset. Both read their paths from `release/rails.mjs`, which the workflow
+reads too — one definition, because two copies is how a gate and a filter come to cover
+different things.
+
+### Exercising the filter without a release
+
+The workflow's dry-run cannot reach it: if no train has changes the gate skips both jobs, so
+the filter never loads. To run it directly — creates nothing, publishes nothing:
+
+```sh
+# The tooling, outside the repository, exactly as install-tooling.sh does it.
+mkdir -p /tmp/sr && cd /tmp/sr && printf '{"name":"p","private":true}\n' > package.json
+npm i @semantic-release/commit-analyzer@13.0.1 @semantic-release/release-notes-generator@14.1.1 \
+      conventional-changelog-conventionalcommits@8.0.0
+```
+
+Then, from the repository, import `release/rail-filter.mjs` with `NODE_PATH` pointing at that
+`node_modules`, build a context of `{ commits, logger, cwd }` from `git log <tag>..HEAD`, and
+call `analyzeCommits` twice — once through the wrapper and once through the raw plugin. Run
+on 2026-08-25 against the five commits since `angulux-v22.2.0`: **raw `minor`, wrapped `no
+release`**, on both trains.
+
+⚠️ `conventional-changelog-conventionalcommits` is not a dependency of any
+`@semantic-release/*` package. It is in `SR_TOOLING` because both configs set
+`"preset": "conventionalcommits"`, and leaving it out fails inside `load-parser-config` with
+a `MODULE_NOT_FOUND` that names the preset rather than the setting that asked for it.
 
 ## npm Trusted Publishing (OIDC)
 

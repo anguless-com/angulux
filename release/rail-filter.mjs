@@ -25,7 +25,28 @@
  * Plugin options: `{ "rail": "angulux" | "forks", …passed through to the wrapped plugin }`.
  */
 
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+
 import { RAILS, commitTouchesRail } from './rails.mjs';
+
+/**
+ * Load a wrapped plugin the way semantic-release finds it, not the way ESM would.
+ *
+ * The release tooling is installed OUTSIDE the repository and reached through `NODE_PATH`
+ * (see `release/install-tooling.sh` for why). `NODE_PATH` is honoured by CJS resolution and
+ * **ignored by the ESM resolver**, so a bare `await import('@semantic-release/commit-analyzer')`
+ * here resolves against this file's own directory, finds nothing, and fails with
+ * ERR_MODULE_NOT_FOUND on the runner while working on any machine that happens to have the
+ * plugin installed locally.
+ *
+ * That is the same trap `install-tooling.sh` was written to escape — semantic-release itself
+ * resolves plugins CJS-style, which is why the tooling is reachable at all — arrived at from
+ * the other side. So: resolve the specifier through `require`, which reads `NODE_PATH`, then
+ * import the resulting absolute path as a file URL, which ESM accepts on Windows too.
+ */
+const resolveFrom = createRequire(import.meta.url);
+const loadPlugin = (name) => import(pathToFileURL(resolveFrom.resolve(name)).href);
 
 /** The commits this train may count, with what was dropped reported rather than assumed. */
 function forRail({ rail }, context) {
@@ -56,13 +77,13 @@ function forRail({ rail }, context) {
 }
 
 export async function analyzeCommits(pluginConfig, context) {
-    const { analyzeCommits: wrapped } = await import('@semantic-release/commit-analyzer');
+    const { analyzeCommits: wrapped } = await loadPlugin('@semantic-release/commit-analyzer');
 
     return wrapped(pluginConfig, forRail(pluginConfig, context));
 }
 
 export async function generateNotes(pluginConfig, context) {
-    const { generateNotes: wrapped } = await import('@semantic-release/release-notes-generator');
+    const { generateNotes: wrapped } = await loadPlugin('@semantic-release/release-notes-generator');
 
     return wrapped(pluginConfig, forRail(pluginConfig, context));
 }
