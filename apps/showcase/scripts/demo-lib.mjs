@@ -9,11 +9,23 @@
  * Everything here is a pure function of text and paths. No writes, no process, no exit.
  */
 
-import { readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** A demo file imports the library and nothing of the site. */
 export const SHOWCASE_IMPORT_RE = /from '(\.\.\/)+components\//;
+
+/**
+ * A demo file's text, with line endings normalised to `\n`.
+ *
+ * Both the generator and the gate read through here, so neither can be looking at a different
+ * string than the other. On Windows these files come off disk as CRLF, and that difference is
+ * never visible — it silently defeats any regex written with `\n` in it (the blank-line strip
+ * in `dedent`, for one), and the syntax highlighter normalises line endings on its way in, so
+ * its tokens stopped matching the source they came from. The failure mode is always the same
+ * shape: something works on one machine and is wrong on another, with nothing to see.
+ */
+export const readDemo = (path) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n');
 
 /** `button/basic-doc.ts` -> `button-basic`. */
 export const demoId = (module, file) => `${module}-${file.replace(/-doc\.ts$/, '')}`;
@@ -82,7 +94,10 @@ export function extractCard(source) {
 }
 
 export function dedent(text) {
-    const lines = text.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
+    // Every leading blank line, not just one newline. A demo whose card opens with a blank
+    // line — several do — was being published with an empty first line in its snippet, which
+    // is invisible in plain grey text and obvious the moment the code is numbered or coloured.
+    const lines = text.replace(/^(?:[ \t]*\n)+/, '').replace(/\s+$/, '').split('\n');
     const indents = lines.filter((line) => line.trim()).map((line) => line.match(/^ */)[0].length);
     const strip = indents.length ? Math.min(...indents) : 0;
 

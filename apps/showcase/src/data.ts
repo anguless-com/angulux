@@ -46,6 +46,10 @@ export interface ApiModule {
     description: string;
     /** What a reader imports. Empty when the module's exports are standalone, as `icons` is. */
     ngModules: string[];
+    /** That import written out and coloured — composed by `build-api.mjs`, not by the page. */
+    importLine: CodeLine[];
+    /** The colours `importLine` indexes into. */
+    palette: [string, string][];
     declarations: ApiDeclaration[];
 }
 
@@ -58,10 +62,37 @@ export interface ApiIndexEntry {
     declares: string[];
 }
 
+/**
+ * One run of same-coloured characters. `c` indexes the payload's palette, or is -1 for text
+ * in the default foreground — which is about half of it, and which renders with no element
+ * around it at all.
+ */
+export interface CodeToken {
+    t: string;
+    c: number;
+}
+
+export type CodeLine = CodeToken[];
+
 export interface Demo {
     module: string;
-    template: string;
-    source: string;
+    /** The markup inside the demo's card, already tokenised. */
+    template: CodeLine[];
+    /** The whole demo file, already tokenised. */
+    source: CodeLine[];
+}
+
+/**
+ * A module's demos and the colours they use.
+ *
+ * Colouring happens at build time (`scripts/highlight.mjs` says why), so nothing here is a
+ * highlighter — it is the output of one. Each entry is `[light, dark]`; which of the two is
+ * used is decided in CSS, not here, so a prerendered page is already the right colour before
+ * any JavaScript runs.
+ */
+export interface DemoPayload {
+    palette: [string, string][];
+    demos: Record<string, Demo>;
 }
 
 /** How a payload is fetched. One implementation per environment — see `useJsonReader`. */
@@ -118,4 +149,8 @@ export const loadApiIndex = () => loadJson<ApiIndexEntry[]>('api/index.json');
 
 export const loadApiModule = (name: string) => loadJson<ApiModule>(`api/${name}.json`);
 
-export const loadDemos = () => loadJson<Record<string, Demo>>('demos.json');
+/**
+ * One file per module, for the reason the API payloads are split the same way: a reader who
+ * opens `/button` should not download the demos of fifty other modules to see it.
+ */
+export const loadDemos = (module: string) => loadJson<DemoPayload>(`demos/${module}.json`);

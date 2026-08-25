@@ -20,6 +20,10 @@ catalog:
     # for other reasons; this dependency stays on the chrome side of it.
     'tailwindcss': 4.3.3
     '@tailwindcss/postcss': 4.3.3
+    # Syntax highlighting, run at BUILD time by the showcase's generate step. It never
+    # reaches a browser: the demo payloads ship as colour tokens, so no grammar, no theme and
+    # no highlighter is in the bundle. Also a devDependency of the private app only.
+    'shiki': 4.4.3
     'chart.js': 4.5.1
     # Used only by the private, unpublished angulux-mcp package. Pinned here rather than as a
     # literal in that package's manifest so check-catalog can see it: a version nothing gates

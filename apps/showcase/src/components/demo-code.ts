@@ -1,5 +1,6 @@
 import { Component, computed, input, signal } from '@angular/core';
-import { Demo } from '../data';
+import { CodeLine, Demo } from '../data';
+import { CodeLines } from './code-lines';
 
 /**
  * Shows the code behind the demo directly above it. Both tabs are extracted from the demo
@@ -13,6 +14,7 @@ import { Demo } from '../data';
 @Component({
     selector: 'agl-demo-code',
     standalone: true,
+    imports: [CodeLines],
     template: `
         <div class="overflow-hidden rounded-b-xl border border-t-0 border-line bg-sunken">
             <div class="flex items-center gap-1 border-b border-line px-2 py-1.5">
@@ -39,21 +41,36 @@ import { Demo } from '../data';
                 </button>
             </div>
 
-            <pre class="thin-scroll overflow-x-auto p-4 text-[13px] leading-relaxed"><code>{{ text() }}</code></pre>
+            <agl-code-lines [lines]="lines()" [palette]="palette()" />
         </div>
     `
 })
 export class DemoCode {
     readonly demo = input.required<Demo>();
 
+    /** The colours its tokens index into. One palette per module, shipped with the demos. */
+    readonly palette = input.required<[string, string][]>();
+
     readonly tab = signal<'template' | 'source'>('template');
 
     readonly copied = signal(false);
 
-    readonly text = computed(() => (this.tab() === 'template' ? this.demo().template : this.demo().source));
+    readonly lines = computed<CodeLine[]>(() => (this.tab() === 'template' ? this.demo().template : this.demo().source));
 
+    /**
+     * The original text, rebuilt from the tokens it was cut into.
+     *
+     * The payload ships no second copy of the source, so this is the only place the plain text
+     * exists — and it is exact rather than approximately exact: the build step refuses to emit
+     * tokens that do not reassemble into the file character for character, so a mismatch fails
+     * the build instead of landing on a reader's clipboard.
+     */
     copy(): void {
-        navigator.clipboard?.writeText(this.text()).then(() => {
+        const text = this.lines()
+            .map((line) => line.map((token) => token.t).join(''))
+            .join('\n');
+
+        navigator.clipboard?.writeText(text).then(() => {
             this.copied.set(true);
             setTimeout(() => this.copied.set(false), 1500);
         });

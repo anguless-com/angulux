@@ -175,6 +175,21 @@
     }
 }
 
+/* ── syntax colours ────────────────────────────────────────────────────────────── */
+
+/* A coloured token. `--l` and `--d` are set per token by `agl-code-lines`, from the palette
+   in the payload; which one wins is decided here, in CSS, so a prerendered page is already
+   correct in both themes before any script runs. Deliberately NOT a Tailwind `dark:` variant
+   binding on the element — that would be two arbitrary-value utilities repeated on thousands
+   of spans, to say what two rules say once. */
+.tk {
+    color: var(--l);
+}
+
+.dark .tk {
+    color: var(--d);
+}
+
 /* ── scrollbars in the two scrolling panes ─────────────────────────────────────── */
 
 .thin-scroll {

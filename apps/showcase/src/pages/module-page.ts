@@ -50,7 +50,7 @@ interface LoadedSection {
                          without it, and a reader should not have to open a demo's Component tab to
                          find out what to write. -->
                     <div class="mt-6">
-                        <agl-code-block [code]="importLine()" />
+                        <agl-code-block [lines]="api.importLine" [palette]="api.palette" />
                     </div>
 
                     @if (sections().length) {
@@ -62,7 +62,7 @@ interface LoadedSection {
                                 <ng-container *ngComponentOutlet="loaded.component" />
 
                                 @if (loaded.demo) {
-                                    <agl-demo-code [demo]="loaded.demo" />
+                                    <agl-demo-code [demo]="loaded.demo" [palette]="palette()" />
                                 } @else {
                                     <p class="rounded-b-xl border border-t-0 border-caution bg-caution-soft px-4 py-3 text-sm text-caution">
                                         Demo "{{ loaded.section.id }}" is registered but was not extracted — run the generate step.
@@ -97,25 +97,13 @@ export class ModulePage {
 
     readonly sections = signal<LoadedSection[]>([]);
 
+    /** The colours this module's demo tokens index into, shipped alongside them. */
+    readonly palette = signal<[string, string][]>([]);
+
     readonly notFound = signal(false);
 
     /** The module's own declarations, each followed by the ancestors it inherits from. */
     readonly groups = signal<ApiGroup[]>([]);
-
-    /**
-     * A module with no NgModule is not a defect and must not be papered over: `icons` exports
-     * standalone components under their own entry points, so the honest line names the module
-     * path and says the exports come one at a time.
-     */
-    readonly importLine = computed(() => {
-        const api = this.api();
-
-        if (!api) return '';
-
-        return api.ngModules.length
-            ? `import { ${api.ngModules.join(', ')} } from '${api.entrypoint}';`
-            : `// ${api.name} exports standalone symbols — import them by name from '${api.entrypoint}/<name>'`;
-    });
 
     /**
      * Built from the same two lists the page renders from, so it cannot list a heading the
@@ -184,14 +172,15 @@ export class ModulePage {
             return;
         }
 
-        const demos = await loadDemos();
+        const payload = await loadDemos(name);
         const components = await Promise.all(defined.map((section) => section.load()));
 
         if (this.module() !== name) {
             return;
         }
 
-        this.sections.set(defined.map((section, index) => ({ section, component: components[index], demo: demos[section.id] })));
+        this.palette.set(payload.palette);
+        this.sections.set(defined.map((section, index) => ({ section, component: components[index], demo: payload.demos[section.id] })));
     }
 
     /**
