@@ -76,7 +76,13 @@ export interface ApiGroup {
                                             }
                                         </td>
                                         <td class="mono">{{ member.type }}</td>
-                                        <td class="mono">{{ member.default }}</td>
+                                        <td class="mono">
+                                            @if (member.defaultDeclared) {
+                                                {{ member.default }}
+                                            } @else {
+                                                <span class="undocumented">not documented</span>
+                                            }
+                                        </td>
                                         <td>{{ member.description }}</td>
                                     </tr>
                                 }
