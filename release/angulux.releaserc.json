@@ -30,7 +30,16 @@
         "That published a changelog crediting each train with work that is not in it. The wrapper",
         "hands both plugins only the commits that touched this train, from the path list in",
         "release/rails.mjs, which release.yml reads too — one definition, so the gate and the",
-        "filter cannot come to cover different things."
+        "filter cannot come to cover different things.",
+        "",
+        "ONE entry, not two. The wrapper exports BOTH analyzeCommits and generateNotes, so the",
+        "two plugins it replaced collapse into a single list item carrying both configurations.",
+        "Listing it twice — which is how it first shipped, because two plugins were replaced",
+        "one-for-one — makes semantic-release run generateNotes twice and CONCATENATE the",
+        "output: the 22.2.1 release notes were published with every entry printed twice, once",
+        "under the default section names and once under the presetConfig ones. The version was",
+        "unaffected (both passes agree, and the highest release type wins), so nothing failed.",
+        "check:release-plugins now refuses a duplicated plugin path."
     ],
     "$schema": "https://json.schemastore.org/semantic-release.json",
     "branches": [
@@ -86,14 +95,7 @@
                         "BREAKING CHANGE",
                         "BREAKING-CHANGE"
                     ]
-                }
-            }
-        ],
-        [
-            "./release/rail-filter.mjs",
-            {
-                "rail": "angulux",
-                "preset": "conventionalcommits",
+                },
                 "presetConfig": {
                     "types": [
                         {

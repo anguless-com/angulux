@@ -22,7 +22,11 @@
         "That published a changelog crediting each train with work that is not in it. The wrapper",
         "hands both plugins only the commits that touched this train, from the path list in",
         "release/rails.mjs, which release.yml reads too — one definition, so the gate and the",
-        "filter cannot come to cover different things."
+        "filter cannot come to cover different things.",
+        "",
+        "ONE entry, not two — see the same paragraph in angulux.releaserc.json. This train had",
+        "the identical duplication and had simply not released since it was introduced, so it",
+        "never showed. check:release-plugins now refuses a duplicated plugin path."
     ],
     "$schema": "https://json.schemastore.org/semantic-release.json",
     "branches": [
@@ -79,13 +83,6 @@
                         "BREAKING-CHANGE"
                     ]
                 }
-            }
-        ],
-        [
-            "./release/rail-filter.mjs",
-            {
-                "rail": "forks",
-                "preset": "conventionalcommits"
             }
         ],
         [
