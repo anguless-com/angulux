@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, Directive, effect, inject, InjectionToken, Input, input, NgModule, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { addClass, createElement, hasClass, isNotEmpty, removeClass, uuid } from '@anguless/angulux-utils';
 import { SharedModule } from '@anguless/angulux/api';
@@ -142,7 +142,20 @@ export class BadgeDirective extends BaseComponent {
 
     onAfterViewInit(): void {
         this.id = uuid('pn_id_') + '_badge';
-        this.renderBadgeContent();
+
+        // `renderBadgeContent` builds an element with the global `document`, which does not
+        // exist outside a browser. Eighteen components in this library already guard exactly
+        // this way — `ButtonDirective.onAfterViewInit` is the closest twin, creating its icon
+        // and label behind the same check — and this directive was the one that did not.
+        //
+        // The symptom was a `ReferenceError: document is not defined` on every server render,
+        // thrown from a lifecycle hook, so it did not stop the page: the rest of the component
+        // tree rendered and only the badge was missing from the HTML. A consumer running SSR
+        // saw an error they could do nothing about, for a badge that appeared on hydration
+        // anyway.
+        if (isPlatformBrowser(this.platformId)) {
+            this.renderBadgeContent();
+        }
     }
 
     private setValue(element?: HTMLElement): void {
