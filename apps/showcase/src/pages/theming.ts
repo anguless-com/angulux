@@ -53,6 +53,55 @@ import { Toc, TocEntry } from '../components/toc';
                 </p>
                 <agl-code-block [lines]="snippet('preset')" [palette]="palette()" label="app.config.ts" />
 
+                <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="contrast">Contrast</h2>
+                <p class="mt-3 text-[15px] text-muted">
+                    The default light preset does not meet WCAG AA on solid-coloured components. A sweep of this site — every text node inside a demo, measured against the
+                    background actually painted behind it — found <strong class="font-medium text-ink">76 failing nodes across 20 of the 51 modules</strong> that have demos. The
+                    same sweep in dark mode finds none.
+                </p>
+                <p class="mt-3 text-[15px] text-muted">
+                    This is worth stating plainly rather than quietly fixing on the site: these colours are not angulux's, and the demos here are styled exactly the way your
+                    application will be. Special-casing them would hide the problem instead of showing it to you.
+                </p>
+                <div class="thin-scroll mt-4 overflow-x-auto rounded-xl border border-line">
+                    <table class="w-full border-collapse text-[13px]">
+                        <thead>
+                            <tr class="bg-surface">
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Severity</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Default fill</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">On white</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">First step that passes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of contrast; track row.severity) {
+                                <tr class="border-b border-line-soft last:border-0">
+                                    <td class="px-3 py-2 align-top font-mono text-ink">{{ row.severity }}</td>
+                                    <td class="px-3 py-2 align-top font-mono text-muted">{{ row.fill }}</td>
+                                    <td class="px-3 py-2 align-top font-mono text-caution">{{ row.ratio }}:1</td>
+                                    <td class="px-3 py-2 align-top font-mono text-muted">{{ row.fixed }} — {{ row.fixedRatio }}:1</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-4 text-sm text-muted">
+                    The pattern behind every row: the fill is the <code class="code-chip">-500</code> step of a palette carrying white text. That step is built for about
+                    <strong class="font-medium text-ink">3:1</strong> — the bar for a border or a large heading, not for a label. Note that
+                    <strong class="font-medium text-ink">one step darker is not enough for four of the six</strong>: at <code class="code-chip">-600</code>, green still measures
+                    3.30 and sky 4.10. Only danger and help clear AA there.
+                </p>
+                <p class="mb-4 mt-3 text-sm text-muted">
+                    <code class="code-chip">definePreset</code> reaches these without forking anything. Overriding the primitive steps fixes the fill everywhere it is used — button,
+                    badge, progress bar, split button, toast — rather than component by component.
+                </p>
+                <agl-code-block [lines]="snippet('contrast')" [palette]="palette()" label="app.config.ts" />
+                <p class="mt-4 text-sm text-muted">
+                    What this costs you: those palette steps are now darker <em>everywhere</em>, including borders and focus rings. That direction is safe for text on a coloured
+                    fill, but if your own UI puts dark text on a light primary tint, re-check those places. If you would rather keep the change narrow, the same values work on
+                    <code class="code-chip">components.button.colorScheme.light.root.&lt;severity&gt;</code> — more precise, and repeated per component.
+                </p>
+
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="dark">Dark mode</h2>
                 <p class="mb-4 mt-1 text-sm text-muted">
                     The default is <code class="code-chip">'system'</code>: the operating system decides and nothing in your application overrides it. If you want a toggle, name a
@@ -127,9 +176,28 @@ export class ThemingPage {
     readonly toc: TocEntry[] = [
         { id: 'where', label: 'Where styling comes from' },
         { id: 'customise', label: 'Customising a preset' },
+        { id: 'contrast', label: 'Contrast' },
         { id: 'dark', label: 'Dark mode' },
         { id: 'unstyled', label: 'Without the preset' },
         { id: 'licence', label: 'The licence boundary' }
+    ];
+
+    /**
+     * Measured, not quoted. Each ratio is the WCAG relative-luminance formula applied to the
+     * hex values read out of the installed preset package, so the table cannot drift from a
+     * screenshot somebody took once.
+     *
+     * `fixed` is the first step DOWN the same palette that reaches 4.5:1 — which is two steps
+     * for four of the six. The snippet below shifts 600 and 700 with it, because overriding
+     * only 500 leaves hover reading a lighter colour than the resting state.
+     */
+    readonly contrast = [
+        { severity: 'primary', fill: '#10b981', ratio: '2.54', fixed: '#047857', fixedRatio: '5.48' },
+        { severity: 'success', fill: '#22c55e', ratio: '2.28', fixed: '#15803d', fixedRatio: '5.02' },
+        { severity: 'info', fill: '#0ea5e9', ratio: '2.77', fixed: '#0369a1', fixedRatio: '5.93' },
+        { severity: 'warn', fill: '#f97316', ratio: '2.80', fixed: '#c2410c', fixedRatio: '5.18' },
+        { severity: 'danger', fill: '#ef4444', ratio: '3.76', fixed: '#dc2626', fixedRatio: '4.83' },
+        { severity: 'help', fill: '#a855f7', ratio: '3.96', fixed: '#9333ea', fixedRatio: '5.38' }
     ];
 
     constructor() {
