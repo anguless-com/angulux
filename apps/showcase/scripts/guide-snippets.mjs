@@ -126,6 +126,32 @@ const Brand = definePreset(Aura, {
 provideAngulux({ theme: { preset: Brand } });`
     },
 
+    contrast: {
+        lang: 'source',
+        code: `import { definePreset } from '@primeuix/themes';
+import Aura from '@primeuix/themes/aura';
+
+// Every severity fill is the -500 step of a palette with white text on it, and
+// -500 is built for roughly 3:1 — enough for a border, short of AA for a label.
+// Move each one to the first step that clears 4.5:1.
+//
+// Shift 600 and 700 along with it. Overriding 500 alone leaves hover reading
+// the untouched 600, which is then LIGHTER than the resting state and still
+// below AA — emerald.600 is 3.77:1.
+const Accessible = definePreset(Aura, {
+    primitive: {
+        emerald: { 500: '#047857', 600: '#065f46', 700: '#064e3b' }, // primary  2.54 -> 5.48
+        green: { 500: '#15803d', 600: '#166534', 700: '#14532d' },   // success  2.28 -> 5.02
+        sky: { 500: '#0369a1', 600: '#075985', 700: '#0c4a6e' },     // info     2.77 -> 5.93
+        orange: { 500: '#c2410c', 600: '#9a3412', 700: '#7c2d12' },  // warn     2.80 -> 5.18
+        red: { 500: '#dc2626', 600: '#b91c1c', 700: '#991b1b' },     // danger   3.76 -> 4.83
+        purple: { 500: '#9333ea', 600: '#7e22ce', 700: '#6b21a8' }   // help     3.96 -> 5.38
+    }
+});
+
+provideAngulux({ theme: { preset: Accessible } });`
+    },
+
     pin: {
         lang: 'shell',
         code: `# The range angulux declares is a WARNING, not a lock: installing 3.x
