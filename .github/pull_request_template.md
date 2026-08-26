@@ -30,8 +30,16 @@ By submitting this pull request I confirm that:
       responsibility for it as if I had written it by hand. (Assistants have post-MIT
       PrimeNG in their training data and will reproduce it without saying so — this is the
       likeliest way the rule gets broken.)
-- [ ] My commits are **signed off** (`git commit -s`), certifying the
-      [DCO 1.1](https://developercertificate.org/).
+
+<!--
+Three boxes, and each one is here because no machine can check it. Sign-off used to be a
+fourth; it was removed because the `DCO sign-off` job already fails on a commit that lacks
+the trailer, and a box that duplicates a gate only teaches people to tick without reading.
+
+Do not tick these on someone else's behalf, and do not have a tool tick them for you: the
+third one in particular is a statement about a person taking responsibility, and a machine
+asserting it is a false statement rather than a shortcut.
+-->
 
 ## Evidence
 
