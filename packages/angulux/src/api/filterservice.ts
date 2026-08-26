@@ -98,8 +98,23 @@ export class FilterService {
         },
 
         notEquals: (value: any, filter: any, filterLocale?: any): boolean => {
+            // An absent filter is an INACTIVE filter, so every row passes it. This returned
+            // `false` — the one matcher out of sixteen that did — and a "Not equals" column
+            // filter left empty therefore excluded every row and blanked the table. It is
+            // reachable without touching the service: `executeLocalFilter` applies a
+            // constraint without checking whether its value is blank, and `agl-columnFilter`
+            // registers constraints with `value: null`.
+            //
+            // Read as a design choice, `false` cannot be defended: `equals`, `contains`,
+            // `notContains`, `startsWith`, `endsWith`, `in`, `between`, `lt`/`lte`/`gt`/`gte`,
+            // `dateIs`, `dateIsNot`, `dateBefore` and `dateAfter` all return `true` here.
+            // `dateIsNot` is the telling one — the same negation, guarded correctly a hundred
+            // lines below. This was a typo with a long life, not a semantic.
+            //
+            // `isNot` delegates here and is fixed by the same line. `dateIsNot` does not: it
+            // carries its own guard and was never affected.
             if (filter === undefined || filter === null || (typeof filter === 'string' && filter.trim() === '')) {
-                return false;
+                return true;
             }
 
             if (value === undefined || value === null) {

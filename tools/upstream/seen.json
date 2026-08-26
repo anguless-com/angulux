@@ -71,7 +71,7 @@
         "22.1.0 · FilterService · 2d7b393e4c46": {
             "verdict": "follow",
             "module": "api",
-            "note": "REPRODUCES. Proven at runtime against the BUILT package: FilterService.filter with an empty filter returns 0/3 rows for notEquals and 3/3 for equals/startsWith/contains/notContains (null, undefined and \"\" alike). filterservice.ts:101-103 returns false where every sibling returns true. dateIsNot delegates to it. Reachable from the UI: executeLocalFilter (table.ts:2142) has no blank guard, and columnFilter registers constraints with value: null. Fix changes runtime behaviour: blocked by P3 in Phase 1."
+            "note": "REPRODUCES. Proven at runtime against the BUILT package: FilterService.filter with an empty filter returns 0/3 rows for notEquals and 3/3 for equals/startsWith/contains/notContains (null, undefined and \"\" alike). filterservice.ts:101-103 returns false where every sibling returns true. isNot delegates to it and is fixed by the same line; dateIsNot carries its own guard and was NEVER affected — the first triage said otherwise and was wrong. Reachable from the UI: executeLocalFilter (table.ts:2142) has no blank guard, and columnFilter registers constraints with value: null. Fix changes runtime behaviour: blocked by P3 in Phase 1."
         },
         "22.1.0 · Chart · e4168e282a3c": {
             "verdict": "follow",
