@@ -155,6 +155,27 @@ Bug fixes and Angular-compatibility work are equally welcome. **New API design i
 out of scope**: the public API is frozen until the next Angular major. See
 [GOVERNANCE.md](GOVERNANCE.md).
 
+### Following upstream without reading upstream
+
+PrimeTek keeps shipping, and everything they ship now is commercially licensed. Their
+changelog is still readable: a defect report is a fact about how software behaved, and facts
+are not licensed. Their code is not readable, and neither is their site's prose.
+
+```bash
+npm run watch:upstream            # read the changelog, sorted by what it can mean here
+npm run watch:upstream -- --record # accept the entries once they have been triaged
+```
+
+The tool reads one page and nothing else — [`tools/upstream/source.mjs`](tools/upstream/source.mjs)
+refuses any other URL, and a test proves it refuses before the request. Decisions land in
+`tools/upstream/seen.json`, keyed by a digest instead of by their sentence, so none of their
+prose is stored here. A weekly job opens a triage issue when entries accumulate.
+
+**A `follow` line is not a patch to port.** It says a defect was reported against a component
+angulux also ships, which makes it a place to point our own test. This fork diverged at
+`21.1.9`: the defect may not exist here, and where it does, the fix is written from our
+source. Reaching for their diff to settle the question is the exact line above.
+
 ## Commits and pull requests
 
 Commit messages and PR titles follow

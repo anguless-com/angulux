@@ -38,7 +38,8 @@
         "check:peer-licence": "node tools/check-peer-licence.mjs",
         "check:action-inputs": "node tools/check-action-inputs.mjs",
         "check:facet-single-route": "node tools/check-facet-single-route.mjs",
-        "check:release-plugins": "node tools/check-release-plugins.mjs"
+        "check:release-plugins": "node tools/check-release-plugins.mjs",
+        "watch:upstream": "node tools/upstream/watch-changelog.mjs"
     },
     "pnpm": {
         "overrides": {

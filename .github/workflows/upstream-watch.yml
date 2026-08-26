@@ -1,0 +1,129 @@
+# Scheduled upstream watch.
+#
+# WHY THIS RUNS ON A TIMER RATHER THAN ON A PULL REQUEST:
+#
+# Nothing in this repository changes when PrimeTek ships a release. The information arrives
+# on their site, on their schedule, and the only thing that brings it here is somebody
+# remembering to open the page — which is exactly the kind of habit that lapses in a quiet
+# month and takes a year of defect reports with it.
+#
+# WHAT IT IS ALLOWED TO READ: one page, https://primeng.dev/changelog, which is a list of
+# sentences about software behaviour. Constitution P1 forbids reading PrimeTek material at
+# the CODE level from primeng@22 onward, and that line is enforced in tools/upstream/source.mjs
+# rather than trusted here. This job never installs a prime* package and never fetches a diff.
+#
+# WHAT A RED RUN MEANS: entries exist that nobody has triaged yet. It is not a build failure
+# and never a reason to weaken the tool. Read the report, decide what each entry can mean for
+# angulux, and run `npm run watch:upstream -- --record` to commit the decision.
+
+name: Upstream watch
+
+on:
+    schedule:
+        # Mondays, 07:00 UTC. PrimeTek ships far less often than that; a weekly read keeps the
+        # gap between their release and our first look under a week without adding noise.
+        - cron: '0 7 * * 1'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    issues: write
+
+jobs:
+    changelog:
+        name: primeng.dev changelog
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: '22'
+
+            # No install step on purpose: the watch reads closure.json and the attic directory
+            # off the checkout and uses nothing but Node built-ins. Installing would put the
+            # dependency tree between this job and a page it can already read.
+            # The exit code is the whole signal here, and it is the thing a pipeline throws
+            # away: `node … | tee report.txt` reports TEE's status, so a red run would look
+            # green and no issue would ever open. Redirect, then read the code, then print.
+            #
+            # 0 = nothing new · 1 = entries waiting to be triaged · 2 = the page could not be
+            # read. The last two are opposite situations and are routed apart below.
+            - name: Read the changelog
+              id: watch
+              run: |
+                  set +e
+                  node tools/upstream/watch-changelog.mjs --check > upstream-report.txt 2>&1
+                  status=$?
+                  cat upstream-report.txt
+                  echo "status=$status" >> "$GITHUB_OUTPUT"
+
+            - name: Open or update the triage issue
+              if: steps.watch.outputs.status == '1'
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      const fs = require('fs');
+                      const title = 'Upstream changelog: entries waiting to be triaged';
+                      const report = fs.readFileSync('upstream-report.txt', 'utf8');
+                      const body = [
+                          'The weekly read of https://primeng.dev/changelog found entries that are not yet in',
+                          '`tools/upstream/seen.json`.',
+                          '',
+                          '**None of this is a patch to copy.** Each `follow` line names a module angulux also ships,',
+                          'which makes it a place to point our own test — nothing more. If the defect does not',
+                          'reproduce here, the entry was about their tree and not ours. Constitution P1 still forbids',
+                          'reading their code, and this job never did.',
+                          '',
+                          '```',
+                          report.trim(),
+                          '```',
+                          '',
+                          'Triage each entry, then record the decision so the next run is quiet:',
+                          '',
+                          '```',
+                          'npm run watch:upstream -- --record',
+                          '```',
+                          '',
+                          `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                      ].join('\n');
+
+                      const open = await github.rest.issues.listForRepo({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          state: 'open',
+                          labels: 'upstream'
+                      });
+                      const existing = open.data.find((i) => i.title === title);
+
+                      // Update rather than pile up: the list grows release by release, and three
+                      // open issues each holding a stale slice of it is worse than one that is current.
+                      if (existing) {
+                          await github.rest.issues.update({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: existing.number,
+                              body
+                          });
+                          core.info(`updated #${existing.number}`);
+                          return;
+                      }
+
+                      await github.rest.issues.create({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          title,
+                          labels: ['upstream'],
+                          body
+                      });
+
+            # A backlog of untriaged entries is the job doing its work, so it does not turn the
+            # run red — the issue is the output. Anything else is the tool itself failing:
+            # the page moved, the markup changed, the network refused. That does turn it red,
+            # because a watch that cannot read is indistinguishable from a quiet upstream.
+            - name: Fail the run if the page could not be read
+              if: steps.watch.outputs.status != '0' && steps.watch.outputs.status != '1'
+              run: |
+                  echo "The watch could not read the changelog (exit ${{ steps.watch.outputs.status }})."
+                  echo "That is a tool failure, not a triage backlog — see the report above."
+                  exit 1

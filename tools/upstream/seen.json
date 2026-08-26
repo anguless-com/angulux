@@ -1,0 +1,5 @@
+{
+    "_comment": "Upstream changelog entries already triaged, keyed by release, scope and a digest of the entry. The sentences themselves are deliberately not stored: primeng.dev content is outside the MIT grant (CONTRIBUTING.md), so this file records OUR decisions, not their prose. Regenerate with: npm run watch:upstream -- --record",
+    "source": "https://primeng.dev/changelog",
+    "entries": {}
+}

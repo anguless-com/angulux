@@ -1,0 +1,29 @@
+{
+    "$comment": [
+        "Project-scoped MCP servers. Both are launched from the checkout, never from the network,",
+        "so the version an assistant consults is the version this workspace pins (P4).",
+        "",
+        "angular-cli: the Angular CLI's own MCP server (`ng mcp`), from the catalog-pinned",
+        "  @angular/cli in node_modules. Run `pnpm install` first or it will not start.",
+        "  It exposes get_best_practices, search_documentation, ai_tutor, list_projects,",
+        "  onpush_zoneless_migration, run_target and the devserver_* trio. From the repo root it",
+        "  discovers all five angular.json workspaces (packages/angulux, apps/showcase, apps/verify, ...).",
+        "  Known warning: it cannot resolve the framework version because the catalog: protocol is",
+        "  not a semver comparator. Documentation lookups still work; only version-targeting is blind.",
+        "  Pass --read-only to drop run_target and devserver_start/stop.",
+        "",
+        "angulux: this repo's own server, answering from corpus/corpus.json. No model has seen",
+        "  angulux, so without it an assistant reaches for PrimeNG's <p-button>. See",
+        "  packages/angulux-mcp/README.md."
+    ],
+    "mcpServers": {
+        "angular-cli": {
+            "command": "node",
+            "args": ["node_modules/@angular/cli/bin/ng.js", "mcp"]
+        },
+        "angulux": {
+            "command": "node",
+            "args": ["packages/angulux-mcp/bin/angulux-mcp.mjs"]
+        }
+    }
+}
