@@ -31,13 +31,21 @@
     --color-line: #e2e8f0;
     --color-line-soft: #eef2f6;
     --color-ink: #0f172a;
-    --color-muted: #64748b;
-    --color-faint: #94a3b8;
+    /* Measured against every surface they sit on, not chosen by eye. The first pass used
+       #64748b / #94a3b8, which gave 4.34:1 for prose on `sunken` and **2.56:1** for the small
+       labels — the nav headings, "On this page", the entrypoint line. Those are 11-12px, so
+       they are not "large text" and 4.5:1 is the bar they have to clear.
+       Now: muted 7.58 canvas / 6.92 sunken · faint 5.68 / 5.19. */
+    --color-muted: #475569;
+    --color-faint: #5b6878;
 
     /* Emerald, because the Aura preset the demos run under is emerald. A blue chrome around
-       green components reads as two products stapled together. */
-    --color-brand: #059669;
-    --color-brand-strong: #047857;
+       green components reads as two products stapled together.
+       Darkened from #059669, which was 3.77:1 on white — below AA for links, for the active
+       nav item, AND for the white label on the primary button, which is the same pair.
+       Now 5.48 on canvas, 5.21 on brand-soft, 5.48 for white on it. */
+    --color-brand: #047857;
+    --color-brand-strong: #065f46;
     --color-brand-soft: #ecfdf5;
 
     --color-caution: #b45309;
@@ -55,7 +63,9 @@
     --color-line-soft: #161d26;
     --color-ink: #e6edf3;
     --color-muted: #8b98a9;
-    --color-faint: #6b7887;
+    /* 4.34:1 was the one dark-theme token under the bar; 5.41 now. Everything else here
+       already cleared it comfortably — the light palette was where the problem was. */
+    --color-faint: #7b8896;
 
     --color-brand: #34d399;
     --color-brand-strong: #6ee7b7;

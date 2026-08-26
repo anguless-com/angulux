@@ -29,7 +29,7 @@ import { createHighlighter } from 'shiki';
  * value lands in `--l`, the dark one in `--d`, and a static rule picks between them. A
  * JavaScript-driven swap would repaint after boot, which on a prerendered page is a flash.
  */
-const THEMES = { light: 'github-light', dark: 'github-dark' };
+const THEMES = { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' };
 
 /**
  * Angular's own grammars — `[value]="x"` and `@if` are syntax here, not stray punctuation.

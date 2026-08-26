@@ -11,33 +11,36 @@ import { CodeLines } from './code-lines';
  * tokens. The install command is a shell command written into a template — there is no build
  * step that sees it, and an uncoloured terminal block is the ordinary way to show one anyway.
  *
- * The copy button is the point. Both of these exist to be pasted somewhere.
+ * ── Why Copy is always visible ────────────────────────────────────────────────────────────
+ * It used to be `opacity-0 group-hover:opacity-100`, revealed on hover. Measured on an
+ * emulated iPhone, `matchMedia('(hover: hover)')` is **false** — a touch device has no hover
+ * at all — so all five buttons on the Getting started page sat at `opacity: 0`. Copying the
+ * install command is the single thing that page exists for, and on a phone it was not there.
+ *
+ * The button now lives in the header row rather than floating over the code, which also ends
+ * the overlap it used to have with the first line, and matches `agl-demo-code`. The row
+ * renders even without a label, because a Copy button that appears only on some blocks is a
+ * Copy button readers stop looking for.
  */
 @Component({
     selector: 'agl-code-block',
     standalone: true,
     imports: [CodeLines],
     template: `
-        <div class="group relative overflow-hidden rounded-xl border border-line bg-sunken">
-            @if (label()) {
-                <div class="border-b border-line px-4 py-1.5 font-mono text-[11px] uppercase tracking-wider text-faint">{{ label() }}</div>
-            }
+        <div class="overflow-hidden rounded-xl border border-line bg-sunken">
+            <div class="flex items-center gap-2 border-b border-line px-3 py-1.5">
+                <span class="truncate font-mono text-[11px] uppercase tracking-wider text-faint">{{ label() }}</span>
+                <button type="button" class="ml-auto flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted hover:text-ink" (click)="copy()">
+                    <i class="pi text-[11px]" [class.pi-copy]="!copied()" [class.pi-check]="copied()"></i>
+                    {{ copied() ? 'Copied' : 'Copy' }}
+                </button>
+            </div>
 
             @if (lines().length) {
                 <agl-code-lines [lines]="lines()" [palette]="palette()" />
             } @else {
                 <pre class="thin-scroll overflow-x-auto px-4 py-3 text-[13px] leading-relaxed"><code>{{ code() }}</code></pre>
             }
-
-            <button
-                type="button"
-                class="absolute right-2 top-2 rounded-md border border-line bg-canvas px-2 py-1 text-[11px] text-muted opacity-0 focus:opacity-100 group-hover:opacity-100 hover:text-ink"
-                [class.top-10]="label()"
-                (click)="copy()"
-            >
-                <i class="pi text-[10px]" [class.pi-copy]="!copied()" [class.pi-check]="copied()"></i>
-                {{ copied() ? 'Copied' : 'Copy' }}
-            </button>
         </div>
     `
 })

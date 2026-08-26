@@ -50,7 +50,7 @@ interface LoadedSection {
                          without it, and a reader should not have to open a demo's Component tab to
                          find out what to write. -->
                     <div class="mt-6">
-                        <agl-code-block [lines]="api.importLine" [palette]="api.palette" />
+                        <agl-code-block [lines]="api.importLine" [palette]="api.palette" label="import" />
                     </div>
 
                     @if (sections().length) {
