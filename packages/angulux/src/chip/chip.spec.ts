@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { SharedModule } from '@anguless/angulux/api';
 import { ChipProps } from '@anguless/angulux/types/chip';
 import { Chip, ChipModule } from './chip';
+import { ChipStyle } from './style/chipstyle';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -1431,6 +1432,24 @@ describe('Chip', () => {
 
                 expect(hookCalled).toBe(true);
             });
+        });
+    });
+
+    describe('root inline styles', () => {
+        /**
+         * A visible chip must leave `display` alone. Writing that as `!visible && 'none'`
+         * yields `false`, which Angular 22 rejects with NG0318 instead of ignoring — so
+         * the common case, a chip that IS visible, was the one that warned.
+         */
+        it('unsets display when visible, rather than setting it to false', () => {
+            const style = TestBed.runInInjectionContext(() => new ChipStyle());
+
+            const visible = style.inlineStyles.root({ instance: { visible: true } } as any) as any;
+            expect(visible.display).toBeNull();
+            expect(typeof visible.display).not.toBe('boolean');
+
+            const hidden = style.inlineStyles.root({ instance: { visible: false } } as any) as any;
+            expect(hidden.display).toBe('none');
         });
     });
 });

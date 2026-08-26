@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { MessageService, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Toast, ToastItem } from './toast';
+import { ToastStyle } from './style/toaststyle';
 
 // Test Components for different scenarios
 @Component({
@@ -2254,6 +2255,39 @@ describe('ToastItem', () => {
                 expect(callOrder.indexOf('onInit')).toBeLessThan(callOrder.indexOf('onAfterContentInit'));
                 expect(callOrder.indexOf('onAfterContentInit')).toBeLessThan(callOrder.indexOf('onAfterViewInit'));
             }
+        });
+    });
+
+    describe('root inline styles', () => {
+        /**
+         * Angular 22 rejects `false` as a style value and logs NG0318 rather than ignoring
+         * it, once per style per change detection. Expressing "do not set this" as
+         * `cond && '20px'` therefore put dozens of warnings into a consuming app's console
+         * on every navigation, and buried the warnings that mattered. `null` is the value
+         * that actually means unset.
+         */
+        const POSITIONS = ['top-right', 'top-left', 'top-center', 'bottom-right', 'bottom-left', 'bottom-center', 'center'];
+
+        it('never yields a boolean for any position', () => {
+            const style = TestBed.runInInjectionContext(() => new ToastStyle());
+            for (const _position of POSITIONS) {
+                const result = style.inlineStyles.root({ instance: { _position } } as any);
+                for (const [prop, value] of Object.entries(result)) {
+                    expect(typeof value).not.toBe('boolean', `${_position} produced a boolean for ${prop}`);
+                }
+            }
+        });
+
+        it('anchors to the edges its position names, and leaves the others unset', () => {
+            const style = TestBed.runInInjectionContext(() => new ToastStyle());
+            const at = (_position: string) => style.inlineStyles.root({ instance: { _position } } as any) as any;
+
+            expect(at('top-right').right).toBe('20px');
+            expect(at('top-right').bottom).toBeNull();
+            expect(at('bottom-right').bottom).toBe('20px');
+            expect(at('bottom-center').bottom).toBe('20px');
+            expect(at('top-left').right).toBeNull();
+            expect(at('center').bottom).toBeNull();
         });
     });
 });

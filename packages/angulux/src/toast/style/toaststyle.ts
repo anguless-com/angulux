@@ -10,8 +10,13 @@ const inlineStyles = {
         return {
             position: 'fixed',
             top: _position === 'top-right' || _position === 'top-left' || _position === 'top-center' ? '20px' : _position === 'center' ? '50%' : null,
-            right: (_position === 'top-right' || _position === 'bottom-right') && '20px',
-            bottom: (_position === 'bottom-left' || _position === 'bottom-right' || _position === 'bottom-center') && '20px',
+            // `&&` yields `false`, not `null`, when the position does not match, and
+            // Angular 22 rejects `false` as a style value: NG0318, once per style per
+            // change detection. A single toast on screen was enough to put dozens of
+            // warnings into a consuming app's console on every navigation. The two
+            // neighbouring lines already do this correctly with a ternary.
+            right: _position === 'top-right' || _position === 'bottom-right' ? '20px' : null,
+            bottom: _position === 'bottom-left' || _position === 'bottom-right' || _position === 'bottom-center' ? '20px' : null,
             left: _position === 'top-left' || _position === 'bottom-left' ? '20px' : _position === 'center' || _position === 'top-center' || _position === 'bottom-center' ? '50%' : null
         };
     }
