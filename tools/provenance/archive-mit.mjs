@@ -38,8 +38,19 @@ const DIR = process.env.ANGULUX_PROVENANCE_TARBALLS ? path.resolve(process.env.A
 const MANIFEST = path.join(root, 'provenance/manifest.json');
 
 /**
- * The LAST MIT release of each package. Everything above these versions carries the
- * commercial PrimeUI license (see PROVENANCE.md). This is the set worth preserving.
+ * The last MIT release of each package **that this fork can reach**. Everything above these
+ * versions carries the commercial PrimeUI license (see PROVENANCE.md). This is the set worth
+ * preserving.
+ *
+ * The qualifier is not decoration. This comment used to say "the LAST MIT release of each
+ * package", and on 2026-08-26 that was found to be false for one row: `@primeuix/motion@0.1.1`
+ * (2026-02-25) is MIT and is later than the `0.0.10` archived here. `0.0.10` is still the
+ * right artifact — `primeng@21.1.9` depends on `@primeuix/motion@^0.0.10`, and a leading-zero
+ * caret cannot cross into `0.1.x`, so `0.1.1` was never on this fork's dependency path.
+ *
+ * Right value, wrong sentence. On a legal record those are not the same size of mistake as
+ * they would be anywhere else: the value is what protects the build, and the sentence is what
+ * someone will quote back when the lineage is questioned.
  */
 const TARGETS = [
     ['primeng', '21.1.9'],

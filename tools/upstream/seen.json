@@ -1,0 +1,179 @@
+{
+    "_comment": "Upstream changelog entries already triaged, keyed by release, scope and a digest of the entry. The sentences themselves are deliberately not stored: primeng.dev content is outside the MIT grant (CONTRIBUTING.md), so this file records OUR decisions, not their prose. Regenerate with: npm run watch:upstream -- --record",
+    "source": "https://primeng.dev/changelog",
+    "entries": {
+        "22.1.0 · Highlights · febe8d99b01d": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Highlights · 8d08fc5bd175": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Highlights · f3de86441065": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Highlights · 78a27a89212b": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Table · 9f85f9a516a5": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Undecided — no reproduction attempted. clear() recomputes totalRecords, but the \"after data change\" path runs through the _value setter and was not traced. Do not close this by reasoning."
+        },
+        "22.1.0 · InputTags · d7977814b7bc": {
+            "verdict": "out-of-reach",
+            "module": null
+        },
+        "22.1.0 · Core · 52ea729050b3": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Core · cdab24c28a4e": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.1.0 · Table · 3ae212c58d45": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "REPRODUCES, and wider than upstream states it. ButtonProps declares outlined? (types/button/button.types.ts:114) but button.ts never reads buttonProps?.outlined — every other prop uses the `x || buttonProps?.x` pattern. So outlined is ignored on EVERY agl-button, not just this one; the table additionally hard-codes [outlined]=\"true\" on the clear button. Fix changes runtime behaviour: blocked by P3 in Phase 1."
+        },
+        "22.1.0 · Table · 0c9d548f166c": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Undecided — z-index/stacking, not judgeable from source. Needs the browser gate."
+        },
+        "22.1.0 · Table · d9c2f7aacdad": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Mechanism identified, not yet reproduced. clearFilterValues() sets each constraint .value = null IN PLACE and leaves the constraint registered, so hasFilter() stays true and _filter() keeps running. Two consequences: the inputs may not refresh under OnPush (no new reference), and a notEquals constraint then blanks the table — see the api/notEquals entry, which is the same defect meeting a different matcher. Needs a browser test."
+        },
+        "22.1.0 · DatePicker · b3d68c790b2d": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "Strong match. The min-time clamp in datepicker.ts (~2716-2740) is a switch(true) with intentional fall-through that hard-codes returnTimeTriple[0] = 11 in two branches. Inherited verbatim from 21.1.9. Exact trigger not yet reproduced."
+        },
+        "22.1.0 · Select · fff76133ad6e": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "NOT OURS. angulux select has no `multiple` input — that property exists only in their v22. Nothing here can enter the state described."
+        },
+        "22.1.0 · InputMask · f361e3dddb77": {
+            "verdict": "attic",
+            "module": "inputmask"
+        },
+        "22.1.0 · InputMask · bfb449799e62": {
+            "verdict": "attic",
+            "module": "inputmask"
+        },
+        "22.1.0 · FilterService · 2d7b393e4c46": {
+            "verdict": "follow",
+            "module": "api",
+            "note": "REPRODUCES. Proven at runtime against the BUILT package: FilterService.filter with an empty filter returns 0/3 rows for notEquals and 3/3 for equals/startsWith/contains/notContains (null, undefined and \"\" alike). filterservice.ts:101-103 returns false where every sibling returns true. isNot delegates to it and is fixed by the same line; dateIsNot carries its own guard and was NEVER affected — the first triage said otherwise and was wrong. Reachable from the UI: executeLocalFilter (table.ts:2142) has no blank guard, and columnFilter registers constraints with value: null. Fix changes runtime behaviour: blocked by P3 in Phase 1."
+        },
+        "22.1.0 · Chart · e4168e282a3c": {
+            "verdict": "follow",
+            "module": "chart",
+            "note": "DOES NOT REPRODUCE. Type-checked the built dist (chart + table + api) under strict:true, skipLibCheck:false with the workspace TypeScript: exit 0. Their defect is in their v22 types."
+        },
+        "22.1.0 · Tree · 79e07ee2a225": {
+            "verdict": "attic",
+            "module": "tree"
+        },
+        "22.1.0 · Menu · 1cba7aee156a": {
+            "verdict": "follow",
+            "module": "menu",
+            "note": "Not actionable. No locus, no reproduction steps, and their issue tracker is archived. Reopen only if the same shape is reported against angulux."
+        },
+        "22.1.0 · Docs · 6a910c98bc0f": {
+            "verdict": "upstream-only",
+            "module": null
+        },
+        "22.1.0 · Core · fd859472bc52": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 6e4ea4544f6f": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 89ecd3f5d8d8": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · eb57f856e220": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · c6e228d9677e": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · b19dbcc844e1": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 1337a6cf0e2e": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · b098716ee5d7": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · ba76ae3704aa": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · e21dc1e20801": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 0c6476b77065": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · e9921582f772": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 9ae98a712378": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · bf183758fd9d": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · b9ed64a8ace9": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · fdc1da5e490f": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 7e3c25cf430f": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 05b311e472c8": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 8048d63557d0": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · 69615fdbe434": {
+            "verdict": "cross-cutting",
+            "module": null
+        },
+        "22.0.0 · Highlights · d6b868399b5a": {
+            "verdict": "cross-cutting",
+            "module": null
+        }
+    }
+}

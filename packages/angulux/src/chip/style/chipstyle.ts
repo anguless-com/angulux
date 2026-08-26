@@ -4,7 +4,10 @@ import { BaseStyle } from '@anguless/angulux/base';
 
 const inlineStyles = {
     root: ({ instance }) => ({
-        display: !instance.visible && 'none'
+        // A visible chip must leave `display` alone, and `&&` expresses that as `false` —
+        // which Angular 22 rejects with NG0318 rather than ignoring. `null` is the value
+        // that actually means "do not set this style".
+        display: !instance.visible ? 'none' : null
     })
 };
 

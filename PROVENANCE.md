@@ -2,7 +2,7 @@
 
 > The record of where this code came from. **This is a legal document.** Every change to it
 > needs a stated reason.
-> Last updated: 2026-07-27
+> Last updated: 2026-08-26
 
 ## 1. Summary
 
@@ -67,16 +67,38 @@ PrimeTek moved to the commercial "PrimeUI" license (announced at `primeui.dev/ne
 The artifacts below are **not MIT** and must **never be copied, decompiled, or referenced at
 the code level** in angulux:
 
-| Artifact | Last MIT release | First commercial release |
+| Artifact | Last MIT **stable** | First commercial **stable** |
 |---|---|---|
 | `primeng` | 21.1.9 | **22.0.0** (2026-07-15) |
 | `@primeuix/utils` | 0.7.2 | **0.8.0** |
 | `@primeuix/styled` | 0.7.4 | **1.0.0** |
 | `@primeuix/styles` | 2.0.3 | **3.0.0** |
 | `@primeuix/themes` | 2.0.3 | **3.0.0** |
+| `@primeuix/motion` | 0.1.1 — but see the note below | **1.0.0** |
 | `primeicons` | 7.0.0 | **8.0.0** |
-| `@primeui/license-manager` | — | every version |
-| `@primeicons/angular` | — | every version |
+| `@primeui/license-manager` | none, at any version | every version |
+| `@primeicons/angular` | `8.0.0-beta.1` — a prerelease | `8.0.0-rc.1`; treated as **every version** |
+
+**Why the columns say "stable".** Re-verified against the registry on 2026-08-26. PrimeTek did
+not flip the licence at the stable release — they flipped it at the **`-rc.1` prerelease** of
+every package, on 2026-06-28 (2026-07-02 for `@primeuix/utils`), and shipped the stable weeks
+later. Semver orders `0.8.0-rc.1` *below* `0.8.0`, so a naive comparison would wave through
+the very first commercial artifact PrimeTek published. `detect.mjs` strips the prerelease
+suffix before comparing for exactly that reason, and every version at or above a row's stable
+boundary — prereleases of it included — is treated as commercial.
+
+**`@primeicons/angular` is over-flagged on purpose.** Eleven prereleases, `8.0.0-alpha.1`
+through `8.0.0-beta.1`, ship a full MIT LICENSE under PrimeTek's copyright; this was checked
+by reading the file out of the tarballs, not by trusting registry metadata. The guard still
+refuses the package at every version. Relaxing it would loosen a legal check to gain access to
+a package angulux does not use — the trade is one-sided, so the list keeps the safe side and
+the record keeps the true statement.
+
+**`@primeuix/motion` has two different "last MIT" answers.** `0.1.1` (2026-02-25) is the last
+MIT release PrimeTek published. `0.0.10` is the last one **this fork can reach**: `primeng@21.1.9`
+depends on `@primeuix/motion@^0.0.10`, and a leading-zero caret cannot cross into `0.1.x`.
+`0.0.10` is therefore what the offline archive holds, and it is the right artifact — the two
+sentences are not interchangeable, and the archive tool says which one it means.
 
 Additionally, every PrimeNG tag or branch with an **`-lts`** suffix falls under a separate
 proprietary license (the *"PRIMENG LTS VERSIONS LICENSE"* section), which states plainly
@@ -247,7 +269,15 @@ declares eight rows that are not on disk. The third directory is rebuilt with:
 mkdir -p ref/primeng.dev
 cd ref/primeng.dev
 printf '{"name":"primeng-dev-specimen","version":"0.0.0","private":true}\n' > package.json
-npm install primeng@22.0.0 --legacy-peer-deps
+npm install --legacy-peer-deps \
+    primeng@22.0.0 \
+    @primeui/license-manager@1.0.0 \
+    @primeicons/angular@8.0.0 \
+    @primeicons/core@8.0.0 \
+    @primeuix/motion@1.0.0 \
+    @primeuix/styled@1.0.0 \
+    @primeuix/styles@3.0.0 \
+    @primeuix/utils@0.8.0
 ```
 
 Two traps, both of which have already been hit:
@@ -259,17 +289,26 @@ Two traps, both of which have already been hit:
 - **`--legacy-peer-deps` keeps Angular out of the directory.** A specimen with no peers
   installed is a specimen that cannot be built against, which is the state section 3 requires.
 
-`primeng@22.0.0` declares its `@primeuix/*` and `@primeicons/*` dependencies as `^` ranges, so
-this command reproduces the exact versions in the register only for as long as those remain
-the latest releases — verified true on 2026-07-31. Once PrimeTek ships a newer minor, each
-row has to be pinned individually, which is one more reason the re-report trigger below fires
-on a new PrimeTek release.
+**Every version is pinned, and that is new.** The command used to be a bare
+`npm install primeng@22.0.0`, relying on `primeng@22.0.0` declaring its `@primeuix/*` and
+`@primeicons/*` dependencies as `^` ranges that happened to resolve to the eight versions in
+the register. This entry warned that the arrangement would break on the next PrimeTek minor.
+**It broke.** Measured 2026-08-26: `primeng` is now `22.1.0` and `@primeuix/utils` is now
+`0.8.1`, so the old command puts `@primeuix/utils@0.8.1` on disk while the register above
+declares `0.8.0` — and `ref-quarantine` fails a fresh clone, correctly, for a disagreement
+nobody introduced. The versions are pinned individually now, which is what should have been
+written the first time a legal register was reproduced by a floating range.
+
+Nothing on disk moved, and no claim in the register changed. What was repaired is the
+**instruction for rebuilding the evidence**, which had quietly stopped producing the evidence
+it describes.
 
 **Re-report trigger.** Revisit this entry when any of the following happens:
 
 - the repository begins accepting outside contributors — an unopened commercial install is
   defensible for a maintainer who can attest to it, and much harder to attest to for a team;
-- PrimeTek publishes a new major of any `prime*` package, which changes the versions above;
+- PrimeTek publishes a new release of any `prime*` package that changes the versions above —
+  note this now fires on a **minor**, not only a major, which is the lesson of 2026-08-26;
 - the register goes stale for any other reason, which the gate will report before a human
   notices.
 
