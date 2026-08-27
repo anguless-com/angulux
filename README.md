@@ -121,13 +121,19 @@ timestamps for every archived MIT artifact, and a browser gate renders **15 of 1
 risk-flagged decorators in a real Chromium and asserts on the result — because a green
 type-check cannot see a render bug.
 
+That gate has a second half, for the bugs a green *spec suite* cannot see. It opens all
+51 module pages of the showcase — the markup a reader copies, rather than the reduced
+markup a spec sets up — and measures whether what the library draws survives its own
+CSS: an element's rectangle intersected with every clipping ancestor. It exists because
+a badge shipped that was present, correct and 32% visible.
+
 Current evidence, reproducible from a clean checkout:
 
 ```
 16/16 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
-browser gate         13/13 passed
+browser gate         67 tests · 13 behaviour + 54 visibility
 runtime deps         tslib + four first-party angulux-* packages. Zero PrimeTek.
 ```
 
@@ -195,7 +201,7 @@ done
 corepack pnpm --filter angulux run build        # → 210 entrypoints
 corepack pnpm --filter angulux run test:unit    # → 3765 specs
 corepack pnpm --filter @angulux/verify run build
-npx playwright test --config e2e/playwright.config.ts   # browser gate → 13/13
+npx playwright test --config e2e/playwright.config.ts   # browser gate → 67 tests
 ```
 
 `pnpm` runs through corepack and is not on `PATH`; use `corepack pnpm`. Karma needs

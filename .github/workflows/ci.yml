@@ -193,10 +193,15 @@ jobs:
             - name: Install Chromium
               run: corepack pnpm exec playwright install --with-deps chromium
 
-            # Playwright starts and stops the verification app itself (webServer in the
-            # config). It deliberately does not reuse a running server under CI: a
-            # mandatory gate that depends on ambient state can go green for the wrong
-            # reason.
+            # Playwright starts and stops both apps itself (webServer in the config): the
+            # verification app for the change-detection gate, and the showcase for the
+            # visibility gate, which measures the markup a reader copies. It deliberately
+            # does not reuse a running server under CI: a mandatory gate that depends on
+            # ambient state can go green for the wrong reason.
+            #
+            # The library build above is not optional for the second one. The showcase
+            # resolves the library to packages/angulux/dist, so a stale dist means the gate
+            # measures the previous release and reports on code nobody is shipping.
             - name: Run the browser gate
               run: corepack pnpm exec playwright test --config e2e/playwright.config.ts
 

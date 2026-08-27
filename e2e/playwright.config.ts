@@ -26,26 +26,54 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: 0,
     reporter: [['list']],
+    /* `baseURL` is set per project rather than here: the two gates run against two different
+       apps on two different ports, and a shared default would silently be wrong for one. */
     use: {
-        baseURL: 'http://localhost:4210',
         screenshot: 'on',
         trace: 'retain-on-failure'
     },
-    /* Playwright starts and stops the verification app itself. It deliberately does not
-       rely on an already-running server: a mandatory gate that depends on manual state can
-       go green for the wrong reason. `reuseExistingServer` is enabled outside CI only, to
-       keep the local development loop fast. */
-    webServer: {
-        command: 'npx ng serve verify --port 4210',
-        cwd: '../apps/verify',
-        url: 'http://localhost:4210',
-        reuseExistingServer: !process.env.CI,
-        timeout: 180_000
-    },
+    /* Playwright starts and stops both apps itself. It deliberately does not rely on an
+       already-running server: a mandatory gate that depends on manual state can go green for
+       the wrong reason. `reuseExistingServer` is enabled outside CI only, to keep the local
+       development loop fast.
+
+       Two apps, because the two gates need different things. The verification app is built to
+       be driven — probes, fixed ids, scenarios that exercise the risky decorators. The showcase
+       is the opposite and that is exactly its value: it holds the markup a reader copies, which
+       is the markup the unit suite does not test. See demo-visibility.spec.ts.
+
+       The showcase command spells out the generate step instead of leaning on the `prestart`
+       hook. It has to run either way — the API, demo and guide payloads the pages fetch are
+       generated and gitignored, and without them the site loads and shows nothing — and a step
+       that decides whether this gate can see anything should be visible here, not implied. */
+    webServer: [
+        {
+            command: 'npx ng serve verify --port 4210',
+            cwd: '../apps/verify',
+            url: 'http://localhost:4210',
+            reuseExistingServer: !process.env.CI,
+            timeout: 180_000
+        },
+        {
+            command: 'npm run generate && npx ng serve showcase --port 4211',
+            cwd: '../apps/showcase',
+            url: 'http://localhost:4211',
+            reuseExistingServer: !process.env.CI,
+            timeout: 300_000
+        }
+    ],
     projects: [
         {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] }
+            /* The harness self-test runs on data: URLs and needs no app at all, so it sits with
+               the verification app rather than earning a project of its own. */
+            name: 'verify',
+            testMatch: /(harness|risk-modules)\.spec\.ts/,
+            use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4210' }
+        },
+        {
+            name: 'showcase',
+            testMatch: /demo-visibility\.spec\.ts/,
+            use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4211' }
         }
     ]
 });
