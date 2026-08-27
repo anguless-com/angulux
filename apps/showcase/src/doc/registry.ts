@@ -328,7 +328,7 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
         {
             id: 'badge-directive',
             label: 'Directive',
-            description: 'aglBadge attaches a badge to any element, which is how it is put on a button or an icon.',
+            description: 'aglBadge attaches a badge to any element, which is how it is put on a button, a toggle button or an icon.',
             load: () => import('./badge/directive-doc').then((m) => m.DirectiveDoc)
         }
     ],
