@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
+import { forceNonTouchDevice, forceTouchDevice } from '../spec-helpers';
 import { MapperPipe, Password, PasswordDirective, PasswordModule } from './password';
 
 // Test Components
@@ -1401,12 +1402,36 @@ describe('PasswordDirective', () => {
             expect(directive.info).toBeNull();
         });
 
-        it('should handle window resize', () => {
+        it('should hide the overlay on window resize on a non-touch device', () => {
             spyOn(directive, 'hideOverlay');
-            directive.onWindowResize();
 
-            // Should call hideOverlay on non-touch devices
-            expect(directive.hideOverlay).toHaveBeenCalled();
+            // `onWindowResize` consults `isTouchDevice()`, which reads `navigator.maxTouchPoints`.
+            // This spec used to name the non-touch device in its comment and then let the host
+            // machine decide which branch ran — red on a laptop with a digitizer, green on CI.
+            const restoreTouch = forceNonTouchDevice();
+
+            try {
+                directive.onWindowResize();
+                expect(directive.hideOverlay).toHaveBeenCalled();
+            } finally {
+                restoreTouch();
+            }
+        });
+
+        it('should leave the overlay open on window resize on a touch device', () => {
+            spyOn(directive, 'hideOverlay');
+
+            // The reason the guard exists: a soft keyboard opening is a window resize, so hiding
+            // here would close the strength meter the moment the user started typing the password
+            // it describes.
+            const restoreTouch = forceTouchDevice();
+
+            try {
+                directive.onWindowResize();
+                expect(directive.hideOverlay).not.toHaveBeenCalled();
+            } finally {
+                restoreTouch();
+            }
         });
     });
 

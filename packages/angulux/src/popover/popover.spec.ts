@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { OverlayService } from '@anguless/angulux/api';
+import { forceNonTouchDevice, forceTouchDevice } from '../spec-helpers';
 import { Popover } from './popover';
 
 // function createMockAnimationEvent(toState: string, fromState: string = 'void'): AnimationEvent {
@@ -684,8 +685,41 @@ describe('Popover', () => {
             await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
-            popoverInstance.onWindowResize();
-            expect(popoverInstance.overlayVisible).toBe(false);
+            // The name of this spec is a precondition, and it used to be an unenforced one:
+            // `onWindowResize` consults `isTouchDevice()`, which reads `navigator.maxTouchPoints`.
+            // A laptop with a digitizer reports 10 there even headless, so this spec asserted the
+            // non-touch branch while the touch branch ran, and it was red on that machine and
+            // green on CI for reasons that had nothing to do with the popover.
+            const restoreTouch = forceNonTouchDevice();
+
+            try {
+                popoverInstance.onWindowResize();
+                expect(popoverInstance.overlayVisible).toBe(false);
+            } finally {
+                restoreTouch();
+            }
+        });
+
+        it('should stay open on window resize for touch devices', async () => {
+            const mockEvent = new MouseEvent('click');
+            const target = component.targetButton.nativeElement;
+
+            popoverInstance.show(mockEvent, target);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            await fixture.whenStable();
+
+            // The other half of the same branch, and the one with the reason behind it: on a touch
+            // device the soft keyboard opening IS a window resize, so closing on resize would shut
+            // the popover the moment the user typed. This branch had no assertion at all until the
+            // spec above stopped depending on the machine to pick which branch ran.
+            const restoreTouch = forceTouchDevice();
+
+            try {
+                popoverInstance.onWindowResize();
+                expect(popoverInstance.overlayVisible).toBe(true);
+            } finally {
+                restoreTouch();
+            }
         });
 
         it('should handle overlay clicks correctly', () => {

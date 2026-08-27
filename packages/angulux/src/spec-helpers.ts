@@ -62,3 +62,71 @@ export async function settled(fixture: ComponentFixture<any>, timeoutMs = 2000):
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
     await waitUntil(() => !document.querySelector('[data-phase]'), fixture, timeoutMs);
 }
+
+/**
+ * Pin whether the browser looks like a touch device, for the body of one spec.
+ *
+ * WHY: `isTouchDevice()` is `'ontouchstart' in window || navigator.maxTouchPoints > 0 ||
+ * navigator.msMaxTouchPoints > 0`. Several components branch on it — popover and password both
+ * refuse to close their overlay on a window resize when it is true, because on a touch device the
+ * soft keyboard opening IS a resize and closing there would be wrong.
+ *
+ * A spec that asserts one of those branches without pinning the answer is not testing the
+ * library, it is testing the hardware. Two of them did exactly that, and they were red on a
+ * Windows laptop with a digitizer — `navigator.maxTouchPoints` is 10 there even under
+ * ChromeHeadless — while staying green on Linux CI, where it is 0. The component was correct in
+ * both places; only the specs disagreed about which machine they were on.
+ *
+ * Both directions are exported on purpose. The touch branch is real behaviour with a real reason,
+ * so it deserves an assertion of its own rather than being the thing that silently happens when
+ * nobody pins anything.
+ *
+ * Each returns its own restore function. Call it in a `finally`: these write to `navigator` and
+ * `window`, which outlive the fixture, so a leak here changes the next spec's world.
+ */
+function stubTouchSupport(touchPoints: number): () => void {
+    const restores: Array<() => void> = [];
+
+    const shadow = (target: object, key: string) => {
+        const own = Object.getOwnPropertyDescriptor(target, key);
+
+        Object.defineProperty(target, key, { value: touchPoints, configurable: true });
+        restores.push(() => (own ? Object.defineProperty(target, key, own) : Reflect.deleteProperty(target, key)));
+    };
+
+    // `maxTouchPoints` lives on `Navigator.prototype` as a getter, so an own value property on
+    // `navigator` shadows it and deleting the shadow restores the real one. `msMaxTouchPoints`
+    // does not exist in Blink at all; shadowing an absent property is still the right move,
+    // because the expression reads it either way.
+    shadow(navigator, 'maxTouchPoints');
+    shadow(navigator, 'msMaxTouchPoints');
+
+    // `'ontouchstart' in window` is true whenever the property exists ANYWHERE on the prototype
+    // chain, so an own-property shadow cannot turn it off — the property has to leave the object
+    // that actually owns it. Find that object rather than assuming it is `window` itself.
+    let owner: object | null = window;
+
+    while (owner && !Object.prototype.hasOwnProperty.call(owner, 'ontouchstart')) {
+        owner = Object.getPrototypeOf(owner);
+    }
+
+    if (owner && touchPoints === 0) {
+        const captured = owner;
+        const descriptor = Object.getOwnPropertyDescriptor(captured, 'ontouchstart')!;
+
+        Reflect.deleteProperty(captured, 'ontouchstart');
+        restores.push(() => Object.defineProperty(captured, 'ontouchstart', descriptor));
+    }
+
+    return () => restores.forEach((restore) => restore());
+}
+
+/** Make `isTouchDevice()` answer false until the returned function is called. */
+export function forceNonTouchDevice(): () => void {
+    return stubTouchSupport(0);
+}
+
+/** Make `isTouchDevice()` answer true until the returned function is called. */
+export function forceTouchDevice(): () => void {
+    return stubTouchSupport(10);
+}

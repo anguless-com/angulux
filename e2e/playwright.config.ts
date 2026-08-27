@@ -30,7 +30,32 @@ export default defineConfig({
        apps on two different ports, and a shared default would silently be wrong for one. */
     use: {
         screenshot: 'on',
-        trace: 'retain-on-failure'
+        trace: 'retain-on-failure',
+        /* Pin the touch capability the device profile only claims.
+
+           Both projects run `devices['Desktop Chrome']`, which sets `hasTouch: false`. That turns
+           into `Emulation.setTouchEmulationEnabled({ enabled: false })`, which disables touch
+           EMULATION — it restores the platform default rather than forcing one. On a Windows
+           laptop with an integrated digitizer the platform default is `navigator.maxTouchPoints:
+           10`, so a gate declaring a touchless desktop was running on a touch device.
+
+           That is not cosmetic. `isTouchDevice()` is `'ontouchstart' in window ||
+           navigator.maxTouchPoints > 0`, and TieredMenu branches on it: on a touch profile the
+           compat `mouseenter` opens a submenu and the click that follows toggles it shut, so the
+           submenu scenario failed on that machine and passed on CI's touchless Linux runner.
+
+           MEASURED, because the obvious flag is the wrong one. `--touch-events=disabled` leaves
+           `maxTouchPoints` at 10 — it governs only whether touch EVENTS are delivered. The
+           setting that moves the number web code actually reads is the one below:
+
+             baseline                            ontouchstart=false  maxTouchPoints=10
+             --touch-events=disabled             ontouchstart=false  maxTouchPoints=10
+             --blink-settings=maxTouchPoints=0   ontouchstart=false  maxTouchPoints=0
+
+           Touch behaviour is not going untested as a result: it moved to where it can be pinned
+           per assertion instead of per machine — see forceTouchDevice() in src/spec-helpers.ts and
+           the touch-branch specs in popover.spec.ts and password.spec.ts. */
+        launchOptions: { args: ['--blink-settings=maxTouchPoints=0'] }
     },
     /* Playwright starts and stops both apps itself. It deliberately does not rely on an
        already-running server: a mandatory gate that depends on manual state can go green for
