@@ -1,8 +1,59 @@
 {
-    "extends": "../../tsconfig.json",
+    /* SELF-CONTAINED ON PURPOSE — do not reintroduce `extends: "../../tsconfig.json"`.
+
+       Angular's migration schematics (`ng generate @angular/core:signal-input-migration`,
+       `control-flow-migration`, and the rest of the `signals` family) run against a virtual
+       filesystem rooted at the Angular workspace, which for this project is `packages/angulux`.
+       `@angular/compiler-cli`'s `readAngularCompilerOptions` follows `extends` recursively and
+       has NO cycle guard, so an `extends` that escapes the workspace root gets clamped back to
+       the root — that is, back to this file — and the function calls itself until the stack
+       gives out:
+
+           Preparing analysis for: tsconfig.json...
+           Tsconfig could not be parsed or is invalid:
+           RangeError: Maximum call stack size exceeded
+             at readAngularCompilerOptions (@angular/compiler-cli/bundles/chunk-JTB6ADF4.js:471)
+
+       It fails before writing anything, so nothing was ever corrupted by it — it simply meant
+       that none of the official modernization tooling could be run on the library, and nobody
+       knew, because nobody had tried. Removing the `extends` was verified to fix it: the same
+       command then migrates `src/divider` cleanly, 4/4 inputs, updating the spec alongside the
+       component.
+
+       `apps/verify` and `apps/showcase` were already self-contained; this file was the only
+       Angular workspace config in the repo reaching outside itself. The duplication below is
+       the price, and it is the cheaper side of the trade: the root `tsconfig.json` is the
+       editor and tooling config for the whole monorepo, and nothing forces the library — the
+       one thing here that is published — to inherit from it.
+
+       The values below were lifted from the resolved output of the previous chain, not
+       retyped from memory: `readConfiguration()` reports the same 24 options and the same
+       2901 root files before and after. `paths` is the one entry that had to change SHAPE,
+       because TypeScript resolves path mappings relative to the config that declares them —
+       `./packages/angulux/src/*` from the root is `./src/*` from here, and both land on the
+       same directory. */
     "compilerOptions": {
-        "strictNullChecks": true
+        "target": "ES2022",
+        "lib": ["dom", "dom.iterable", "ES2022"],
+        "experimentalDecorators": true,
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@anguless/angulux/types/*": ["./src/types/*/public_api"],
+            "@anguless/angulux/*": ["./src/*/public_api"]
+        },
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": false,
+        "strictNullChecks": true,
+        "skipLibCheck": true
     },
+    /* Inherited verbatim from the root config, which is why the globs climb out of this
+       directory: they used to be resolved against the root, and the program they select is
+       part of what "no behaviour change" means here. Narrowing them is a separate decision
+       with its own evidence, not a side effect of unblocking the schematics. */
+    "include": ["../../**/src/**/*", "../../**/dist/**/*", "../../**/types/**/*"],
     "exclude": ["node_modules", "attic", "dist"],
     "angularCompilerOptions": {
         "disableTypeScriptVersionCheck": true,
