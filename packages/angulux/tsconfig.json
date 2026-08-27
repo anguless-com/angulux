@@ -49,11 +49,33 @@
         "strictNullChecks": true,
         "skipLibCheck": true
     },
-    /* Inherited verbatim from the root config, which is why the globs climb out of this
-       directory: they used to be resolved against the root, and the program they select is
-       part of what "no behaviour change" means here. Narrowing them is a separate decision
-       with its own evidence, not a side effect of unblocking the schematics. */
-    "include": ["../../**/src/**/*", "../../**/dist/**/*", "../../**/types/**/*"],
+    /* NARROWED TO THE LIBRARY'S OWN SOURCE — the separate decision the previous revision of
+       this comment promised, taken with its own evidence rather than smuggled into the
+       `extends` fix.
+
+       The inherited globs selected a 2,901-file program of which only 577 belonged to this
+       library: 1,899 (65%) were `ref/` — the quarantined verbatim upstream clones, inert in
+       the program (nothing in them resolves to `@anguless/angulux/*`) but analyzed by every
+       schematic run all the same — and the rest were the apps and the forks' sources, which
+       this program reaches through node_modules like any other dependency, not as root files.
+
+       The wide program also broke a second schematic the `extends` fix did not reach:
+       `standalone-migration --mode=prune-ng-modules` walked the roots into `../../apps/...`,
+       escaped the virtual filesystem, and died on
+           Path "/..\\..\\apps\\showcase\\src\\doc\\autofocus\\basic-doc.ts" is invalid.
+       With root files confined to `src/`, that walk has nothing to escape on.
+
+       Verified the same way as the `extends` removal: `readConfiguration()` before and after —
+       errors 0 -> 0, options identical, and the after set is exactly the intersection of the
+       before set with src, i.e. the 577 library files that were already in the program, with
+       nothing added. The build compiles from per-entry `public_api` files and the spec program
+       declares its own `include`, so neither ever depended on the other 2,324 roots.
+
+       (Wording note, learned the hard way twice now: this comment must never contain a star
+       followed by a slash — that SEQUENCE closes the comment mid-sentence and turns the rest
+       of the file into unparseable JSON, silently, the same way a `>` in a template-literal
+       comment turned badgestyle.ts into the string "false". Globs are spelled out in words.) */
+    "include": ["src/**/*"],
     "exclude": ["node_modules", "attic", "dist"],
     "angularCompilerOptions": {
         "disableTypeScriptVersionCheck": true,
