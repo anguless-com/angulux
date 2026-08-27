@@ -3,7 +3,6 @@ import { CardModule } from '@anguless/angulux/card';
 
 @Component({
     selector: 'agl-card-basic-doc',
-    standalone: true,
     imports: [CardModule],
     template: `
         <div class="card card-block">

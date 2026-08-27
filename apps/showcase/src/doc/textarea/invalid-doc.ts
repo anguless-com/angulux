@@ -4,7 +4,6 @@ import { TextareaModule } from '@anguless/angulux/textarea';
 
 @Component({
     selector: 'agl-textarea-invalid-doc',
-    standalone: true,
     imports: [FormsModule, TextareaModule],
     template: `
         <div class="card">

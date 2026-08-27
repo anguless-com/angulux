@@ -3,7 +3,6 @@ import { PaginatorModule } from '@anguless/angulux/paginator';
 
 @Component({
     selector: 'agl-paginator-basic-doc',
-    standalone: true,
     imports: [PaginatorModule],
     template: `
         <div class="card">

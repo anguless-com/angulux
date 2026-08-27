@@ -9,7 +9,6 @@ interface City {
 
 @Component({
     selector: 'agl-select-basic-doc',
-    standalone: true,
     imports: [FormsModule, SelectModule],
     template: `
         <div class="card">

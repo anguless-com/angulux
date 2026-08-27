@@ -4,7 +4,6 @@ import { InputNumberModule } from '@anguless/angulux/inputnumber';
 
 @Component({
     selector: 'agl-inputnumber-buttons-doc',
-    standalone: true,
     imports: [FormsModule, InputNumberModule],
     template: `
         <div class="card">

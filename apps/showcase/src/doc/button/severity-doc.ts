@@ -3,7 +3,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-button-severity-doc',
-    standalone: true,
     imports: [ButtonModule],
     template: `
         <div class="card">

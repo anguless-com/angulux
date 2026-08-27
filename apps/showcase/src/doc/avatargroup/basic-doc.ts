@@ -4,7 +4,6 @@ import { AvatarModule } from '@anguless/angulux/avatar';
 
 @Component({
     selector: 'agl-avatargroup-basic-doc',
-    standalone: true,
     imports: [AvatarGroupModule, AvatarModule],
     template: `
         <div class="card">

@@ -3,7 +3,6 @@ import { ProgressBarModule } from '@anguless/angulux/progressbar';
 
 @Component({
     selector: 'agl-progressbar-basic-doc',
-    standalone: true,
     imports: [ProgressBarModule],
     template: `
         <div class="card">

@@ -24,7 +24,6 @@ import { CodeLines } from './code-lines';
  */
 @Component({
     selector: 'agl-code-block',
-    standalone: true,
     imports: [CodeLines],
     template: `
         <div class="overflow-hidden rounded-xl border border-line bg-sunken">

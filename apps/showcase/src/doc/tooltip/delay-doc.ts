@@ -4,7 +4,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-tooltip-delay-doc',
-    standalone: true,
     imports: [TooltipModule, ButtonModule],
     template: `
         <div class="card">

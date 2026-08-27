@@ -5,7 +5,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-tooltip-basic-doc',
-    standalone: true,
     imports: [FormsModule, TooltipModule, InputTextModule],
     template: `
         <div class="card">

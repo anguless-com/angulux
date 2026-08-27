@@ -3,7 +3,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-button-directive-doc',
-    standalone: true,
     imports: [ButtonModule],
     template: `
         <div class="card">

@@ -4,7 +4,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-bind-basic-doc',
-    standalone: true,
     imports: [BindModule, InputTextModule],
     template: `
         <div class="card">

@@ -4,7 +4,6 @@ import { SelectModule } from '@anguless/angulux/select';
 
 @Component({
     selector: 'agl-select-editable-doc',
-    standalone: true,
     imports: [FormsModule, SelectModule],
     template: `
         <div class="card">

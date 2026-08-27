@@ -3,7 +3,6 @@ import { RippleModule } from '@anguless/angulux/ripple';
 
 @Component({
     selector: 'agl-ripple-basic-doc',
-    standalone: true,
     imports: [RippleModule],
     template: `
         <div class="card">

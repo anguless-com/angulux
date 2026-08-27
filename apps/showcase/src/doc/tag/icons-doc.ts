@@ -3,7 +3,6 @@ import { TagModule } from '@anguless/angulux/tag';
 
 @Component({
     selector: 'agl-tag-icons-doc',
-    standalone: true,
     imports: [TagModule],
     template: `
         <div class="card">

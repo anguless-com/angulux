@@ -3,7 +3,6 @@ import { BadgeModule } from '@anguless/angulux/badge';
 
 @Component({
     selector: 'agl-badge-severity-doc',
-    standalone: true,
     imports: [BadgeModule],
     template: `
         <div class="card">

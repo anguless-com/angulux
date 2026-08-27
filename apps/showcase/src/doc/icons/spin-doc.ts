@@ -3,7 +3,6 @@ import { SpinnerIcon } from '@anguless/angulux/icons/spinner';
 
 @Component({
     selector: 'agl-icons-spin-doc',
-    standalone: true,
     imports: [SpinnerIcon],
     template: `
         <div class="card">

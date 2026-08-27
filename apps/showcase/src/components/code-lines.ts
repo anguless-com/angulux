@@ -21,7 +21,6 @@ import { CodeLine } from '../data';
  */
 @Component({
     selector: 'agl-code-lines',
-    standalone: true,
     template: `<pre
         class="thin-scroll overflow-x-auto p-4 text-[13px] leading-[1.6]"
     ><code>@for (line of lines(); track $index) {<span class="block min-h-[1.6em]">@for (token of line; track $index) {@if (token.c < 0) {{{ token.t }}} @else {<span

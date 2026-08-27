@@ -4,7 +4,6 @@ import { SelectButtonModule } from '@anguless/angulux/selectbutton';
 
 @Component({
     selector: 'agl-selectbutton-basic-doc',
-    standalone: true,
     imports: [FormsModule, SelectButtonModule],
     template: `
         <div class="card">

@@ -4,7 +4,6 @@ import { MultiSelectModule } from '@anguless/angulux/multiselect';
 
 @Component({
     selector: 'agl-multiselect-chips-doc',
-    standalone: true,
     imports: [FormsModule, MultiSelectModule],
     template: `
         <div class="card">

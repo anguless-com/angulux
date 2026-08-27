@@ -3,7 +3,6 @@ import { SkeletonModule } from '@anguless/angulux/skeleton';
 
 @Component({
     selector: 'agl-skeleton-animation-doc',
-    standalone: true,
     imports: [SkeletonModule],
     template: `
         <div class="card">

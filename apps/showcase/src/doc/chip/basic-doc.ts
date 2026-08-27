@@ -3,7 +3,6 @@ import { ChipModule } from '@anguless/angulux/chip';
 
 @Component({
     selector: 'agl-chip-basic-doc',
-    standalone: true,
     imports: [ChipModule],
     template: `
         <div class="card">

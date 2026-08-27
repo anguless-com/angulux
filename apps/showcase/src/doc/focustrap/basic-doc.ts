@@ -5,7 +5,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-focustrap-basic-doc',
-    standalone: true,
     imports: [FocusTrapModule, InputTextModule, ButtonModule],
     template: `
         <div class="card">

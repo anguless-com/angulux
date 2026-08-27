@@ -3,7 +3,6 @@ import { TabsModule } from '@anguless/angulux/tabs';
 
 @Component({
     selector: 'agl-tabs-basic-doc',
-    standalone: true,
     imports: [TabsModule],
     template: `
         <div class="card card-block">

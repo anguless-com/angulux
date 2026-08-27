@@ -4,7 +4,6 @@ import { TreeTableModule } from '@anguless/angulux/treetable';
 
 @Component({
     selector: 'agl-treetable-basic-doc',
-    standalone: true,
     imports: [TreeTableModule],
     template: `
         <div class="card">

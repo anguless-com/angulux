@@ -37,7 +37,6 @@ export function declarationAnchor(group: ApiGroup): string {
  */
 @Component({
     selector: 'agl-api-table',
-    standalone: true,
     template: `
         @for (group of groups(); track group.declaration.name) {
             <section class="mt-10 scroll-mt-20" [id]="anchor(group)">

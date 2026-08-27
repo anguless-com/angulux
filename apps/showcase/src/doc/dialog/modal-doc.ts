@@ -4,7 +4,6 @@ import { DialogModule } from '@anguless/angulux/dialog';
 
 @Component({
     selector: 'agl-dialog-modal-doc',
-    standalone: true,
     imports: [ButtonModule, DialogModule],
     template: `
         <div class="card">

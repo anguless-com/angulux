@@ -34,7 +34,6 @@ interface Product {
  */
 @Component({
     selector: 'agl-verify-root',
-    standalone: true,
     imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule],
     template: `
         <h1>angulux — verification app</h1>

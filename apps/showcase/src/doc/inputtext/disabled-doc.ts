@@ -4,7 +4,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-inputtext-disabled-doc',
-    standalone: true,
     imports: [FormsModule, InputTextModule],
     template: `
         <div class="card">

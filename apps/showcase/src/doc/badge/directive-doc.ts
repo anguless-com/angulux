@@ -6,7 +6,6 @@ import { ToggleButtonModule } from '@anguless/angulux/togglebutton';
 
 @Component({
     selector: 'agl-badge-directive-doc',
-    standalone: true,
     imports: [FormsModule, BadgeModule, ButtonModule, ToggleButtonModule],
     template: `
         <div class="card">

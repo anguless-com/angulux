@@ -4,7 +4,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-overlay-basic-doc',
-    standalone: true,
     imports: [OverlayModule, ButtonModule],
     template: `
         <div class="card">

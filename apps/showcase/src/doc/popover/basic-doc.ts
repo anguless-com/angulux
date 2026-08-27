@@ -4,7 +4,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-popover-basic-doc',
-    standalone: true,
     imports: [PopoverModule, ButtonModule],
     template: `
         <div class="card">

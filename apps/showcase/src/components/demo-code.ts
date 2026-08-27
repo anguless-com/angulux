@@ -13,7 +13,6 @@ import { CodeLines } from './code-lines';
  */
 @Component({
     selector: 'agl-demo-code',
-    standalone: true,
     imports: [CodeLines],
     template: `
         <div class="overflow-hidden rounded-b-xl border border-t-0 border-line bg-sunken">

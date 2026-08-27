@@ -4,7 +4,6 @@ import { DatePickerModule } from '@anguless/angulux/datepicker';
 
 @Component({
     selector: 'agl-datepicker-time-doc',
-    standalone: true,
     imports: [FormsModule, DatePickerModule],
     template: `
         <div class="card">

@@ -20,7 +20,6 @@ export interface TocEntry {
  */
 @Component({
     selector: 'agl-toc',
-    standalone: true,
     template: `
         @if (entries().length) {
             <nav class="thin-scroll sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto border-l border-line py-1 pl-5">

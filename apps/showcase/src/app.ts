@@ -18,7 +18,6 @@ import { ColorSchemeToggle } from './theme';
  */
 @Component({
     selector: 'agl-showcase-root',
-    standalone: true,
     imports: [RouterLink, RouterLinkActive, RouterOutlet],
     host: {
         '(document:keydown)': 'onKeydown($event)'

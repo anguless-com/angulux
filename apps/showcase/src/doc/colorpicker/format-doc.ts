@@ -5,7 +5,6 @@ import { ColorPickerModule } from '@anguless/angulux/colorpicker';
 
 @Component({
     selector: 'agl-colorpicker-format-doc',
-    standalone: true,
     imports: [FormsModule, CommonModule, ColorPickerModule],
     template: `
         <div class="card">

@@ -6,7 +6,6 @@ import { TrashIcon } from '@anguless/angulux/icons/trash';
 
 @Component({
     selector: 'agl-icons-basic-doc',
-    standalone: true,
     imports: [CheckIcon, SearchIcon, StarFillIcon, TrashIcon],
     template: `
         <div class="card">

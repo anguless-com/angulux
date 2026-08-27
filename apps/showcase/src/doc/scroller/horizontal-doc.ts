@@ -3,7 +3,6 @@ import { ScrollerModule } from '@anguless/angulux/scroller';
 
 @Component({
     selector: 'agl-scroller-horizontal-doc',
-    standalone: true,
     imports: [ScrollerModule],
     template: `
         <div class="card">

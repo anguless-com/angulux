@@ -3,7 +3,6 @@ import { TableModule } from '@anguless/angulux/table';
 
 @Component({
     selector: 'agl-table-basic-doc',
-    standalone: true,
     imports: [TableModule],
     template: `
         <div class="card">

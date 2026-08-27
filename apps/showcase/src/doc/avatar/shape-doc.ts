@@ -3,7 +3,6 @@ import { AvatarModule } from '@anguless/angulux/avatar';
 
 @Component({
     selector: 'agl-avatar-shape-doc',
-    standalone: true,
     imports: [AvatarModule],
     template: `
         <div class="card">

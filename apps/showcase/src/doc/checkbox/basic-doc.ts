@@ -4,7 +4,6 @@ import { CheckboxModule } from '@anguless/angulux/checkbox';
 
 @Component({
     selector: 'agl-checkbox-basic-doc',
-    standalone: true,
     imports: [FormsModule, CheckboxModule],
     template: `
         <div class="card">

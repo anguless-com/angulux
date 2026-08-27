@@ -6,7 +6,6 @@ type DrawerPosition = 'left' | 'right' | 'top' | 'bottom';
 
 @Component({
     selector: 'agl-drawer-position-doc',
-    standalone: true,
     imports: [ButtonModule, DrawerModule],
     template: `
         <div class="card">

@@ -4,7 +4,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-progressbar-dynamic-doc',
-    standalone: true,
     imports: [ProgressBarModule, ButtonModule],
     template: `
         <div class="card">

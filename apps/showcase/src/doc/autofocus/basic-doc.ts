@@ -4,7 +4,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-autofocus-basic-doc',
-    standalone: true,
     imports: [AutoFocusModule, InputTextModule],
     template: `
         <div class="card">

@@ -3,7 +3,6 @@ import { MessageModule } from '@anguless/angulux/message';
 
 @Component({
     selector: 'agl-message-basic-doc',
-    standalone: true,
     imports: [MessageModule],
     template: `
         <div class="card">

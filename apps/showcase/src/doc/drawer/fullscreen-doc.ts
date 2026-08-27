@@ -4,7 +4,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-drawer-fullscreen-doc',
-    standalone: true,
     imports: [DrawerModule, ButtonModule],
     template: `
         <div class="card">

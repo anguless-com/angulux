@@ -5,7 +5,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-menu-popup-doc',
-    standalone: true,
     imports: [MenuModule, ButtonModule],
     template: `
         <div class="card">

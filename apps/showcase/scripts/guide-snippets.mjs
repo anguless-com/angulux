@@ -58,7 +58,6 @@ import { InputNumberModule } from '@anguless/angulux/inputnumber';
 
 @Component({
     selector: 'app-order',
-    standalone: true,
     imports: [FormsModule, ButtonModule, InputNumberModule],
     templateUrl: './order.html'
 })

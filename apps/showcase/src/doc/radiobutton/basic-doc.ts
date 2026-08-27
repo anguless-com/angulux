@@ -4,7 +4,6 @@ import { RadioButtonModule } from '@anguless/angulux/radiobutton';
 
 @Component({
     selector: 'agl-radiobutton-basic-doc',
-    standalone: true,
     imports: [FormsModule, RadioButtonModule],
     template: `
         <div class="card">

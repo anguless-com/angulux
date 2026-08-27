@@ -23,7 +23,6 @@ interface LoadedSection {
  */
 @Component({
     selector: 'agl-module-page',
-    standalone: true,
     imports: [NgComponentOutlet, ApiTable, CodeBlock, DemoCode, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">

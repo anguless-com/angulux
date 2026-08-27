@@ -3,7 +3,6 @@ import { ChipModule } from '@anguless/angulux/chip';
 
 @Component({
     selector: 'agl-chip-icon-doc',
-    standalone: true,
     imports: [ChipModule],
     template: `
         <div class="card">

@@ -5,7 +5,6 @@ import { ButtonModule } from '@anguless/angulux/button';
 
 @Component({
     selector: 'agl-confirmdialog-basic-doc',
-    standalone: true,
     imports: [ConfirmDialogModule, ButtonModule],
     providers: [ConfirmationService],
     template: `

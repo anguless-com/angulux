@@ -4,7 +4,6 @@ import { PasswordModule } from '@anguless/angulux/password';
 
 @Component({
     selector: 'agl-password-togglemask-doc',
-    standalone: true,
     imports: [FormsModule, PasswordModule],
     template: `
         <div class="card">

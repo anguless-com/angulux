@@ -5,7 +5,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-iconfield-position-doc',
-    standalone: true,
     imports: [IconFieldModule, InputIconModule, InputTextModule],
     template: `
         <div class="card">

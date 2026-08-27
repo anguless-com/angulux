@@ -4,7 +4,6 @@ import { TieredMenuModule } from '@anguless/angulux/tieredmenu';
 
 @Component({
     selector: 'agl-tieredmenu-basic-doc',
-    standalone: true,
     imports: [TieredMenuModule],
     template: `
         <div class="card">

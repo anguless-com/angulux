@@ -4,7 +4,6 @@ import { ToggleSwitchModule } from '@anguless/angulux/toggleswitch';
 
 @Component({
     selector: 'agl-toggleswitch-preselection-doc',
-    standalone: true,
     imports: [FormsModule, ToggleSwitchModule],
     template: `
         <div class="card">

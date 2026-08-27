@@ -4,7 +4,6 @@ import { ToggleButtonModule } from '@anguless/angulux/togglebutton';
 
 @Component({
     selector: 'agl-togglebutton-icons-doc',
-    standalone: true,
     imports: [FormsModule, ToggleButtonModule],
     template: `
         <div class="card">

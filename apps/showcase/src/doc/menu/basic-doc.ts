@@ -4,7 +4,6 @@ import { MenuModule } from '@anguless/angulux/menu';
 
 @Component({
     selector: 'agl-menu-basic-doc',
-    standalone: true,
     imports: [MenuModule],
     template: `
         <div class="card">

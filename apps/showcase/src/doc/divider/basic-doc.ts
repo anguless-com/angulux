@@ -3,7 +3,6 @@ import { DividerModule } from '@anguless/angulux/divider';
 
 @Component({
     selector: 'agl-divider-basic-doc',
-    standalone: true,
     imports: [DividerModule],
     template: `
         <div class="card">

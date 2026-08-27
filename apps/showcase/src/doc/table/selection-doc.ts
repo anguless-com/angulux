@@ -4,7 +4,6 @@ import { TableModule } from '@anguless/angulux/table';
 
 @Component({
     selector: 'agl-table-selection-doc',
-    standalone: true,
     imports: [FormsModule, TableModule],
     template: `
         <div class="card">

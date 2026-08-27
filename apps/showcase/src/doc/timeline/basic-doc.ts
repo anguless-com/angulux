@@ -3,7 +3,6 @@ import { TimelineModule } from '@anguless/angulux/timeline';
 
 @Component({
     selector: 'agl-timeline-basic-doc',
-    standalone: true,
     imports: [TimelineModule],
     template: `
         <div class="card">

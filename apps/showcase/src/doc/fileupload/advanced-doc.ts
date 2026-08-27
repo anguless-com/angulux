@@ -3,7 +3,6 @@ import { FileUploadModule } from '@anguless/angulux/fileupload';
 
 @Component({
     selector: 'agl-fileupload-advanced-doc',
-    standalone: true,
     imports: [FileUploadModule],
     template: `
         <div class="card">

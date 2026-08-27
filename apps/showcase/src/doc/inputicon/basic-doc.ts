@@ -5,7 +5,6 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 
 @Component({
     selector: 'agl-inputicon-basic-doc',
-    standalone: true,
     imports: [IconFieldModule, InputIconModule, InputTextModule],
     template: `
         <div class="card">

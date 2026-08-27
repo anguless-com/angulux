@@ -4,7 +4,6 @@ import { SplitButtonModule } from '@anguless/angulux/splitbutton';
 
 @Component({
     selector: 'agl-splitbutton-severity-doc',
-    standalone: true,
     imports: [SplitButtonModule],
     template: `
         <div class="card">

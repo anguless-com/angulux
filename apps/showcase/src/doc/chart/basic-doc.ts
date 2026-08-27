@@ -3,7 +3,6 @@ import { ChartModule } from '@anguless/angulux/chart';
 
 @Component({
     selector: 'agl-chart-basic-doc',
-    standalone: true,
     imports: [ChartModule],
     template: `
         <div class="card">

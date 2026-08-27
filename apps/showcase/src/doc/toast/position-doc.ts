@@ -5,7 +5,6 @@ import { ToastModule } from '@anguless/angulux/toast';
 
 @Component({
     selector: 'agl-toast-position-doc',
-    standalone: true,
     imports: [ButtonModule, ToastModule],
     providers: [MessageService],
     template: `

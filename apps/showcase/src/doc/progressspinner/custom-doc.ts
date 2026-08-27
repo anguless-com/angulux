@@ -3,7 +3,6 @@ import { ProgressSpinnerModule } from '@anguless/angulux/progressspinner';
 
 @Component({
     selector: 'agl-progressspinner-custom-doc',
-    standalone: true,
     imports: [ProgressSpinnerModule],
     template: `
         <div class="card">
