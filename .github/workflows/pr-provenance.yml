@@ -60,15 +60,28 @@ jobs:
                       // Each entry: a stable fragment of the checkbox label, and what it means.
                       // Matched on a fragment rather than the full sentence so that editing the
                       // wording of the template does not silently disable the check.
+                      //
+                      // These three are here for one reason: NO MACHINE CAN CHECK THEM.
+                      // `check:license` proves the dependency tree is clean; it cannot prove
+                      // nobody retyped post-MIT source by hand. `check:names` catches brand names
+                      // in selector and API positions; it cannot recognise prose copied off a
+                      // website. An assistant's provenance is not observable at all. That gap is
+                      // the whole justification for asking a person to sign, and it is why this
+                      // list must never grow to include something a gate already enforces.
+                      //
+                      // A fourth box asked the author to confirm their commits were signed off.
+                      // Removed 2026-08-26: the `DCO sign-off` job in ci.yml walks every commit in
+                      // the range and exits 1 on the first one missing a `Signed-off-by` trailer.
+                      // Asking a human to attest to something a gate already fails on is not extra
+                      // safety — it is a click that teaches people to tick without reading, which
+                      // is the one habit that would make the other three worthless.
                       const REQUIRED = [
                           { needle: 'no code, documentation, test fixtures or generated',
                             what:   'no post-MIT PrimeNG / @primeuix / primeicons material' },
                           { needle: 'no content copied from primeng.dev',
                             what:   'no content copied from primeng.dev or primefaces.org' },
                           { needle: 'AI coding assistant',
-                            what:   'AI-assistant output reviewed and owned' },
-                          { needle: 'signed off',
-                            what:   'commits signed off (DCO)' }
+                            what:   'AI-assistant output reviewed and owned' }
                       ];
 
                       const lines = body.split('\n');
