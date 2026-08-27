@@ -67,7 +67,12 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // rather than an inner element, so the host-level unclip does not reach the element that clips
 // there; the pair proves the badge lands on the inner span and that nothing between it and the
 // page clips it.
-const P_CLASS_BASELINE = 518;
+// 518 → 520 on 2026-08-27: the badge directive learned to anchor to a custom-element host that
+// wears its own root class, so the specs now have to say which element the badge landed on.
+// `.p-togglebutton-content` and `.p-badge` in `togglebutton.spec.ts` assert it did NOT land on the
+// inner span, and `.p-badge` in `button.spec.ts` asserts a Tailwind `p-4` on the host does not move
+// the anchor off the inner button.
+const P_CLASS_BASELINE = 520;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];

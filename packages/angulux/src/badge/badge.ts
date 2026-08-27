@@ -92,8 +92,56 @@ export class BadgeDirective extends BaseComponent {
 
     _componentStyle = inject(BadgeStyle);
 
+    /**
+     * The element the badge is pinned to — the one whose top-inline-end corner it must sit on.
+     *
+     * A plain host (`<i>`, `<div>`, `<button>`) is that element. A custom element is not
+     * necessarily, and the two shapes in this library disagree:
+     *
+     *   <agl-button> leaves its own host bare and puts .p-button on an inner <button>, so the
+     *   badge belongs on the child. Anchoring to the wrapper would be wrong twice over: the
+     *   containing block an inline box offers an absolutely positioned descendant comes from its
+     *   line boxes, not from the inline-block button inside it, so `top: 0` would land on the
+     *   text strut rather than on the button's edge.
+     *
+     *   <agl-togglebutton> wears .p-togglebutton on the host itself and renders
+     *   <span class="p-togglebutton-content"> inside it. Anchoring to firstChild there put the
+     *   badge 5px into the control on both axes — the same directive, the same markup, a
+     *   different corner. And 5 is not a constant to subtract: it is the host's border width plus
+     *   dt('togglebutton.padding'), so it moves with whatever theme is loaded.
+     *
+     * So the one thing this getter decides is: a custom element is the anchor when it already
+     * wears its OWN component's root class. That is derivable from the element alone, with no
+     * table to keep in sync — once both sides are compared with the dashes removed, because the
+     * library gives most components three spellings of the selector
+     * (`agl-toggleButton, agl-togglebutton, agl-toggle-button`) and the root class picks one of
+     * them arbitrarily: .p-avatar-group keeps its dash, .p-togglebutton does not.
+     *
+     * Deliberately one-directional. This directive goes on arbitrary elements, and most hosts it
+     * will ever see are not ours, so anything it cannot positively identify keeps the old anchor:
+     * a third-party <my-widget>, or one of ours whose class does not derive from its tag
+     * (agl-table wears .p-datatable), behaves exactly as it did. Tailwind cannot trip it either —
+     * `p-4` and `p-px` both fail the comparison against the tag.
+     */
     private get activeElement(): HTMLElement {
-        return this.el.nativeElement.nodeName.indexOf('-') != -1 ? this.el.nativeElement.firstChild : this.el.nativeElement;
+        const host: HTMLElement = this.el.nativeElement;
+
+        if (host.nodeName.indexOf('-') === -1) {
+            return host;
+        }
+
+        // AGL-TOGGLE-BUTTON -> 'togglebutton', and so does the class token 'p-togglebutton'.
+        const tagKey = host.nodeName
+            .toLowerCase()
+            .replace(/^[^-]+-/, '')
+            .replace(/-/g, '');
+        const wearsOwnRootClass = Array.from(host.classList).some((token) => token.startsWith('p-') && token.slice(2).replace(/-/g, '') === tagKey);
+
+        // firstElementChild, not firstChild: a comment node is a legal firstChild — Angular leaves
+        // one as the anchor for every `@if` and `*ngIf` — and appending a badge to a comment throws
+        // HierarchyRequestError. Falling back to the host is a worse corner than a child would have
+        // been, but it beats throwing on a custom element that rendered no elements at all.
+        return wearsOwnRootClass ? host : ((host.firstElementChild as HTMLElement) ?? host);
     }
 
     private get canUpdateBadge(): boolean {

@@ -1579,6 +1579,17 @@ describe('ButtonDirective', () => {
 })
 class TestBadgeDirectiveButtonComponent {}
 
+// The same thing wearing a utility class that starts with `p-`. The anchor rule asks whether the
+// host wears its OWN component's root class, and `p-4` is Tailwind's padding scale, not a root
+// class — a rule that merely looked for a `p-` prefix would move the badge onto the bare wrapper
+// here and mis-place it on every Tailwind codebase in the world.
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-button class="p-4 p-px" label="Emails" aglBadge value="8" />`
+})
+class TestBadgeDirectiveUtilityClassButtonComponent {}
+
 describe('Button with the badge directive', () => {
     let badgeFixture: ComponentFixture<TestBadgeDirectiveButtonComponent>;
     let innerButton: HTMLElement;
@@ -1586,7 +1597,7 @@ describe('Button with the badge directive', () => {
     beforeEach(async () => {
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule({
-            declarations: [TestBadgeDirectiveButtonComponent],
+            declarations: [TestBadgeDirectiveButtonComponent, TestBadgeDirectiveUtilityClassButtonComponent],
             imports: [Button, BadgeDirective],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
@@ -1608,5 +1619,22 @@ describe('Button with the badge directive', () => {
         // assertion above, while `overflow: hidden` on .p-button clipped it to nothing on
         // screen. Only the computed value distinguishes the two, so assert on that.
         expect(getComputedStyle(innerButton).overflow).toBe('visible');
+    });
+
+    it('keeps the inner button as the anchor when the host wears utility classes', async () => {
+        const utilityFixture = TestBed.createComponent(TestBadgeDirectiveUtilityClassButtonComponent);
+
+        utilityFixture.detectChanges();
+        await utilityFixture.whenStable();
+
+        const wrapper: HTMLElement = utilityFixture.nativeElement.querySelector('agl-button');
+        const button: HTMLElement = wrapper.querySelector('button')!;
+
+        // `p-4` and `p-px` are Tailwind padding utilities and the wrapper is bare of angulux
+        // styling, so the badge still belongs on the inner button. Anchoring to the wrapper would
+        // resolve `top: 0` against an inline box's line boxes rather than against the button.
+        expect(button.classList.contains('p-overlay-badge')).toBe(true);
+        expect(wrapper.classList.contains('p-overlay-badge')).toBe(false);
+        expect(button.querySelector('.p-badge')?.textContent?.trim()).toBe('8');
     });
 });

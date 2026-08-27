@@ -1403,12 +1403,46 @@ describe('ToggleButton with the badge directive', () => {
         await badgeFixture.whenStable();
 
         host = badgeFixture.nativeElement.querySelector('agl-togglebutton');
-        badgeHost = host.querySelector('.p-overlay-badge');
+        badgeHost = host.classList.contains('p-overlay-badge') ? host : host.querySelector('.p-overlay-badge');
     });
 
     it('renders the badge', () => {
         expect(badgeHost).toBeTruthy();
-        expect(badgeHost?.querySelector('.p-badge')?.textContent?.trim()).toBe('8');
+        expect(badgeHost?.querySelector(':scope > .p-badge')?.textContent?.trim()).toBe('8');
+    });
+
+    it('anchors the badge to the host, not to the inner content span', () => {
+        // The host is the control here: it wears .p-togglebutton and its own border and padding.
+        // The inner span sits inside both, so a badge centred on the span's corner is a badge
+        // several pixels inside the control — and the offset is border + dt('togglebutton.padding'),
+        // so it grows with the theme rather than staying the 5px it happens to be in Aura.
+        // Asserted on structure rather than on geometry deliberately: the theme's custom properties
+        // are not loaded in a bare TestBed, so the padding that produces the offset is 0 here and a
+        // geometric assertion would pass either way. The rectangles are measured in the browser
+        // gate instead, where a real theme is on the page.
+        expect(host.classList.contains('p-overlay-badge')).toBe(true);
+        expect(badgeHost).toBe(host);
+
+        const content = host.querySelector('.p-togglebutton-content')!;
+
+        expect(content.classList.contains('p-overlay-badge')).toBe(false);
+        expect(content.querySelector('.p-badge')).toBeNull();
+    });
+
+    it('keeps the badge anchored when the toggle re-renders its own class list', async () => {
+        // ToggleButton binds `[class]` to cn(cx('root'), styleClass), and cx('root') changes on every
+        // click — it adds p-togglebutton-checked. That binding re-runs classMap on the very element
+        // the directive added p-overlay-badge to imperatively. Ivy's classMap diffs against its own
+        // previous value and leaves foreign tokens alone, so the badge survives; this is the assertion
+        // that says so, because if it ever stopped being true the badge would lose its positioning
+        // context on the user's first click and nothing else in the suite would notice.
+        host.click();
+        badgeFixture.detectChanges();
+        await badgeFixture.whenStable();
+
+        expect(host.getAttribute('data-p-checked')).toBe('true');
+        expect(host.classList.contains('p-overlay-badge')).toBe(true);
+        expect(host.querySelector(':scope > .p-badge')?.textContent?.trim()).toBe('8');
     });
 
     it('does not let anything between the badge and the page clip it away', () => {

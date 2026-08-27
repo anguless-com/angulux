@@ -32,22 +32,23 @@ const style = /*css*/ `
         overflow: visible;
     }
 
-    /* And the same for whatever directly wraps a badged element, because the host rule above
-       does not always land on the element that clips. A component that styles its OWN host
-       does not: ToggleButton puts .p-togglebutton on <agl-togglebutton> and renders a <span>
-       inside, and the directive attaches to firstChild, so the badge ends up on that inner
-       span while the clip stays one level up. Button is the other shape — an inner <button>
-       carrying .p-button — which is why the two behave differently for the same markup.
+    /* And the same for whatever directly wraps a badged element, because the host rule above does
+       not always land on the element that clips.
 
-       Scoped to the direct-child combinator deliberately. Any wider and a container would lose
-       its clip for merely
-       having a badge somewhere beneath it — a scroll area around a badged button, say — which
-       is a much bigger promise than this needs to make. :has() takes the specificity of its
-       argument, so this lands at 0,2,0 like the rule above and for the same reason.
+       It did not for <agl-togglebutton>, which wears .p-togglebutton on its own host and renders
+       a <span> inside: the badge landed on that span while the clip stayed one level up. That
+       case is now the anchor's job — BadgeDirective.activeElement pins the badge to a custom
+       element that wears its own root class — and this rule keeps the ones the anchor rule
+       deliberately declines to claim: a component whose class does not derive from its tag
+       (agl-table wears .p-datatable), a third-party custom element, a consumer's own wrapper.
 
-       A clipping ancestor further up is NOT covered and cannot be from here: it is the app's
-       own layout, and unclipping it would be the library overruling a decision that is not
-       its own. */
+       Scoped to the direct-child combinator on purpose. Any wider and a container would lose its
+       clip for merely having a badge somewhere beneath it — a scroll area around a badged button,
+       say — which is a far bigger promise than this needs to make. :has() takes the specificity of
+       its argument, so this lands at 0,2,0 like the rule above and for the same reason.
+
+       A clipping ancestor further up is NOT covered and cannot be from here: that is the app's own
+       layout, and unclipping it would be the library overruling a decision that is not its own. */
     *:has(> .p-overlay-badge.p-overlay-badge) {
         overflow: visible;
     }

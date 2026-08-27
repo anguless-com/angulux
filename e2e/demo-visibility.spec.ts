@@ -56,8 +56,38 @@ const MODULES = readRegistry();
  * the clip probe is general and the interesting work is deciding what to point it at; adding a
  * decoration here is one line, and each entry has to say why being cut off is a defect rather
  * than a layout choice.
+ *
+ * `clipper` is not documentation — it is what the teeth test below sets `overflow: hidden` on,
+ * to prove the row can fail at all. A decoration that no ancestor can clip is a row that will be
+ * green forever, which reads like cover and is not, and the only way to tell the two apart is to
+ * try. `floor` is the second half of the same idea: a selector that matches nothing sweeps a
+ * page happily and reports success.
+ *
+ * REJECTED, and recorded because the reasoning is the useful part. `.p-tablist-active-bar` — the
+ * 1px mark under the selected tab — looks like the perfect candidate: it is drawn deliberately
+ * outside its containing block, at `inset-block-end: -1px`, inside a `.p-tablist` that sets
+ * `overflow: hidden`. It was measured rather than assumed, and forcing `overflow: hidden` onto
+ * `.p-tablist-tab-list`, `.p-tablist-content` and `.p-tablist` in turn left the ratio at exactly
+ * 1.000 every time. Nothing above it can cut it, so the row could never have gone red. Also
+ * rejected: every overlay-hosted decoration (absent at rest — the gate visits, it does not
+ * interact), `.p-inputicon` and `.p-toggleswitch-handle` (inset safely inside their own hosts).
  */
-const MUST_BE_WHOLLY_VISIBLE = [{ selector: '.p-badge', why: 'a badge is centred on its host corner, so a clipping host erases most of it while leaving the DOM correct' }];
+const MUST_BE_WHOLLY_VISIBLE = [
+    {
+        selector: '.p-badge',
+        module: 'badge',
+        clipper: '.p-button',
+        floor: 11,
+        why: 'a badge is centred on its host corner, so a clipping host erases most of it while leaving the DOM correct'
+    },
+    {
+        selector: '.p-colorpicker-hue-handle',
+        module: 'colorpicker',
+        clipper: '.p-colorpicker-hue',
+        floor: 1,
+        why: 'the hue handle is 21px wide across a 17px strip and hangs 2px past each edge by construction, so it is exactly the shape a clipping ancestor would eat — clipping .p-colorpicker-hue takes it to 0.81 and .p-colorpicker-content takes it to 0, and the handle is the only thing telling the user which hue is selected'
+    }
+];
 
 type Measurement = { ratio: number; clippedBy: string | null; label: string };
 
@@ -166,12 +196,57 @@ test.describe('the clip probe', () => {
 });
 
 /**
- * The floor. Every per-module test below is silent on a page with no badges on it, which is
- * most of them, so on its own the sweep would stay green if the probe found nothing anywhere.
- * This pins the one page whose whole subject is badges, and it is also the page both bugs were
- * reported on.
+ * Every row of the table has to be shown capable of failing, on the page it is meant to guard.
+ * Two ways a row can be worthless, and this covers both: it matches nothing (so the sweep visits
+ * a page and reports success over an empty set), or nothing above it can clip it (so the ratio is
+ * pinned at 1 whatever happens downstream). The second one is not hypothetical — the tab list's
+ * active bar looked like the strongest candidate in the library and turned out to be exactly this,
+ * which is why it is a comment on the table instead of a row in it.
  */
-test('the badge page really has badges on it, and every one of them is whole', async ({ page }) => {
+test.describe('the table is pointed at things the probe can actually see', () => {
+    for (const entry of MUST_BE_WHOLLY_VISIBLE) {
+        test(`${entry.selector} — matches on /${entry.module}, and goes red when ${entry.clipper} clips`, async ({ page }) => {
+            const target = MODULES.find((m) => m.module === entry.module)!;
+
+            await openModule(page, target.module, target.sectionIds);
+            await expect(page.locator(entry.selector)).toHaveCount(entry.floor);
+
+            const before = await page.evaluate(MEASURE, entry.selector);
+
+            expect(Math.min(...before.map((m) => m.ratio))).toBe(1);
+
+            // Mutate the live page rather than the stylesheet: this has to prove the PROBE can
+            // see a clip on this particular geometry, and the cheapest honest way is to introduce
+            // one. No restore — the page is thrown away with the test.
+            const clippers = await page.evaluate((clipper) => {
+                const found = Array.from(document.querySelectorAll<HTMLElement>(clipper));
+
+                found.forEach((el) => (el.style.overflow = 'hidden'));
+
+                return found.length;
+            }, entry.clipper);
+
+            expect(clippers).toBeGreaterThan(0);
+
+            const after = await page.evaluate(MEASURE, entry.selector);
+
+            expect(Math.min(...after.map((m) => m.ratio))).toBeLessThan(1);
+        });
+    }
+});
+
+/**
+ * The floor for the badge, plus the thing the clip probe structurally cannot see: a decoration
+ * that is wholly visible in the wrong place. Both bugs before this one were about a badge being
+ * erased; the one after them was about a badge sitting 5px inside the control because the
+ * directive anchored to an inner span rather than to the control itself. A ratio of 1.000 is true
+ * of both the fixed and the misplaced badge.
+ *
+ * Measured against the CONTROL's corner, deliberately not against the element carrying
+ * `.p-overlay-badge` — that element IS the anchor, so measuring against it would make the
+ * assertion true by construction no matter which element the directive picked.
+ */
+test('the badge page really has badges on it, every one whole and on the corner it belongs to', async ({ page }) => {
     const errors = watchErrors(page);
     const badge = MODULES.find((m) => m.module === 'badge')!;
 
@@ -184,6 +259,32 @@ test('the badge page really has badges on it, and every one of them is whole', a
 
     for (const m of measured) {
         expect(`${m.label} — ${(m.ratio * 100).toFixed(0)}% visible, clipped by ${m.clippedBy ?? 'nothing'}`).toContain('100% visible');
+    }
+
+    const placed = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('#badge-directive .p-badge')).map((badgeEl) => {
+            const control = badgeEl.closest('.p-button, .p-togglebutton') ?? badgeEl.parentElement!;
+            const own = badgeEl.getBoundingClientRect();
+            const box = control.getBoundingClientRect();
+
+            return {
+                on: control.tagName.toLowerCase(),
+                text: badgeEl.textContent?.trim(),
+                dx: Math.round(own.left + own.width / 2 - box.right),
+                dy: Math.round(own.top + own.height / 2 - box.top)
+            };
+        })
+    );
+
+    // Three host shapes — an inner-root component, a self-styled-host component and a plain <i> —
+    // and the badge has to land on the same corner of all three. The residual 1px on the two
+    // controls is their border: the corner an overlay badge is centred on is the border-box
+    // corner, and a badge centred on the padding-box corner of a bordered control reads as
+    // off-centre against the visual edge. 2 is the tolerance, not the expectation.
+    expect(placed).toHaveLength(3);
+
+    for (const p of placed) {
+        expect(`${p.on} badge "${p.text}" at dx=${p.dx} dy=${p.dy}`).toMatch(/dx=-?[01] dy=-?[01]$/);
     }
 
     await page.screenshot({ path: `${EVIDENCE}/badge-page.png`, fullPage: true });
