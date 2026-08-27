@@ -5,6 +5,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { By } from '@angular/platform-browser';
 
 import { SharedModule } from '@anguless/angulux/api';
+import { BadgeDirective } from '@anguless/angulux/badge';
 import { provideAngulux } from '@anguless/angulux/config';
 import { ToggleButtonChangeEvent } from '@anguless/angulux/types/togglebutton';
 import { ToggleButton } from './togglebutton';
@@ -1370,5 +1371,53 @@ describe('ToggleButton', () => {
                 expect(hookCalls).toContain('onDestroy');
             });
         });
+    });
+});
+
+// The second host in the library whose root element clips. Button and ToggleButton reach that
+// state differently and the difference decides where the badge lands: Button renders an inner
+// <button> and puts .p-button on it, ToggleButton puts .p-togglebutton on its own host element
+// and renders a <span> inside. The directive attaches to firstChild for both.
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-togglebutton aglBadge value="8" onLabel="On" offLabel="Off" />`
+})
+class TestBadgeDirectiveToggleButtonComponent {}
+
+describe('ToggleButton with the badge directive', () => {
+    let badgeFixture: ComponentFixture<TestBadgeDirectiveToggleButtonComponent>;
+    let host: HTMLElement;
+    let badgeHost: HTMLElement | null;
+
+    beforeEach(async () => {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            declarations: [TestBadgeDirectiveToggleButtonComponent],
+            imports: [ToggleButton, BadgeDirective],
+            providers: [provideZonelessChangeDetection()]
+        }).compileComponents();
+
+        badgeFixture = TestBed.createComponent(TestBadgeDirectiveToggleButtonComponent);
+        badgeFixture.detectChanges();
+        await badgeFixture.whenStable();
+
+        host = badgeFixture.nativeElement.querySelector('agl-togglebutton');
+        badgeHost = host.querySelector('.p-overlay-badge');
+    });
+
+    it('renders the badge', () => {
+        expect(badgeHost).toBeTruthy();
+        expect(badgeHost?.querySelector('.p-badge')?.textContent?.trim()).toBe('8');
+    });
+
+    it('does not let anything between the badge and the page clip it away', () => {
+        // Being unclipped is not enough on the badge's own parent: a clip anywhere up the
+        // ancestor chain removes the badge just as completely. Walk up from the badge to the
+        // fixture root and demand `visible` at every step. The message carries the offender's
+        // tag and class so a failure names the element instead of just saying "hidden".
+        for (let el: HTMLElement | null = badgeHost; el && el !== badgeFixture.nativeElement; el = el.parentElement) {
+            expect(`${el.tagName}.${el.className} → ${getComputedStyle(el).overflow}`).toContain('visible');
+        }
     });
 });

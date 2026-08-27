@@ -63,7 +63,11 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // for the overlay badge being clipped away by `.p-button { overflow: hidden }`. It proves the
 // directive still puts the badge inside the inner <button>; the sibling assertion that proves
 // it is no longer clipped reads a computed style, not a class string, so it does not count.
-const P_CLASS_BASELINE = 516;
+// 516 → 518 on 2026-08-27: two more in `togglebutton.spec.ts`. ToggleButton styles its own host
+// rather than an inner element, so the host-level unclip does not reach the element that clips
+// there; the pair proves the badge lands on the inner span and that nothing between it and the
+// page clips it.
+const P_CLASS_BASELINE = 518;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];

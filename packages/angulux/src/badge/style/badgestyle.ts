@@ -3,6 +3,10 @@ import { style as badge_style } from '@anguless/angulux-styles/badge';
 import { isEmpty, isNotEmpty } from '@anguless/angulux-utils';
 import { BaseStyle } from '@anguless/angulux/base';
 
+// NO BACKTICKS ANYWHERE BELOW, comments included: this is a template literal, so a backtick
+// closes it. Sometimes that is a compile error and sometimes it is not — `a` > `b` parses as a
+// comparison, and the whole constant silently becomes the boolean false. The stylesheet then
+// loads as the five characters "false" and every badge rule disappears with no error anywhere.
 const style = /*css*/ `
     ${badge_style}
 
@@ -25,6 +29,26 @@ const style = /*css*/ `
        ripple enabled in the config, the ink is no longer clipped by that host either. It is
        bounded to hosts a badge is actually attached to, and ripple is off by default. */
     .p-overlay-badge.p-overlay-badge {
+        overflow: visible;
+    }
+
+    /* And the same for whatever directly wraps a badged element, because the host rule above
+       does not always land on the element that clips. A component that styles its OWN host
+       does not: ToggleButton puts .p-togglebutton on <agl-togglebutton> and renders a <span>
+       inside, and the directive attaches to firstChild, so the badge ends up on that inner
+       span while the clip stays one level up. Button is the other shape — an inner <button>
+       carrying .p-button — which is why the two behave differently for the same markup.
+
+       Scoped to the direct-child combinator deliberately. Any wider and a container would lose
+       its clip for merely
+       having a badge somewhere beneath it — a scroll area around a badged button, say — which
+       is a much bigger promise than this needs to make. :has() takes the specificity of its
+       argument, so this lands at 0,2,0 like the rule above and for the same reason.
+
+       A clipping ancestor further up is NOT covered and cannot be from here: it is the app's
+       own layout, and unclipping it would be the library overruling a decision that is not
+       its own. */
+    *:has(> .p-overlay-badge.p-overlay-badge) {
         overflow: visible;
     }
 
