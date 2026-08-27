@@ -58,5 +58,18 @@
         "via": "transitive",
         "renderedBy": "agl-treetable when scrollable=true",
         "note": "the #sec-treetable-scroll block enables scrollable; the scenario asserts .p-treetable-scrollable-view exists"
+    },
+    "agl-table": {
+        "via": "template",
+        "note": "the #sec-table and #sec-table-adv blocks. Covered by scenarios since the gate was written — it entered this manifest only when the guard learned that ChangeDetectionStrategy.Default is the same value as Eager, so the bookkeeping is new, the coverage is not"
+    },
+    "[aglTableBody]": {
+        "via": "transitive",
+        "renderedBy": "agl-table",
+        "note": "table constructs it for both the frozen and the main body, so every visible row in the 'table' and 'table advanced' scenarios goes through it. It is the riskiest of the three: it renders rows from arrays Table mutates in place, which is precisely the update a wrong change-detection strategy drops in silence"
+    },
+    "agl-scroller": {
+        "via": "template",
+        "note": "the #sec-scroller block, added with this entry — nothing constructed it before, and the four production render sites all sit behind *ngIf=\"virtualScroll\", so claiming transitive coverage through agl-table would have passed the static check while the runtime path stayed unreachable. The 'scroller' scenario scrolls the viewport and reads #probe-scroller, so the assertion is on state that travelled scroll -> component -> output -> view"
     }
 }

@@ -5,6 +5,7 @@ import { CardModule } from '@anguless/angulux/card';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
+import { ScrollerModule } from '@anguless/angulux/scroller';
 import { SelectModule } from '@anguless/angulux/select';
 import { TableModule } from '@anguless/angulux/table';
 import { TieredMenuModule } from '@anguless/angulux/tieredmenu';
@@ -34,7 +35,7 @@ interface Product {
 @Component({
     selector: 'agl-verify-root',
     standalone: true,
-    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule],
+    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -211,6 +212,23 @@ interface Product {
             </agl-dialog>
             <div class="probe" id="probe-dialog">visible={{ dialogVisible() }}</div>
         </section>
+
+        <!-- ── 8. scroller (the last CheckAlways component, and the one the gate could not see) ─── -->
+        <section id="sec-scroller">
+            <h2>scroller (virtual scroll)</h2>
+            <!-- agl-scroller declares ChangeDetectionStrategy.Default, which is the same value as
+                 Eager — CheckAlways. It sat outside the guarded set only because the guard matched
+                 the token rather than the risk class. It is built here directly rather than through
+                 agl-table's [virtualScroll], because the table forwards inputs to the scroller but
+                 not its outputs, and a probe reading a value that has travelled
+                 scroller -> output -> signal -> view is the whole point of this app. -->
+            <agl-scroller [items]="rows" [itemSize]="30" [style]="{ width: '260px', height: '150px' }" (onScrollIndexChange)="scrollFirst.set($event.first)">
+                <ng-template #item let-row>
+                    <div class="scroller-row" [attr.data-scroller-code]="row.code" style="height: 30px">{{ row.name }}</div>
+                </ng-template>
+            </agl-scroller>
+            <div class="probe" id="probe-scroller">first={{ scrollFirst() }}</div>
+        </section>
     `
 })
 export class AppComponent {
@@ -220,6 +238,12 @@ export class AppComponent {
         { code: 'P-003', name: 'Monitor 27"', category: 'Devices', quantity: 5 }
     ];
     selectedProduct: Product | null = null;
+
+    /** Enough rows that the scroller windows them: 150px of viewport over 30px items shows five,
+        so the rows the scenario scrolls to have never been rendered before it scrolls. */
+    rows = Array.from({ length: 200 }, (_, i) => ({ code: `R-${String(i).padStart(3, '0')}`, name: `Row ${i}` }));
+
+    scrollFirst = signal(0);
 
     tree: TreeNode[] = [
         {

@@ -117,9 +117,17 @@ nobody here pushes anything. The rest gate our own code, so a commit is the only
 moment they can be wrong.
 
 On top of that: `provenance/manifest.json` records SHA-256 checksums and registry publish
-timestamps for every archived MIT artifact, and a browser gate renders **15 of 15**
+timestamps for every archived MIT artifact, and a browser gate renders **16 of 16**
 risk-flagged decorators in a real Chromium and asserts on the result — because a green
 type-check cannot see a render bug.
+
+It was 15 of 15 until the guard was asked what it actually matched. Angular 22 renamed
+`ChangeDetectionStrategy.Default` to `Eager` and deprecated the old spelling; the guard
+recomputed its risky set by grepping for the new one, so three CheckAlways components —
+`agl-scroller` and two in `table.ts` — were outside the guarded set while the gate
+reported full coverage. The enum makes the two spellings literally equal
+(`{ OnPush: 0, Eager: 1, Default: 1 }`). A guard that matches a token rather than a risk
+class is a guard a rename can switch off.
 
 That gate has a second half, for the bugs a green *spec suite* cannot see. It opens all
 51 module pages of the showcase — the markup a reader copies, rather than the reduced
@@ -133,7 +141,7 @@ Current evidence, reproducible from a clean checkout:
 16/16 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3765 SUCCESS
-browser gate         67 tests · 13 behaviour + 54 visibility
+browser gate         70 tests · 14 behaviour + 56 visibility
 runtime deps         tslib + four first-party angulux-* packages. Zero PrimeTek.
 ```
 
@@ -201,7 +209,7 @@ done
 corepack pnpm --filter angulux run build        # → 210 entrypoints
 corepack pnpm --filter angulux run test:unit    # → 3765 specs
 corepack pnpm --filter @angulux/verify run build
-npx playwright test --config e2e/playwright.config.ts   # browser gate → 67 tests
+npx playwright test --config e2e/playwright.config.ts   # browser gate → 70 tests
 ```
 
 `pnpm` runs through corepack and is not on `PATH`; use `corepack pnpm`. Karma needs

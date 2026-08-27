@@ -198,6 +198,33 @@ test('facet card — header and footer project into the component slots', async 
     expect(errors).toEqual([]);
 });
 
+test('scroller — scrolling renders rows that were never in the DOM, and the index reaches the view', async ({ page }) => {
+    const errors = watchErrors(page);
+
+    // 200 rows, 30px each, in a 150px viewport: five are rendered and row 40 has never existed.
+    await expect(page.locator('#probe-scroller')).toHaveText('first=0');
+    await expect(page.locator('#sec-scroller [data-scroller-code="R-000"]')).toBeVisible();
+    await expect(page.locator('#sec-scroller [data-scroller-code="R-040"]')).toHaveCount(0);
+
+    // `.p-virtualscroller` — the root class does not follow the selector here, which is the same
+    // naming gap the badge directive's anchor rule declines to guess at.
+    await page.locator('#sec-scroller .p-virtualscroller').evaluate((el) => el.scrollTo({ top: 40 * 30 }));
+
+    // Windowing is the assertion, not the scroll position: a scroller whose view never repaints
+    // keeps rendering rows 0-4 at the new offset, and scrollTop alone would not notice.
+    await expect(page.locator('#sec-scroller [data-scroller-code="R-040"]')).toBeVisible();
+    await expect(page.locator('#sec-scroller [data-scroller-code="R-000"]')).toHaveCount(0);
+    // 37, not 40: `first` is the first RENDERED index, and the scroller keeps a buffer of tolerated
+    // items above the viewport, so it sits three rows ahead of the topmost visible one. Derived from
+    // the item size and the fixed 150px viewport, so it is deterministic — pinned rather than given a
+    // range, because a range wide enough to be safe would also accept a scroller that stopped
+    // windowing altogether.
+    await expect(page.locator('#probe-scroller')).toHaveText('first=37');
+
+    await page.screenshot({ path: `${EVIDENCE}/c3-scroller.png` });
+    expect(errors).toEqual([]);
+});
+
 test('facet dialog — the footer facet lands in the dialog footer slot', async ({ page }) => {
     const errors = watchErrors(page);
     await expect(page.locator('#probe-dialog')).toHaveText('visible=false');

@@ -9,10 +9,18 @@
  * of whoever wrote it will drift away from the thing it is supposed to guard.
  *
  * HOW: the risky set is RECOMPUTED FROM SOURCE on every run — every `@Component` declaring
- * `ChangeDetectionStrategy.Eager` outside `icons/`, which is exactly the set that used to
- * rely on the framework default that Angular 22 flipped. That set is then reconciled with
- * the `risk-coverage.json` manifest. Adding a new risky decorator without recording how it
- * is covered FAILS the build.
+ * `ChangeDetectionStrategy.Eager` OR `.Default` outside `icons/`, which is exactly the set
+ * that used to rely on the framework default that Angular 22 flipped. That set is then
+ * reconciled with the `risk-coverage.json` manifest. Adding a new risky decorator without
+ * recording how it is covered FAILS the build.
+ *
+ * BOTH SPELLINGS, because they are one value. `ChangeDetectionStrategy.Default` is deprecated
+ * in Angular 22 and `Eager` is its replacement, and the enum makes them literally equal —
+ * `{ OnPush: 0, Eager: 1, Default: 1 }`, checked against the installed @angular/core 22.1.1
+ * rather than assumed. Matching only the new spelling meant three CheckAlways components sat
+ * outside the guarded set while the gate reported full coverage: agl-scroller, and two in
+ * table.ts. A guard that reads a token rather than the risk class is a guard that a rename
+ * can switch off, and this one had been switched off since the rename.
  *
  * The manifest distinguishes two kinds of coverage:
  *   • template   — the verification app constructs it directly; the script also verifies
@@ -112,7 +120,7 @@ for (const file of walk(SRC)) {
         const key = sel[1].split(',')[0].trim();
         components.push({ key, aliases: aliasesOf(sel[1]), template: body.toLowerCase() });
         if (inIcons) continue;
-        if (!/changeDetection:\s*ChangeDetectionStrategy\.Eager/.test(body)) continue;
+        if (!/changeDetection:\s*ChangeDetectionStrategy\.(Eager|Default)\b/.test(body)) continue;
         risk.set(key, { file: relative(ROOT, file), raw: sel[1] });
     }
 }
