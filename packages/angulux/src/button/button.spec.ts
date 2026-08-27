@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, TemplateRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { BadgeDirective } from '@anguless/angulux/badge';
 
 import { Button, ButtonDirective, ButtonIcon, ButtonLabel } from './button';
 
@@ -1563,5 +1564,49 @@ describe('ButtonDirective', () => {
             buttonDirective.raised = true;
             expect(buttonDirective.raised).toBe(true);
         });
+    });
+});
+
+// A badge attached with the `aglBadge` directive rather than with Button's own `badge`
+// input. The two take different paths through the DOM: the input renders <agl-badge>
+// inline among the button's children, the directive appends an absolutely positioned
+// span centred on the button's corner — and only the second one runs into .p-button's
+// `overflow: hidden`.
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-button label="Emails" aglBadge value="8" />`
+})
+class TestBadgeDirectiveButtonComponent {}
+
+describe('Button with the badge directive', () => {
+    let badgeFixture: ComponentFixture<TestBadgeDirectiveButtonComponent>;
+    let innerButton: HTMLElement;
+
+    beforeEach(async () => {
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            declarations: [TestBadgeDirectiveButtonComponent],
+            imports: [Button, BadgeDirective],
+            providers: [provideZonelessChangeDetection()]
+        }).compileComponents();
+
+        badgeFixture = TestBed.createComponent(TestBadgeDirectiveButtonComponent);
+        badgeFixture.detectChanges();
+        await badgeFixture.whenStable();
+
+        innerButton = badgeFixture.nativeElement.querySelector('button');
+    });
+
+    it('attaches the badge to the inner button element', () => {
+        expect(innerButton.classList.contains('p-overlay-badge')).toBe(true);
+        expect(innerButton.querySelector('.p-badge')?.textContent?.trim()).toBe('8');
+    });
+
+    it('does not let the button clip the badge away', () => {
+        // The regression this guards: the badge was in the DOM and passed every structural
+        // assertion above, while `overflow: hidden` on .p-button clipped it to nothing on
+        // screen. Only the computed value distinguishes the two, so assert on that.
+        expect(getComputedStyle(innerButton).overflow).toBe('visible');
     });
 });

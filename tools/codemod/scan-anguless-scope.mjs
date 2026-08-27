@@ -59,7 +59,11 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // element is still built in a browser and no longer built on the server. The gate cannot tell
 // a new assertion from a rename, and should not try — moving this number is the deliberate act
 // it exists to require.
-const P_CLASS_BASELINE = 515;
+// 515 → 516 on 2026-08-27: one `.p-badge` assertion in `button.spec.ts`, added with the fix
+// for the overlay badge being clipped away by `.p-button { overflow: hidden }`. It proves the
+// directive still puts the badge inside the inner <button>; the sibling assertion that proves
+// it is no longer clipped reads a computed style, not a class string, so it does not count.
+const P_CLASS_BASELINE = 516;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];

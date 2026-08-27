@@ -11,6 +11,23 @@ const style = /*css*/ `
         position: relative;
     }
 
+    /* The overlay badge is centred on the host's top-inline-end corner, so three of its four
+       quadrants sit outside the host box. A host that clips its overflow therefore cuts the
+       badge down to a sliver — and .p-button clips: it sets overflow: hidden so the ripple
+       ink stays inside the button. That is why aglBadge on an agl-button put a badge in the
+       DOM that nobody could see, while the same directive on an <i> worked.
+
+       The class is doubled to out-specify .p-button's single class. Both rules are injected
+       as separate <style> elements whose order depends on which component initialises first,
+       so specificity has to decide this, not source order.
+
+       Trade-off, stated rather than hidden: on a host that also carries aglRipple, with
+       ripple enabled in the config, the ink is no longer clipped by that host either. It is
+       bounded to hosts a badge is actually attached to, and ripple is off by default. */
+    .p-overlay-badge.p-overlay-badge {
+        overflow: visible;
+    }
+
     .p-overlay-badge > .p-badge {
         position: absolute;
         top: 0;
