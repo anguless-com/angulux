@@ -27,7 +27,14 @@ test('every risky decorator is genuinely reachable from the verification app', (
     const { risk, byAlias, reachable } = analyze();
     const unreachable = [...risk].filter(([, meta]) => !reachable.has(byAlias.get(aliasesOf(meta.raw)[0]))).map(([sel]) => sel);
     assert.deepEqual(unreachable, [], `not reachable from app.ts by real template containment: ${unreachable.join(', ')}`);
-    assert.equal(risk.size, 13, 'the risky set changed size — update this number deliberately, with a look at the manifest');
+    // 13 -> 16 on 2026-08-27, and the three that arrived were always risky. The guard recomputed
+    // its set by grepping `ChangeDetectionStrategy.Eager`; Angular 22 deprecated `.Default` and
+    // made `Eager` its replacement, with the enum giving both the same value
+    // ({ OnPush: 0, Eager: 1, Default: 1 }). agl-scroller and two components in table.ts declare
+    // the old spelling, so they were CheckAlways and outside the guarded set while this number
+    // said the coverage was complete. agl-scroller had no browser coverage at all until
+    // #sec-scroller was built for it.
+    assert.equal(risk.size, 16, 'the risky set changed size — update this number deliberately, with a look at the manifest');
 });
 
 test('multi-hop chains through a NON-risky component are legitimate: select -> agl-overlay -> agl-motion', () => {
