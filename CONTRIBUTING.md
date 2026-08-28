@@ -85,7 +85,7 @@ cd angulux
 git remote add upstream git@github.com:anguless-com/angulux.git
 
 corepack pnpm install
-npm run check          # should be 7/7 green before you change anything.
+npm run check          # should be 17/17 green before you change anything.
                        # If it is not, that is a bug — please report it.
 
 # 2. Branch.

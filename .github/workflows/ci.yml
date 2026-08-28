@@ -46,9 +46,9 @@ jobs:
             - name: Install
               run: corepack pnpm install --frozen-lockfile
 
-            # Runs all seven: catalog, scope, license, names, risk-coverage, language,
-            # public-tree. Deliberately not split into seven jobs — it takes ~3 seconds
-            # total, and one failing gate should not hide the others behind a red cross.
+            # Runs all seventeen. Deliberately not split into seventeen jobs — it takes
+            # ~3 seconds total, and one failing gate should not hide the others behind a
+            # red cross.
             - name: npm run check
               run: npm run check
 

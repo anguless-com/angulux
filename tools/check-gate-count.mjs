@@ -118,7 +118,27 @@ const SITES = [
     ['CONTRIBUTING.md', site('the\\s+%N%\\s+gates')],
     ['SUPPORT.md', site('\\b%N%\\s+gates,')],
     ['TRIAGE.md', site('the\\s+%N%\\s+gates')],
-    ['release/README.md', site('\\b%N%\\s+gates')]
+    ['release/README.md', site('\\b%N%\\s+gates')],
+
+    // Added 2026-08-28. These five said SEVEN — true when the suite had seven gates, wrong
+    // ever since, and invisible to the twelve patterns above because not one of them puts
+    // the number beside the word 'gates'. Two of them leave the repository: CITATION.cff is
+    // what Zenodo and GitHub's 'Cite this repository' read, and seed-attic-issues.mjs POSTS
+    // its text into public issues, so the stale number was being published on our behalf.
+    //
+    // The irony was exact: the header of this very file uses 'seven gates', 'Gates (7)' and
+    // '7/7 gates' as its illustration of the bug. That example is deliberate — do not 'fix'
+    // it, and do not add this file to the list below.
+    ['CITATION.cff', site('%N%\\s+automated\\s+gates')],
+    ['CONTRIBUTING.md', site('%N%/\\d+\\s+green')],
+    ['.github/ISSUE_TEMPLATE/module_promotion.yml', site('green\\s*\\(%N%/\\d+\\)')],
+    ['tools/community/seed-attic-issues.mjs', site('green\\s*\\(%N%/\\d+\\)')],
+    // NOTE the trailing \b: without it the alternation in NUMBER matches 'seven' INSIDE
+    // 'seventeen' (it is tried first and nothing forces it to continue), and this gate
+    // reports 7 against a correct line. Every other template here happens to be safe
+    // because it has a literal suffix after %N% that forces the backtrack.
+    ['.github/workflows/ci.yml', site('Runs all %N%\\b')],
+    ['.github/workflows/ci.yml', site('not split into %N%\\s+jobs')]
 ];
 
 const problems = [];

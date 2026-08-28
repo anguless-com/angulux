@@ -4,11 +4,12 @@ title: 'angulux: a machine-verified MIT fork of PrimeNG 21.1.9 for Angular 22'
 abstract: >-
   angulux is an Angular UI component library forked from PrimeNG 21.1.9, the final release
   PrimeTek published under the MIT license. Its distinguishing property is that the MIT
-  provenance is enforced mechanically rather than asserted: seven automated gates run on
-  every commit and on a schedule, covering dependency-version drift, the transitive module
+  provenance is enforced mechanically rather than asserted: seventeen automated gates run on
+  every commit and on a schedule — among them dependency-version drift, the transitive module
   closure, the PrimeTek MIT/commercial licensing boundary, residual upstream trademarks in
   selector and API positions, browser-gate coverage of risk-flagged decorators, repository
-  language, and internal-only paths in the git index. Archived upstream artifacts are
+  language, internal-only paths in the git index, and which dependencies may execute code at
+  install time. Archived upstream artifacts are
   recorded with SHA-256 checksums and registry publish timestamps so third parties can
   verify the provenance claim independently.
 type: software

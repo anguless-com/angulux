@@ -74,7 +74,7 @@ body:
               3. Regenerate the closure (`node tools/scope/gen-closure.mjs`) and include the
                  diff — promoting a module changes the warranted set, and `check:scope`
                  fails if the two disagree.
-              4. `npm run check` green (7/7), and the module's inherited specs passing.
+              4. `npm run check` green (17/17), and the module's inherited specs passing.
               5. If the module carries a risk-flagged decorator, extend the browser gate —
                  otherwise `check:risk-coverage` fails, correctly.
 
