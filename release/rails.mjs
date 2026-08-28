@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * The two release trains, defined once.
+ * The three release trains, defined once.
  *
  * WHY ONE DEFINITION. The workflow already had these path lists inline, to decide whether a
  * train RUNS. The commit filter needs the same lists to decide which commits a train READS.
@@ -13,6 +13,7 @@
  * Usage as a CLI, which is how the shell step reads it:
  *   node release/rails.mjs angulux   ->  packages/angulux/
  *   node release/rails.mjs forks     ->  packages/angulux-styled/ packages/angulux-utils/ …
+ *   node release/rails.mjs tools     ->  packages/angulux-license-guard/ packages/angulux-migrate/
  */
 
 import { execFileSync } from 'node:child_process';
@@ -20,25 +21,37 @@ import { execFileSync } from 'node:child_process';
 /**
  * A train covers the packages it publishes, and nothing else.
  *
- * `packages/angulux-mcp` and `packages/angulux-license-guard` are deliberately in neither:
- * the first is `private: true` and never published, the second releases by hand. A commit
- * touching only those must not bump either train — that is half of what BL-60 was about.
+ * `packages/angulux-mcp` is deliberately on none of them: it is `private: true` and never
+ * published, so a commit touching only it must not bump any train — that is half of what
+ * BL-60 was about.
+ *
+ * The `tools` train was added 2026-08-29. Both of its packages were published by hand and
+ * declared in RELEASED_BY_HAND below, which was an honest description of a real decision —
+ * until a security fix had to reach users. A hand publish cannot produce a provenance
+ * attestation, because `npm publish --provenance` needs the OIDC token that only CI holds,
+ * so "release by hand" and "every artifact we ship is verifiable" could not both stay true.
+ * The train is how that was resolved.
  */
 export const RAILS = {
     angulux: ['packages/angulux/'],
-    forks: ['packages/angulux-styled/', 'packages/angulux-utils/', 'packages/angulux-styles/', 'packages/angulux-motion/']
+    forks: ['packages/angulux-styled/', 'packages/angulux-utils/', 'packages/angulux-styles/', 'packages/angulux-motion/'],
+    tools: ['packages/angulux-license-guard/', 'packages/angulux-migrate/']
 };
 
 /**
- * Published, but on neither train — released by hand, deliberately.
+ * Published, but on no train — released by hand, deliberately.
  *
- * They exist so that "not on a train" is a DECLARED state rather than an omission. A new
- * published package that nobody placed would otherwise be covered by no train and no gate,
- * and the first sign of it would be a release that silently never included it. The test
- * beside this file requires every non-private workspace package to appear in exactly one of
- * these two lists.
+ * EMPTY since 2026-08-29, and the export stays. It exists so that "not on a train" is a
+ * DECLARED state rather than an omission: the test beside this file requires every
+ * non-private workspace package to appear in exactly one of these lists, so a newly
+ * published package that nobody placed turns that test red instead of quietly belonging
+ * to no train and no gate. Emptying it is the point — there is now nowhere to put a
+ * package except on a train.
+ *
+ * Do not delete the export to tidy up. An empty list that something asserts against is a
+ * control; a deleted list is a hole that reads the same as "no problem".
  */
-export const RELEASED_BY_HAND = ['packages/angulux-license-guard/', 'packages/angulux-migrate/'];
+export const RELEASED_BY_HAND = [];
 
 /**
  * The files one commit touched, as repo-relative paths.

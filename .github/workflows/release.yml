@@ -1,7 +1,8 @@
-# Release: two independent trains, one repository.
+# Release: three independent trains, one repository.
 #
 #   angulux        22.x  — major locked to Angular's major, tag `angulux-v*`
 #   the fork family 1.x  — angulux-{styled,utils,styles,motion}, tag `angulux-forks-v*`
+#   the tools      1.x  — angulux-{license-guard,migrate}, tag `angulux-tools-v*`
 #
 # The trains are separate because binding the forked primeuix packages to Angular's major
 # would state a compatibility constraint that does not exist: they do not depend on Angular.
@@ -37,7 +38,7 @@ on:
             train:
                 description: 'Which train to release'
                 type: choice
-                options: [both, angulux, forks]
+                options: [both, angulux, forks, tools]
                 default: both
 
 # Releases are never concurrent. Two runs racing to move the same tags is not a situation
@@ -101,6 +102,7 @@ jobs:
         outputs:
             angulux-changed: ${{ steps.paths.outputs.angulux }}
             forks-changed: ${{ steps.paths.outputs.forks }}
+            tools-changed: ${{ steps.paths.outputs.tools }}
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
@@ -172,16 +174,20 @@ jobs:
 
                   a_base=$(since 'angulux-v*')
                   f_base=$(since 'angulux-forks-v*')
+                  t_base=$(since 'angulux-tools-v*')
 
                   # The same path lists rail-filter.mjs uses, read from the same file. Left
                   # unquoted on purpose: each is a list of paths for `git diff -- …`.
                   a_paths=$(node release/rails.mjs angulux)
                   f_paths=$(node release/rails.mjs forks)
+                  t_paths=$(node release/rails.mjs tools)
 
                   # shellcheck disable=SC2086
                   a_changed=$(git diff --name-only "$a_base"..HEAD -- $a_paths)
                   # shellcheck disable=SC2086
                   f_changed=$(git diff --name-only "$f_base"..HEAD -- $f_paths)
+                  # shellcheck disable=SC2086
+                  t_changed=$(git diff --name-only "$t_base"..HEAD -- $t_paths)
 
                   if [ -n "$a_changed" ]; then
                       echo "angulux=true" >> "$GITHUB_OUTPUT"
@@ -195,6 +201,12 @@ jobs:
                       echo "forks=false" >> "$GITHUB_OUTPUT"
                   fi
 
+                  if [ -n "$t_changed" ]; then
+                      echo "tools=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "tools=false" >> "$GITHUB_OUTPUT"
+                  fi
+
                   {
                       echo "### Trains with changes"
                       echo ""
@@ -202,6 +214,7 @@ jobs:
                       echo "|---|---|---|"
                       echo "| angulux | \`$a_base\` | $( [ -n "$a_changed" ] && echo yes || echo no ) |"
                       echo "| forks | \`$f_base\` | $( [ -n "$f_changed" ] && echo yes || echo no ) |"
+                      echo "| tools | \`$t_base\` | $( [ -n "$t_changed" ] && echo yes || echo no ) |"
                   } >> "$GITHUB_STEP_SUMMARY"
 
     # ---------------------------------------------------------------------------
@@ -592,3 +605,153 @@ jobs:
                   [ -f "$tarball" ] || { echo "::error::expected a tarball, got '$tarball'"; ls -la "$staging"; exit 1; }
 
                   npm publish --provenance --access public "$tarball"
+
+    # ---------------------------------------------------------------------------
+    # The tools train. Independent of the other two: neither package depends on
+    # anything in this workspace and nothing here depends on them, so it needs only
+    # `verify` and runs alongside the others rather than after them.
+    #
+    # There is no build step because there is nothing to build — both packages ship
+    # their `src/` and `bin/` as plain ESM, which is why `check:publishable` asserts
+    # zero dependencies on their tarballs.
+    #
+    # WHY THIS TRAIN EXISTS AT ALL. Both packages were published by hand at 1.0.0 and
+    # declared in RELEASED_BY_HAND in release/rails.mjs — an honest record of a real
+    # decision, and one that cost nothing until a security fix had to reach users. A
+    # hand publish cannot carry a provenance attestation, because `npm publish
+    # --provenance` needs the OIDC token only a workflow holds. "Released by hand" and
+    # "every artifact we ship can be verified" could not both stay true.
+    # ---------------------------------------------------------------------------
+    tools:
+        name: Release the tools (1.x)
+        runs-on: ubuntu-latest
+        needs: verify
+        if: |
+            needs.verify.outputs.tools-changed == 'true' &&
+            (github.event.inputs.train == 'both' || github.event.inputs.train == 'tools')
+        permissions:
+            contents: write
+            issues: write
+            pull-requests: write
+            # Required for npm Trusted Publishing (OIDC) and for provenance attestations.
+            id-token: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            # Deliberately no `registry-url:` — see the long note in the fork job. It makes
+            # setup-node write an .npmrc naming a NODE_AUTH_TOKEN this workflow does not
+            # have, and npm sends the unexpanded string as the token rather than treating
+            # it as absent, which the registry rejects as a 404 that reads like a missing
+            # package.
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Update npm
+              run: npm install -g "npm@$NPM_VERSION"
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Version before
+              id: before
+              run: echo "version=$(node -p "require('./packages/angulux-license-guard/package.json').version")" >> "$GITHUB_OUTPUT"
+
+            - name: Install the release tooling, outside the repository
+              run: bash release/install-tooling.sh
+
+            - name: semantic-release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  semantic-release --extends ./release/tools.releaserc.json \
+                      ${{ github.event.inputs.dry-run == 'true' && '--dry-run' || '' }}
+
+            - name: Did a release happen
+              id: after
+              if: github.event.inputs.dry-run != 'true'
+              run: |
+                  set -euo pipefail
+                  version=$(node -p "require('./packages/angulux-license-guard/package.json').version")
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
+                  if [ "$version" = "${{ steps.before.outputs.version }}" ]; then
+                      echo "released=false" >> "$GITHUB_OUTPUT"
+                      echo "No release warranted by the commits since the last tag. Nothing to publish."
+                  else
+                      echo "released=true" >> "$GITHUB_OUTPUT"
+                      echo "Released ${{ steps.before.outputs.version }} → $version"
+                  fi
+
+            # Both move together on one version. A mismatch means set-rail-versions.mjs did
+            # not stamp every package, and publishing a partial set would put two packages
+            # that share a version line on different ones.
+            - name: Both packages carry the released version
+              if: steps.after.outputs.released == 'true'
+              run: |
+                  set -euo pipefail
+                  expected="${{ steps.after.outputs.version }}"
+                  bad=0
+                  for p in license-guard migrate; do
+                      actual=$(node -p "require('./packages/angulux-$p/package.json').version")
+                      if [ "$actual" != "$expected" ]; then
+                          echo "::error::angulux-$p is at $actual, expected $expected"
+                          bad=1
+                      fi
+                  done
+                  [ "$bad" -eq 0 ] || exit 1
+                  echo "both at $expected"
+
+            # See the fork job: a credential npm cannot resolve is sent rather than refused,
+            # and the registry answers 404, which reads like a missing package.
+            - name: No npm credential is configured
+              if: steps.after.outputs.released == 'true'
+              run: |
+                  set -euo pipefail
+                  token=$(npm config get "//registry.npmjs.org/:_authToken" 2>/dev/null || true)
+                  case "$token" in
+                      '' | undefined | null)
+                          echo "no registry credential configured — OIDC supplies one at publish time"
+                          ;;
+                      *)
+                          echo "::error::an npm registry credential is configured; this workflow publishes"
+                          echo "through OIDC and must have none."
+                          exit 1
+                          ;;
+                  esac
+
+            - name: Publish to npm
+              if: steps.after.outputs.released == 'true'
+              run: |
+                  set -euo pipefail
+                  version="${{ steps.after.outputs.version }}"
+                  staging=$(mktemp -d)
+
+                  for p in license-guard migrate; do
+                      dir="packages/angulux-$p"
+                      name=$(node -p "require('./$dir/package.json').name")
+
+                      # Already on the registry at a version this run just minted means the
+                      # computed version is wrong, or an earlier run published without
+                      # tagging. Skipping past it would hide that.
+                      if npm view "$name@$version" version >/dev/null 2>&1; then
+                          echo "::error::$name@$version is already on the registry, but this run just released it."
+                          echo "Investigate the tags before doing anything else."
+                          exit 1
+                      fi
+
+                      # Packed with pnpm, published with npm — see the fork job for why the
+                      # tarball path comes from pnpm's own output rather than from the
+                      # package name.
+                      echo "::group::publish $name@$version"
+                      tarball=$(cd "$dir" && corepack pnpm pack --pack-destination "$staging" | tail -n 1)
+                      [ -f "$tarball" ] || { echo "::error::expected a tarball, got '$tarball'"; ls -la "$staging"; exit 1; }
+
+                      npm publish --provenance --access public "$tarball"
+                      echo "::endgroup::"
+                  done

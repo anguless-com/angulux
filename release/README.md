@@ -1,16 +1,19 @@
 # Releasing
 
-Two independent trains live in this repository. No released version number is chosen by hand —
+Three independent trains live in this repository. No released version number is chosen by hand —
 each is computed from the commits, recorded as a git tag, and never written back to the branch.
 
 | Train | Packages | Line | Git tag | Config |
 |---|---|---|---|---|
 | **angulux** | `angulux` | `22.x` — major locked to Angular's major | `angulux-v*` | [`angulux.releaserc.json`](angulux.releaserc.json) |
 | **forks** | `angulux-styled`, `angulux-utils`, `angulux-styles`, `angulux-motion` | `1.x` — independent | `angulux-forks-v*` | [`forks.releaserc.json`](forks.releaserc.json) |
+| **tools** | `angulux-license-guard`, `angulux-migrate` | `1.x` — independent | `angulux-tools-v*` | [`tools.releaserc.json`](tools.releaserc.json) |
 
 The fork family versions independently because it does not depend on Angular. Locking those
 four to Angular's major would state a compatibility constraint that does not exist, and
-would force four meaningless majors a year.
+would force four meaningless majors a year. The tools version independently for the same
+reason, and they carry BARE npm names rather than the `@anguless/` scope because they are
+aimed outward — `angulux-migrate` is run by people who do not have angulux installed yet.
 
 ## Running a release
 
@@ -217,6 +220,41 @@ git tag angulux-v22.0.0     83b6038
 git tag angulux-forks-v1.0.0 83b6038
 git push origin angulux-v22.0.0 angulux-forks-v1.0.0
 ```
+
+### Seeding the tools train — done 2026-08-29, and the opposite trap
+
+The tools train was added after both its packages had already been published by hand at
+`1.0.0`. That inverts the failure above rather than repeating it.
+
+For `angulux`, `1.0.0` was NOT on the registry, so a first run would have published it and
+broken the Angular-major lock. For the tools, `1.0.0` IS on the registry **and is what both
+manifests already say** — so an unseeded first run fails in the quietest way this pipeline
+has:
+
+1. no `angulux-tools-v*` tag, so semantic-release prints `There is no previous release` and
+   computes `1.0.0`;
+2. the prepare step stamps `1.0.0` into two manifests already at `1.0.0`, changing nothing;
+3. `Did a release happen` compares the manifest before and after, sees no change, and sets
+   `released=false`;
+4. every remaining step — including the duplicate-publish guard — is gated on that output
+   and is **skipped**;
+5. the run goes **green having published nothing**, with the tag already pushed.
+
+The guard never fires, because the guard lives inside the step that was skipped.
+
+Seeded at `d214aac`, the commit that added `angulux-migrate` — which is the tree the
+published `1.0.0` was cut from. The registry says `1.0.0` went up at 2026-07-23T21:53Z,
+about nine minutes BEFORE that commit landed on `main`, which is what a hand publish from a
+working tree looks like.
+
+```bash
+git tag angulux-tools-v1.0.0 d214aac
+git push origin angulux-tools-v1.0.0
+```
+
+`release/set-rail-versions.mjs` now refuses to stamp nothing, so step 2 above fails loudly
+instead of passing quietly. That guard has a unit test, because `--dry-run` skips `prepare`
+and therefore cannot reach it — the one release step no rehearsal covers.
 
 ### The tag must be a STABLE version, not the published prerelease
 

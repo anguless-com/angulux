@@ -1,0 +1,109 @@
+{
+    "//": [
+        "The third train, added 2026-08-29. Its two packages — angulux-license-guard and",
+        "angulux-migrate — carry BARE npm names on purpose (see the scope decision in the brain:",
+        "outward-facing tools stay unscoped) and were published BY HAND at 1.0.0 on 2026-07-23,",
+        "nine minutes before the commit that introduced one of them even landed on main.",
+        "",
+        "WHY THEY STOPPED BEING HAND-RELEASED. `release/rails.mjs` declared them in",
+        "RELEASED_BY_HAND, which was an honest record of a real decision and cost nothing until a",
+        "security fix had to reach users. A hand publish cannot produce a provenance attestation:",
+        "`npm publish --provenance` needs the OIDC token that only a workflow holds. So 'released",
+        "by hand' and 'every artifact we ship can be verified' could not both stay true, and the",
+        "second one is the argument this project is built on.",
+        "",
+        "SEEDING, and why it is not optional. semantic-release derives the current version from",
+        "tags. With no `angulux-tools-v*` tag it computes 1.0.0 — which is exactly what both",
+        "manifests and the registry already say. The prepare step would then stamp a version",
+        "nothing changed, the workflow's before/after comparison would read 'no release',",
+        "the publish step is gated on that comparison and would be SKIPPED, and the run would go",
+        "green having published nothing while the tag was already pushed. Seeded at `d214aac`,",
+        "the commit that added angulux-migrate, which is the tree the published 1.0.0 was cut",
+        "from. release/README.md records the same trap for the other two trains.",
+        "",
+        "No @semantic-release/git, for the reason spelled out in forks.releaserc.json: it commits",
+        "to `main`, which is protected, and the release commit carries [skip ci] so the required",
+        "check can never be satisfied. The tag and the GitHub release are the record.",
+        "",
+        "commit-analyzer and release-notes-generator are wrapped by ./release/rail-filter.mjs so",
+        "this train reads only the commits that touched its own packages, from the one path list",
+        "in release/rails.mjs that the workflow's path gate reads too.",
+        "",
+        "The prepare step calls set-rail-versions.mjs rather than set-fork-versions.mjs — the",
+        "latter hard-codes the four fork names and would stamp THEM with this train's version,",
+        "leaving both tool manifests untouched and producing exactly the silent skip described",
+        "above."
+    ],
+    "$schema": "https://json.schemastore.org/semantic-release.json",
+    "branches": [
+        "main",
+        {
+            "name": "next",
+            "prerelease": "rc"
+        }
+    ],
+    "tagFormat": "angulux-tools-v${version}",
+    "plugins": [
+        [
+            "./release/rail-filter.mjs",
+            {
+                "rail": "tools",
+                "preset": "conventionalcommits",
+                "releaseRules": [
+                    {
+                        "type": "docs",
+                        "release": false
+                    },
+                    {
+                        "type": "test",
+                        "release": false
+                    },
+                    {
+                        "type": "ci",
+                        "release": false
+                    },
+                    {
+                        "type": "chore",
+                        "release": false
+                    },
+                    {
+                        "type": "refactor",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "perf",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "build",
+                        "release": "patch"
+                    },
+                    {
+                        "type": "revert",
+                        "release": "patch"
+                    }
+                ],
+                "parserOpts": {
+                    "noteKeywords": [
+                        "BREAKING CHANGE",
+                        "BREAKING-CHANGE"
+                    ]
+                }
+            }
+        ],
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "node release/set-rail-versions.mjs tools ${nextRelease.version}"
+            }
+        ],
+        [
+            "@semantic-release/github",
+            {
+                "successComment": false,
+                "failComment": false,
+                "releasedLabels": false
+            }
+        ]
+    ]
+}
