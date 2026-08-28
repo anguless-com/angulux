@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Sixteen gates run on every commit and every pull request. They do not check style — each one
+Seventeen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -90,10 +90,11 @@ closes a class of failure that has already happened in this repository.
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
 | `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
 | `check:peer-licence` | angulux's own manifest telling a **consumer's** package manager to install a commercially-licensed PrimeTek package — `check:license` proves the tree installed *here* is clean, which is a different question from what the published version ranges admit |
+| `check:install-scripts` | a dependency running arbitrary code during `pnpm install` without anyone deciding it should — the release job installs while holding `id-token: write`, so one compromised transitive package could mint an npm credential and publish as this project with a valid attestation |
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all sixteen, no build needed
+npm run check     # all seventeen, no build needed
 ```
 
 Two further checks run after the build rather than inside that suite, because neither has
@@ -138,7 +139,7 @@ a badge shipped that was present, correct and 32% visible.
 Current evidence, reproducible from a clean checkout:
 
 ```
-16/16 gates          exit 0
+17/17 gates          exit 0
 library build        exit 0 · 210 entrypoints
 inherited spec suite 3783 SUCCESS
 browser gate         70 tests · 14 behaviour + 56 visibility
@@ -199,7 +200,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 16 gates
+npm run check                                   # the 17 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do

@@ -23,7 +23,7 @@ Inputs:
   nothing. Do this first, every time.
 - **train** — `both` (default), `angulux`, or `forks`.
 
-The workflow re-runs the full evidence ladder before releasing anything — 16 gates,
+The workflow re-runs the full evidence ladder before releasing anything — 17 gates,
 build, 3765 specs, the browser gate — rather than trusting a status check from an older
 commit. Then `check:publishable` packs every package and reads `package.json` back **out of
 the tarball**, because publishing cannot be undone.
