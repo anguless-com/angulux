@@ -2,7 +2,7 @@
   "_comment": "Recorded input names for each pinned GitHub Action, from its action.yml at the pinned ref. tools/check-action-inputs.mjs verifies every `with:` key in .github/workflows/ is a real input here. GitHub SILENTLY IGNORES unknown `with:` keys, so a renamed input (e.g. first-interaction v3 moving to snake_case) kills a job with no error — this is the guard. When Dependabot bumps an action, this snapshot goes stale and the gate fails until a maintainer runs `node tools/dump-action-inputs.mjs --write`.",
   "_regenerate": "node tools/dump-action-inputs.mjs --write",
   "actions": {
-    "actions/checkout@v7": [
+    "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1": [
       "allow-unsafe-pr-checkout",
       "clean",
       "fetch-depth",
@@ -25,13 +25,13 @@
       "submodules",
       "token"
     ],
-    "actions/configure-pages@v6": [
+    "actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d": [
       "enablement",
       "generator_config_file",
       "static_site_generator",
       "token"
     ],
-    "actions/deploy-pages@v5": [
+    "actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128": [
       "artifact_name",
       "error_count",
       "preview",
@@ -39,12 +39,12 @@
       "timeout",
       "token"
     ],
-    "actions/first-interaction@v3": [
+    "actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d": [
       "issue_message",
       "pr_message",
       "repo_token"
     ],
-    "actions/github-script@v9": [
+    "actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3": [
       "base-url",
       "debug",
       "github-token",
@@ -55,14 +55,14 @@
       "script",
       "user-agent"
     ],
-    "actions/labeler@v7": [
+    "actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13": [
       "configuration-path",
       "dot",
       "pr-number",
       "repo-token",
       "sync-labels"
     ],
-    "actions/setup-node@v7": [
+    "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020": [
       "architecture",
       "cache",
       "cache-dependency-path",
@@ -76,7 +76,7 @@
       "scope",
       "token"
     ],
-    "actions/upload-artifact@v7": [
+    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a": [
       "archive",
       "compression-level",
       "if-no-files-found",
@@ -86,13 +86,13 @@
       "path",
       "retention-days"
     ],
-    "actions/upload-pages-artifact@v5": [
+    "actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9": [
       "include-hidden-files",
       "name",
       "path",
       "retention-days"
     ],
-    "amannn/action-semantic-pull-request@v6": [
+    "amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50": [
       "disallowScopes",
       "githubBaseUrl",
       "headerPattern",
@@ -107,7 +107,7 @@
       "validateSingleCommitMatchesPrTitle",
       "wip"
     ],
-    "github/codeql-action/analyze@v4": [
+    "github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
       "add-snippets",
       "category",
       "check_name",
@@ -127,7 +127,7 @@
       "upload-database",
       "wait-for-processing"
     ],
-    "github/codeql-action/init@v4": [
+    "github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
       "analysis-kinds",
       "build-mode",
       "check-run-id",
@@ -153,7 +153,7 @@
       "tools",
       "trap-caching"
     ],
-    "github/codeql-action/upload-sarif@v4": [
+    "github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
       "category",
       "checkout_path",
       "matrix",
@@ -163,7 +163,7 @@
       "token",
       "wait-for-processing"
     ],
-    "ossf/scorecard-action@v2.4.4": [
+    "ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc": [
       "file_mode",
       "internal_default_token",
       "internal_publish_base_url",

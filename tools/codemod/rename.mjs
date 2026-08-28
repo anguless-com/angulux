@@ -26,7 +26,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const DRY = process.argv.includes('--dry');
 const VERIFY = process.argv.includes('--verify');
@@ -41,6 +41,34 @@ const ATTRS = [...sel.attributeSelectors].sort((a, b) => b.length - a.length);
 
 const aglElem = (s) => 'agl-' + s.slice(2);
 const aglAttr = (s) => 'agl' + s.slice(1);
+
+
+/**
+ * The committed original of a file, or null when git has none (a new file).
+ *
+ * Three things here are load-bearing, and all three were wrong before 2026-08-29:
+ *
+ * 1. execFileSync, not execSync. Git permits `;` and `$(…)` in a filename, and a shell
+ *    command built by interpolation would execute them. Every other tool in this
+ *    repository already passes an argument vector; these two were the exceptions.
+ * 2. FORWARD SLASHES. `path.join` yields backslashes on Windows and git rejects
+ *    `HEAD:tools\\foo.ts` with exit 128 — which the caller swallows as "new file".
+ *    Every file fell into that branch, so on Windows the verification below compared
+ *    NOTHING while reporting that everything reversed cleanly.
+ * 3. The caller must treat null as "skip" and still refuse to claim success when it
+ *    skipped everything. See the guard after the loop.
+ */
+function committedOriginal(file) {
+    try {
+        return execFileSync('git', ['show', `HEAD:${file.split(path.sep).join('/')}`], {
+            encoding: 'utf8',
+            maxBuffer: 64 * 1024 * 1024,
+            stdio: ['ignore', 'pipe', 'ignore']
+        });
+    } catch {
+        return null;
+    }
+}
 
 function walk(dir, out = []) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -125,12 +153,8 @@ if (VERIFY) {
     let checked = 0;
     for (const f of files) {
         const now = fs.readFileSync(f, 'utf8');
-        let orig;
-        try {
-            orig = execSync(`git show HEAD:${f}`, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-        } catch {
-            continue; // new file — there is no original to compare against
-        }
+        const orig = committedOriginal(f);
+        if (orig === null) continue; // new file — there is no original to compare against
         checked++;
         if (untransform(now) !== orig) {
             mismatch++;
@@ -138,6 +162,16 @@ if (VERIFY) {
         }
     }
     console.log(`\n  compared ${checked} file(s), ${mismatch} mismatched`);
+
+    // Comparing nothing is not a pass. If every candidate fell into the "new file"
+    // branch, the check did not run — say so instead of printing the success line.
+    if (files.length && !checked) {
+        console.error('\n✗ compared 0 of ' + files.length + ' file(s) — this verified NOTHING.');
+        console.error('  Every candidate looked like a new file, which means `git show` failed for');
+        console.error('  all of them. Check that you are inside the work tree and that HEAD exists.');
+        process.exit(1);
+    }
+
     if (mismatch) {
         console.error('\n✗ The diff is NOT a pure rename — something else got mixed in.');
         process.exit(1);

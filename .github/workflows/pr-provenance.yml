@@ -63,7 +63,7 @@ jobs:
 
         steps:
             - name: Every attestation box is ticked
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
               with:
                   script: |
                       const body = context.payload.pull_request.body || '';
@@ -147,7 +147,7 @@ jobs:
             # for nothing, and fetching the code at all would undercut the reason this runs on
             # `pull_request` rather than `pull_request_target`.
             - name: No commercially licensed source pasted into the description
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
               with:
                   script: |
                       const body = context.payload.pull_request.body || '';

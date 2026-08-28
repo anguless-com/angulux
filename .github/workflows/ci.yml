@@ -30,13 +30,13 @@ jobs:
         name: Gates (17)
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   # check-public-tree and check-language read the git index, and
                   # check-language's allowlist reasoning depends on seeing real history.
                   fetch-depth: 0
 
-            - uses: actions/setup-node@v7
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -57,7 +57,7 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event_name == 'pull_request'
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   fetch-depth: 0
 
@@ -91,9 +91,9 @@ jobs:
         runs-on: ubuntu-latest
         needs: gates
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-            - uses: actions/setup-node@v7
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -157,7 +157,7 @@ jobs:
               run: corepack pnpm --filter @angulux/showcase run build
 
             - name: Upload the built package
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
               with:
                   name: angulux-dist
                   path: packages/angulux/dist
@@ -168,9 +168,9 @@ jobs:
         runs-on: ubuntu-latest
         needs: build
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-            - uses: actions/setup-node@v7
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
@@ -207,7 +207,7 @@ jobs:
 
             - name: Upload evidence
               if: always()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
               with:
                   name: browser-gate-evidence
                   path: test-results/

@@ -62,10 +62,12 @@ function inputNames(yml) {
 }
 
 const actions = {};
+const failed = [];
 for (const spec of [...specs].sort()) {
     const yml = fetchActionYml(spec);
     if (!yml) {
         console.error(`  !! could not fetch ${spec}`);
+        failed.push(spec);
         continue;
     }
     actions[spec] = inputNames(yml);
@@ -75,6 +77,26 @@ for (const spec of [...specs].sort()) {
 const existing = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
 const out = { _comment: existing._comment, _regenerate: existing._regenerate, actions };
 const json = JSON.stringify(out, null, 2) + '\n';
+
+// A PARTIAL SNAPSHOT IS WORSE THAN NO SNAPSHOT, so this refuses to write one.
+//
+// Found the hard way on 2026-08-29, pinning every action to a SHA: fourteen fetches in a
+// burst tripped a secondary rate limit, six came back empty, and this wrote the snapshot
+// anyway and exited 0. check:action-inputs then failed with "has no recorded schema",
+// which reads like the workflow is wrong rather than like the regeneration was truncated.
+//
+// The silent half is worse than the noisy one. An action that passes no `with:` block is
+// skipped by the gate entirely, so dropping ITS entry costs coverage with nothing going
+// red — the snapshot would simply describe less than it used to, and the next renamed
+// input on that action would land unguarded. Waiting a minute and re-running is cheap;
+// finding that out later is not.
+if (failed.length) {
+    console.error(`\n!! ${failed.length} of ${specs.size} action(s) could not be fetched:`);
+    for (const spec of failed) console.error(`     ${spec}`);
+    console.error('\n   Refusing to write a partial snapshot. A burst of fetches can trip a');
+    console.error('   secondary rate limit — check `gh api rate_limit`, wait, and re-run.\n');
+    process.exit(1);
+}
 
 if (process.argv.includes('--write')) {
     writeFileSync(SNAPSHOT, json);
