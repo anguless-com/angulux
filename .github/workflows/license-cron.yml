@@ -14,6 +14,16 @@
 # tools/check-prime-license.mjs (the FIRST_COMMERCIAL constant is the boundary record),
 # confirm what actually changed upstream, and update the boundary deliberately, in its own
 # commit, with the evidence. This gate going red is information, not an obstacle.
+#
+# SECOND JOB, SAME REASONING. A security advisory has the same shape as the licence
+# boundary moving: it happens outside this repository, on somebody else's schedule, and a
+# repository with no merges for three weeks is exactly the one that would not notice. So
+# `pnpm audit` runs on the same timer and opens an issue the same way.
+#
+# It is a separate JOB rather than another step so that a failing audit opens a security
+# issue instead of the licensing one. `if: failure()` cannot tell which step died, and a P0
+# labelled `licensing` raised for a vulnerable dev dependency is exactly the false alarm
+# that teaches people to skim these.
 
 name: License boundary
 
@@ -100,5 +110,75 @@ jobs:
                               '3. Update the boundary deliberately, in its own commit, with the evidence in the message.',
                               '',
                               'See SECURITY.md — licensing contamination is handled as a supply-chain issue here.'
+                          ].join('\n')
+                      });
+
+    audit:
+        name: Dependency advisories
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: '22'
+
+            - name: Enable corepack
+              run: corepack enable
+
+            - name: Install
+              run: corepack pnpm install --frozen-lockfile
+
+            # --audit-level=high on purpose. A moderate advisory against a dev-only
+            # dependency is not worth an issue at 06:00, and a job that cries wolf gets
+            # muted. High and critical are worth it even in the build toolchain, because
+            # release.yml installs that toolchain in the same job that holds
+            # `id-token: write` — tools/check-install-scripts.mjs makes that argument in
+            # full. The exit code only reflects the level; read the whole report.
+            - name: pnpm audit
+              run: corepack pnpm audit --audit-level=high
+
+            - name: Open an issue if a high-severity advisory appeared
+              if: failure()
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      const title = 'Dependency audit: a high-severity advisory is open';
+                      const existing = await github.rest.issues.listForRepo({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          state: 'open',
+                          labels: 'security'
+                      });
+                      if (existing.data.some((i) => i.title === title)) {
+                          core.info('an open issue already tracks this');
+                          return;
+                      }
+                      await github.rest.issues.create({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          title,
+                          labels: ['security'],
+                          body: [
+                              '`corepack pnpm audit --audit-level=high` failed on the scheduled run.',
+                              '',
+                              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                              '',
+                              'Triage by REACHABILITY, not by the severity column:',
+                              '',
+                              '- Reachable at runtime from a PUBLISHED package? The entire runtime tree is `tslib` plus',
+                              '  the first-party packages, so a yes here contradicts the table in SECURITY.md and is a',
+                              '  serious finding. Fix now.',
+                              '- Reachable in the BUILD or RELEASE path? release.yml installs while holding',
+                              '  `id-token: write`, which is the supply-chain case SECURITY.md puts in scope. Fix now.',
+                              '- Dev-only and on neither path? Fix soon, not a blocker — and write the reasoning into',
+                              '  this issue rather than closing it silently.',
+                              '',
+                              'Never force the remediation: `--force` crosses declared version ranges. Preview it, read',
+                              'the changelogs, and take one dependency per commit with a green suite before and after.',
+                              '',
+                              'If it is a catalog package (Angular, TypeScript, rxjs, zone.js, tslib, chart.js) there is',
+                              'no bot pull request by design — see .github/dependabot.yml. It moves by hand, in one',
+                              'reviewed commit.'
                           ].join('\n')
                       });

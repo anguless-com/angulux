@@ -69,20 +69,44 @@ part of your decision to adopt this library, and it is stated here so it can be.
   of the published packages. See the next section — this is the one that will look alarming
   on the Security tab, so it is explained rather than left to be guessed at.
 
-## About the open Dependabot alerts
+## About the Dependabot alerts
 
-If you look at the Security tab, you will see open alerts. Here is what they are, before
-anyone has to ask.
+If you look at the Security tab you will see alerts, and this section says what they are
+before anyone has to ask.
 
-**They are all in the Angular build toolchain, and none of them ship.** At the time of
-writing: four against `webpack-dev-server`, one each against `esbuild`, `@hono/node-server`
-and `uuid` — all reached only through `@angular-devkit/build-angular`, `@angular/build` and
-`@angular/cli`, all of which are **devDependencies of this repository**. Check it yourself:
+**Every alert this repository has received has been in the build toolchain, and none of it
+ships.** That is structural rather than a lucky snapshot: between them the published
+packages have exactly one third-party runtime dependency, so an advisory against a bundler,
+a test runner or a dev server has no path to anything you install. It is a risk to
+*contributors' machines* and to the release pipeline, which is why both are in scope above
+and neither is waved away.
+
+This section used to list the alerts open on the day it was written, and by the time you
+read that list it was wrong — the packages it named are no longer in the tree at all, so
+the commands it told you to run printed nothing. A snapshot in prose is a claim nobody
+checks. Read the current state instead:
 
 ```bash
-corepack pnpm why webpack-dev-server   # devDependencies: @angular-devkit/build-angular
-corepack pnpm why esbuild uuid         # same
+corepack pnpm audit                    # advisories against the installed tree
+
+# every alert this repository has ever received, with its state and scope
+gh api repos/anguless-com/angulux/dependabot/alerts \
+  --jq '.[] | "\(.number) \(.state) \(.security_advisory.severity) \(.dependency.package.name) \(.dependency.scope)"'
 ```
+
+Measured 2026-08-28: `pnpm audit` reports **0 vulnerabilities across 768 dependencies**, and
+of the **20** alerts this repository has ever received, **none is open** — every one is
+`fixed`, and every one was `development` scope. That number is watched rather than asserted:
+`pnpm audit` runs daily in the `License boundary` workflow and opens an issue when a
+high-severity advisory appears.
+
+One caveat if you check the alerts yourself, learned here the hard way. A `0` from the
+alerts LIST endpoint once meant *"my index returned nothing"* rather than *"nothing
+exists"*: seven open alerts were missing from every filtered query for months, and the only
+thing telling the truth was the `git push` banner. Alert numbers are sequential from 1, so
+a **gap in the numbering** is the tell. The index has since been fixed — the numbers above
+were verified both ways, by list and by probing each number — but probe before quoting a
+zero.
 
 **What the published packages actually depend on**, which is the number that matters:
 
@@ -99,10 +123,16 @@ dependency anywhere in it is `tslib`. Angular, RxJS and `chart.js` are peers —
 your application, never installed by us. So a vulnerability in a bundler or a dev server is
 a risk to *contributors' machines*, not to anything you install.
 
-**Why they are not simply fixed.** Some have no patched version published yet — Dependabot
-tries, fails, and reports that it could not perform the update. They are not being ignored;
-there is nothing to upgrade to. When a fix ships, Dependabot proposes it on its weekly run
-and the change is a normal dependency bump.
+**When one is open and stays open.** Sometimes there is nothing to upgrade to: Dependabot
+tries, fails, and reports that it could not perform the update. Those are not being ignored.
+
+There is also one deliberate gap worth knowing about, because it is a trade-off rather than
+an oversight. `.github/dependabot.yml` does **not** let the bot propose bumps for the pinned
+catalog — Angular, TypeScript, rxjs, zone.js, tslib, chart.js — because Dependabot does not
+model pnpm catalogs and flattens the `catalog:` link when it edits one, which breaks
+`--frozen-lockfile` for every gate downstream. Those move by hand, in one reviewed commit.
+Alerts against them still fire; only the automatic pull request is suppressed, and the daily
+`pnpm audit` covers them the same as everything else.
 
 **When one of these WOULD be in scope**, and please do report it then:
 
