@@ -979,7 +979,7 @@ describe('Menu', () => {
         });
     });
 
-    describe('Popup Menu Tests', () => {
+    describe('Popup Instance API Tests', () => {
         it('should show and hide popup menu', async () => {
             component.popup = true;
             fixture.changeDetectorRef.markForCheck();
