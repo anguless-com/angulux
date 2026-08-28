@@ -45,9 +45,20 @@ jobs:
         #   • check:license and check:catalog run on it in CI, and refuse a PrimeTek package
         #     from a post-MIT release or a version off the pinned catalog;
         #   • .github/dependabot.yml never proposes @primeuix/* or primeicons at all;
-        #   • CODEOWNERS requires a maintainer review on package.json and the lockfile.
+        #   • check:install-scripts refuses a bump that adds a dependency wanting to run code
+        #     at install time — the one way a dependency update reaches the release job, which
+        #     installs while holding id-token: write.
         # The attestation adds nothing on top of that. On a human pull request it is the only
         # control there is, which is why it stays mandatory there.
+        #
+        # NOT on that list any more, and it was: "CODEOWNERS requires a maintainer review on
+        # package.json and the lockfile." It does not. CODEOWNERS produces review REQUESTS;
+        # requiring one takes branch protection, and main has require_code_owner_reviews false
+        # with required_approving_review_count 0 — read authenticated on 2026-08-28, and there
+        # is no ruleset either (rulesets and rules/branches/main both return an empty list).
+        # Recorded here rather than quietly deleted, because this list is the justification for
+        # skipping the attestation, and a justification resting on a control nobody switched on
+        # is the exact shape of failure every gate in tools/ exists to prevent.
         if: github.event.pull_request.user.type != 'Bot'
 
         steps:
