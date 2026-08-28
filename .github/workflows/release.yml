@@ -51,6 +51,17 @@ permissions:
 
 env:
     NODE_VERSION: '22'
+    # The npm that performs the publish, pinned like everything else this repository
+    # installs (constitution P4, and .npmrc save-exact). It was `npm@latest`, which put an
+    # unmeasured variable in the one job that mints a publishing credential: an install
+    # script or a regression in a brand-new npm would execute here, and a change to npm's
+    # OIDC exchange would fail the publish AFTER semantic-release has already tagged.
+    # 12.0.2 is what `latest` resolved to when this was pinned, so the pin changed nothing
+    # about what runs — it only stopped it moving without a decision. Trusted Publishing
+    # needs >= 11.5.1, which is why the npm bundled with Node is not enough.
+    # Nothing watches this number: dependabot parses `uses:` and manifests, never a `run:`
+    # line. Move it deliberately, like SR_TOOLING below.
+    NPM_VERSION: '12.0.2'
     # Release tooling stays OUT of devDependencies on purpose: this repository's dependency tree
     # IS its license risk surface (see SECURITY.md) and its lockfile is evidence. It is installed
     # into $RUNNER_TEMP instead — outside the repository entirely, so it cannot reach the manifest
@@ -238,9 +249,9 @@ jobs:
             - name: Enable corepack
               run: corepack enable
 
-            # Trusted Publishing needs npm >= 11.5.1; the npm bundled with Node 22 is older.
+            # Pinned in the workflow env block above — see the reasoning there.
             - name: Update npm
-              run: npm install -g npm@latest
+              run: npm install -g "npm@$NPM_VERSION"
 
             - name: Install
               run: corepack pnpm install --frozen-lockfile
@@ -430,7 +441,7 @@ jobs:
               run: corepack enable
 
             - name: Update npm
-              run: npm install -g npm@latest
+              run: npm install -g "npm@$NPM_VERSION"
 
             - name: Install
               run: corepack pnpm install --frozen-lockfile
