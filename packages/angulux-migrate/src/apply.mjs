@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { ELEMENTS, ATTRIBUTES, IMPORT_FROM, IMPORT_TO } from './selector-map.mjs';
 
 /**
@@ -47,6 +47,30 @@ export function checkWritable(projectRoot) {
     }
     return { ok: true };
 }
+
+/**
+ * Every file git is tracking under `projectRoot`, as project-relative paths.
+ *
+ * `checkWritable()` proves the work tree is CLEAN, which means every file in it is either
+ * tracked or ignored — a clean tree has no untracked files by definition. So "not tracked"
+ * here means "ignored", and an ignored file is one `git checkout -- .` will not restore.
+ * Writing to it would break the single guarantee this tool offers.
+ *
+ * Measured 2026-08-29: a project whose `.gitignore` held `vendor/` was scanned, written and
+ * then reverted, and `vendor/v.html` kept the rewritten contents. No symlink involved, and
+ * it reproduces on every platform.
+ */
+export function trackedFiles(projectRoot) {
+    const out = execFileSync('git', ['ls-files', '-z'], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024
+    });
+    return new Set(out.split('\0').filter(Boolean));
+}
+
+/** A finding's path as git spells it: project-relative, forward slashes. */
+export const gitPath = (file) => file.split(sep).join('/');
 
 /** Longest first, so `p-avatar-group` is never half-matched by `p-avatar`. */
 const ELEMENT_NAMES = Object.keys(ELEMENTS).sort((a, b) => b.length - a.length);
@@ -108,8 +132,21 @@ export function apply(projectRoot, findings) {
     let filesChanged = 0;
     let edits = 0;
 
+    // apply() is exported, so `findings` is not necessarily something scan() produced —
+    // a caller supplies it. A path that resolves outside projectRoot is outside the tree
+    // checkWritable() vouched for, whoever built it. Refuse rather than write.
+    const rootPath = resolve(projectRoot);
+
     for (const [file, group] of byFile) {
         const full = join(projectRoot, file);
+        const target = resolve(full);
+        if (target !== rootPath && !target.startsWith(rootPath + sep)) {
+            throw new Error(
+                `angulux-migrate: refusing to write ${target}, which is outside ${rootPath}. ` +
+                    'Only files inside the project can be reverted with `git checkout -- .`, ' +
+                    'which is the one guarantee this tool makes.'
+            );
+        }
         const before = readFileSync(full, 'utf8');
         const isManifest = file === 'package.json';
         const isCode = /\.(ts|js|mjs|tsx|jsx)$/.test(file);

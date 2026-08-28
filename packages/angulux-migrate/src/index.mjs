@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { scan } from './scan.mjs';
-import { checkWritable, apply } from './apply.mjs';
+import { checkWritable, apply, trackedFiles, gitPath } from './apply.mjs';
 
 export { scan } from './scan.mjs';
 export { checkWritable, apply, rewriteText, rewriteManifest } from './apply.mjs';
@@ -65,7 +65,22 @@ export function report(projectRoot = process.cwd(), { write = false } = {}) {
         return { code: EXIT_REFUSED, lines, findings };
     }
 
-    const { filesChanged, edits } = apply(root, findings);
-    lines.push(`✓ Applied ${edits} edit(s) across ${filesChanged} file(s).`, ...kept, '', 'Revert it all with: git checkout -- .');
+    // The clean-tree check above is about what git TRACKS; the scan enumerated the
+    // FILESYSTEM. Those two sets are not the same, and the difference is exactly the set
+    // `git checkout -- .` cannot undo. Write only the intersection, and say what was left.
+    const tracked = trackedFiles(root);
+    const writable = findings.filter((f) => tracked.has(gitPath(f.file)));
+    const skipped = findings.length - writable.length;
+
+    const { filesChanged, edits } = apply(root, writable);
+    lines.push(`✓ Applied ${edits} edit(s) across ${filesChanged} file(s).`);
+    if (skipped) {
+        lines.push(
+            `  ${skipped} finding(s) were NOT written: git does not track those files, so this`,
+            '  tool cannot promise you could undo them. Commit them first if you want them',
+            '  migrated, or migrate them by hand.'
+        );
+    }
+    lines.push(...kept, '', 'Revert it all with: git checkout -- .');
     return { code: EXIT_OK, lines, findings };
 }

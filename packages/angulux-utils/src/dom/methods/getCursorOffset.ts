@@ -16,7 +16,20 @@ export default function getCursorOffset(element: Element, prevText: string, next
         ghostDiv.style.overflowWrap = style.overflowWrap;
         ghostDiv.style.whiteSpace = style.whiteSpace;
         ghostDiv.style.lineHeight = style.lineHeight;
-        ghostDiv.innerHTML = prevText.replace(/\r\n|\r|\n/g, '<br />');
+        // Text nodes and <br> elements, never innerHTML. Two reasons, and the second one is
+        // not about security:
+        //
+        //   • prevText is caller-supplied — typically whatever the user has typed before the
+        //     caret. This div is appended to document.body a few lines down, so assigning it
+        //     as HTML RUNS it: an <img src=x onerror=…> fires. Nothing here needs markup.
+        //
+        //   • it was also measuring the wrong thing. A literal < in the text became the start
+        //     of a tag rather than a character, so the caret offset this function exists to
+        //     compute was wrong for exactly the input that made it dangerous.
+        for (const [index, part] of prevText.split(/\r\n|\r|\n/).entries()) {
+            if (index) ghostDiv.appendChild(document.createElement('br'));
+            ghostDiv.appendChild(document.createTextNode(part));
+        }
 
         const ghostSpan = document.createElement('span');
 

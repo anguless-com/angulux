@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, lstatSync, existsSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { ELEMENTS, ATTRIBUTES, IMPORT_FROM, IMPORT_TO } from './selector-map.mjs';
 
@@ -18,10 +18,23 @@ function* walk(dir, root = dir) {
         const full = join(dir, name);
         let st;
         try {
-            st = statSync(full);
+            st = lstatSync(full);
         } catch {
             continue;
         }
+
+        // lstat, not stat, and the link is skipped rather than followed.
+        //
+        // Paths here are built lexically by `join`, and `apply()` reverses that with
+        // another `join`, so a path that traverses a link keeps the LINK's name — and the
+        // write lands on the target, outside the directory `checkWritable()` just proved
+        // clean. `git checkout -- .` does not reach it. Skipping links keeps the set this
+        // tool can write to lexically inside the project, which is the only version of
+        // that set the clean-tree check actually says anything about.
+        //
+        // A Windows junction reports `isSymbolicLink()` true here, so it is covered.
+        if (st.isSymbolicLink()) continue;
+
         if (st.isDirectory()) yield* walk(full, root);
         else yield full;
     }
