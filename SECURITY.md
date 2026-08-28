@@ -164,3 +164,20 @@ that should not have.
 
 If you find a way to defeat one of those gates while leaving CI green, **that is a valid
 report and a serious one** — the gates are the product.
+
+## Audits of this project, published
+
+The project audits itself and publishes the result, because "we looked and it is fine" is
+the one claim this repository is least entitled to make without evidence.
+
+- [`docs/reports/audit_20260828.md`](docs/reports/audit_20260828.md) — whole-project audit
+  at `f305597`: threat model, findings, and what was found in good shape. It includes a
+  Critical finding against the release pipeline, which is fixed, and it names the mistakes
+  the audit itself made and had corrected on review.
+
+Findings that affect **published package code** are held out of these reports until they are
+fixed. That is the same rule this policy asks of you above, and it would be incoherent to
+apply a weaker one to ourselves. Each report says how many are held and at what severity, so
+the omission is visible rather than silent, and each is published in full once the fix ships.
+Where a held finding is inherited from PrimeNG and still affects current PrimeNG, PrimeTek is
+told and the timing is coordinated — see *Out of scope* above.
