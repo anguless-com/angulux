@@ -141,7 +141,7 @@ Current evidence, reproducible from a clean checkout:
 ```
 17/17 gates          exit 0
 library build        exit 0 · 210 entrypoints
-inherited spec suite 3783 SUCCESS
+inherited spec suite 3795 SUCCESS
 browser gate         70 tests · 14 behaviour + 56 visibility
 runtime deps         tslib + four first-party angulux-* packages. Zero PrimeTek.
 ```

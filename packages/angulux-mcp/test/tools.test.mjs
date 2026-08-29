@@ -239,7 +239,7 @@ test('a summary reports member counts and omits the members themselves', () => {
     const summary = call('get_module', { name: 'table', summary: true });
     const table = summary.module.declarations.find((d) => d.name === 'Table');
 
-    assert.equal(table.inputCount, 83);
+    assert.equal(table.inputCount, 84);
     assert.ok(table.outputCount > 0);
     assert.ok(!('inputs' in table), 'a summary must not carry the arrays it claims to omit');
 });

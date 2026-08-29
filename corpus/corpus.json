@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "b1c67f02b043f9624cde26efbad4d28cba28bf15016745050334050772222e96",
+        "sourceHash": "0e0175c54fedc6a3434440afbca798aca4286d5387ebabc462e0c80f3570e3b2",
         "closureCount": 64
     },
     "modules": [
@@ -462,7 +462,7 @@
                             "name": "pt",
                             "field": "pt",
                             "type": "PT | undefined",
-                            "description": "Used to pass attributes to DOM elements inside the component.",
+                            "description": "Used to pass attributes to DOM elements inside the component.\n\nTRUSTED INPUT ONLY. Whatever you put here is applied to the DOM as given: keys become\nattributes, and a key that names a DOM property is assigned to that property directly,\nwith no sanitizer in between. That is what makes the API useful, and it means a value\nreaching it from a user, a database or a CMS can execute script. Treat it like markup\nyou wrote yourself, not like data you received.",
                             "group": "Props",
                             "default": "undefined",
                             "defaultDeclared": true,
@@ -715,7 +715,7 @@
                             "name": "aglBind",
                             "field": "aglBind",
                             "type": "{ [key: string]: any } | undefined",
-                            "description": "Dynamic attributes, properties, and event listeners to be applied to the host element.",
+                            "description": "Dynamic attributes, properties, and event listeners to be applied to the host element.\n\nTRUSTED INPUT ONLY. Every key is applied to the DOM as given — set as an attribute, and\nadditionally assigned to the element property of the same name when one exists. No\nsanitizer runs on either path, so a key such as `innerHTML` writes markup and an `on*`\nkey can install a handler. This is the mechanism the passthrough API is built on; it is\nsafe only for values you control, and never for values that reached you from a user.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -12793,6 +12793,17 @@
                             "field": "exportFilename",
                             "type": "string",
                             "description": "Name of the exported file.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": null,
+                            "signal": false
+                        },
+                        {
+                            "name": "exportEscapeFormulas",
+                            "field": "exportEscapeFormulas",
+                            "type": "boolean",
+                            "description": "Whether to neutralise spreadsheet formulas in the exported CSV.\n\nA cell whose first character is `=`, `+`, `-`, `@`, a tab or a carriage return is a\nFORMULA to Excel, LibreOffice and Google Sheets — quoting does not stop it, because the\nquotes are removed by CSV parsing before the formula is detected. Exporting a table of\nuser-submitted values therefore hands whoever wrote those values a way to run a formula\nin the reader's spreadsheet, which can read the surrounding cells and send them out\n(CWE-1236). Nothing appears wrong at export time; the damage happens in another\napplication entirely.\n\nWhen true, such a cell is prefixed with an apostrophe, which every major spreadsheet\nreads as \"this is text\" and does not display. Set it to false only if you are exporting\nformulas on purpose AND you control every value in the table.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,

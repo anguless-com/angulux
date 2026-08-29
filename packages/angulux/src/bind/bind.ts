@@ -16,6 +16,12 @@ import { cn, equals } from '@anguless/angulux-utils';
 export class Bind {
     /**
      * Dynamic attributes, properties, and event listeners to be applied to the host element.
+     *
+     * TRUSTED INPUT ONLY. Every key is applied to the DOM as given — set as an attribute, and
+     * additionally assigned to the element property of the same name when one exists. No
+     * sanitizer runs on either path, so a key such as `innerHTML` writes markup and an `on*`
+     * key can install a handler. This is the mechanism the passthrough API is built on; it is
+     * safe only for values you control, and never for values that reached you from a user.
      * @group Props
      */
     aglBind = input<{ [key: string]: any } | undefined>(undefined);

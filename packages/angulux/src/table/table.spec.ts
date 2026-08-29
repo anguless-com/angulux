@@ -1467,4 +1467,113 @@ describe('Table', () => {
             expect(editingCell.querySelector('[data-p-cell-editing="true"]') || editingCell.getAttribute('data-p-cell-editing')).toBeTruthy();
         });
     });
+
+    describe('exportCSV — spreadsheet formula injection (CWE-1236)', () => {
+        // The pre-existing exportCSV specs in this file spy on the method and assert it was
+        // called, so nothing here had ever looked at the bytes the file actually contains.
+        // These read the Blob back.
+
+        let captured: Blob | undefined;
+
+        /**
+         * The CSV this table would download, decoded, with the UTF-8 BOM stripped.
+         *
+         * The spies are installed ONCE per spec, in beforeEach. Installing them inside this
+         * helper meant the loop below spied on the same method twice and jasmine refused —
+         * which is worth a comment because the failure names the spy, not the loop.
+         */
+        async function exportedCsv(): Promise<string> {
+            captured = undefined;
+
+            component.exportCSV();
+
+            expect(captured).withContext('exportCSV produced no Blob').toBeTruthy();
+            return (await captured!.text()).replace(/^\uFEFF/, '');
+        }
+
+        beforeEach(() => {
+            component.columns = [{ field: 'name', header: 'Name' }];
+
+            spyOn(URL, 'createObjectURL').and.callFake((blob: Blob) => {
+                captured = blob;
+                return 'blob:captured';
+            });
+            // The anchor is real and carries `download`; clicking it would ask the browser to
+            // save a file during the run.
+            spyOn(HTMLAnchorElement.prototype, 'click').and.stub();
+        });
+
+        it('prefixes a cell that a spreadsheet would read as a formula', async () => {
+            component.value = [{ name: '=1+1' }];
+
+            const csv = await exportedCsv();
+
+            expect(csv).toContain('"\'=1+1"');
+            expect(csv).not.toContain('"=1+1"');
+        });
+
+        it('covers every leader a spreadsheet acts on, including the tab and CR bypasses', async () => {
+            for (const leader of ['=', '+', '-', '@', '\t', '\r']) {
+                component.value = [{ name: `${leader}cmd` }];
+
+                const csv = await exportedCsv();
+
+                expect(csv)
+                    .withContext(`leader ${JSON.stringify(leader)} was exported unguarded`)
+                    .toContain(`"'${leader}cmd"`);
+            }
+        });
+
+        it('leaves an ordinary value exactly as it was', async () => {
+            component.value = [{ name: 'Gaming Laptop' }];
+
+            const csv = await exportedCsv();
+
+            expect(csv).toContain('"Gaming Laptop"');
+            expect(csv).not.toContain("'Gaming");
+        });
+
+        it('still doubles quotes, and does both when a value is a formula containing one', async () => {
+            component.value = [{ name: '=HYPERLINK("http://x")' }];
+
+            const csv = await exportedCsv();
+
+            // One well-formed field: guarded first, then quote-doubled.
+            expect(csv).toContain('"\'=HYPERLINK(""http://x"")"');
+        });
+
+        it('guards the HEADER row, which had no escaping at all', async () => {
+            // A column header is as attacker-controllable as a cell wherever columns are built
+            // from data — and this line never even doubled quotes.
+            component.columns = [{ field: 'name', header: '=1+1' }];
+            component.value = [{ name: 'x' }];
+
+            const csv = await exportedCsv();
+
+            expect(csv.split('\n')[0]).toBe('"\'=1+1"');
+        });
+
+        it('guards what exportFunction returns, which was written to the file raw', async () => {
+            component.value = [{ name: 'x' }];
+            component.exportFunction = () => '=1+1';
+
+            const csv = await exportedCsv();
+
+            expect(csv).toContain('"\'=1+1"');
+        });
+
+        it('exports raw when the guard is turned off on purpose', async () => {
+            component.value = [{ name: '=1+1' }];
+            component.exportEscapeFormulas = false;
+
+            const csv = await exportedCsv();
+
+            expect(csv).toContain('"=1+1"');
+            expect(csv).not.toContain("'=1+1");
+        });
+
+        it('is on by default, so an application gets the safe behaviour without asking', () => {
+            expect(component.exportEscapeFormulas).toBeTrue();
+        });
+    });
 });

@@ -545,6 +545,23 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
      */
     @Input() exportFilename: string = 'download';
     /**
+     * Whether to neutralise spreadsheet formulas in the exported CSV.
+     *
+     * A cell whose first character is `=`, `+`, `-`, `@`, a tab or a carriage return is a
+     * FORMULA to Excel, LibreOffice and Google Sheets — quoting does not stop it, because the
+     * quotes are removed by CSV parsing before the formula is detected. Exporting a table of
+     * user-submitted values therefore hands whoever wrote those values a way to run a formula
+     * in the reader's spreadsheet, which can read the surrounding cells and send them out
+     * (CWE-1236). Nothing appears wrong at export time; the damage happens in another
+     * application entirely.
+     *
+     * When true, such a cell is prefixed with an apostrophe, which every major spreadsheet
+     * reads as "this is text" and does not display. Set it to false only if you are exporting
+     * formulas on purpose AND you control every value in the table.
+     * @group Props
+     */
+    @Input({ transform: booleanAttribute }) exportEscapeFormulas: boolean = true;
+    /**
      * An array of FilterMetadata objects to provide external filters.
      * @group Props
      */
@@ -2212,6 +2229,28 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     getExportHeader(column: any) {
         return column[<string>this.exportHeader] || column.header || column.field;
     }
+
+    /**
+     * One CSV field, escaped once.
+     *
+     * Both the header row and every body cell go through here, because they used to be
+     * escaped differently and that is how the two drifted: the header was wrapped in quotes
+     * with NO escaping at all, and a cell produced by `exportFunction` was returned raw —
+     * quote-doubling only ever ran in the `else` branch. A `"` in either one broke the field
+     * structure, quite apart from the formula question.
+     *
+     * Order matters. The formula prefix is added BEFORE quote-doubling, so a value that is
+     * both a formula and contains a quote is still a single well-formed field.
+     */
+    private escapeCsvField(value: any): string {
+        const text = value == null ? '' : String(value);
+
+        // `=` `+` `-` `@` are the documented formula leaders; TAB and CR are the documented
+        // bypasses, because spreadsheets skip them and then read the next character.
+        const guarded = this.exportEscapeFormulas && /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+
+        return guarded.replace(/"/g, '""');
+    }
     /**
      * Data export method.
      * @param {ExportCSVOptions} object - Export options.
@@ -2237,7 +2276,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
         const exportableColumns: any[] = (<any[]>columns).filter((column) => column.exportable !== false && column.field);
 
         //headers
-        csv += exportableColumns.map((column) => '"' + this.getExportHeader(column) + '"').join(this.csvSeparator);
+        csv += exportableColumns.map((column) => '"' + this.escapeCsvField(this.getExportHeader(column)) + '"').join(this.csvSeparator);
 
         //body
         const body = data
@@ -2246,16 +2285,16 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                     .map((column) => {
                         let cellData = ObjectUtils.resolveFieldData(record, column.field);
 
-                        if (cellData != null) {
-                            if (this.exportFunction) {
-                                cellData = this.exportFunction({
-                                    data: cellData,
-                                    field: column.field
-                                });
-                            } else cellData = String(cellData).replace(/"/g, '""');
-                        } else cellData = '';
+                        if (cellData != null && this.exportFunction) {
+                            cellData = this.exportFunction({
+                                data: cellData,
+                                field: column.field
+                            });
+                        }
 
-                        return '"' + cellData + '"';
+                        // escapeCsvField handles null itself, and escapes whatever exportFunction
+                        // returned — that output used to be written to the file untouched.
+                        return '"' + this.escapeCsvField(cellData) + '"';
                     })
                     .join(this.csvSeparator)
             )

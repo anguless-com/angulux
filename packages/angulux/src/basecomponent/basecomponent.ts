@@ -60,6 +60,12 @@ export class BaseComponent<PT = any> implements Lifecycle {
     unstyled = input<boolean | undefined>();
     /**
      * Used to pass attributes to DOM elements inside the component.
+     *
+     * TRUSTED INPUT ONLY. Whatever you put here is applied to the DOM as given: keys become
+     * attributes, and a key that names a DOM property is assigned to that property directly,
+     * with no sanitizer in between. That is what makes the API useful, and it means a value
+     * reaching it from a user, a database or a CMS can execute script. Treat it like markup
+     * you wrote yourself, not like data you received.
      * @defaultValue undefined
      * @group Props
      */
