@@ -179,5 +179,19 @@ Findings that affect **published package code** are held out of these reports un
 fixed. That is the same rule this policy asks of you above, and it would be incoherent to
 apply a weaker one to ourselves. Each report says how many are held and at what severity, so
 the omission is visible rather than silent, and each is published in full once the fix ships.
-Where a held finding is inherited from PrimeNG and still affects current PrimeNG, PrimeTek is
-told and the timing is coordinated — see *Out of scope* above.
+Where a held finding is inherited from **PrimeNG 21.1.9**, PrimeTek is told.
+
+That sentence used to read "inherited from PrimeNG **and still affects current PrimeNG**",
+and the condition was withdrawn on 2026-08-30 because this project cannot check it. Its own
+constitution forbids reading `primeng >= 22` at the code level — that boundary is the whole
+licensing argument — so "does the current release still have this?" is a question we are
+structurally unable to answer. A commitment gated on a test we cannot run is not a
+commitment; it is a sentence that always has an excuse available.
+
+What replaces it is what we CAN establish: the flaw is present in the 21.1.9 source we
+inherited, which is archived and checkable. Whether it survived into a later release is then
+PrimeTek's to determine, with better information than we have.
+
+Note the asymmetry with what we ask of reporters above, which is deliberate. A reporter is
+not bound by our licensing boundary and can look at current PrimeNG, so asking them to check
+is reasonable. Asking it of ourselves was not.
