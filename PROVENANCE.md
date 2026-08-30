@@ -164,8 +164,8 @@ to reconstruct it later.
 
 | Path | Contents |
 |---|---|
-| `packages/angulux/src/**` | the 64 modules in the transitive closure — component code |
-| `packages/angulux/attic/**` | 53 modules outside the closure, kept verbatim, excluded from the build |
+| `packages/angulux/src/**` | the 65 modules in the transitive closure — component code |
+| `packages/angulux/attic/**` | 52 modules outside the closure, kept verbatim, excluded from the build |
 
 **Forked from `primeuix` (MIT, same notice):**
 
@@ -203,7 +203,7 @@ dropped · PrimeTek trademarks removed from the public API surface.
 | Command | What it blocks |
 |---|---|
 | `check:license` | a commercially licensed PrimeTek package reaching the dependency tree, **and** any licence-flagged material in `ref/` that section 7 does not declare (in either direction — undeclared material, or a declared row that is no longer on disk) |
-| `check:scope` | the transitive closure drifting from the agreed 64 modules |
+| `check:scope` | the transitive closure drifting from the agreed 65 modules |
 | `check:catalog` | versions drifting out of the pinned catalog, and the forked family being referenced from a registry instead of the workspace |
 | `check:names` | leftover PrimeNG names in selector, API or trademark positions — including the forms that live **inside strings**, which TypeScript never reports |
 | `check:risk-coverage` | the browser gate's scope drifting from the risky decorator set recomputed from source |

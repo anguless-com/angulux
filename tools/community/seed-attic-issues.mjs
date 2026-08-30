@@ -5,7 +5,7 @@
  * WHY THIS EXISTS: the README, CONTRIBUTING and the issue templates all say "promoting a
  * module out of attic/ is the most useful contribution you can make". On a repository with
  * an empty issue tracker that sentence does nothing: nobody browses a source tree looking
- * for work. The 53 modules only become contributable when each one is an issue with a
+ * for work. The 52 modules only become contributable when each one is an issue with a
  * title, a scope, and a `good first issue` label.
  *
  * It reads the attic directly rather than a hand-maintained list, so it cannot drift: a

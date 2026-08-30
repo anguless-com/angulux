@@ -20,7 +20,7 @@
  *                   invisible to readers while still costing maintenance, and nothing else
  *                   would ever report it.
  *   5. SCOPE      — every documented module is a module the corpus says the library ships.
- *                   This is what stops `attic/` — 53 unported modules kept verbatim — from
+ *                   This is what stops `attic/` — 52 unported modules kept verbatim — from
  *                   being documented on the public web as though it were released.
  *
  * Checks 1-4 are structural. Check 5 is the one with teeth: the corpus is the same source

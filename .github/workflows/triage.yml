@@ -61,7 +61,7 @@ jobs:
                         normal outcome rather than a brush-off. [SUPPORT.md](https://github.com/anguless-com/angulux/blob/main/SUPPORT.md)
                         says what to expect, and [TRIAGE.md](https://github.com/anguless-com/angulux/blob/main/TRIAGE.md)
                         says what happens to this issue next.
-                      - **If a component seems missing**, it is probably one of the 53 modules
+                      - **If a component seems missing**, it is probably one of the 52 modules
                         sitting unbuilt in [`packages/angulux/attic/`](https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic).
                         That is documented behaviour, not a bug — and promoting one is the most
                         useful contribution this project can receive.

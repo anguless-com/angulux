@@ -25,7 +25,7 @@ test('a server is constructible without touching the network or the filesystem t
 });
 
 test('the corpus it serves is the corpus on disk', () => {
-    assert.equal(corpus.closureCount, 64);
+    assert.equal(corpus.closureCount, 65);
     assert.match(corpus.sourceHash, /^[0-9a-f]{64}$/);
     assert.equal(TOOL_NAMES.length, 5);
 });

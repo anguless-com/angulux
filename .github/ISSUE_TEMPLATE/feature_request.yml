@@ -9,7 +9,7 @@ body:
               Two things to check first, because they redirect most requests:
 
               - **A missing component** is not a feature request — use the
-                *Module promotion* form. 53 modules are already in the repository, unbuilt.
+                *Module promotion* form. 52 modules are already in the repository, unbuilt.
               - **Public API changes are frozen on `22.x`.** The major version is locked to
                 Angular's major, so a breaking change can only ship with **Angular 23
                 (expected around November 2026)**. Proposals are welcome *now* — they get

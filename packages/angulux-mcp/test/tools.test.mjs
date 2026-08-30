@@ -32,10 +32,10 @@ test('every tool returns a payload its own contract accepts', () => {
 });
 
 test('list_modules covers the whole warranted closure, and can hide the empty ones', () => {
-    assert.equal(call('list_modules').modules.length, 64);
+    assert.equal(call('list_modules').modules.length, 65);
 
     const withApi = call('list_modules', { withApiOnly: true }).modules;
-    assert.ok(withApi.length > 0 && withApi.length < 64);
+    assert.ok(withApi.length > 0 && withApi.length < 65);
     assert.ok(withApi.every((m) => m.declarationCount > 0));
 });
 
@@ -207,7 +207,7 @@ test('corpus_info reports the provenance a caller needs to spot a stale server',
 
     assert.equal(info.sourceHash, corpus.sourceHash);
     assert.equal(info.libraryVersion, corpus.libraryVersion);
-    assert.equal(info.closureCount, 64);
+    assert.equal(info.closureCount, 65);
 });
 
 test('corpus_info says the version trails npm on purpose, so nobody reads it as staleness', () => {

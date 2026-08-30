@@ -13,7 +13,7 @@ const closure = JSON.parse(readFileSync(resolve(repoRoot, 'tools/scope/closure.j
 
 /**
  * These run over the WHOLE warranted surface, not a sample. The corpus's core claim is that
- * it describes all 64 modules, so a test that checked three of them would be measuring the
+ * it describes all 65 modules, so a test that checked three of them would be measuring the
  * wrong thing — the interesting failures are in the modules nobody thought about.
  */
 
@@ -27,10 +27,10 @@ test('every warranted module extracts without throwing', () => {
         }
     }
     assert.deepEqual(failures, []);
-    assert.equal(closure.length, 64, 'closure size changed — the corpus subject set moved');
+    assert.equal(closure.length, 65, 'closure size changed — the corpus subject set moved');
 });
 
-test('the AST finds every @Component/@Directive the text declares, across all 64', () => {
+test('the AST finds every @Component/@Directive the text declares, across all 65', () => {
     // Independent measure again: a regex over the raw files versus the syntax walk. This is
     // what would catch declarations hiding in a subdirectory the walker never visits.
     let astTotal = 0;

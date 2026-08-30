@@ -72,7 +72,7 @@ inventing tools for data that does not exist would produce confident empty answe
 
 | Tool | Use it when |
 | --- | --- |
-| `list_modules` | you need the supported module list, or just an import specifier — all 64 for a fraction of what one large module costs |
+| `list_modules` | you need the supported module list, or just an import specifier — all 65 for a fraction of what one large module costs |
 | `get_module` | you are about to write markup. Pass `summary: true` first for an unfamiliar module, then `declaration` for the one you need |
 | `search_api` | you know the input, output or slot name but not which component declares it |
 | `check_usage` | **before recommending angulux code you did not read out of the corpus** |
@@ -149,7 +149,7 @@ from a trimmed one.
 
 ## What it does not know
 
-- **Only the 64 warranted modules.** The other 53 live in the repository's `attic/` and are not
+- **Only the 65 warranted modules.** The other 52 live in the repository's `attic/` and are not
   supported. `get_module` returns an explicit miss for them rather than an empty success,
   because "unsupported" and "supported but declares nothing" must not look the same.
 - **Defaults are mostly undocumented.** Only 127 of 1205 inputs declare `@defaultValue`. The

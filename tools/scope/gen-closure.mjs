@@ -36,7 +36,10 @@ const SEEDS = [
     'fileupload', 'iconfield', 'inputicon', 'inputnumber', 'inputtext', 'menu', 'message',
     'multiselect', 'password', 'popover', 'progressbar', 'progressspinner', 'radiobutton',
     'ripple', 'select', 'selectbutton', 'skeleton', 'splitbutton', 'table', 'tabs', 'tag',
-    'textarea', 'timeline', 'toast', 'toggleswitch', 'tooltip', 'treetable'
+    'textarea', 'timeline', 'toast', 'toggleswitch', 'tooltip', 'treetable',
+    // Promoted out of attic/ on 2026-08-31. Not a measured app import like the rest: it is
+    // here because the library now ships it, and the closure is what the library warrants.
+    'iftalabel'
 ];
 
 function resolveSrc() {
@@ -101,7 +104,12 @@ for (const d of inScope) {
 
 const payload = {
     _comment: 'GENERATED — do not edit by hand. Source: tools/scope/gen-closure.mjs',
-    generatedFrom: path.relative(root, SRC),
+    // Forward slashes, always. `path.relative` yields backslashes on Windows, which lands a
+    // platform's separator in a COMMITTED artifact that check:scope byte-compares — so the
+    // file would differ depending on who regenerated it, and CI would disagree with the
+    // maintainer for a reason neither could see in the diff. Found 2026-08-31, the first
+    // time this was regenerated on Windows.
+    generatedFrom: path.relative(root, SRC).split(path.sep).join('/'),
     seedCount: SEEDS.length,
     closureCount: inScope.length,
     outOfScopeCount: outOfScope.length,

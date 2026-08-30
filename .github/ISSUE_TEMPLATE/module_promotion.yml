@@ -1,18 +1,18 @@
 name: Module promotion (attic → shipped)
-description: Ask for one of the 53 unported modules to be built and published, or claim it to do yourself.
+description: Ask for one of the 52 unported modules to be built and published, or claim it to do yourself.
 title: 'feat(attic): promote '
 labels: ['attic-promotion', 'needs triage']
 body:
     - type: markdown
       attributes:
           value: |
-              angulux ships **64 of PrimeNG's 117 modules**. The other 53 are carried
+              angulux ships **65 of PrimeNG's 117 modules**. The other 52 are carried
               **verbatim, MIT, unmodified** in
               [`packages/angulux/attic/`](https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic)
               — present in the repository, but not built and not published.
 
               This is deliberate: every shipped module is inside the closure that the gates
-              cover. "64 modules with a warranty" is the offer; "117 modules nobody checks"
+              cover. "65 modules with a warranty" is the offer; "117 modules nobody checks"
               is not.
 
               **The best outcome of this issue is that you promote it yourself.**
@@ -75,7 +75,12 @@ body:
                  diff — promoting a module changes the warranted set, and `check:scope`
                  fails if the two disagree.
               4. `npm run check` green (17/17), and the module's inherited specs passing.
-              5. If the module carries a risk-flagged decorator, extend the browser gate —
+              5. `npm run test:tools` green. A promotion moves the module count, and the
+                 counts are asserted — expect to update them and the `corpusSourceHash`
+                 in `packages/angulux-mcp/benchmark/questions.json`. Regenerate
+                 `docs/attic-promotion.md` with `node tools/community/survey-attic.mjs`
+                 and fix the counts written into the README and these templates.
+              6. If the module carries a risk-flagged decorator, extend the browser gate —
                  otherwise `check:risk-coverage` fails, correctly.
 
               Watch for dependencies: some attic modules pull in others (`picklist` and

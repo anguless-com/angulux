@@ -128,7 +128,7 @@ export function createTools(corpus) {
                 'List every angulux module that is supported, with the import specifier for each. ' +
                 'Call this first when you do not know which module a component lives in, to check ' +
                 'whether something is supported at all before recommending it, or whenever the ' +
-                'question is only "what do I import" — this returns all 64 modules for a fraction of ' +
+                'question is only "what do I import" — this returns all 65 modules for a fraction of ' +
                 'what fetching one large module costs.',
             inputSchema: {
                 type: 'object',
@@ -155,7 +155,7 @@ export function createTools(corpus) {
                 'are expensive — `table` declares 25 things — so for an unfamiliar module pass ' +
                 '`summary: true` first: it names every slot while omitting the member arrays. Then ' +
                 'pass `declaration` to fetch just the one you need. If you only want the import ' +
-                'specifier, use list_modules instead; it returns all 64 for less than one large ' +
+                'specifier, use list_modules instead; it returns all 65 for less than one large ' +
                 'module costs.',
             inputSchema: {
                 type: 'object',

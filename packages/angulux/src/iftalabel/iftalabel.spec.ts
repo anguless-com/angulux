@@ -3,16 +3,16 @@ import { Component, provideZonelessChangeDetection } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { IftaLabel } from './iftalabel';
-import { providePrimeNG } from 'primeng/config';
+import { provideAngulux } from '@anguless/angulux/config';
 
 @Component({
     standalone: true,
     imports: [IftaLabel, FormsModule],
     template: `
-        <p-iftalabel>
+        <agl-iftalabel>
             <input id="username" [(ngModel)]="value" />
             <label for="username">Username</label>
-        </p-iftalabel>
+        </agl-iftalabel>
     `
 })
 class TestBasicIftaLabelComponent {
@@ -23,10 +23,10 @@ class TestBasicIftaLabelComponent {
     standalone: true,
     imports: [IftaLabel, FormsModule],
     template: `
-        <p-iftalabel>
+        <agl-iftalabel>
             <input id="email" type="email" [(ngModel)]="email" />
             <label for="email">Email Address</label>
-        </p-iftalabel>
+        </agl-iftalabel>
     `
 })
 class TestEmailIftaLabelComponent {
@@ -213,14 +213,14 @@ describe('IftaLabel PassThrough Tests', () => {
         });
     });
 
-    describe('PT Case 5: Global PT from PrimeNGConfig', () => {
+    describe('PT Case 5: Global PT from AnguluxConfig', () => {
         it('should apply global PT configuration', async () => {
             TestBed.resetTestingModule();
             await TestBed.configureTestingModule({
                 imports: [IftaLabel, FormsModule],
                 providers: [
                     provideZonelessChangeDetection(),
-                    providePrimeNG({
+                    provideAngulux({
                         pt: {
                             iftaLabel: {
                                 host: { 'aria-label': 'GLOBAL_LABEL' },
@@ -248,7 +248,7 @@ describe('IftaLabel PassThrough Tests', () => {
                 imports: [IftaLabel, FormsModule],
                 providers: [
                     provideZonelessChangeDetection(),
-                    providePrimeNG({
+                    provideAngulux({
                         pt: {
                             iftaLabel: {
                                 hooks: {

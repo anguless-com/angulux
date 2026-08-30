@@ -92,7 +92,7 @@ test('provenance over the wire matches the corpus on disk', async () => {
 
     assert.equal(payload.sourceHash, corpus.sourceHash);
     assert.equal(payload.libraryVersion, corpus.libraryVersion);
-    assert.equal(payload.closureCount, 64);
+    assert.equal(payload.closureCount, 65);
 });
 
 test('a module record survives serialisation intact, nested arrays and all', async () => {

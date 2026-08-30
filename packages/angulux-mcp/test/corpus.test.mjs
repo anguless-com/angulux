@@ -24,10 +24,10 @@ const withTempCorpus = (contents, run) => {
 test('it loads the committed corpus and reports what it loaded', () => {
     const corpus = loadCorpus();
 
-    assert.equal(corpus.moduleCount, 64);
+    assert.equal(corpus.moduleCount, 65);
     assert.equal(corpus.sourceHash, committed.generator.sourceHash);
     assert.equal(corpus.closureCount, committed.generator.closureCount);
-    assert.equal(corpus.modules.length, 64);
+    assert.equal(corpus.modules.length, 65);
 });
 
 test('the library version comes from the ROOT manifest, not the generated one', () => {

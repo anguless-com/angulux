@@ -1,8 +1,8 @@
 {
     "_comment": "GENERATED — do not edit by hand. Source: tools/scope/gen-closure.mjs",
     "generatedFrom": "packages/angulux/src",
-    "seedCount": 43,
-    "closureCount": 64,
+    "seedCount": 44,
+    "closureCount": 65,
     "outOfScopeCount": 0,
     "seeds": [
         "api",
@@ -47,7 +47,8 @@
         "toast",
         "toggleswitch",
         "tooltip",
-        "treetable"
+        "treetable",
+        "iftalabel"
     ],
     "infrastructurePulledIn": [
         "autofocus",
@@ -102,6 +103,7 @@
         "focustrap",
         "iconfield",
         "icons",
+        "iftalabel",
         "inputicon",
         "inputnumber",
         "inputtext",
