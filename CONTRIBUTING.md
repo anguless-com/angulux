@@ -133,6 +133,14 @@ genuinely beginner-friendly labelled `good first issue`:
 node tools/community/seed-attic-issues.mjs      # see the list and the sizes locally
 ```
 
+[`docs/attic-promotion.md`](docs/attic-promotion.md) is the same 53 sorted by what a
+promotion actually costs — what each one drags in, whether it arrives with an inherited
+spec suite, and the costs that are invisible until you are halfway through. Two of those
+are worth knowing before you pick: `editor` reaches its engine through a dynamic
+`import()` that no manifest declares, and `image` has one in its spec pointing at an
+un-renamed `primeng/*` path — a string, so the rename codemod and the type checker both
+walk straight past it.
+
 Twelve of the 53 are small and self-contained. A few are marked as *not* beginner tasks with
 the reason stated — `picklist` and `orderlist` need `listbox` first, `editor` wraps a
 third-party engine, and several leaned on `@angular/cdk`, which this project deliberately
