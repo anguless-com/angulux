@@ -136,7 +136,14 @@ markup a spec sets up — and measures whether what the library draws survives i
 CSS: an element's rectangle intersected with every clipping ancestor. It exists because
 a badge shipped that was present, correct and 32% visible.
 
-Current evidence, reproducible from a clean checkout:
+Evidence measured at `22.2.3`, reproducible from a clean checkout:
+
+<!-- Anchored to a version on purpose. Two of these numbers cannot be gated cheaply: the
+     spec count needs a 90-second suite run and the browser gate needs a browser, while
+     `npm run check` exists to answer in three seconds. A number that cannot be gated must
+     not be written in the present tense, or it becomes a claim that quietly stops being
+     true — which is the failure this repository keeps finding in other people's prose.
+     `17/17` IS gated, by check:gate-count. -->
 
 ```
 17/17 gates          exit 0
@@ -208,9 +215,9 @@ for p in utils styled motion styles; do
 done
 
 corepack pnpm --filter angulux run build        # → 210 entrypoints
-corepack pnpm --filter angulux run test:unit    # → 3765 specs
+corepack pnpm --filter angulux run test:unit    # the inherited spec suite
 corepack pnpm --filter @angulux/verify run build
-npx playwright test --config e2e/playwright.config.ts   # browser gate → 70 tests
+npx playwright test --config e2e/playwright.config.ts   # browser gate
 ```
 
 `pnpm` runs through corepack and is not on `PATH`; use `corepack pnpm`. Karma needs

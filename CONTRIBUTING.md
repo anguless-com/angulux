@@ -68,9 +68,9 @@ for p in utils styled motion styles; do
 done
 
 corepack pnpm --filter @anguless/angulux run build        # → 210 entrypoints
-corepack pnpm --filter @anguless/angulux run test:unit    # → 3765 specs
+corepack pnpm --filter @anguless/angulux run test:unit    # the inherited spec suite
 corepack pnpm --filter @angulux/verify run build
-npx playwright test --config e2e/playwright.config.ts   # browser gate → 13/13
+npx playwright test --config e2e/playwright.config.ts   # browser gate
 ```
 
 `pnpm` runs through corepack and is not on `PATH` — use `corepack pnpm`. Karma needs
