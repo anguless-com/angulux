@@ -74,7 +74,7 @@ body:
               3. Regenerate the closure (`node tools/scope/gen-closure.mjs`) and include the
                  diff — promoting a module changes the warranted set, and `check:scope`
                  fails if the two disagree.
-              4. `npm run check` green (17/17), and the module's inherited specs passing.
+              4. `npm run check` green (18/18), and the module's inherited specs passing.
               5. `npm run test:tools` green. A promotion moves the module count, and the
                  counts are asserted — expect to update them and the `corpusSourceHash`
                  in `packages/angulux-mcp/benchmark/questions.json`. Regenerate

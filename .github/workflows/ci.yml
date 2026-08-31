@@ -27,7 +27,7 @@ env:
 
 jobs:
     gates:
-        name: Gates (17)
+        name: Gates (18)
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -46,7 +46,7 @@ jobs:
             - name: Install
               run: corepack pnpm install --frozen-lockfile
 
-            # Runs all seventeen. Deliberately not split into seventeen jobs — it takes
+            # Runs all eighteen. Deliberately not split into eighteen jobs — it takes
             # ~3 seconds total, and one failing gate should not hide the others behind a
             # red cross.
             - name: npm run check
@@ -131,7 +131,7 @@ jobs:
               run: npm run test:tools
 
             # Needs a completed build, which is why it is here rather than in `npm run check`
-            # — that suite is seventeen gates and needs no build, which is what keeps it fast.
+            # — that suite is eighteen gates and needs no build, which is what keeps it fast.
             # It packs each package and reads package.json back out of the TARBALL, because
             # three of the forked packages once passed a guard that inspected the wrong path
             # while carrying `workspace:^` into a published dependency.
