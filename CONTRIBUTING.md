@@ -57,7 +57,7 @@ sign-off is the whole ceremony. Missing sign-off fails CI.
 
 ```bash
 corepack pnpm install
-npm run check     # the 17 gates, no build needed — run this first, it should be green
+npm run check     # the 18 gates, no build needed — run this first, it should be green
 ```
 
 Full build and test loop, in dependency order:
@@ -85,7 +85,7 @@ cd angulux
 git remote add upstream git@github.com:anguless-com/angulux.git
 
 corepack pnpm install
-npm run check          # should be 17/17 green before you change anything.
+npm run check          # should be 18/18 green before you change anything.
                        # If it is not, that is a bug — please report it.
 
 # 2. Branch.
@@ -141,7 +141,7 @@ are worth knowing before you pick: `editor` reaches its engine through a dynamic
 un-renamed `primeng/*` path — a string, so the rename codemod and the type checker both
 walk straight past it.
 
-Eleven of the 52 are small and self-contained. A few are marked as *not* beginner tasks with
+The ones labelled `good first issue` are small and self-contained. A few are marked as *not* beginner tasks with
 the reason stated — `picklist` and `orderlist` need `listbox` first, `editor` wraps a
 third-party engine, and several leaned on `@angular/cdk`, which this project deliberately
 dropped as a peer. Promoting `listbox` unblocks two others, so it is worth more than its size

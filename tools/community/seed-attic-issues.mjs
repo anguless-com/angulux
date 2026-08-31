@@ -132,7 +132,7 @@ This issue tracks promoting it into the shipped set.
 1. Move \`attic/${name}/\` → \`src/${name}/\`.
 2. Rename selectors to the \`agl-*\` / \`agl*\` convention. **CSS class names \`p-*\` stay** — that distinction is deliberate, see [NOTICE](https://github.com/${REPO}/blob/main/NOTICE).
 3. Regenerate the closure (\`node tools/scope/gen-closure.mjs\`) and include the diff. Promoting a module changes the warranted set, and \`check:scope\` fails if the two disagree.
-4. \`npm run check\` green (17/17), and this module's inherited specs passing.
+4. \`npm run check\` green (18/18), and this module's inherited specs passing.
 5. If the module carries a risk-flagged decorator, extend the browser gate — otherwise \`check:risk-coverage\` fails, correctly.
 
 ### Before you start

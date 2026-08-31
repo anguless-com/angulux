@@ -204,6 +204,7 @@ dropped · PrimeTek trademarks removed from the public API surface.
 |---|---|
 | `check:license` | a commercially licensed PrimeTek package reaching the dependency tree, **and** any licence-flagged material in `ref/` that section 7 does not declare (in either direction — undeclared material, or a declared row that is no longer on disk) |
 | `check:scope` | the transitive closure drifting from the agreed 65 modules |
+| `check:module-counts` | the shipped/attic/upstream counts drifting in prose — including the "of 117" figure, which is a claim about **upstream** software and stops being true the moment an attic module is deleted rather than promoted |
 | `check:catalog` | versions drifting out of the pinned catalog, and the forked family being referenced from a registry instead of the workspace |
 | `check:names` | leftover PrimeNG names in selector, API or trademark positions — including the forms that live **inside strings**, which TypeScript never reports |
 | `check:risk-coverage` | the browser gate's scope drifting from the risky decorator set recomputed from source |
