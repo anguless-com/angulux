@@ -14,7 +14,7 @@ const closure = JSON.parse(readFileSync(resolve(repoRoot, 'tools/scope/closure.j
 test('the corpus describes exactly the warranted closure — both directions', () => {
     // A count would pass while one module was swapped for another. Set equality is the
     // question worth asking: a missing module and an invented one must both fail, and the
-    // 53 attic modules must not appear at all.
+    // 52 attic modules must not appear at all.
     const names = buildCorpus().modules.map((m) => m.name);
 
     assert.deepEqual([...names].sort(), [...closure].sort());
@@ -45,7 +45,7 @@ test('provenance is a content hash, not a commit SHA', () => {
 
     assert.match(generator.sourceHash, /^[0-9a-f]{64}$/);
     assert.equal(generator.closureCount, closure.length);
-    assert.equal(generator.closureCount, 64);
+    assert.equal(generator.closureCount, 65);
 });
 
 test('a record shape change must bump the format version — the hash cannot say it', () => {

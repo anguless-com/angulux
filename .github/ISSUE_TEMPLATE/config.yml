@@ -14,7 +14,7 @@ contact_links:
     - name: Component X is missing
       url: https://github.com/anguless-com/angulux/tree/main/packages/angulux/attic
       about: >-
-          angulux ships 64 of PrimeNG's 117 modules. The other 53 are carried verbatim in
+          angulux ships 65 of PrimeNG's 117 modules. The other 52 are carried verbatim in
           attic/ — not built, not published. That is documented, not a bug. Check here
           first, then open a "Module promotion" issue.
 

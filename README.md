@@ -43,8 +43,8 @@ its own. It works in any project; it does not require angulux.
 angulux is **not** a drop-in replacement for PrimeNG, and it is **not** trying to be the
 community's continuation of it. Three facts decide whether you should keep reading:
 
-1. **It ships 64 of PrimeNG's 117 modules.** Editor, Tree, OrganizationChart, PickList,
-   OrderList, Listbox and 47 others are not ported — all 53 are listed in
+1. **It ships 65 of PrimeNG's 117 modules.** Editor, Tree, OrganizationChart, PickList,
+   OrderList, Listbox and 46 others are not ported — all 52 are listed in
    [`packages/angulux/attic/`](packages/angulux/attic/). See
    [What angulux is NOT](#what-angulux-is-not).
 2. **Selectors were renamed.** `p-button` is `agl-button`, `pTooltip` is `aglTooltip`.
@@ -76,7 +76,7 @@ closes a class of failure that has already happened in this repository.
 | Gate | What it refuses to let through |
 |---|---|
 | `check:catalog` | a dependency version drifting off the pinned catalog |
-| `check:scope` | the transitive closure drifting off the 64 warranted modules |
+| `check:scope` | the transitive closure drifting off the 65 warranted modules |
 | `check:license` | any PrimeTek package from a post-MIT release entering the tree — and, separately, any licence-flagged material sitting in `ref/` that `PROVENANCE.md` does not declare |
 | `check:names` | PrimeNG names surviving in selector, API or **trademark** positions — including inside bare strings, JSDoc links and DOM attributes |
 | `check:risk-coverage` | the browser gate's scope drifting off the risky decorators computed from source |
@@ -147,8 +147,8 @@ Evidence measured at `22.2.3`, reproducible from a clean checkout:
 
 ```
 17/17 gates          exit 0
-library build        exit 0 · 210 entrypoints
-inherited spec suite 3795 SUCCESS
+library build        exit 0 · 211 entrypoints
+inherited spec suite 3809 SUCCESS
 browser gate         70 tests · 14 behaviour + 56 visibility
 runtime deps         tslib + four first-party angulux-* packages. Zero PrimeTek.
 ```
@@ -159,9 +159,9 @@ The commitment is **a green build within 14 days of every Angular major RC**, ve
 nightly job that builds against `@angular/core@next` and reports publicly. angulux's major
 version is locked to Angular's major, so `angulux@22.x` targets Angular 22 and nothing else.
 
-### 3. 64 warranted modules instead of 117 unverified ones
+### 3. 65 warranted modules instead of 117 unverified ones
 
-Every shipped module is inside the closure that the gates cover. The other 53 live in
+Every shipped module is inside the closure that the gates cover. The other 52 live in
 [`packages/angulux/attic/`](packages/angulux/attic/) — verbatim upstream source, not built,
 not published, kept in the open as a roadmap. Promoting one is a well-defined contribution; see
 [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -169,7 +169,7 @@ not published, kept in the open as a roadmap. Promoting one is a well-defined co
 ## What angulux is NOT
 
 - **Not a drop-in replacement.** Selectors changed. A migration codemod is planned, not shipped.
-- **Not feature-parity with PrimeNG.** 64 of 117 modules. Missing, among others: Editor,
+- **Not feature-parity with PrimeNG.** 65 of 117 modules. Missing, among others: Editor,
   Tree, TreeSelect, OrganizationChart, PickList, OrderList, Listbox, Terminal, Dock.
   (TreeTable **is** shipped; Tree is not.)
 - **Not affiliated with PrimeTek or Google.** See [NOTICE](NOTICE).
@@ -226,7 +226,7 @@ npx playwright test --config e2e/playwright.config.ts   # browser gate
 ## Documentation
 
 <https://angulux.anguless.com> is the documentation site: a page per module with runnable
-demos, and an API reference for all 64 modules generated from `corpus/corpus.json` — the same
+demos, and an API reference for all 65 modules generated from `corpus/corpus.json` — the same
 corpus that produces the files in the next section, so the two cannot say different things
 about the same API.
 

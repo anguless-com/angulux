@@ -1,7 +1,7 @@
 # CodeQL static analysis.
 #
 # Scoped to the code that actually ships plus the tooling that decides what ships. The
-# attic is excluded in the config below: those 53 modules are verbatim upstream source that
+# attic is excluded in the config below: those 52 modules are verbatim upstream source that
 # is not built and not published, so a finding there is noise that would train us to skim
 # the results — and skimmed security results are worse than none.
 

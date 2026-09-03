@@ -11,7 +11,7 @@ body:
               - **`p-button` does not work** → selectors were renamed to `agl-*` / `agl*`
                 (`agl-button`, `[aglTooltip]`). CSS class names `p-*` were kept deliberately;
                 [NOTICE](https://github.com/anguless-com/angulux/blob/main/NOTICE) explains why.
-              - **A component is missing** → 53 modules sit unbuilt in `attic/`. Use the
+              - **A component is missing** → 52 modules sit unbuilt in `attic/`. Use the
                 *Module promotion* form instead.
               - **A security issue** → do not file it here. See
                 [SECURITY.md](https://github.com/anguless-com/angulux/blob/main/SECURITY.md).

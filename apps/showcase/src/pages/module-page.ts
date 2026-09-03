@@ -15,7 +15,7 @@ interface LoadedSection {
 
 /**
  * One page per module. The API half always renders — it comes from the corpus, which covers
- * all 64 modules. The demo half renders whatever has been written so far.
+ * all 65 modules. The demo half renders whatever has been written so far.
  *
  * Splitting it this way is what makes inheriting demos incremental instead of all-or-nothing:
  * the site is complete and correct on day one about what the API *is*, and grows a demo at a

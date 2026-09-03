@@ -45,7 +45,7 @@ pull request has gone quiet, the same. There is no queue you are jumping.
 | `licensing` | Touches provenance, the MIT boundary, or trademark. Always P0. |
 | `P0` | Being worked on now, ahead of everything else. |
 | `angular-compat` | The nightly build against a future Angular is failing. |
-| `attic-promotion` | Bringing one of the 53 unbuilt modules into the shipped set. |
+| `attic-promotion` | Bringing one of the 52 unbuilt modules into the shipped set. |
 | `good first issue` | Well-defined, no hidden context needed. |
 | `api-v23` | A breaking API proposal, parked until the Angular 23 window. |
 | `gates` | Touches `tools/` — the checks the project's guarantees rest on. |

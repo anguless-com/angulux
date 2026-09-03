@@ -34,7 +34,7 @@ costs everyone a week.
 ## Before you open an issue
 
 **"Component X is missing."** Very likely it is in
-[`packages/angulux/attic/`](packages/angulux/attic/) — 53 of PrimeNG's modules are carried
+[`packages/angulux/attic/`](packages/angulux/attic/) — 52 of PrimeNG's modules are carried
 verbatim there but not built or published. That is documented, not a bug. Open a **Module
 promotion** issue, or better, promote it yourself: [CONTRIBUTING.md](CONTRIBUTING.md)
 describes exactly what "done" means.

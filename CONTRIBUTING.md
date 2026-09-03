@@ -124,7 +124,7 @@ should take and what silence means.
 ## What to work on
 
 **Promoting a module out of the attic is the most useful contribution**, and the most
-well-defined. The 53 unported modules sit verbatim in
+well-defined. The 52 unported modules sit verbatim in
 [`packages/angulux/attic/`](packages/angulux/attic/) — MIT source, not built, not published.
 Every one of them has an issue labelled `attic-promotion`, sized, with the ones that are
 genuinely beginner-friendly labelled `good first issue`:
@@ -133,7 +133,7 @@ genuinely beginner-friendly labelled `good first issue`:
 node tools/community/seed-attic-issues.mjs      # see the list and the sizes locally
 ```
 
-[`docs/attic-promotion.md`](docs/attic-promotion.md) is the same 53 sorted by what a
+[`docs/attic-promotion.md`](docs/attic-promotion.md) is the same 52 sorted by what a
 promotion actually costs — what each one drags in, whether it arrives with an inherited
 spec suite, and the costs that are invisible until you are halfway through. Two of those
 are worth knowing before you pick: `editor` reaches its engine through a dynamic
@@ -141,7 +141,7 @@ are worth knowing before you pick: `editor` reaches its engine through a dynamic
 un-renamed `primeng/*` path — a string, so the rename codemod and the type checker both
 walk straight past it.
 
-Twelve of the 53 are small and self-contained. A few are marked as *not* beginner tasks with
+Eleven of the 52 are small and self-contained. A few are marked as *not* beginner tasks with
 the reason stated — `picklist` and `orderlist` need `listbox` first, `editor` wraps a
 third-party engine, and several leaned on `@angular/cdk`, which this project deliberately
 dropped as a peer. Promoting `listbox` unblocks two others, so it is worth more than its size
@@ -157,7 +157,16 @@ A promotion is complete when:
    `node tools/scope/gen-closure.mjs` and the diff is part of your pull request;
 4. the inherited specs for that module pass;
 5. if the module carries a risk-flagged decorator, the browser gate covers it — otherwise
-   `check:risk-coverage` fails, and it is right to.
+   `check:risk-coverage` fails, and it is right to;
+6. every counted claim moves with it. The shipped set goes up by one and the attic goes
+   down by one, which reaches further than it looks: the module-count assertions under
+   `packages/angulux-mcp/test/` and `tools/corpus/test/`, the `corpusSourceHash` stamp in
+   `packages/angulux-mcp/benchmark/questions.json`, `docs/attic-promotion.md` (regenerate
+   with `node tools/community/survey-attic.mjs`, never by hand), and the prose counts in
+   the README, the issue templates and elsewhere. `npm run test:tools` catches the
+   assertions and the stamp; the prose is on you. Two of those numbers are derived rather
+   than stated — "and 46 others" in the README, and the count of beginner-sized modules in
+   this file — so a search for the old number will not find them.
 
 Bug fixes and Angular-compatibility work are equally welcome. **New API design is currently
 out of scope**: the public API is frozen until the next Angular major. See

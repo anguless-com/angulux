@@ -17,14 +17,14 @@ const site = renderSite(corpus);
 test('the site is llms.txt, llms-full.txt and exactly one page per warranted module', () => {
     const pages = [...site.keys()].filter((p) => p.endsWith('.md'));
 
-    assert.equal(pages.length, 64);
+    assert.equal(pages.length, 65);
     assert.deepEqual(pages.map((p) => p.replace(/\.md$/, '')).sort(), [...closure].sort());
     assert.ok(site.has('llms.txt'));
     assert.ok(site.has('llms-full.txt'));
 });
 
 test('no page exists for an attic module', () => {
-    // The 53 out-of-scope modules are unsupported. A page for one would advertise a surface
+    // The 52 out-of-scope modules are unsupported. A page for one would advertise a surface
     // the project does not warrant, and an assistant cannot tell the difference.
     for (const path of site.keys()) {
         const name = path.replace(/\.md$/, '');
@@ -71,7 +71,7 @@ test('the landing page counts modules from the corpus rather than a typed-in num
     const index = renderIndexHtml({ ...corpus, modules: corpus.modules.slice(0, 3) });
 
     assert.ok(index.includes('3 supported modules'), 'the summary did not follow the corpus');
-    assert.ok(!index.includes('64 supported modules'));
+    assert.ok(!index.includes('65 supported modules'));
 });
 
 test('the landing page renders markdown backticks as code, not as grave accents', () => {
@@ -371,7 +371,7 @@ test('the migration page counts modules from the corpus, never by hand', () => {
 
     assert.match(before, new RegExp(`${corpus.modules.length} of PrimeNG's 117 modules`));
     assert.match(after, new RegExp(`${corpus.modules.length + 1} of PrimeNG's 117 modules`));
-    // 117 - 64 = 53 unported; one more shipped module means one fewer unported.
+    // 117 - 65 = 52 unported; one more shipped module means one fewer unported.
     // String.raw, because `\b` inside a plain template literal is a BACKSPACE character, not a
     // word boundary — the regex then cannot match anything and the test fails for a reason that
     // has nothing to do with the page. Caught exactly that way while writing this.
@@ -380,7 +380,7 @@ test('the migration page counts modules from the corpus, never by hand', () => {
 });
 
 test('the migration page never claims feature parity', () => {
-    // The project ships 64 of 117 modules. "Drop-in replacement" and friends are the exact
+    // The project ships 65 of 117 modules. "Drop-in replacement" and friends are the exact
     // phrases that would turn an honest page into a support burden, so they are banned outright
     // rather than left to whoever edits this next.
     const page = site.get('primeng-21-to-angular-22/index.html');

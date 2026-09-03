@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, ChangeDetectionStrategy, Component, inject, InjectionToken, NgModule, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { SharedModule } from 'primeng/api';
-import { BaseComponent, PARENT_INSTANCE } from 'primeng/basecomponent';
-import { Bind, BindModule } from 'primeng/bind';
-import { IftaLabelPassThrough } from 'primeng/types/iftalabel';
+import { SharedModule } from '@anguless/angulux/api';
+import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { Bind, BindModule } from '@anguless/angulux/bind';
+import { IftaLabelPassThrough } from '@anguless/angulux/types/iftalabel';
 import { IftaLabelStyle } from './style/iftalabelstyle';
 
 const IFTALABEL_INSTANCE = new InjectionToken<IftaLabel>('IFTALABEL_INSTANCE');
@@ -14,7 +14,7 @@ const IFTALABEL_INSTANCE = new InjectionToken<IftaLabel>('IFTALABEL_INSTANCE');
  * @group Components
  */
 @Component({
-    selector: 'p-iftalabel, p-iftaLabel, p-ifta-label',
+    selector: 'agl-iftalabel, agl-iftaLabel, agl-ifta-label',
     standalone: true,
     imports: [BindModule],
     template: ` <ng-content></ng-content> `,
