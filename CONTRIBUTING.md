@@ -104,7 +104,10 @@ git push -u origin fix/datepicker-same-day-reselect
 ```
 
 Then open the pull request. The template asks for two things people are often surprised by:
-the **provenance attestation** (checked by a CI job, not read hopefully) and **evidence** —
+the **provenance attestation** (checked by a CI job, not read hopefully — the job skips
+bots, which are covered by machine gates instead, and the named maintainers, whose
+attestation would be a statement made to themselves; it is mandatory for everyone else)
+and **evidence** —
 actual command output, not "tests pass".
 
 Two mechanical failures catch most first-timers, and both are quick to fix:

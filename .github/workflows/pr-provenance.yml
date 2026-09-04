@@ -59,7 +59,34 @@ jobs:
         # Recorded here rather than quietly deleted, because this list is the justification for
         # skipping the attestation, and a justification resting on a control nobody switched on
         # is the exact shape of failure every gate in tools/ exists to prevent.
-        if: github.event.pull_request.user.type != 'Bot'
+        # MAINTAINER EXEMPTION, added 2026-09-04. Read this before widening it.
+        #
+        # The bot skip above is justified by a list of MACHINE controls that cover the same
+        # risk. This one is not, and pretending otherwise would be the "justification resting
+        # on a control nobody switched on" that the paragraph above warns about. So here is
+        # the actual reason:
+        #
+        # An attestation is a statement made TO someone. From an outside contributor it is
+        # the only control there is, and it stays mandatory for them. From the sole
+        # maintainer it is a statement made to themselves by the same person who then merges
+        # it — and `enforce_admins` is false on `main`, so that person can already merge past
+        # this check with one click. A gate that the only person it applies to can wave
+        # through is not a control; it is a habit of clicking, and this repository has a
+        # written position on what that habit costs.
+        #
+        # WHAT THIS GIVES UP, stated rather than glossed: the third box is a prompt to review
+        # AI-assistant output, and the maintainer uses one. That prompt is now gone from their
+        # own pull requests. It is replaced by nothing mechanical — P1 has no machine that can
+        # read intent. The trade is accepted knowingly; if it stops feeling right, delete this
+        # block rather than adding exceptions to it.
+        #
+        # An explicit list, not `author_association`: this repository is org-owned, where that
+        # field returns MEMBER rather than OWNER, and exempting MEMBER would silently exempt
+        # every future org member. A name you can read is narrower than a role you have to
+        # look up. Adding someone here is a decision, and it should look like one.
+        if: >-
+            github.event.pull_request.user.type != 'Bot'
+            && !contains(fromJSON('["trungnghia112"]'), github.event.pull_request.user.login)
 
         steps:
             - name: Every attestation box is ticked
