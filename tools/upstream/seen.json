@@ -21,7 +21,7 @@
         "22.1.0 · Table · 9f85f9a516a5": {
             "verdict": "follow",
             "module": "table",
-            "note": "Undecided — no reproduction attempted. clear() recomputes totalRecords, but the \"after data change\" path runs through the _value setter and was not traced. Do not close this by reasoning."
+            "note": "REPRODUCES, and the mechanism is not the one first suspected. Measured in the browser 2026-09-04 (e2e/upstream-repro.spec.ts, held as test.fail): with rows=2, shrinking both the data and the declared totalRecords from 5 to 2 leaves the paginator rendering 3 pages. Cause is NOT clear(): onChanges() at table.ts:1200 copies the totalRecords input into _totalRecords only when simpleChange.totalRecords.firstChange is true, so every later change is dropped, and :1212 then overwrites the freshly-set input with the stale _totalRecords. clear() at :2209 repeats the same expression, so it inherits the staleness rather than causing it. Fix changes runtime behaviour: blocked by P3 in Phase 1. The earlier note asked that this not be closed by reasoning; it was closed by measurement."
         },
         "22.1.0 · InputTags · d7977814b7bc": {
             "verdict": "out-of-reach",
@@ -43,17 +43,17 @@
         "22.1.0 · Table · 0c9d548f166c": {
             "verdict": "follow",
             "module": "table",
-            "note": "Undecided — z-index/stacking, not judgeable from source. Needs the browser gate."
+            "note": "DOES NOT REPRODUCE. Measured in the browser 2026-09-04 (e2e/upstream-repro.spec.ts, ordinary passing test): with the body scrolled sideways, document.elementFromPoint over the frozen cell returns the frozen cell. The test asserts its own premise first — scrollLeft > 0, and a normal cell geometrically extending under the frozen column x-range — so a green result cannot come from nothing being underneath. The library contributes no z-index here; stacking comes from the theme CSS, which is why source could not answer it. Test kept as a regression guard."
         },
         "22.1.0 · Table · d9c2f7aacdad": {
             "verdict": "follow",
             "module": "table",
-            "note": "Mechanism identified, not yet reproduced. clearFilterValues() sets each constraint .value = null IN PLACE and leaves the constraint registered, so hasFilter() stays true and _filter() keeps running. Two consequences: the inputs may not refresh under OnPush (no new reference), and a notEquals constraint then blanks the table — see the api/notEquals entry, which is the same defect meeting a different matcher. Needs a browser test."
+            "note": "DOES NOT REPRODUCE. Measured in the browser 2026-09-04 (e2e/upstream-repro.spec.ts, ordinary passing test): filter to one row, call clear(), and both things the mechanism predicted would break are fine — all three rows return AND the column filter input is empty. The in-place filter.value = null at table.ts:2213-2223 is real and hasFilter() does stay true, but neither consequence reaches the user here. Note also that the notEquals half of the earlier reasoning is moot: that defect was fixed under the first P3 exemption (filterservice.ts, 2026-08-26). Test kept as a regression guard."
         },
         "22.1.0 · DatePicker · b3d68c790b2d": {
             "verdict": "follow",
             "module": "datepicker",
-            "note": "Strong match. The min-time clamp in datepicker.ts (~2716-2740) is a switch(true) with intentional fall-through that hard-codes returnTimeTriple[0] = 11 in two branches. Inherited verbatim from 21.1.9. Exact trigger not yet reproduced."
+            "note": "REPRODUCES. Measured in the browser 2026-09-04 (e2e/upstream-repro.spec.ts, held as test.fail): with minDate and the value both at 09:00 on the same day, one step down renders 11, not 09. The locus is the switch(true) at datepicker.ts:2733 whose body is a hard-coded returnTimeTriple[0] = 11 plus this.pm = true; :2727 hard-codes 11 the same way. Inherited verbatim from 21.1.9. Fix changes runtime behaviour: blocked by P3 in Phase 1. Earlier note said \"exact trigger not yet reproduced\" — it is now."
         },
         "22.1.0 · Select · fff76133ad6e": {
             "verdict": "follow",
