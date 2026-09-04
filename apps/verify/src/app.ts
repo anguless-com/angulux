@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuItem, TreeNode } from '@anguless/angulux/api';
 import { CardModule } from '@anguless/angulux/card';
+import { DatePickerModule } from '@anguless/angulux/datepicker';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
@@ -34,7 +35,7 @@ interface Product {
  */
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule],
+    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -228,6 +229,119 @@ interface Product {
             </agl-scroller>
             <div class="probe" id="probe-scroller">first={{ scrollFirst() }}</div>
         </section>
+
+        <!-- ── 9. UPSTREAM REPRO — datepicker min-time clamp ────────────────────
+             Not a change-detection scenario. This block exists to answer ONE question
+             raised by upstream's 22.1.0 changelog and triaged follow in
+             tools/upstream/seen.json: does the min-time clamp in constrainTime()
+             misbehave here the way it is reported to misbehave there?
+
+             The mechanism, read from OUR source (P1 forbids reading theirs):
+             datepicker.ts:2733 is a switch (true) branch reading
+               isMinDate && !minHoursExceeds12
+               && minDate.getHours() - 1 === convertedHour
+               && minDate.getHours() > convertedHour
+             and its body is returnTimeTriple[0] = 11, hard-coded, plus this.pm = true.
+
+             So with minDate at 09:00 on the selected day, decrementing the hour once
+             takes currentHour 9 -> 8, which satisfies (9 - 1 === 8) and (9 > 8), and the
+             clamp is supposed to hold the value at the MINIMUM — 09 — but the branch
+             assigns 11 instead. Inherited verbatim from 21.1.9. Inline mode is used so
+             the gate drives the picker without an overlay. -->
+        <section id="sec-up-datepicker">
+            <h2>upstream repro — datepicker min-time clamp</h2>
+            <agl-datepicker [(ngModel)]="upDate" [minDate]="upMinDate" [inline]="true" [showTime]="true" hourFormat="24" [stepHour]="1"></agl-datepicker>
+            <div class="probe" id="probe-up-datepicker">hour={{ upHourText() }}</div>
+        </section>
+
+        <!-- ── 10. UPSTREAM REPRO — table totalRecords after a data change ──────
+             Upstream 22.1.0, triaged follow in tools/upstream/seen.json (digest
+             9f85f9a516a5), whose note says: "Do not close this by reasoning."
+
+             The mechanism, read from OUR source: onChanges() at table.ts:1200 copies the
+             totalRecords input into the private _totalRecords ONLY when
+             simpleChange.totalRecords.firstChange is true. Every later change to that input
+             is therefore dropped. Line 1212 then runs on the value change and assigns
+             this.totalRecords = _totalRecords whenever _totalRecords is non-zero — which
+             OVERWRITES the value Angular had just written into the input.
+
+             So an app that declares a row count and then changes its data keeps the FIRST
+             count forever. With rows=2, five records paginate into three pages and two
+             records into one; the page buttons are the user-visible consequence. -->
+        <section id="sec-up-table-total">
+            <h2>upstream repro — table totalRecords after a data change</h2>
+            <button id="up-total-shrink" type="button" (click)="upShrink()">shrink to 2</button>
+            <agl-table [value]="upTotRows()" [totalRecords]="upTotCount()" [paginator]="true" [rows]="2">
+                <ng-template #body let-p>
+                    <tr [attr.data-tot-code]="p.code">
+                        <td>{{ p.code }}</td>
+                    </tr>
+                </ng-template>
+            </agl-table>
+            <div class="probe" id="probe-up-table-total">rows={{ upTotRows().length }} declared={{ upTotCount() }}</div>
+        </section>
+
+        <!-- ── 11. UPSTREAM REPRO — clear() and the column filter input ─────────
+             Upstream 22.1.0, digest d9c2f7aacdad.
+
+             The mechanism: clear() at table.ts:2199 delegates to clearFilterValues(), which
+             walks this.filters and assigns filter.value = null IN PLACE (table.ts:2213-2223).
+             The constraint object stays registered, so hasFilter() at :2168 — which only
+             asks whether this.filters has any key at all — keeps returning true.
+
+             Two consequences worth measuring, and they are different questions:
+               (a) do the rows come back, and
+               (b) does the text the user typed disappear from the input.
+             (b) is the one at risk: nothing hands the filter component a NEW reference. -->
+        <section id="sec-up-table-filter">
+            <h2>upstream repro — clear() and the column filter input</h2>
+            <button id="up-filter-clear" type="button" (click)="upFilterTable.clear()">clear()</button>
+            <agl-table #upFilterTable [value]="products" dataKey="code">
+                <ng-template #header>
+                    <tr>
+                        <th>
+                            Name
+                            <agl-columnFilter field="name" type="text" display="row" [showMenu]="false" />
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-p>
+                    <tr [attr.data-upfilter-code]="p.code">
+                        <td>{{ p.name }}</td>
+                    </tr>
+                </ng-template>
+            </agl-table>
+            <div class="probe" id="probe-up-table-filter">rows={{ upFilterTable.filteredValue?.length ?? products.length }} hasFilter={{ upFilterTable.hasFilter() }}</div>
+        </section>
+
+        <!-- ── 12. UPSTREAM REPRO — frozen column stacking ──────────────────────
+             Upstream 22.1.0, digest 0c9d548f166c. seen.json: "z-index/stacking, not
+             judgeable from source. Needs the browser gate."
+
+             It is not judgeable from source because the library contributes no z-index for
+             this: aglFrozenColumn only sets position/left through cx("frozenColumn"), and
+             the stacking order comes from the theme CSS. Geometry is the only evidence,
+             so the test scrolls sideways and asks the BROWSER which element is on top at a
+             point over the frozen column. -->
+        <section id="sec-up-table-frozen">
+            <h2>upstream repro — frozen column stacking</h2>
+            <agl-table [value]="products" [scrollable]="true" scrollHeight="140px" [tableStyle]="{ 'min-width': '640px' }" [style]="{ width: '260px' }">
+                <ng-template #header>
+                    <tr>
+                        <th aglFrozenColumn style="width: 120px">Code</th>
+                        <th style="width: 260px">Name</th>
+                        <th style="width: 260px">Category</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-p>
+                    <tr>
+                        <td aglFrozenColumn style="width: 120px" class="frozen-cell" [attr.data-frozen-code]="p.code">{{ p.code }}</td>
+                        <td style="width: 260px" class="scrolled-cell">{{ p.name }}</td>
+                        <td style="width: 260px" class="scrolled-cell">{{ p.category }}</td>
+                    </tr>
+                </ng-template>
+            </agl-table>
+        </section>
     `
 })
 export class AppComponent {
@@ -264,6 +378,30 @@ export class AppComponent {
         { key: 'n4', data: { key: 'n4', name: 'Bin D', note: 'note D' } }
     ];
 
+    /** Upstream repro — datepicker min-time clamp. Both dates are the SAME day at 09:00,
+     *  which is what makes isMinDate true inside constrainTime(). */
+    upMinDate = ((d = new Date()) => (d.setHours(9, 0, 0, 0), d))();
+    upDate = ((d = new Date()) => (d.setHours(9, 0, 0, 0), d))();
+
+    /** Reads the hour straight off the rendered picker, so the probe reports what a user sees. */
+    upHourText = signal('unread');
+
+    /** Upstream repro — totalRecords staleness. Five rows declared as five, then both
+     *  shrunk to two in one click, which is what an app does when it refetches. */
+    upTotRows = signal<Product[]>([
+        { code: 'T-1', name: 'One', category: 'C', quantity: 1 },
+        { code: 'T-2', name: 'Two', category: 'C', quantity: 2 },
+        { code: 'T-3', name: 'Three', category: 'C', quantity: 3 },
+        { code: 'T-4', name: 'Four', category: 'C', quantity: 4 },
+        { code: 'T-5', name: 'Five', category: 'C', quantity: 5 }
+    ]);
+    upTotCount = signal(5);
+
+    upShrink() {
+        this.upTotRows.set(this.upTotRows().slice(0, 2));
+        this.upTotCount.set(2);
+    }
+
     menuClicked = signal('none');
     tieredClicked = signal('none');
     dialogVisible = signal(false);
@@ -299,6 +437,13 @@ export class AppComponent {
         setInterval(() => {
             const n = this.tree.filter((t) => t.expanded).length;
             if (n !== this.expandedCount()) this.expandedCount.set(n);
+
+            // The hour is rendered as text by the library's own template; reading it back
+            // rather than reading component internals keeps the probe honest about what a
+            // user would see.
+            const el = document.querySelector('#sec-up-datepicker .p-datepicker-hour-picker span');
+            const t = el ? (el.textContent ?? '').trim() : 'unread';
+            if (t !== this.upHourText()) this.upHourText.set(t);
         }, 100);
     }
 }
