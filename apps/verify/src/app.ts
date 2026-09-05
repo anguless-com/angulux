@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuItem, TreeNode } from '@anguless/angulux/api';
+import { ButtonModule, ButtonProps } from '@anguless/angulux/button';
 import { CardModule } from '@anguless/angulux/card';
 import { DatePickerModule } from '@anguless/angulux/datepicker';
 import { DialogModule } from '@anguless/angulux/dialog';
@@ -8,7 +9,7 @@ import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
 import { ScrollerModule } from '@anguless/angulux/scroller';
 import { SelectModule } from '@anguless/angulux/select';
-import { TableModule } from '@anguless/angulux/table';
+import { TableFilterButtonPropsOptions, TableModule } from '@anguless/angulux/table';
 import { TieredMenuModule } from '@anguless/angulux/tieredmenu';
 import { TreeTableModule } from '@anguless/angulux/treetable';
 
@@ -33,9 +34,25 @@ interface Product {
  * exactly what breaks under a wrong change-detection strategy, and exactly what neither the
  * build nor the unit suite can see.
  */
+/**
+ * A shadow-root host, and nothing else.
+ *
+ * `ViewEncapsulation.ShadowDom` puts this component's view inside a real shadow root, so the
+ * button below is separated from `document.head` by a boundary that does not pass style rules
+ * through. That boundary is the entire apparatus: no CSS of its own, no inputs, nothing else
+ * that could account for a difference against the identical button in the light DOM.
+ */
+@Component({
+    selector: 'agl-verify-shadow',
+    imports: [ButtonModule],
+    encapsulation: ViewEncapsulation.ShadowDom,
+    template: `<agl-button class="shadow-probe" label="shadow DOM" severity="primary" />`
+})
+export class ShadowHost {}
+
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule],
+    imports: [FormsModule, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -342,6 +359,87 @@ interface Product {
                 </ng-template>
             </agl-table>
         </section>
+
+        <!-- ── 13. UPSTREAM REPRO — outlined carried by buttonProps ─────────────
+             Upstream 22.1.0, digest 3ae212c58d45: the column filter clear button ignores
+             the outlined property of filterButtonProps.
+
+             seen.json recorded this REPRODUCES with a claim WIDER than upstream made:
+             "button.ts never reads buttonProps?.outlined ... so outlined is ignored on
+             EVERY agl-button". It is the only one of the five entries closed by reading
+             source instead of by measuring, and reading the source again disagrees with
+             it: buttonstyle.ts:17 does read instance.buttonProps?.outlined into the
+             p-button-outlined class, and the theme selects on that class and nothing else
+             (angulux-styles/src/button/index.ts:314; the string data-p never appears in
+             that stylesheet). What omits buttonProps is button.ts:864, the dataP getter,
+             whose attribute no rule styles.
+
+             So the wide claim and the narrow one are separated and measured apart:
+               (a) props-only  buttonProps.outlined with no [outlined] binding. If this
+                               renders outlined, the WIDE claim is false.
+               (b) cannot-off  [outlined]="true" plus buttonProps.outlined false, the shape
+                               table.ts:5394 hard-codes. classes.root starts with
+                               instance.outlined || ..., so the override may be unreachable.
+               (c) plain       control. Without it, an absent class proves nothing, because
+                               a class that never appears anywhere is not evidence. -->
+        <section id="sec-up-button-outlined">
+            <h2>upstream repro — outlined carried by buttonProps</h2>
+            <agl-button id="up-btn-props-only" label="props only" [buttonProps]="upOutlinedOn" />
+            <agl-button id="up-btn-cannot-off" label="cannot turn off" [outlined]="true" [buttonProps]="upOutlinedOff" />
+            <agl-button id="up-btn-plain" label="plain" />
+        </section>
+
+        <!-- ── 14. UPSTREAM REPRO — the real clear button upstream named ────────
+             Section 13 models the markup; this one is the markup. agl-columnFilter in menu
+             display renders the popover whose clear button carries the hard-coded
+             [outlined]="true" at table.ts:5394 alongside
+             [buttonProps]="filterButtonProps?.popover?.clear" at :5398.
+
+             upClearProps below is the shipped default with one value changed: outlined
+             false. Everything else is left at the default so that whatever this measures
+             is about outlined and not about a half-built props object. -->
+        <section id="sec-up-table-clearbtn">
+            <h2>upstream repro — filterButtonProps.popover.clear.outlined</h2>
+            <agl-table [value]="products" dataKey="code">
+                <ng-template #header>
+                    <tr>
+                        <th>
+                            Name
+                            <agl-columnFilter field="name" type="text" display="menu" [filterButtonProps]="upClearProps" />
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-p>
+                    <tr [attr.data-clearbtn-code]="p.code">
+                        <td>{{ p.name }}</td>
+                    </tr>
+                </ng-template>
+            </agl-table>
+        </section>
+
+        <!-- ── 15. UPSTREAM REPRO — styles inside a shadow root ─────────────────
+             Upstream 22.1.0 Core: styles are not applied inside Shadow DOM. Triaged
+             cross-cutting in seen.json and never measured, because a framework-level
+             sentence names no module to point a test at.
+
+             It points at something real here. usestyle.ts:25 resolves the insertion point
+             as this.document.head and appends there; nothing in the tree calls
+             getRootNode(), and there is no option to nominate another container. A shadow
+             root does not inherit rules from document.head, so a component rendered inside
+             one would receive no theme.
+
+             Measured as a DIFFERENCE, not as an absolute. Asserting a specific colour would
+             pin the test to the theme; asserting only the shadow side would pass if the
+             theme were broken everywhere. The same agl-button is therefore rendered twice —
+             once in the light DOM, once inside ViewEncapsulation.ShadowDom — and the gate
+             compares the two computed backgrounds. background-color is chosen because it is
+             NOT an inherited property: custom properties cross the shadow boundary and would
+             mask the failure, but the rule that consumes them cannot. -->
+        <section id="sec-up-shadow">
+            <h2>upstream repro — styles inside a shadow root</h2>
+            <agl-button id="up-shadow-light" label="light DOM" severity="primary" />
+            <agl-verify-shadow id="up-shadow-host" />
+        </section>
     `
 })
 export class AppComponent {
@@ -401,6 +499,26 @@ export class AppComponent {
         this.upTotRows.set(this.upTotRows().slice(0, 2));
         this.upTotCount.set(2);
     }
+
+    /** Upstream repro — outlined carried by buttonProps. Bound to FIELDS rather than to
+     *  object literals in the template: a literal is a fresh reference on every check, which
+     *  would quietly turn the scenario into a test about identity churn. */
+    upOutlinedOn: ButtonProps = { outlined: true };
+    upOutlinedOff: ButtonProps = { outlined: false };
+
+    /** The shipped default of ColumnFilter.filterButtonProps (table.ts:5597) with exactly one
+     *  value changed — popover.clear.outlined — so what section 14 measures is that value and
+     *  not a half-built props object. Every key of the interface is required. */
+    upClearProps: TableFilterButtonPropsOptions = {
+        filter: { severity: 'secondary', text: true, rounded: true },
+        inline: { clear: { severity: 'secondary', text: true, rounded: true } },
+        popover: {
+            addRule: { severity: 'info', text: true, size: 'small' },
+            removeRule: { severity: 'danger', text: true, size: 'small' },
+            apply: { size: 'small' },
+            clear: { outlined: false, size: 'small' }
+        }
+    };
 
     menuClicked = signal('none');
     tieredClicked = signal('none');

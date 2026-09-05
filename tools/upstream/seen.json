@@ -16,7 +16,8 @@
         },
         "22.1.0 · Highlights · 78a27a89212b": {
             "verdict": "cross-cutting",
-            "module": null
+            "module": null,
+            "note": "Same subject as Core 52ea729050b3, stated as a highlight rather than as a defect. Measured there 2026-09-05: REPRODUCES."
         },
         "22.1.0 · Table · 9f85f9a516a5": {
             "verdict": "follow",
@@ -29,16 +30,18 @@
         },
         "22.1.0 · Core · 52ea729050b3": {
             "verdict": "cross-cutting",
-            "module": null
+            "module": null,
+            "note": "REPRODUCES here too — measured in the browser 2026-09-05 (e2e/upstream-repro.spec.ts). Cross-cutting stays the right verdict, but the entry had sat with no note, so nobody had asked the question. usestyle.ts:25 resolves the insertion point as this.document.head and appends there; nothing in the tree calls getRootNode() and there is no option to nominate another container. Two identical agl-buttons, one in the light DOM and one inside ViewEncapsulation.ShadowDom: background-color computes to rgb(16, 185, 129) and rgb(239, 239, 239) — the user-agent default for a button, meaning no library rule reached it. background-color was chosen because it is NOT an inherited property: design tokens are custom properties and DO cross a shadow boundary, so a token assertion would have reported success while the rule consuming the token never arrived. Called a LIMITATION rather than a defect — nothing here promises shadow-root support — but a consumer who puts angulux inside a web component gets an unstyled library and no diagnostic. Supporting it means giving useStyle a container to insert into, which is new API: Phase 2 under P3. Held as test.fail()."
         },
         "22.1.0 · Core · cdab24c28a4e": {
             "verdict": "cross-cutting",
-            "module": null
+            "module": null,
+            "note": "ALREADY FIXED here, before this register existed: 9007858 (2026-08-26) changed chipstyle.ts and toaststyle.ts from `x && 'value'` to a ternary, because && yields false and Angular 22 rejects false as a style value (NG0318, once per style per change detection). Recorded 2026-09-05 for completeness — the entry had been filed cross-cutting with no note, so nothing connected the sentence to the commit that answered it. Upstream names three components; the third, SpeedDial, is parked in attic/ and ships nowhere. Swept 2026-09-05: no other inlineStyles object in the shipped tree produces a boolean. The remaining && in style files are all class maps, where false is the correct value."
         },
         "22.1.0 · Table · 3ae212c58d45": {
             "verdict": "follow",
             "module": "table",
-            "note": "REPRODUCES, and wider than upstream states it. ButtonProps declares outlined? (types/button/button.types.ts:114) but button.ts never reads buttonProps?.outlined — every other prop uses the `x || buttonProps?.x` pattern. So outlined is ignored on EVERY agl-button, not just this one; the table additionally hard-codes [outlined]=\"true\" on the clear button. Fix changes runtime behaviour: blocked by P3 in Phase 1."
+            "note": "MEASURED IN THE BROWSER 2026-09-05 (e2e/upstream-repro.spec.ts). The earlier verdict had the direction right and the mechanism wrong, and it was the only one of the five entries closed without running anything. WHAT WAS WRONG: it claimed \"button.ts never reads buttonProps?.outlined, so outlined is ignored on EVERY agl-button\". Measured false — a plain agl-button given only buttonProps={outlined:true} renders p-button-outlined. buttonstyle.ts:17 does read instance.buttonProps?.outlined, and the theme has exactly one selector for this, .p-button-outlined (angulux-styles/src/button/index.ts:314); the getter that omits buttonProps is dataP at button.ts:864, and the string data-p never appears in that stylesheet. WHAT IS REAL is narrower, and is exactly what upstream reported: the value cannot be turned OFF. table.ts:5394 hard-codes [outlined]=\"true\" on the popover clear button and passes filterButtonProps?.popover?.clear beside it at :5398, and classes.root starts with instance.outlined || ..., so a false arriving through the props object has nothing left to decide. Measured on the real component: with popover.clear = { outlined: false, size: 'small' }, the button carrying data-pc-name=\"pcfilterclearbutton\" renders p-button p-button-outlined p-button-sm — p-button-sm coming out of the SAME object, which proves the object arrived and was read and rules out \"the input never got there\". Held as test.fail(). Fix changes runtime behaviour: blocked by P3 in Phase 1."
         },
         "22.1.0 · Table · 0c9d548f166c": {
             "verdict": "follow",
@@ -71,7 +74,7 @@
         "22.1.0 · FilterService · 2d7b393e4c46": {
             "verdict": "follow",
             "module": "api",
-            "note": "REPRODUCES. Proven at runtime against the BUILT package: FilterService.filter with an empty filter returns 0/3 rows for notEquals and 3/3 for equals/startsWith/contains/notContains (null, undefined and \"\" alike). filterservice.ts:101-103 returns false where every sibling returns true. isNot delegates to it and is fixed by the same line; dateIsNot carries its own guard and was NEVER affected — the first triage said otherwise and was wrong. Reachable from the UI: executeLocalFilter (table.ts:2142) has no blank guard, and columnFilter registers constraints with value: null. Fix changes runtime behaviour: blocked by P3 in Phase 1."
+            "note": "REPRODUCES, and FIXED. The note below said \"blocked by P3\" until 2026-09-05, and that had been untrue since 2026-08-26; correcting it is the only change. Proven at runtime against the BUILT package: FilterService.filter with an empty filter returned 0/3 rows for notEquals and 3/3 for equals/startsWith/contains/notContains (null, undefined and \"\" alike). filterservice.ts:101-103 returned false where every sibling returns true. isNot delegates to it and was fixed by the same line; dateIsNot carries its own guard and was NEVER affected — the first triage said otherwise and was wrong. Reachable from the UI: executeLocalFilter (table.ts:2142) has no blank guard, and columnFilter registers constraints with value: null. Fixed under the first P3 exemption in 9007858 (2026-08-26), which also added filterservice.spec.ts."
         },
         "22.1.0 · Chart · e4168e282a3c": {
             "verdict": "follow",
