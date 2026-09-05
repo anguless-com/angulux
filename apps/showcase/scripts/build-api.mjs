@@ -8,7 +8,7 @@
  * would be no way to tell which one was lying.
  *
  * One file per module rather than one big file because the corpus is ~780 KB: a reader who
- * opens `/button` should not download the API of 63 other modules to see it.
+ * opens `/button` should not download the API of every other module to see it.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

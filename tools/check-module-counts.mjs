@@ -3,8 +3,8 @@
  * check-module-counts — the guard against "65 of PrimeNG's 117 modules" written in forty places.
  *
  * WHY THIS EXISTS: this project's central claim is a number. It ships a warranted subset of
- * PrimeNG's modules and says so — in the README, in PROVENANCE, in SUPPORT and TRIAGE, in five
- * issue templates, in two workflow comments, in the MCP server's tool descriptions that go out
+ * PrimeNG's modules and says so — in the README, in GOVERNANCE, in PROVENANCE, in SUPPORT and
+ * TRIAGE, in five issue templates, in two workflow comments, in the MCP server's tool descriptions that go out
  * over the wire, and in the showcase source. The number is the offer. It is also, in every one
  * of those places, a bare string that nothing reads.
  *
@@ -111,6 +111,12 @@ const SITES = [
     // ── the documents a reader decides on ──
     ['CONTRIBUTING.md', site('The %N% unported modules'), 'attic'],
     ['CONTRIBUTING.md', site('is the same %N% sorted'), 'attic'],
+    // Added 2026-09-05, and it was already wrong: GOVERNANCE said 64 while the closure had
+    // been 65 since `9d8a613`. The gate stayed green for five days because a site nobody
+    // listed is a site nobody checks — which is the whole premise of this file, and this is
+    // the first time it failed on its own terms. The list is hand-written, so it can always
+    // miss a place; the remedy is to add the place, not to trust the list.
+    ['GOVERNANCE.md', site('angulux ships %N% warranted modules'), 'shipped'],
     ['PROVENANCE.md', site('the %N% modules in the transitive closure'), 'shipped'],
     ['PROVENANCE.md', site('\\| %N% modules outside the closure'), 'attic'],
     ['PROVENANCE.md', site('drifting from the agreed %N% modules'), 'shipped'],
