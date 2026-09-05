@@ -56,3 +56,16 @@ site/
 # app's own prebuild step — committing them would create a second copy that can go stale
 # without anything noticing, which is the exact failure the extraction exists to prevent.
 apps/showcase/public/
+
+# Agent-tool settings that belong to a machine, not to the project. `settings.local.json` is
+# an MCP-server enablement list plus a permission allowlist — Claude Code's own convention
+# marks it local with the filename. `.pi/` is a second agent's config whose entire content is
+# a path pointing at the skills directory below.
+#
+# `.claude/skills/` is NOT ignored, deliberately. The `angulux` skill is project knowledge —
+# the three renames, the template slots that fail silently, the Angular 22 conventions the
+# gates enforce — and it was written expecting to be tracked: it tells the reader that
+# `check:language` scans every file git tracks, "including this one". Ignoring it would leave
+# the one document that stops an assistant writing `<p-button>` sitting on a single laptop.
+.claude/settings.local.json
+.pi/
