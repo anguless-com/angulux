@@ -45,7 +45,25 @@ import { expect, test, type Page } from '@playwright/test';
  * the other side: reasoning had the direction right and the mechanism wrong, and it is the
  * mechanism that says where a fix would go.
  *
- * The ones that reproduce are held below with `test.fail()`. The ones that do not are kept
+ * FIXED 2026-09-05, two of the five, under Constitution P3.a (v1.3.0):
+ *
+ *   • DatePicker min-time clamp ......... two branches assigning a hard-coded 11 removed;
+ *                                         each was a strict subset of a general clamp
+ *   • Table totalRecords after a change . `onChanges` mirrors every change, not the first
+ *
+ * Both were held with `test.fail()` until then, and both had to be converted BECAUSE the
+ * fix made them fail as unexpected passes. That is the property the inversion was chosen
+ * for: the fix announces itself instead of relying on somebody remembering this file.
+ *
+ * Why these two and not the other three: P3.a admits a change as a defect fix only when it
+ * touches no API surface, contradicts what the component itself says it does, is SILENT,
+ * and ships with a browser test that was red before and green after. `buttonProps.outlined`
+ * fails the third condition — the user can see the property has no effect — and was already
+ * refused on that ground on 2026-08-26; the 2026-09-05 measurement narrowed its mechanism
+ * and left that refusal standing. Shadow-root support needs a new container option on
+ * `useStyle`, which is API. Both stay held below.
+ *
+ * The ones that still reproduce are held with `test.fail()`. The ones that do not are kept
  * as ordinary passing tests: they are now the thing that would notice a regression, and
  * deleting them would throw away the only evidence that the question was ever asked.
  *
@@ -109,18 +127,15 @@ test.beforeEach(async ({ page }) => {
  * value the user asked for, and in `hourFormat="24"` is not even reachable by that path.
  */
 test('upstream 22.1.0 · DatePicker — the min-time clamp must hold at the minimum', async ({ page }) => {
-    // CONFIRMED DEFECT, held as an expected failure.
+    // FIXED 2026-09-05 under Constitution P3.a (v1.3.0). Held with `test.fail()` from
+    // 2026-09-04 until then, and that is exactly how the fix announced itself: the moment
+    // `constrainTime` stopped returning 11, this test failed as an UNEXPECTED PASS and had to
+    // be converted deliberately. It is now an ordinary regression guard, and the premises it
+    // asserts below are no longer absorbed by an inverted verdict.
     //
-    // `test.fail()` inverts the verdict: this passes while the defect is present and turns
-    // RED the moment it is fixed. That is the behaviour wanted here. A plain failing test
-    // would make a mandatory gate permanently red and get muted; a deleted test would leave
-    // the finding as prose in a register nobody executes. This keeps the evidence runnable
-    // and makes the fix announce itself.
-    //
-    // Measured 2026-09-04: decrementing one step below a 09:00 minDate renders 11, not 09.
-    // Fixing it changes runtime behaviour, so it is gated by P3 in Phase 1.
-    test.fail();
-
+    // The fix removed two branches that assigned a hard-coded 11. Each condition was a strict
+    // subset of a general minimum clamp further down the same switch, and those clamps assign
+    // the minimum itself.
     const errors = watchErrors(page);
     const section = page.locator('#sec-up-datepicker');
 
@@ -161,18 +176,13 @@ test('upstream 22.1.0 · DatePicker — the min-time clamp must hold at the mini
  * the visible consequence.
  */
 test('upstream 22.1.0 · Table — a changed totalRecords must reach the paginator', async ({ page }) => {
-    // CONFIRMED DEFECT, held as an expected failure.
+    // FIXED 2026-09-05 under Constitution P3.a (v1.3.0). Held with `test.fail()` from
+    // 2026-09-04 until then; converting it was forced by the fix rather than remembered,
+    // which is the whole reason for holding it that way. Now an ordinary regression guard.
     //
-    // `test.fail()` inverts the verdict: this passes while the defect is present and turns
-    // RED the moment it is fixed. That is the behaviour wanted here. A plain failing test
-    // would make a mandatory gate permanently red and get muted; a deleted test would leave
-    // the finding as prose in a register nobody executes. This keeps the evidence runnable
-    // and makes the fix announce itself.
-    //
-    // Measured 2026-09-04: after shrinking 5 rows to 2, the paginator still renders 3 pages.
-    // Fixing it changes runtime behaviour, so it is gated by P3 in Phase 1.
-    test.fail();
-
+    // The fix was one clause: `onChanges` mirrored `totalRecords` into `_totalRecords` only
+    // when `firstChange` was true, so every later value was dropped and the stale mirror was
+    // written back over the input.
     const errors = watchErrors(page);
     const section = page.locator('#sec-up-table-total');
 
