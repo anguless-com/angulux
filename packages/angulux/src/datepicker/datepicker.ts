@@ -2723,22 +2723,35 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
         switch (
             true // intentional fall through
         ) {
-            case isMinDate && minHoursExceeds12 && this.minDate!.getHours() === 12 && this.minDate!.getHours() > convertedHour:
-                returnTimeTriple[0] = 11;
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() > minute:
-                returnTimeTriple[1] = this.minDate!.getMinutes();
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() === minute && this.minDate!.getSeconds() > second:
-                returnTimeTriple[2] = this.minDate!.getSeconds();
-                break;
-            case isMinDate && !minHoursExceeds12 && this.minDate!.getHours() - 1 === convertedHour && this.minDate!.getHours() > convertedHour:
-                returnTimeTriple[0] = 11;
-                this.pm = true;
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() > minute:
-                returnTimeTriple[1] = this.minDate!.getMinutes();
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() === minute && this.minDate!.getSeconds() > second:
-                returnTimeTriple[2] = this.minDate!.getSeconds();
-                break;
-
+            // TWO BRANCHES REMOVED HERE, both of which assigned a hard-coded 11.
+            //
+            // They read:
+            //
+            //     case isMinDate && minHoursExceeds12 && minDate.getHours() === 12
+            //          && minDate.getHours() > convertedHour:
+            //         returnTimeTriple[0] = 11;
+            //     case isMinDate && !minHoursExceeds12 && minDate.getHours() - 1 === convertedHour
+            //          && minDate.getHours() > convertedHour:
+            //         returnTimeTriple[0] = 11;
+            //         this.pm = true;
+            //
+            // 11 is neither the minimum nor the hour the user asked for. With minDate and the
+            // value both at 09:00 and one step down, the second branch matched (9 - 1 === 8 and
+            // 9 > 8) and the picker rendered 11 — then updateTime() wrote 11:00 into the bound
+            // model. The application asked for a minimum of 09:00 and received a later time it
+            // never chose, with nothing reported. Measured in e2e/upstream-repro.spec.ts.
+            //
+            // Deleting them is safe because each condition is a STRICT SUBSET of a general
+            // clamp further down, and those clamps already do the right thing:
+            //   • the first is subsumed by the minHoursExceeds12 branch below, which converts
+            //     properly through setCurrentHourPM() instead of guessing;
+            //   • the second is subsumed by the plain "minDate.getHours() > convertedHour"
+            //     branch, which assigns the minimum itself.
+            // The minute and second lines they fell through into are repeated verbatim in both
+            // of those groups, so minute and second clamping is unchanged.
+            //
+            // this.pm = true was wrong on its own terms as well: that branch only ran when the
+            // minimum was BEFORE noon.
             case isMinDate && minHoursExceeds12 && this.minDate!.getHours() > convertedHour && convertedHour !== 12:
                 this.setCurrentHourPM(this.minDate!.getHours());
                 returnTimeTriple[0] = this.currentHour || 0;

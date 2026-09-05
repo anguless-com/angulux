@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -1574,6 +1574,55 @@ describe('Table', () => {
 
         it('is on by default, so an application gets the safe behaviour without asking', () => {
             expect(component.exportEscapeFormulas).toBeTrue();
+        });
+    });
+
+    // ── totalRecords must track its input, not only the first value it ever saw ────────
+    //
+    // `onChanges` copied `totalRecords` into `_totalRecords` only when `firstChange` was true,
+    // and the value branch then wrote that stale copy back OVER the input. Because the binding
+    // expression had not changed on the following pass, Angular never corrected it — so an
+    // application that refetched and declared a new count kept the FIRST count forever, with no
+    // error and no warning, while the paginator went on sizing itself against a number that no
+    // longer described the data. Fixed 2026-09-05.
+    describe('totalRecords tracks every change of its input', () => {
+        const change = (current: any, previous: any, firstChange: boolean) => new SimpleChange(previous, current, firstChange);
+
+        it('mirrors the first value', () => {
+            component.totalRecords = 5;
+            component.onChanges({ totalRecords: change(5, undefined, true) });
+            expect(component._totalRecords).toBe(5);
+        });
+
+        it('mirrors a LATER value — the clause that used to be dropped', () => {
+            component.totalRecords = 5;
+            component.onChanges({ totalRecords: change(5, undefined, true) });
+
+            component.totalRecords = 2;
+            component.onChanges({ totalRecords: change(2, 5, false) });
+
+            expect(component._totalRecords).toBe(2);
+        });
+
+        it('does not write a stale count back over the input when the data changes with it', () => {
+            const five = [1, 2, 3, 4, 5].map((id) => ({ id }));
+            const two = five.slice(0, 2);
+
+            component.totalRecords = 5;
+            component.onChanges({ totalRecords: change(5, undefined, true), value: change(five, undefined, true) });
+            expect(component.totalRecords).toBe(5);
+
+            // What every application does when it refetches: both inputs move in one pass.
+            component.totalRecords = 2;
+            component.onChanges({ totalRecords: change(2, 5, false), value: change(two, five, false) });
+
+            expect(component.totalRecords).toBe(2);
+        });
+
+        it('still falls back to the data length when no count is declared', () => {
+            const three = [1, 2, 3].map((id) => ({ id }));
+            component.onChanges({ value: change(three, undefined, true) });
+            expect(component.totalRecords).toBe(3);
         });
     });
 });

@@ -1801,4 +1801,63 @@ describe('DatePicker', () => {
             expect(ptFixture.componentInstance).toBeTruthy();
         });
     });
+
+    // ── Minimum-time clamp ────────────────────────────────────────────────────────────
+    //
+    // `constrainTime` used to carry two branches that assigned a hard-coded 11 — an hour that
+    // is neither the minimum nor the one the caller asked for. With `minDate` and the value
+    // both at 09:00, stepping one hour down matched the second of them (9 - 1 === 8 and 9 > 8)
+    // and the picker rendered 11; `updateTime()` then wrote 11:00 into the bound model. The
+    // application declared a minimum of 09:00 and received a LATER time it never chose, with
+    // nothing reported. Removed 2026-09-05; each condition was a strict subset of a general
+    // clamp further down the same switch.
+    //
+    // These assert the CONTRACT — never below the minimum, never past what was asked — rather
+    // than the absence of the literal 11. A test that forbids one wrong number passes happily
+    // for every other wrong number.
+    describe('Minimum-time clamp (constrainTime)', () => {
+        const at = (h: number, m = 0, s = 0) => {
+            const d = new Date(2026, 0, 15);
+            d.setHours(h, m, s, 0);
+            return d;
+        };
+
+        async function pickerWithMinimum(min: Date, value: Date) {
+            testComponent.showTime = true;
+            testComponent.inline = true;
+            testComponent.hourFormat = '24';
+            testComponent.minDate = min;
+            testComponent.selectedDate = value;
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+            return testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+        }
+
+        it('holds at the minimum when the hour steps one below it', async () => {
+            const picker = await pickerWithMinimum(at(9), at(9));
+            expect(picker.constrainTime(8, 0, 0, false)).toEqual([9, 0, 0]);
+        });
+
+        it('holds at the minimum from further below, not only one step', async () => {
+            const picker = await pickerWithMinimum(at(9), at(9));
+            expect(picker.constrainTime(3, 0, 0, false)).toEqual([9, 0, 0]);
+        });
+
+        it('does not flip to PM when the minimum is before noon', async () => {
+            const picker = await pickerWithMinimum(at(9), at(9));
+            picker.pm = false;
+            picker.constrainTime(8, 0, 0, false);
+            expect(picker.pm).toBe(false);
+        });
+
+        it('leaves an hour at or above the minimum alone', async () => {
+            const picker = await pickerWithMinimum(at(9), at(9));
+            expect(picker.constrainTime(14, 30, 0, false)).toEqual([14, 30, 0]);
+        });
+
+        it('still clamps minutes and seconds on the minimum hour', async () => {
+            const picker = await pickerWithMinimum(at(9, 30, 15), at(9, 30, 15));
+            expect(picker.constrainTime(9, 10, 0, false)).toEqual([9, 30, 15]);
+        });
+    });
 });

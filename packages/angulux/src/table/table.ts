@@ -1197,7 +1197,21 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     }
 
     onChanges(simpleChange: SimpleChanges) {
-        if (simpleChange.totalRecords && simpleChange.totalRecords.firstChange) {
+        // Mirror EVERY change, not just the first.
+        //
+        // `totalRecords` is a plain @Input copied into `_totalRecords`, and the copy used to
+        // happen only when `firstChange` was true — so every later value an application
+        // supplied was dropped on the floor. Line 1212 below then wrote the stale copy back
+        // OVER the input Angular had just set, and because the binding expression itself had
+        // not changed on the next pass, Angular never corrected it. An application that
+        // refetched and declared a new count kept the FIRST count forever: no error, no
+        // warning, and a paginator sizing itself against a number that no longer described
+        // the data underneath it.
+        //
+        // Measured in the browser (e2e/upstream-repro.spec.ts): shrinking five rows to two
+        // and declaring two left the paginator rendering three pages. The four readers of
+        // `_totalRecords` (:1212, :2064, :2132, :2209) all already assume it tracks the input.
+        if (simpleChange.totalRecords) {
             this._totalRecords = simpleChange.totalRecords.currentValue;
         }
 
