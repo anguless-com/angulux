@@ -88,7 +88,7 @@ is visible to you at the same moment it is visible to the maintainer — which i
 
 ## Scope: what will not be accepted
 
-- **Feature parity with current PrimeNG as a goal.** angulux ships 64 warranted modules.
+- **Feature parity with current PrimeNG as a goal.** angulux ships 65 warranted modules.
   Full parity is [Optimus UI](https://github.com/openng-org/optimus-ui)'s aim, not this
   project's, and duplicating it would be worse for everyone than pointing at it.
 - **Any code derived from a post-MIT PrimeNG release.** See the provenance clause in
