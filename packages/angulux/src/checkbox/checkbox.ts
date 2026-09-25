@@ -59,6 +59,7 @@ export const CHECKBOX_VALUE_ACCESSOR: any = {
             [attr.required]="required() ? '' : undefined"
             [attr.readonly]="readonly ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
+            [attr.aria-invalid]="$invalid() || undefined"
             [attr.aria-labelledby]="ariaLabelledBy"
             [attr.aria-label]="ariaLabel"
             [style]="inputStyle"
@@ -309,7 +310,7 @@ export class Checkbox extends BaseEditableHolder<CheckboxPassThrough> {
 
     get dataP() {
         return this.cn({
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             checked: this.checked,
             disabled: this.$disabled(),
             filled: this.$variant() === 'filled',

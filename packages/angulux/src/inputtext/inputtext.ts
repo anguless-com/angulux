@@ -9,6 +9,11 @@ import { InputTextStyle } from './style/inputtextstyle';
 
 const INPUTTEXT_INSTANCE = new InjectionToken<InputText>('INPUTTEXT_INSTANCE');
 
+/** `booleanAttribute` that keeps "not set" as `undefined` — see `BaseEditableHolder` for why. */
+function interactionState(value: unknown): boolean | undefined {
+    return value === null || value === undefined ? undefined : booleanAttribute(value);
+}
+
 /**
  * InputText directive is an extension to standard input element with theming.
  * @group Components
@@ -18,7 +23,8 @@ const INPUTTEXT_INSTANCE = new InjectionToken<InputText>('INPUTTEXT_INSTANCE');
     standalone: true,
     host: {
         '[class]': "cx('root')",
-        '[attr.data-p]': 'dataP'
+        '[attr.data-p]': 'dataP',
+        '[attr.aria-invalid]': '$invalid() || undefined'
     },
     providers: [InputTextStyle, { provide: INPUTTEXT_INSTANCE, useExisting: InputText }, { provide: PARENT_INSTANCE, useExisting: InputText }],
     hostDirectives: [Bind]
@@ -79,8 +85,35 @@ export class InputText extends BaseModelHolder<InputTextPassThrough> {
      * @group Props
      */
     invalid = input(undefined, { transform: booleanAttribute });
+    /**
+     * Whether the user has visited the field. Once this or `dirty` is set, the invalid state
+     * style waits for interaction: it appears when the field is touched or dirty. Signal Forms'
+     * `[formField]` sets both, so an untouched required field is not shown as invalid. Leave both
+     * unset and `invalid` alone decides.
+     * @defaultValue undefined
+     * @group Props
+     */
+    touched = input<boolean | undefined, unknown>(undefined, { transform: interactionState });
+    /**
+     * Whether the user has changed the value. See `touched`.
+     * @defaultValue undefined
+     * @group Props
+     */
+    dirty = input<boolean | undefined, unknown>(undefined, { transform: interactionState });
 
     $variant = computed(() => this.variant() || this.config.inputStyle() || this.config.inputVariant());
+
+    /** Whether the invalid state is shown — the same rule as `BaseEditableHolder.$invalid`. */
+    $invalid = computed(() => {
+        if (!this.invalid()) {
+            return false;
+        }
+
+        const touched = this.touched();
+        const dirty = this.dirty();
+
+        return (touched === undefined && dirty === undefined) || !!touched || !!dirty;
+    });
 
     _componentStyle = inject(InputTextStyle);
 
@@ -120,7 +153,7 @@ export class InputText extends BaseModelHolder<InputTextPassThrough> {
 
     get dataP() {
         return this.cn({
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             fluid: this.hasFluid,
             filled: this.$variant() === 'filled',
             [this.aglSize as string]: this.aglSize

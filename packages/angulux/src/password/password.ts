@@ -60,7 +60,8 @@ type Meter = {
     selector: '[aglPassword]',
     standalone: true,
     host: {
-        '[class]': "cx('rootDirective')"
+        '[class]': "cx('rootDirective')",
+        '[attr.aria-invalid]': '$invalid() || undefined'
     },
     providers: [PasswordStyle, { provide: PASSWORD_DIRECTIVE_INSTANCE, useExisting: PasswordDirective }, { provide: PARENT_INSTANCE, useExisting: PasswordDirective }],
     hostDirectives: [Bind]
@@ -453,7 +454,7 @@ export const Password_VALUE_ACCESSOR: any = {
             [attr.minlength]="minlength()"
             [attr.required]="required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
-            [invalid]="invalid()"
+            [invalid]="$invalid()"
             (input)="onInput($event)"
             (focus)="onInputFocus($event)"
             (blur)="onInputBlur($event)"

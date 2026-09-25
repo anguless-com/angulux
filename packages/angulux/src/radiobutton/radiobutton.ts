@@ -89,6 +89,7 @@ export class RadioControlRegistry {
             [attr.name]="name()"
             [attr.required]="required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
+            [attr.aria-invalid]="$invalid() || undefined"
             [checked]="checked"
             [attr.value]="modelValue()"
             [attr.aria-labelledby]="ariaLabelledBy"
@@ -272,7 +273,7 @@ export class RadioButton extends BaseEditableHolder<RadioButtonPassThrough> {
 
     get dataP() {
         return this.cn({
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             checked: this.checked,
             disabled: this.$disabled(),
             filled: this.$variant() === 'filled',

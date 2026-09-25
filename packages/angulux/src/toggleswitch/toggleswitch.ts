@@ -52,6 +52,7 @@ export const TOGGLESWITCH_VALUE_ACCESSOR: any = {
             [checked]="checked()"
             [attr.required]="required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
+            [attr.aria-invalid]="$invalid() || undefined"
             [attr.aria-checked]="checked()"
             [attr.aria-labelledby]="ariaLabelledBy"
             [attr.aria-label]="ariaLabel"
@@ -212,7 +213,7 @@ export class ToggleSwitch extends BaseEditableHolder<ToggleSwitchPassThrough> {
         return this.cn({
             checked: this.checked(),
             disabled: this.$disabled(),
-            invalid: this.invalid()
+            invalid: this.$invalid()
         });
     }
 }

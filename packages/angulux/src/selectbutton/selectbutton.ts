@@ -73,6 +73,7 @@ export const SELECTBUTTON_VALUE_ACCESSOR: any = {
         '[class]': "cx('root')",
         '[attr.role]': '"group"',
         '[attr.aria-labelledby]': 'ariaLabelledBy',
+        '[attr.aria-invalid]': '$invalid() || undefined',
         '[attr.data-p]': 'dataP'
     },
     hostDirectives: [Bind]
@@ -324,7 +325,7 @@ export class SelectButton extends BaseEditableHolder<SelectButtonPassThrough> im
 
     get dataP() {
         return this.cn({
-            invalid: this.invalid()
+            invalid: this.$invalid()
         });
     }
 }
