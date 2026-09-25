@@ -72,7 +72,7 @@ ${datatable_style}
         box-shadow dt('datatable.transition.duration');
 }
 
-.p-datatable-thead > tr > th p-columnfilter {
+.p-datatable-thead > tr > th agl-columnfilter {
     font-weight: normal;
 }
 
@@ -100,7 +100,7 @@ ${datatable_style}
     color: dt('datatable.row.selected.color');
 }
 
-p-sortIcon, p-sort-icon, p-sorticon {
+agl-sortIcon, agl-sort-icon, agl-sorticon {
     display: inline-flex;
     align-items: center;
     gap: dt('datatable.header.cell.gap');
@@ -110,7 +110,7 @@ p-sortIcon, p-sort-icon, p-sorticon {
     padding: 0;
 }
 
-.p-datatable .p-editable-column.p-cell-editing p-celleditor {
+.p-datatable .p-editable-column.p-cell-editing agl-celleditor {
     display: block;
     width: 100%;
 }

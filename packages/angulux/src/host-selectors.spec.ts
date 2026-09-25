@@ -1,14 +1,17 @@
 import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import type { TreeNode } from '@anguless/angulux/api';
 import { Checkbox } from '@anguless/angulux/checkbox';
 import { provideAngulux } from '@anguless/angulux/config';
 import { InputNumber } from '@anguless/angulux/inputnumber';
 import { MultiSelect } from '@anguless/angulux/multiselect';
 import { Password } from '@anguless/angulux/password';
 import { RadioButton } from '@anguless/angulux/radiobutton';
+import { TableModule } from '@anguless/angulux/table';
 import { ToggleSwitch } from '@anguless/angulux/toggleswitch';
+import { TreeTableModule } from '@anguless/angulux/treetable';
 
 /**
  * Stylesheet rules that select a component by its HOST ELEMENT NAME.
@@ -30,7 +33,10 @@ const TOKENS: Record<string, string> = {
     '--p-inputtext-invalid-placeholder-color': 'rgb(7, 8, 9)',
     '--p-multiselect-invalid-placeholder-color': 'rgb(10, 11, 12)',
     '--p-radiobutton-invalid-border-color': 'rgb(13, 14, 15)',
-    '--p-toggleswitch-invalid-border-color': 'rgb(16, 17, 18)'
+    '--p-toggleswitch-invalid-border-color': 'rgb(16, 17, 18)',
+    '--p-datatable-header-cell-gap': '7px',
+    '--p-datatable-column-title-font-weight': '700',
+    '--p-treetable-header-cell-gap': '9px'
 };
 
 @Component({
@@ -58,6 +64,60 @@ class ReactiveFallbackHost {
         city: new FormControl<string | null>(null, Validators.required),
         on: new FormControl(false, Validators.requiredTrue)
     });
+}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [TableModule, FormsModule],
+    template: `
+        <agl-table [value]="products" editMode="cell">
+            <ng-template #header>
+                <tr>
+                    <th aglSortableColumn="name">Name <agl-sortIcon field="name" /></th>
+                    <th>Price <agl-columnFilter type="numeric" field="price" display="menu" /></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-product let-rowIndex="rowIndex">
+                <tr>
+                    <td [aglEditableColumn]="product" aglEditableColumnField="name" [aglEditableColumnRowIndex]="rowIndex">
+                        <agl-cellEditor>
+                            <ng-template #input><input type="text" [(ngModel)]="product.name" /></ng-template>
+                            <ng-template #output>{{ product.name }}</ng-template>
+                        </agl-cellEditor>
+                    </td>
+                    <td>{{ product.price }}</td>
+                </tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class TableLayoutHost {
+    products = [
+        { id: '1', name: 'Laptop', price: 1299 },
+        { id: '2', name: 'Mouse', price: 29 }
+    ];
+}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes" selectionMode="checkbox">
+            <ng-template #header>
+                <tr>
+                    <th ttSortableColumn="name">Name <agl-treetable-sort-icon field="name" /></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode">
+                    <td><agl-treeTableToggler [rowNode]="rowNode" /><agl-treeTableCheckbox [value]="rowNode" /><span class="name">{{ rowData.name }}</span></td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class TreeTableLayoutHost {
+    nodes: TreeNode[] = [{ key: '0', data: { name: 'Documents' }, children: [{ key: '0-0', data: { name: 'Work' } }] }];
 }
 
 /**
@@ -145,6 +205,66 @@ describe('Rules that select an agl-* host', () => {
                 if (selector.startsWith('#multiselect')) return;
                 expect(painted[i]).withContext(selector).not.toBe(tokenColours()[i]);
             });
+        });
+    });
+
+    describe('table and tree table layout', () => {
+        const render = async <T>(host: new (...args: never[]) => T) => {
+            const fixture = TestBed.createComponent(host);
+            fixture.detectChanges();
+            await fixture.whenStable();
+            return fixture;
+        };
+
+        const style = (fixture: ComponentFixture<unknown>, selector: string) => {
+            const element = (fixture.nativeElement as HTMLElement).querySelector(selector);
+
+            if (!element) throw new Error(`the fixture rendered no ${selector}`);
+
+            return getComputedStyle(element);
+        };
+
+        it('lays a table sort icon out as a flex row with the header gap', async () => {
+            const fixture = await render(TableLayoutHost);
+            const sortIcon = style(fixture, 'agl-sortIcon');
+
+            expect([sortIcon.display, sortIcon.alignItems, sortIcon.columnGap]).toEqual(['inline-flex', 'center', '7px']);
+        });
+
+        it('keeps a column filter at normal weight inside a bold header cell', async () => {
+            const fixture = await render(TableLayoutHost);
+
+            // The header cell is bold through the token, so the filter only reads 400 if the rule holds.
+            expect(style(fixture, 'th:nth-child(2)').fontWeight).toBe('700');
+            expect(style(fixture, 'agl-columnFilter').fontWeight).toBe('400');
+        });
+
+        it('stretches the cell editor across a cell that is being edited', async () => {
+            const fixture = await render(TableLayoutHost);
+            const cell = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('td[data-p-editable-column="true"]')!;
+
+            expect(style(fixture, 'agl-cellEditor').display).toBe('inline');
+
+            cell.click();
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            expect(cell.classList).toContain('p-cell-editing');
+            expect(style(fixture, 'agl-cellEditor').display).toBe('block');
+        });
+
+        it('lays a tree table sort icon out as a flex row with the header gap', async () => {
+            const fixture = await render(TreeTableLayoutHost);
+            const sortIcon = style(fixture, 'agl-treetable-sort-icon');
+
+            expect([sortIcon.display, sortIcon.alignItems, sortIcon.columnGap]).toEqual(['inline-flex', 'center', '9px']);
+        });
+
+        it('centres a tree table row checkbox, and the label after it, beside the toggler', async () => {
+            const fixture = await render(TreeTableLayoutHost);
+
+            expect(style(fixture, 'agl-treeTableCheckbox agl-checkbox').verticalAlign).toBe('middle');
+            expect(style(fixture, 'agl-treeTableCheckbox + span').verticalAlign).toBe('middle');
         });
     });
 });
