@@ -24,7 +24,7 @@ const classes = {
             'p-textarea-fluid': instance.hasFluid,
             'p-inputfield-sm p-textarea-sm': instance.aglSize === 'small',
             'p-textarea-lg p-inputfield-lg': instance.aglSize === 'large',
-            'p-invalid': instance.invalid()
+            'p-invalid': instance.$invalid()
         }
     ]
 };

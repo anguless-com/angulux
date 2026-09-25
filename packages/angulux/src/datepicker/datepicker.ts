@@ -107,7 +107,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                 [aglAutoFocus]="autofocus"
                 [variant]="$variant()"
                 [fluid]="hasFluid"
-                [invalid]="invalid()"
+                [invalid]="$invalid()"
                 [pt]="ptm('pcInputText')"
                 [unstyled]="unstyled()"
             />

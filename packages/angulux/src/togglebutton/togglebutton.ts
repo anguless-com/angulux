@@ -47,6 +47,7 @@ export const TOGGLEBUTTON_VALUE_ACCESSOR: any = {
         '[attr.aria-labelledby]': 'ariaLabelledBy',
         '[attr.aria-label]': 'ariaLabel',
         '[attr.aria-pressed]': 'checked ? "true" : "false"',
+        '[attr.aria-invalid]': '$invalid() || undefined',
         '[attr.role]': '"button"',
         '[attr.tabindex]': 'tabindex !== undefined ? tabindex : (!$disabled() ? 0 : -1)',
         '[attr.data-pc-name]': "'togglebutton'",
@@ -244,7 +245,7 @@ export class ToggleButton extends BaseEditableHolder<ToggleButtonPassThrough> {
     get dataP() {
         return this.cn({
             checked: this.active,
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             [this.size as string]: this.size
         });
     }

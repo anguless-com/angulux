@@ -42,6 +42,7 @@ const COLORPICKER_INSTANCE = new InjectionToken<ColorPicker>('COLORPICKER_INSTAN
             readonly
             [attr.tabindex]="tabindex"
             [attr.disabled]="$disabled() ? '' : undefined"
+            [attr.aria-invalid]="$invalid() || undefined"
             (click)="onInputClick()"
             (keydown)="onInputKeydown($event)"
             (focus)="onInputFocus()"

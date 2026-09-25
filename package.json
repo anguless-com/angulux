@@ -26,6 +26,7 @@
         "check:public-tree": "node tools/check-public-tree.mjs",
         "check:publishable": "node tools/check-publishable.mjs",
         "check:dts": "node tools/check-dts.mjs",
+        "check:signal-forms": "node tools/check-signal-forms.mjs",
         "check:scope-names": "node tools/codemod/scan-anguless-scope.mjs",
         "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names && npm run check:tsup && npm run check:action-inputs && npm run check:release-plugins && npm run check:facet-single-route && npm run check:corpus && npm run check:demo-code && npm run check:peer-licence && npm run check:install-scripts && npm run check:module-counts && npm run check:gate-count",
         "build:lib": "pnpm --filter @anguless/angulux run build",

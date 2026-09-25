@@ -22,7 +22,7 @@ const classes = {
             'p-filled': instance.$filled(),
             'p-inputtext-sm': instance.aglSize === 'small',
             'p-inputtext-lg': instance.aglSize === 'large',
-            'p-invalid': instance.invalid(),
+            'p-invalid': instance.$invalid(),
             'p-variant-filled': instance.$variant() === 'filled',
             'p-inputtext-fluid': instance.hasFluid
         }

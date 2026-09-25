@@ -199,6 +199,7 @@ export class SelectItem extends BaseComponent {
             (blur)="onInputBlur($event)"
             (keydown)="onKeyDown($event)"
             [attr.aria-required]="required()"
+            [attr.aria-invalid]="$invalid() || undefined"
             [attr.required]="required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
             [attr.data-p]="labelDataP"
@@ -225,6 +226,7 @@ export class SelectItem extends BaseComponent {
             [attr.aria-activedescendant]="focused ? focusedOptionId : undefined"
             (focus)="onInputFocus($event)"
             (blur)="onInputBlur($event)"
+            [attr.aria-invalid]="$invalid() || undefined"
             [attr.name]="name()"
             [attr.minlength]="minlength()"
             [attr.min]="min()"
@@ -1864,7 +1866,7 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
 
     get containerDataP() {
         return this.cn({
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             disabled: this.$disabled(),
             focus: this.focused,
             fluid: this.hasFluid,

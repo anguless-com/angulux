@@ -161,6 +161,11 @@ jobs:
             - name: The shipped declarations are safe to publish
               run: npm run check:dts
 
+            # And the consumer's templates: [formField] binds a field's state into our inputs by
+            # name, so a declaration too narrow for it breaks their build after we publish.
+            - name: Every form control compiles under Signal Forms' [formField]
+              run: npm run check:signal-forms
+
             - name: Which trains have changes
               id: paths
               run: |

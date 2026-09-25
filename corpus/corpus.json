@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "185091941aaaa5d587f51afbd42e6b93836dde23893434a8a7abff726710b326",
+        "sourceHash": "8a28962acf71edd7ff9f27f07001d4b9355251626f40beda12d232589c2cc564",
         "closureCount": 65
     },
     "modules": [
@@ -522,6 +522,28 @@
                             "signal": true
                         },
                         {
+                            "name": "touched",
+                            "field": "touched",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has visited the control. Once this or `dirty` is set, the invalid state\nstyle waits for interaction: it appears when the control is touched or dirty. Signal Forms'\n`[formField]` sets both, so an untouched required field is not shown as invalid. Leave both\nunset and `invalid` alone decides.",
+                            "group": "Props",
+                            "default": "undefined",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
+                            "name": "dirty",
+                            "field": "dirty",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has changed the value. See `touched`.",
+                            "group": "Props",
+                            "default": "undefined",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
                             "name": "disabled",
                             "field": "disabled",
                             "type": "",
@@ -610,7 +632,7 @@
                             "name": "pattern",
                             "field": "pattern",
                             "type": "string | null | undefined",
-                            "description": "Specifies the value must match the pattern.",
+                            "description": "Specifies the value must match the pattern. A list of regular expressions — what Signal\nForms binds through `[formField]` — is ignored, because the form validates those itself.",
                             "group": "Props",
                             "default": "undefined",
                             "defaultDeclared": true,
@@ -621,7 +643,7 @@
                             "name": "min",
                             "field": "min",
                             "type": "number | null | undefined",
-                            "description": "The value must be greater than or equal to the value.",
+                            "description": "The value must be greater than or equal to the value. A numeric string is read as a number;\nanything else that is not a finite number, such as the `Date` limit of a date field, is ignored.",
                             "group": "Props",
                             "default": "undefined",
                             "defaultDeclared": true,
@@ -632,7 +654,7 @@
                             "name": "max",
                             "field": "max",
                             "type": "number | null | undefined",
-                            "description": "The value must be less than or equal to the value.",
+                            "description": "The value must be less than or equal to the value. A numeric string is read as a number;\nanything else that is not a finite number, such as the `Date` limit of a date field, is ignored.",
                             "group": "Props",
                             "default": "undefined",
                             "defaultDeclared": true,
@@ -6517,6 +6539,28 @@
                             "description": "When present, it specifies that the component should have invalid state style.",
                             "group": "Props",
                             "default": "false",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
+                            "name": "touched",
+                            "field": "touched",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has visited the field. Once this or `dirty` is set, the invalid state\nstyle waits for interaction: it appears when the field is touched or dirty. Signal Forms'\n`[formField]` sets both, so an untouched required field is not shown as invalid. Leave both\nunset and `invalid` alone decides.",
+                            "group": "Props",
+                            "default": "undefined",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
+                            "name": "dirty",
+                            "field": "dirty",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has changed the value. See `touched`.",
+                            "group": "Props",
+                            "default": "undefined",
                             "defaultDeclared": true,
                             "deprecated": null,
                             "signal": true
@@ -15459,6 +15503,28 @@
                             "description": "When present, it specifies that the component should have invalid state style.",
                             "group": "Props",
                             "default": "false",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
+                            "name": "touched",
+                            "field": "touched",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has visited the field. Once this or `dirty` is set, the invalid state\nstyle waits for interaction: it appears when the field is touched or dirty. Signal Forms'\n`[formField]` sets both, so an untouched required field is not shown as invalid. Leave both\nunset and `invalid` alone decides.",
+                            "group": "Props",
+                            "default": "undefined",
+                            "defaultDeclared": true,
+                            "deprecated": null,
+                            "signal": true
+                        },
+                        {
+                            "name": "dirty",
+                            "field": "dirty",
+                            "type": "boolean | undefined",
+                            "description": "Whether the user has changed the value. See `touched`.",
+                            "group": "Props",
+                            "default": "undefined",
                             "defaultDeclared": true,
                             "deprecated": null,
                             "signal": true

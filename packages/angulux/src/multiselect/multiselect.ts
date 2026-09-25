@@ -210,6 +210,7 @@ export class MultiSelectItem extends BaseComponent {
                 [attr.value]="modelValue()"
                 [attr.name]="name()"
                 [attr.required]="required() ? '' : undefined"
+                [attr.aria-invalid]="$invalid() || undefined"
                 [attr.disabled]="$disabled() ? '' : undefined"
                 [aglBind]="ptm('hiddenInput')"
             />
@@ -2115,7 +2116,7 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
 
     get containerDataP() {
         return this.cn({
-            invalid: this.invalid(),
+            invalid: this.$invalid(),
             disabled: this.$disabled(),
             focus: this.focused,
             fluid: this.hasFluid,

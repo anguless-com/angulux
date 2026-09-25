@@ -10,6 +10,11 @@ import { TextareaStyle } from './style/textareastyle';
 
 const TEXTAREA_INSTANCE = new InjectionToken<Textarea>('TEXTAREA_INSTANCE');
 
+/** `booleanAttribute` that keeps "not set" as `undefined` — see `BaseEditableHolder` for why. */
+function interactionState(value: unknown): boolean | undefined {
+    return value === null || value === undefined ? undefined : booleanAttribute(value);
+}
+
 /**
  * Textarea adds styling and autoResize functionality to standard textarea element.
  * @group Components
@@ -18,7 +23,8 @@ const TEXTAREA_INSTANCE = new InjectionToken<Textarea>('TEXTAREA_INSTANCE');
     selector: '[aglTextarea], [aglInputTextarea]',
     standalone: true,
     host: {
-        '[class]': "cx('root')"
+        '[class]': "cx('root')",
+        '[attr.aria-invalid]': '$invalid() || undefined'
     },
     providers: [TextareaStyle, { provide: TEXTAREA_INSTANCE, useExisting: Textarea }, { provide: PARENT_INSTANCE, useExisting: Textarea }],
     hostDirectives: [Bind]
@@ -71,8 +77,35 @@ export class Textarea extends BaseModelHolder<TextareaPassThrough> {
      * @group Props
      */
     invalid = input(undefined, { transform: booleanAttribute });
+    /**
+     * Whether the user has visited the field. Once this or `dirty` is set, the invalid state
+     * style waits for interaction: it appears when the field is touched or dirty. Signal Forms'
+     * `[formField]` sets both, so an untouched required field is not shown as invalid. Leave both
+     * unset and `invalid` alone decides.
+     * @defaultValue undefined
+     * @group Props
+     */
+    touched = input<boolean | undefined, unknown>(undefined, { transform: interactionState });
+    /**
+     * Whether the user has changed the value. See `touched`.
+     * @defaultValue undefined
+     * @group Props
+     */
+    dirty = input<boolean | undefined, unknown>(undefined, { transform: interactionState });
 
     $variant = computed(() => this.variant() || this.config.inputStyle() || this.config.inputVariant());
+
+    /** Whether the invalid state is shown — the same rule as `BaseEditableHolder.$invalid`. */
+    $invalid = computed(() => {
+        if (!this.invalid()) {
+            return false;
+        }
+
+        const touched = this.touched();
+        const dirty = this.dirty();
+
+        return (touched === undefined && dirty === undefined) || !!touched || !!dirty;
+    });
     /**
      * Callback to invoke on textarea resize.
      * @param {(Event | {})} event - Custom resize event.
@@ -105,11 +138,12 @@ export class Textarea extends BaseModelHolder<TextareaPassThrough> {
     }
 
     onInit() {
-        if (this.ngControl) {
-            this.ngControlSubscription = (this.ngControl as any).valueChanges.subscribe(() => {
-                this.updateState();
-            });
-        }
+        // Signal Forms' `[formField]` provides an NgControl with no `valueChanges` stream. Nothing
+        // is lost without it: a value the form writes lands in the same change-detection pass that
+        // ends in `onAfterViewChecked`, which resizes from the element itself.
+        this.ngControlSubscription = this.ngControl?.valueChanges?.subscribe(() => {
+            this.updateState();
+        });
     }
 
     onAfterViewInit() {
