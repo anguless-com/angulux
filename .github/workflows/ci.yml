@@ -146,6 +146,14 @@ jobs:
             - name: The shipped declarations survive skipLibCheck false
               run: npm run check:dts
 
+            # Signal Forms' [formField] binds a field's state into inputs BY NAME — `min` typed as
+            # the field's value, `pattern` as readonly RegExp[] — so an input declared narrower is
+            # a type error in every consumer template, and invisible here: the library builds with
+            # strictTemplates off and the specs compile just in time. This compiles [formField] on
+            # every form control against the built package, the way a consumer's app does.
+            - name: Every form control compiles under Signal Forms' [formField]
+              run: npm run check:signal-forms
+
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
 
