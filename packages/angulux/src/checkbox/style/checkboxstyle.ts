@@ -6,9 +6,9 @@ const style = /*css*/ `
     ${checkbox_style}
 
     /* For AnguluxConfig */
-    p-checkBox.ng-invalid.ng-dirty .p-checkbox-box,
-    p-check-box.ng-invalid.ng-dirty .p-checkbox-box,
-    p-checkbox.ng-invalid.ng-dirty .p-checkbox-box {
+    agl-checkBox.ng-invalid.ng-dirty .p-checkbox-box,
+    agl-check-box.ng-invalid.ng-dirty .p-checkbox-box,
+    agl-checkbox.ng-invalid.ng-dirty .p-checkbox-box {
         border-color: dt('checkbox.invalid.border.color');
     }
 `;

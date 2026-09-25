@@ -10,15 +10,15 @@ ${password_style}
     min-width: 100%;
 }
 
-p-password.ng-invalid.ng-dirty .p-inputtext {
+agl-password.ng-invalid.ng-dirty .p-inputtext {
     border-color: dt('inputtext.invalid.border.color');
 }
 
-p-password.ng-invalid.ng-dirty .p-inputtext:enabled:focus {
+agl-password.ng-invalid.ng-dirty .p-inputtext:enabled:focus {
     border-color: dt('inputtext.focus.border.color');
 }
 
-p-password.ng-invalid.ng-dirty .p-inputtext::placeholder {
+agl-password.ng-invalid.ng-dirty .p-inputtext::placeholder {
     color: dt('inputtext.invalid.placeholder.color');
 }
 
