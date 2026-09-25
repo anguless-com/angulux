@@ -9,9 +9,9 @@ const style = /*css*/ `
    .p-multiselect.ng-invalid.ng-dirty {
         border-color: dt('multiselect.invalid.border.color');
     }
-    p-multiSelect.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder,
-    p-multi-select.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder,
-    p-multiselect.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder {
+    agl-multiSelect.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder,
+    agl-multi-select.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder,
+    agl-multiselect.ng-invalid.ng-dirty .p-multiselect-label.p-placeholder {
         color: dt('multiselect.invalid.placeholder.color');
     }
 `;

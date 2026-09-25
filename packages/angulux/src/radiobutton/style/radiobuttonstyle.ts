@@ -6,9 +6,9 @@ const style = /*css*/ `
     ${radiobutton_style}
 
     /* For AnguluxConfig */
-    p-radioButton.ng-invalid.ng-dirty .p-radiobutton-box,
-    p-radio-button.ng-invalid.ng-dirty .p-radiobutton-box,
-    p-radiobutton.ng-invalid.ng-dirty .p-radiobutton-box {
+    agl-radioButton.ng-invalid.ng-dirty .p-radiobutton-box,
+    agl-radio-button.ng-invalid.ng-dirty .p-radiobutton-box,
+    agl-radiobutton.ng-invalid.ng-dirty .p-radiobutton-box {
         border-color: dt('radiobutton.invalid.border.color');
     }
 `;
