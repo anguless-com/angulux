@@ -80,7 +80,9 @@ export class InputText extends BaseModelHolder<InputTextPassThrough> {
      */
     fluid = input(undefined, { transform: booleanAttribute });
     /**
-     * When present, it specifies that the component should have invalid state style.
+     * When present, it specifies that the component should have invalid state style. Left
+     * unbound, an element bound through `formControlName`, `[formControl]` or `ngModel` shows the
+     * state of that control once it is touched or dirty.
      * @defaultValue false
      * @group Props
      */
@@ -104,21 +106,13 @@ export class InputText extends BaseModelHolder<InputTextPassThrough> {
     $variant = computed(() => this.variant() || this.config.inputStyle() || this.config.inputVariant());
 
     /** Whether the invalid state is shown — the same rule as `BaseEditableHolder.$invalid`. */
-    $invalid = computed(() => {
-        if (!this.invalid()) {
-            return false;
-        }
-
-        const touched = this.touched();
-        const dirty = this.dirty();
-
-        return (touched === undefined && dirty === undefined) || !!touched || !!dirty;
-    });
+    $invalid = computed(() => this.showsInvalid(this.invalid(), this.touched(), this.dirty()));
 
     _componentStyle = inject(InputTextStyle);
 
     constructor() {
         super();
+        this.reflectNgControlRequired();
         effect(() => {
             const pt = this.ptInputText() || this.pInputTextPT();
             pt && this.directivePT.set(pt);

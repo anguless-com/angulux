@@ -209,7 +209,7 @@ export class MultiSelectItem extends BaseComponent {
                 [aglAutoFocus]="autofocus"
                 [attr.value]="modelValue()"
                 [attr.name]="name()"
-                [attr.required]="required() ? '' : undefined"
+                [attr.required]="$required() ? '' : undefined"
                 [attr.aria-invalid]="$invalid() || undefined"
                 [attr.disabled]="$disabled() ? '' : undefined"
                 [aglBind]="ptm('hiddenInput')"

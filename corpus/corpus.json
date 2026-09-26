@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "fe586c7aa6882a902344cd7476b1d517640fd846bf3f69421034cebf4978996d",
+        "sourceHash": "2bc27b0514e018d55033b50603c873def6831c82d3f11cbabced9fe2d570d5d2",
         "closureCount": 65
     },
     "modules": [
@@ -503,7 +503,7 @@
                             "name": "required",
                             "field": "required",
                             "type": "",
-                            "description": "There must be a value (if set).",
+                            "description": "There must be a value (if set). Left unbound, a control bound through `formControlName`,\n`[formControl]` or `ngModel` is required when that control carries `Validators.required`\nor `Validators.requiredTrue`.",
                             "group": "Props",
                             "default": "false",
                             "defaultDeclared": true,
@@ -514,7 +514,7 @@
                             "name": "invalid",
                             "field": "invalid",
                             "type": "",
-                            "description": "When present, it specifies that the component should have invalid state style.",
+                            "description": "When present, it specifies that the component should have invalid state style. Left\nunbound, a control bound through `formControlName`, `[formControl]` or `ngModel` shows the\nstate of that control once it is touched or dirty.",
                             "group": "Props",
                             "default": "false",
                             "defaultDeclared": true,
@@ -6536,7 +6536,7 @@
                             "name": "invalid",
                             "field": "invalid",
                             "type": "",
-                            "description": "When present, it specifies that the component should have invalid state style.",
+                            "description": "When present, it specifies that the component should have invalid state style. Left\nunbound, an element bound through `formControlName`, `[formControl]` or `ngModel` shows the\nstate of that control once it is touched or dirty.",
                             "group": "Props",
                             "default": "false",
                             "defaultDeclared": true,
@@ -15500,7 +15500,7 @@
                             "name": "invalid",
                             "field": "invalid",
                             "type": "",
-                            "description": "When present, it specifies that the component should have invalid state style.",
+                            "description": "When present, it specifies that the component should have invalid state style. Left\nunbound, an element bound through `formControlName`, `[formControl]` or `ngModel` shows the\nstate of that control once it is touched or dirty.",
                             "group": "Props",
                             "default": "false",
                             "defaultDeclared": true,

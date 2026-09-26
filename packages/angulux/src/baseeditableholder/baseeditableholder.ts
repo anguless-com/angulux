@@ -17,13 +17,17 @@ function interactionState(value: unknown): boolean | undefined {
 @Directive({ standalone: true })
 export class BaseEditableHolder<PT = any> extends BaseModelHolder<PT> implements ControlValueAccessor {
     /**
-     * There must be a value (if set).
+     * There must be a value (if set). Left unbound, a control bound through `formControlName`,
+     * `[formControl]` or `ngModel` is required when that control carries `Validators.required`
+     * or `Validators.requiredTrue`.
      * @defaultValue false
      * @group Props
      */
     required = input(undefined, { transform: booleanAttribute });
     /**
-     * When present, it specifies that the component should have invalid state style.
+     * When present, it specifies that the component should have invalid state style. Left
+     * unbound, a control bound through `formControlName`, `[formControl]` or `ngModel` shows the
+     * state of that control once it is touched or dirty.
      * @defaultValue false
      * @group Props
      */
@@ -62,18 +66,18 @@ export class BaseEditableHolder<PT = any> extends BaseModelHolder<PT> implements
 
     /**
      * Whether the invalid state is shown: `invalid`, held back until the control is touched or
-     * dirty when the form layer reports either. The style and `aria-invalid` both read this.
+     * dirty when the form layer reports either; with `invalid` unbound, the bound forms control
+     * decides (see `showsInvalid`). The style and `aria-invalid` both read this.
      */
-    $invalid = computed(() => {
-        if (!this.invalid()) {
-            return false;
-        }
+    $invalid = computed(() => this.showsInvalid(this.invalid(), this.touched(), this.dirty()));
 
-        const touched = this.touched();
-        const dirty = this.dirty();
-
-        return (touched === undefined && dirty === undefined) || !!touched || !!dirty;
-    });
+    /**
+     * Whether the control is announced as required: `required` when bound, else `true` when the
+     * bound forms control requires a value, else `undefined` — so an element that says nothing
+     * about it still renders no `aria-required`. The `required` and `aria-required` attributes
+     * read this.
+     */
+    $required = computed(() => this.required() ?? (this.$ngControlState()?.required ? true : undefined));
 
     onModelChange: Function = () => {};
 

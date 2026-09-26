@@ -87,7 +87,7 @@ export class RadioControlRegistry {
             type="radio"
             [class]="cx('input')"
             [attr.name]="name()"
-            [attr.required]="required() ? '' : undefined"
+            [attr.required]="$required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
             [attr.aria-invalid]="$invalid() || undefined"
             [checked]="checked"
