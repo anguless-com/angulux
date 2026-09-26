@@ -168,6 +168,7 @@ export class PasswordDirective extends BaseEditableHolder {
 
     constructor(public zone: NgZone) {
         super();
+        this.reflectNgControlRequired();
 
         effect(() => {
             const pt = this.pPasswordPT();
@@ -452,7 +453,7 @@ export const Password_VALUE_ACCESSOR: any = {
             [attr.name]="name()"
             [attr.maxlength]="maxlength() || maxLength"
             [attr.minlength]="minlength()"
-            [attr.required]="required() ? '' : undefined"
+            [attr.required]="$required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
             [invalid]="$invalid()"
             (input)="onInput($event)"

@@ -1,12 +1,14 @@
 import { Component, signal, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem, TreeNode } from '@anguless/angulux/api';
 import { ButtonModule, ButtonProps } from '@anguless/angulux/button';
 import { CardModule } from '@anguless/angulux/card';
 import { DatePickerModule } from '@anguless/angulux/datepicker';
 import { DialogModule } from '@anguless/angulux/dialog';
+import { InputTextModule } from '@anguless/angulux/inputtext';
 import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
+import { PasswordModule } from '@anguless/angulux/password';
 import { ScrollerModule } from '@anguless/angulux/scroller';
 import { SelectModule } from '@anguless/angulux/select';
 import { TableFilterButtonPropsOptions, TableModule } from '@anguless/angulux/table';
@@ -52,7 +54,7 @@ export class ShadowHost {}
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule],
+    imports: [FormsModule, ReactiveFormsModule, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule, InputTextModule, PasswordModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -440,6 +442,23 @@ export class ShadowHost {}
             <agl-button id="up-shadow-light" label="light DOM" severity="primary" />
             <agl-verify-shadow id="up-shadow-host" />
         </section>
+
+        <!-- ── 16. forms — Reactive Forms state reaches assistive technology ────
+             Three required controls bound through formControlName, with NOTHING bound to
+             [invalid] or [required]. The library reads both off the forms control: each is
+             announced as required from the first render, and shows invalid — the style and
+             aria-invalid together — once the user leaves it empty, which is when an error message
+             gated on touched appears. A value clears it. Before, a CSS fallback painted such a
+             control red after an edit and nothing told a screen reader, so this is asserted on the
+             attributes a screen reader reads, after real keyboard interaction. -->
+        <section id="sec-forms">
+            <h2>forms — Reactive Forms state</h2>
+            <form [formGroup]="reactive">
+                <agl-select id="rf-city" formControlName="city" [options]="cities" optionLabel="name" placeholder="City" />
+                <input id="rf-name" aglInputText formControlName="name" placeholder="Name" />
+                <agl-password id="rf-secret" inputId="rf-secret-input" formControlName="secret" [feedback]="false" />
+            </form>
+        </section>
     `
 })
 export class AppComponent {
@@ -545,6 +564,12 @@ export class AppComponent {
     ];
     selectedCity: { name: string; code: string } | null = null;
     selectedCities: { name: string; code: string }[] = [];
+
+    reactive = new FormGroup({
+        city: new FormControl<{ name: string; code: string } | null>(null, Validators.required),
+        name: new FormControl('', Validators.required),
+        secret: new FormControl('', Validators.required)
+    });
 
     /** Count expanded nodes — read straight from the data, so it reflects the treetable's real state. */
     expandedCount = signal(0);
