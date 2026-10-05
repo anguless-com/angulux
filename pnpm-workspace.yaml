@@ -23,14 +23,14 @@ catalog:
     # Syntax highlighting, run at BUILD time by the showcase's generate step. It never
     # reaches a browser: the demo payloads ship as colour tokens, so no grammar, no theme and
     # no highlighter is in the bundle. Also a devDependency of the private app only.
-    'shiki': 4.4.3
+    'shiki': 4.5.0
     'chart.js': 4.5.1
     # Used only by the private, unpublished angulux-mcp package. Pinned here rather than as a
     # literal in that package's manifest so check-catalog can see it: a version nothing gates
     # is a version that drifts.
-    '@modelcontextprotocol/sdk': 1.30.0
+    '@modelcontextprotocol/sdk': 1.31.0
     # Benchmark harness only (devDependency of angulux-mcp, which is private and unpublished).
-    '@anthropic-ai/sdk': 0.124.0
+    '@anthropic-ai/sdk': 0.131.0
 
 # ---------------------------------------------------------------------------
 # angular22 catalog — two groups, two opposite rules:
@@ -72,7 +72,7 @@ catalogs:
         # platform-server's.
         '@angular/ssr': 22.1.5
         # Only the showcase's prerender entry needs it, to read the generated payloads off disk.
-        '@types/node': 26.4.1
+        '@types/node': 26.6.4
         'ng-packagr': 22.1.1
         'typescript': 6.0.3
         'rxjs': 7.8.2
