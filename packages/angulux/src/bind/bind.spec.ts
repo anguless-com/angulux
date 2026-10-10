@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { By, DomSanitizer } from '@angular/platform-browser';
 import { Bind } from './bind';
 
 @Component({
@@ -147,6 +147,16 @@ class TestBindDynamicComponent {
 })
 class TestSetAttrsComponent {}
 
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    selector: 'test-bind-link',
+    template: `<a [aglBind]="attrs">link</a>`
+})
+class TestBindLinkComponent {
+    attrs: any = {};
+}
+
 describe('Bind', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -161,7 +171,8 @@ describe('Bind', () => {
                 TestBindListenersComponent,
                 TestBindMixedComponent,
                 TestBindDynamicComponent,
-                TestSetAttrsComponent
+                TestSetAttrsComponent,
+                TestBindLinkComponent
             ],
             providers: [provideZonelessChangeDetection()]
         });
@@ -570,6 +581,54 @@ describe('Bind', () => {
             const hasActive = classes.includes('active');
             const hasInactive = classes.includes('inactive');
             expect(hasActive !== hasInactive).toBe(true);
+        });
+    });
+
+    describe('Sanitization', () => {
+        async function bindTo(attrs: any, link = false): Promise<HTMLElement> {
+            const fixture = TestBed.createComponent<{ attrs: any }>(link ? TestBindLinkComponent : TestBasicBindComponent);
+            fixture.componentInstance.attrs = attrs;
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+            return fixture.debugElement.query(By.directive(Bind)).nativeElement;
+        }
+
+        it('should sanitize markup written through innerHTML, as a template binding would', async () => {
+            const element = await bindTo({ innerHTML: '<img src="data:," onerror="window.__bindSpec = 1"><b>kept</b>' });
+
+            expect(element.querySelector('img')?.hasAttribute('onerror')).toBe(false);
+            expect(element.querySelector('b')?.textContent).toBe('kept');
+        });
+
+        it('should rewrite a javascript: URL in href', async () => {
+            const element = await bindTo({ href: 'javascript:window.__bindSpec = 1' }, true);
+
+            expect(element.getAttribute('href')).toMatch(/^unsafe:/);
+        });
+
+        it('should leave an ordinary URL in href unchanged', async () => {
+            const element = await bindTo({ href: 'https://example.com/a?b=c' }, true);
+
+            expect(element.getAttribute('href')).toBe('https://example.com/a?b=c');
+        });
+
+        it('should write markup unsanitized when it is marked trusted', async () => {
+            const trusted = TestBed.inject(DomSanitizer).bypassSecurityTrustHtml('<b onclick="void 0">raw</b>');
+            const element = await bindTo({ innerHTML: trusted });
+
+            expect(element.querySelector('b')?.getAttribute('onclick')).toBe('void 0');
+        });
+
+        it('should ignore an on* key whose value is not a function', async () => {
+            const element = await bindTo({ onclick: 'window.__bindSpec = 1' });
+
+            expect(element.hasAttribute('onclick')).toBe(false);
+        });
+
+        it('should apply a key outside the markup and URL sets as given', async () => {
+            const element = await bindTo({ 'data-url': 'javascript:void 0' });
+
+            expect(element.getAttribute('data-url')).toBe('javascript:void 0');
         });
     });
 });

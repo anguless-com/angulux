@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "2bc27b0514e018d55033b50603c873def6831c82d3f11cbabced9fe2d570d5d2",
+        "sourceHash": "1c4f6dbc94319c098d2cbcbe70d178f57a0f8cefccca6f3e9d48b4587d47b06d",
         "closureCount": 65
     },
     "modules": [
@@ -462,7 +462,7 @@
                             "name": "pt",
                             "field": "pt",
                             "type": "PT | undefined",
-                            "description": "Used to pass attributes to DOM elements inside the component.\n\nTRUSTED INPUT ONLY. Whatever you put here is applied to the DOM as given: keys become\nattributes, and a key that names a DOM property is assigned to that property directly,\nwith no sanitizer in between. That is what makes the API useful, and it means a value\nreaching it from a user, a database or a CMS can execute script. Treat it like markup\nyou wrote yourself, not like data you received.",
+                            "description": "Used to pass attributes to DOM elements inside the component.\n\nKeys become attributes, and a key that names a DOM property is also assigned to that\nproperty. Values the browser would execute go through Angular's sanitizer first, as in a\ntemplate binding: markup in `innerHTML`, `outerHTML` and `srcdoc`, and URLs in `href`,\n`src`, `action`, `formaction` and `xlink:href`. To write one of those unsanitized on\npurpose, pass a `DomSanitizer.bypassSecurityTrustHtml` or `bypassSecurityTrustUrl` value.\nAn `on*` key must be a function, and any other value for it is ignored. Keys themselves\nare applied as given, so let data from users choose values, never keys.",
                             "group": "Props",
                             "default": "undefined",
                             "defaultDeclared": true,
@@ -737,7 +737,7 @@
                             "name": "aglBind",
                             "field": "aglBind",
                             "type": "{ [key: string]: any } | undefined",
-                            "description": "Dynamic attributes, properties, and event listeners to be applied to the host element.\n\nTRUSTED INPUT ONLY. Every key is applied to the DOM as given — set as an attribute, and\nadditionally assigned to the element property of the same name when one exists. No\nsanitizer runs on either path, so a key such as `innerHTML` writes markup and an `on*`\nkey can install a handler. This is the mechanism the passthrough API is built on; it is\nsafe only for values you control, and never for values that reached you from a user.",
+                            "description": "Dynamic attributes, properties, and event listeners to be applied to the host element.\n\nEach key is set as an attribute, and also assigned to the element property of the same\nname when one exists. Values that the browser would parse as markup (`innerHTML`,\n`outerHTML`, `srcdoc`) or follow as a URL (`href`, `src`, `action`, `formaction`,\n`xlink:href`) go through Angular's sanitizer first, exactly as they would in a template\nbinding. To write such a value unsanitized on purpose, pass a value from\n`DomSanitizer.bypassSecurityTrustHtml` or `bypassSecurityTrustUrl`. An `on*` key installs\na listener when its value is a function; any other `on*` value is ignored, because as an\nattribute it would be script.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,

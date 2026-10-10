@@ -551,11 +551,10 @@ test("upstream 22.1.2 · Core — the passthrough probe renders, and Angular's o
 });
 
 test('upstream 22.1.2 · Core — a stored passthrough value must not run script', async ({ page }) => {
-    // CONFIRMED, held as an expected failure.
-    //
-    // Measured 2026-10-11 on Chrome, through a real agl-button: the `pt` image's onerror runs,
-    // and the `aglBind` link runs its `javascript:` URL when clicked.
-    test.fail();
+    // FIXED 2026-10-11 under Constitution P3.b. Held with `test.fail()` until then: measured on
+    // Chrome through a real agl-button, the `pt` image's onerror ran and the `aglBind` link ran
+    // its `javascript:` URL when clicked. `bind.ts` now passes markup and URL keys through
+    // Angular's sanitizer, as a template binding does.
 
     const link = page.locator('#up-bind-href');
     // Click only a link that would run script. A sanitized one points at `unsafe:…` and
