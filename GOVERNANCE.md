@@ -53,6 +53,11 @@ The public API is **frozen for the `22.x` line**. Bug fixes, performance work, a
 promotions are in scope; redesigning existing component APIs is not. Pull requests that
 change public API on `22.x` will be asked to wait.
 
+Security fixes are in scope even when they change what an existing input does, as long as they
+change no API surface and leave a way back for code that relied on the old behaviour on
+purpose. The release notes say exactly what changed and what the way back is. The first was
+the passthrough sanitizer: W-2 in [`docs/reports/audit_20260828.md`](docs/reports/audit_20260828.md).
+
 The reason is mechanical, not conservative. The major version is locked to Angular's major
 (`angulux@22.x` ↔ Angular 22), so a breaking change can only ship in the next major — which
 arrives with **Angular 23, expected around November 2026**. Miss that window and the change
