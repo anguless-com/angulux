@@ -1,6 +1,7 @@
 import { Component, signal, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem, TreeNode } from '@anguless/angulux/api';
+import { Bind } from '@anguless/angulux/bind';
 import { ButtonModule, ButtonProps } from '@anguless/angulux/button';
 import { CardModule } from '@anguless/angulux/card';
 import { DatePickerModule } from '@anguless/angulux/datepicker';
@@ -54,7 +55,7 @@ export class ShadowHost {}
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, ReactiveFormsModule, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule, InputTextModule, PasswordModule],
+    imports: [FormsModule, ReactiveFormsModule, Bind, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule, InputTextModule, PasswordModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -443,6 +444,19 @@ export class ShadowHost {}
             <agl-verify-shadow id="up-shadow-host" />
         </section>
 
+        <!-- ── 15b. upstream repro — passthrough values and the sanitizer ──────────
+             Stored values of the kind a tenant-editable theme or a CMS-authored definition
+             could hold, bound two ways: through the passthrough (pt on a real component, and
+             aglBind on a link) and, as the control, through ordinary Angular bindings. Each
+             payload writes its own flag on window if it runs; the gate reads the flags. -->
+        <section id="sec-up-bind">
+            <h2>upstream repro — passthrough values and the sanitizer</h2>
+            <agl-button id="up-bind-pt" label="passthrough" [pt]="{ root: { innerHTML: upBindStored.ptHtml } }" />
+            <a id="up-bind-href" [aglBind]="{ href: upBindStored.ptHref }">passthrough link</a>
+            <div id="up-bind-control" [innerHTML]="upBindStored.controlHtml"></div>
+            <a id="up-bind-control-href" [href]="upBindStored.controlHref">control link</a>
+        </section>
+
         <!-- ── 16. forms — Reactive Forms state reaches assistive technology ────
              Three required controls bound through formControlName, with NOTHING bound to
              [invalid] or [required]. The library reads both off the forms control: each is
@@ -513,6 +527,15 @@ export class AppComponent {
         { code: 'T-5', name: 'Five', category: 'C', quantity: 5 }
     ]);
     upTotCount = signal(5);
+
+    // 15b — one stored value per path, so a flag names the path that ran it. The control values
+    // go through Angular's own bindings, which sanitize; the gate checks that they stay inert.
+    upBindStored = {
+        ptHtml: '<img src="data:," onerror="window.__aglPtHtml = 1">',
+        ptHref: 'javascript:window.__aglPtHref = 1',
+        controlHtml: '<img src="data:," onerror="window.__aglControlHtml = 1">',
+        controlHref: 'javascript:window.__aglControlHref = 1'
+    };
 
     upShrink() {
         this.upTotRows.set(this.upTotRows().slice(0, 2));

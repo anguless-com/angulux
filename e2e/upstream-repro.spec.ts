@@ -497,3 +497,72 @@ test('upstream 22.1.0 · Core — a component inside a shadow root must still re
 
     expect(shadowBg).toBe(lightBg);
 });
+
+/**
+ * Upstream 22.1.2 · Core · seen.json digest 209ab26cfbb6 — their passthrough binding wrote
+ * bound values to the DOM unsanitized, which they classed as a stored XSS.
+ *
+ * Triaged from the changelog entry alone (#168); Constitution P1 forbids reading their fix,
+ * and nothing here was derived from it. The mechanism is in the code we inherited:
+ * `bind.ts` sets every passthrough key as an attribute and also assigns it to the element
+ * property of the same name, with no sanitizer on either path. It was audit finding W-2
+ * (2026-08-28), held back and answered with documentation at the time.
+ *
+ * MEASURED, because the reasoning was half wrong. The audit named two sinks. `innerHTML` runs.
+ * An `on*` string does not: the property assignment that follows `setAttribute` sets
+ * `el.onclick` to a string, which the browser turns into `null`, clearing the handler the
+ * attribute had just installed. A `javascript:` href, which the audit did not name, runs on
+ * click. Angular's own bindings, given the same values, run neither.
+ *
+ * Two tests, on purpose. The first proves the probe rendered and the control stayed inert, so
+ * that the held test below cannot pass by failing in its setup.
+ */
+async function settledBindFlags(page: Page): Promise<Record<string, unknown>> {
+    // Both images must have finished failing to load before an absent flag means anything.
+    await page.waitForFunction(() => {
+        const images = [...document.querySelectorAll('#sec-up-bind img')] as HTMLImageElement[];
+        return images.length >= 2 && images.every((image) => image.complete);
+    });
+    return page.evaluate(
+        () =>
+            new Promise<Record<string, unknown>>((resolve) =>
+                setTimeout(() => {
+                    const w = window as unknown as Record<string, unknown>;
+                    resolve({ ptHtml: w['__aglPtHtml'], ptHref: w['__aglPtHref'], controlHtml: w['__aglControlHtml'], controlHref: w['__aglControlHref'] });
+                })
+            )
+    );
+}
+
+test("upstream 22.1.2 · Core — the passthrough probe renders, and Angular's own bindings keep the same values inert", async ({ page }) => {
+    const errors = watchErrors(page);
+    await expect(page.locator('#sec-up-bind')).toBeVisible();
+    await expect(page.locator('#up-bind-pt button')).toBeVisible();
+    await expect(page.locator('#up-bind-href')).toBeVisible();
+
+    const flags = await settledBindFlags(page);
+
+    // The control is not clicked: a sanitized href becomes `unsafe:…`, and following it would
+    // navigate the page away. The rewrite itself is the evidence.
+    expect(await page.locator('#up-bind-control-href').getAttribute('href')).toMatch(/^unsafe:/);
+    expect(await page.locator('#up-bind-control img').getAttribute('onerror')).toBeNull();
+    expect(flags.controlHtml).toBeUndefined();
+    expect(errors).toEqual([]);
+});
+
+test('upstream 22.1.2 · Core — a stored passthrough value must not run script', async ({ page }) => {
+    // CONFIRMED, held as an expected failure.
+    //
+    // Measured 2026-10-11 on Chrome, through a real agl-button: the `pt` image's onerror runs,
+    // and the `aglBind` link runs its `javascript:` URL when clicked.
+    test.fail();
+
+    const link = page.locator('#up-bind-href');
+    // Click only a link that would run script. A sanitized one points at `unsafe:…` and
+    // following it would end the page, not prove anything.
+    if ((await link.getAttribute('href'))?.startsWith('javascript:')) await link.click();
+
+    const flags = await settledBindFlags(page);
+    expect(flags.ptHtml).toBeUndefined();
+    expect(flags.ptHref).toBeUndefined();
+});
