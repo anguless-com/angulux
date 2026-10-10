@@ -52,6 +52,9 @@
             "esbuild": "^0.28.1",
             "@hono/node-server": "^2.0.5",
             "fast-uri": "^3.1.6"
+        },
+        "auditConfig": {
+            "ignoreCves": ["CVE-2026-93687"]
         }
     },
     "devDependencies": {

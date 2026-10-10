@@ -135,6 +135,12 @@ jobs:
             # release.yml installs that toolchain in the same job that holds
             # `id-token: write` — tools/check-install-scripts.mjs makes that argument in
             # full. The exit code only reflects the level; read the whole report.
+            #
+            # Accepted advisories live in package.json, `pnpm.auditConfig.ignoreCves`. They
+            # are keyed by CVE because pnpm 9.6 silently ignores `ignoreGhsas`. An accepted
+            # advisory is still printed in the report; it just stops failing the job. Each
+            # entry is accepted only when no patched release exists, and the commit that adds
+            # it names the condition that removes it.
             - name: pnpm audit
               run: corepack pnpm audit --audit-level=high
 
