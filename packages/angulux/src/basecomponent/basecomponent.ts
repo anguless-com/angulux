@@ -61,11 +61,13 @@ export class BaseComponent<PT = any> implements Lifecycle {
     /**
      * Used to pass attributes to DOM elements inside the component.
      *
-     * TRUSTED INPUT ONLY. Whatever you put here is applied to the DOM as given: keys become
-     * attributes, and a key that names a DOM property is assigned to that property directly,
-     * with no sanitizer in between. That is what makes the API useful, and it means a value
-     * reaching it from a user, a database or a CMS can execute script. Treat it like markup
-     * you wrote yourself, not like data you received.
+     * Keys become attributes, and a key that names a DOM property is also assigned to that
+     * property. Values the browser would execute go through Angular's sanitizer first, as in a
+     * template binding: markup in `innerHTML`, `outerHTML` and `srcdoc`, and URLs in `href`,
+     * `src`, `action`, `formaction` and `xlink:href`. To write one of those unsanitized on
+     * purpose, pass a `DomSanitizer.bypassSecurityTrustHtml` or `bypassSecurityTrustUrl` value.
+     * An `on*` key must be a function, and any other value for it is ignored. Keys themselves
+     * are applied as given, so let data from users choose values, never keys.
      * @defaultValue undefined
      * @group Props
      */

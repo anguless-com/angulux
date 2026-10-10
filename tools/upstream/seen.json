@@ -2,6 +2,11 @@
     "_comment": "Upstream changelog entries already triaged, keyed by release, scope and a digest of the entry. The sentences themselves are deliberately not stored: primeng.dev content is outside the MIT grant (CONTRIBUTING.md), so this file records OUR decisions, not their prose. Regenerate with: npm run watch:upstream -- --record",
     "source": "https://primeng.dev/changelog",
     "entries": {
+        "22.1.2 · Core · 209ab26cfbb6": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "REPRODUCED, then FIXED 2026-10-11 under Constitution P3.b (v1.4.0). This is audit finding W-2 (2026-08-28). bind.ts set every passthrough key as an attribute and also assigned it to the element property of the same name, with no sanitizer on either path. Measured on Chrome through a real agl-button (e2e/upstream-repro.spec.ts): an image in pt's innerHTML ran its onerror, and a javascript: href on an aglBind link ran on click, while the same values through [innerHTML] and [href] stayed inert. An on* string did NOT run: the property assignment after setAttribute sets el.onclick to a string, which the browser turns into null, so the audit's second sink was wrong by reasoning alone. Fix: markup keys (innerHTML, outerHTML, srcdoc) and URL keys (href, src, action, formaction, xlink:href) go through Angular's sanitizer in the HTML and URL contexts, non-function on* values are not written, and DomSanitizer.bypassSecurityTrustHtml / bypassSecurityTrustUrl is the way back. Held with test.fail() until the fix."
+        },
         "22.1.0 · Highlights · febe8d99b01d": {
             "verdict": "cross-cutting",
             "module": null
