@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
 import { $dt } from '@anguless/angulux-styled';
-import { absolutePosition, addClass, appendChild, findSingle, getOffset, isIOS, isTouchDevice } from '@anguless/angulux-utils';
+import { absolutePosition, addClass, appendChild, findSingle, getFocusableElements, getOffset, isIOS, isTouchDevice } from '@anguless/angulux-utils';
 import { OverlayService, SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
@@ -388,7 +388,8 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
     }
 
     focus() {
-        let focusable = <any>findSingle(this.container!, '[autofocus]');
+        // A field the app marked autofocus wins; otherwise the first button, as focusOnShow promises.
+        let focusable = <any>(findSingle(this.container!, '[autofocus]') ?? getFocusableElements(this.container!).find((el) => el.tagName === 'BUTTON'));
         if (focusable) {
             this.zone.runOutsideAngular(() => {
                 setTimeout(() => focusable.focus(), 5);

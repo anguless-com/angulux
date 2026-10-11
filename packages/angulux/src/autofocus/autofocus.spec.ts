@@ -34,7 +34,7 @@ class TestAutofocusEnabledComponent {}
     template: `<input type="text" [aglAutoFocus]="autofocusEnabled" />`
 })
 class TestAutofocusDynamicComponent {
-    autofocusEnabled = false;
+    autofocusEnabled: boolean | undefined = false;
 }
 
 @Component({
@@ -289,6 +289,19 @@ describe('AutoFocus', () => {
 
             expect(element.hasAttribute('autofocus')).toBe(true);
             expect(element.getAttribute('autofocus')).toBe('true');
+        });
+
+        it('should remove autofocus attribute when autofocus is unset', async () => {
+            // A component whose own autofocus input has no default forwards undefined, not false.
+            component.autofocusEnabled = true;
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+            expect(element.hasAttribute('autofocus')).toBe(true);
+
+            component.autofocusEnabled = undefined;
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+            expect(element.hasAttribute('autofocus')).toBe(false);
         });
 
         it('should update autofocus attribute dynamically', async () => {

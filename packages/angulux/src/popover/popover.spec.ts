@@ -479,6 +479,46 @@ describe('Popover', () => {
             expect(focusableInput.focus).toHaveBeenCalled();
         });
 
+        it('should focus the first button when nothing is marked autofocus', async () => {
+            const container = document.createElement('div');
+            const input = document.createElement('input');
+            const first = document.createElement('button');
+            const second = document.createElement('button');
+            container.append(input, first, second);
+            document.body.appendChild(container);
+            popoverInstance.container = container;
+
+            spyOn(input, 'focus');
+            spyOn(first, 'focus');
+            spyOn(second, 'focus');
+            popoverInstance.focus();
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            expect(first.focus).toHaveBeenCalled();
+            expect(input.focus).not.toHaveBeenCalled();
+            expect(second.focus).not.toHaveBeenCalled();
+            container.remove();
+        });
+
+        it('should prefer an element marked autofocus over the first button', async () => {
+            const container = document.createElement('div');
+            const button = document.createElement('button');
+            const marked = document.createElement('input');
+            marked.setAttribute('autofocus', '');
+            container.append(button, marked);
+            document.body.appendChild(container);
+            popoverInstance.container = container;
+
+            spyOn(button, 'focus');
+            spyOn(marked, 'focus');
+            popoverInstance.focus();
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            expect(marked.focus).toHaveBeenCalled();
+            expect(button.focus).not.toHaveBeenCalled();
+            container.remove();
+        });
+
         it('should hide popover on Escape key', async () => {
             const mockEvent = new MouseEvent('click');
             const target = component.targetButton.nativeElement;

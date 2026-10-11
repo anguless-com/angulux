@@ -10,6 +10,7 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
 import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
 import { PasswordModule } from '@anguless/angulux/password';
+import { PopoverModule } from '@anguless/angulux/popover';
 import { ScrollerModule } from '@anguless/angulux/scroller';
 import { SelectModule } from '@anguless/angulux/select';
 import { TableFilterButtonPropsOptions, TableModule } from '@anguless/angulux/table';
@@ -55,7 +56,7 @@ export class ShadowHost {}
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, ReactiveFormsModule, Bind, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule, InputTextModule, PasswordModule],
+    imports: [FormsModule, ReactiveFormsModule, Bind, ButtonModule, ShadowHost, TableModule, TreeTableModule, MenuModule, TieredMenuModule, SelectModule, MultiSelectModule, CardModule, DialogModule, ScrollerModule, DatePickerModule, InputTextModule, PasswordModule, PopoverModule],
     template: `
         <h1>angulux — verification app</h1>
 
@@ -472,6 +473,31 @@ export class ShadowHost {}
                 <input id="rf-name" aglInputText formControlName="name" placeholder="Name" />
                 <agl-password id="rf-secret" inputId="rf-secret-input" formControlName="secret" [feedback]="false" />
             </form>
+        </section>
+
+        <!-- ── 17. autofocus — an unset input asks for nothing ──────────────────
+             A select and a button with NO autofocus binding, then two popovers, each opened by a
+             button. The first holds a select, a text field marked autofocus, and a button: the
+             field is what the popover should focus. The second marks nothing, and Popover says its
+             first button receives focus on show. Popover focuses the first [autofocus] it finds,
+             so a component that asked for nothing but still carries the attribute takes the focus
+             in both. -->
+        <section id="sec-autofocus">
+            <h2>autofocus — an unset input asks for nothing</h2>
+            <agl-select id="af-select" [options]="cities" optionLabel="name" placeholder="No autofocus" />
+            <agl-button id="af-button" label="No autofocus" />
+            <agl-button id="af-ask-open" label="Popover with a field marked autofocus" (onClick)="afAsk.toggle($event)" />
+            <agl-popover #afAsk>
+                <agl-select id="af-ask-select" [options]="cities" optionLabel="name" placeholder="City" />
+                <input id="af-ask-name" aglInputText autofocus placeholder="Name" />
+                <agl-button id="af-ask-save" label="Save" />
+            </agl-popover>
+            <agl-button id="af-plain-open" label="Popover with nothing marked" (onClick)="afPlain.toggle($event)" />
+            <agl-popover #afPlain>
+                <input id="af-plain-name" aglInputText placeholder="Name" />
+                <agl-select id="af-plain-select" [options]="cities" optionLabel="name" placeholder="City" />
+                <agl-button id="af-plain-save" label="Save" />
+            </agl-popover>
         </section>
     `
 })
