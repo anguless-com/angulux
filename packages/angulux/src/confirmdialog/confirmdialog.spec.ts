@@ -334,9 +334,14 @@ describe('ConfirmDialog', () => {
             expect(dialogElement).toBeTruthy();
         });
 
-        it('should have proper data attributes', () => {
+        it('passes the alertdialog role to the dialog without putting it on the closed host', () => {
+            // A static role="alertdialog" on <agl-dialog> also stayed on the HOST, empty and
+            // unnamed while closed, and axe reported aria-dialog-name on every page that mounts
+            // a confirm dialog (anguless-com/anguless-core#107). The dialog renders the role on
+            // its own container, named by the header, only while visible.
             const dialogElement = fixture.debugElement.query(By.css('agl-dialog'));
-            expect(dialogElement.nativeElement.getAttribute('role')).toBe('alertdialog');
+            expect(dialogElement.nativeElement.getAttribute('role')).toBeNull();
+            expect((dialogElement.componentInstance as Dialog).role).toBe('alertdialog');
         });
     });
 
@@ -744,7 +749,27 @@ describe('ConfirmDialog', () => {
             await new Promise((resolve) => setTimeout(resolve, 0));
 
             const dialog = accessibilityFixture.debugElement.query(By.css('agl-dialog'));
-            expect(dialog.nativeElement.getAttribute('role')).toBe('alertdialog');
+            expect(dialog.nativeElement.getAttribute('role')).toBeNull();
+            expect((dialog.componentInstance as Dialog).role).toBe('alertdialog');
+        });
+
+        it('an open confirm dialog is an alertdialog named by its header', async () => {
+            const openFixture = TestBed.createComponent(TestConfirmationServiceComponent);
+            openFixture.changeDetectorRef.markForCheck();
+            await openFixture.whenStable();
+            openFixture.componentInstance.confirm();
+            openFixture.changeDetectorRef.markForCheck();
+            await openFixture.whenStable();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            const open = document.querySelector('[role="alertdialog"]') as HTMLElement | null;
+            expect(open).toBeTruthy();
+            expect(open!.tagName.toLowerCase()).not.toBe('agl-dialog');
+            expect(open!.getAttribute('aria-modal')).toBe('true');
+            const labelId = open!.getAttribute('aria-labelledby');
+            expect(labelId).toBeTruthy();
+            expect(document.getElementById(labelId!)?.textContent?.trim()).toBeTruthy();
+            openFixture.destroy();
         });
 
         it('should handle aria labels for buttons', async () => {
