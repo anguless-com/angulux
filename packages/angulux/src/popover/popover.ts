@@ -54,7 +54,6 @@ const POPOVER_INSTANCE = new InjectionToken<Popover>('POPOVER_INSTANCE');
                 [ngStyle]="style"
                 (click)="onOverlayClick($event)"
                 role="dialog"
-                [attr.aria-modal]="overlayVisible"
                 [attr.aria-label]="ariaLabel"
                 [attr.aria-labelledBy]="ariaLabelledBy"
                 [aglMotion]="overlayVisible"
@@ -417,8 +416,28 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
      * @group Method
      */
     hide() {
+        if (this.overlayVisible) {
+            this.restoreFocusToTarget();
+        }
         this.overlayVisible = false;
         this.cd.markForCheck();
+    }
+
+    /**
+     * Focus inside the panel would fall to <body> once the panel is removed (#188): since focusOnShow
+     * moves focus into the panel, Esc or a row that closes the popover left a keyboard user nowhere.
+     * Hand focus back to the element the popover was opened from, before the panel goes, and only
+     * when focus is still inside it: a click that already moved focus elsewhere is left alone.
+     */
+    private restoreFocusToTarget() {
+        const active = this.document?.activeElement;
+        const target = this.target as HTMLElement | null;
+        if (!this.container || !active || !this.container.contains(active)) {
+            return;
+        }
+        if (target && typeof target.focus === 'function' && target.isConnected) {
+            target.focus();
+        }
     }
 
     onCloseClick(event: MouseEvent) {

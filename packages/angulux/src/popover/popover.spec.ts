@@ -452,8 +452,23 @@ describe('Popover', () => {
                 expect(popoverElement.nativeElement.getAttribute('role')).toBe('dialog');
                 expect(popoverElement.nativeElement.getAttribute('aria-label')).toBe('Test popover');
                 expect(popoverElement.nativeElement.getAttribute('aria-labelledBy')).toBe('test-label');
-                expect(popoverElement.nativeElement.getAttribute('aria-modal')).toBe('true');
+                expect(popoverElement.nativeElement.getAttribute('aria-modal')).toBeNull();
             }
+        });
+
+        it('an open popover does not claim to be modal (#189)', async () => {
+            // No focus trap, the page stays interactive, an outside click closes it: aria-modal="true"
+            // would tell assistive technology that everything outside the panel is inert.
+            popoverInstance.show(new MouseEvent('click'), component.targetButton.nativeElement);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const panel = popoverInstance.container as HTMLElement;
+            expect(panel).toBeTruthy();
+            expect(panel.getAttribute('role')).toBe('dialog');
+            expect(panel.hasAttribute('aria-modal')).toBe(false);
+            popoverInstance.hide();
         });
 
         it('should focus autofocus element when focusOnShow is true', async () => {
@@ -551,6 +566,39 @@ describe('Popover', () => {
             popoverInstance.onEscapeKeydown(escapeEvent);
 
             expect(popoverInstance.overlayVisible).toBe(false);
+        });
+
+        it('Esc with focus inside the panel hands focus back to the trigger (#188)', async () => {
+            const target = component.targetButton.nativeElement as HTMLElement;
+            popoverInstance.show(new MouseEvent('click'), target);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const inside = document.createElement('button');
+            (popoverInstance.container as HTMLElement).appendChild(inside);
+            inside.focus();
+            expect(document.activeElement).toBe(inside);
+
+            popoverInstance.onEscapeKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
+            expect(popoverInstance.overlayVisible).toBe(false);
+            expect(document.activeElement).toBe(target);
+        });
+
+        it('a hide after focus already left the panel does not move focus (#188)', async () => {
+            const target = component.targetButton.nativeElement as HTMLElement;
+            popoverInstance.show(new MouseEvent('click'), target);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const elsewhere = document.createElement('input');
+            document.body.appendChild(elsewhere);
+            elsewhere.focus();
+
+            popoverInstance.hide();
+            expect(document.activeElement).toBe(elsewhere);
+            elsewhere.remove();
         });
     });
 
