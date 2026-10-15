@@ -120,6 +120,64 @@ class TreeTableLayoutHost {
     nodes: TreeNode[] = [{ key: '0', data: { name: 'Documents' }, children: [{ key: '0-0', data: { name: 'Work' } }] }];
 }
 
+/** #174 — the same rules, reached through the OTHER spellings each component declares. */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ReactiveFormsModule, ToggleSwitch],
+    template: `
+        <form [formGroup]="group">
+            <agl-toggle-switch id="kebab-toggleswitch" formControlName="on" />
+        </form>
+    `
+})
+class KebabToggleSwitchHost {
+    group = new FormGroup({ on: new FormControl(false, Validators.requiredTrue) });
+}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [TableModule],
+    template: `
+        <agl-table [value]="products">
+            <ng-template #header>
+                <tr>
+                    <th>Price <agl-column-filter type="numeric" field="price" display="menu" /></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-product>
+                <tr><td>{{ product.price }}</td></tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class KebabTableHost {
+    products = [{ id: '1', price: 1299 }];
+}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes" selectionMode="checkbox">
+            <ng-template #header>
+                <tr>
+                    <th ttSortableColumn="name">Name <agl-tree-table-sort-icon field="name" /></th>
+                    <th ttSortableColumn="size">Size <agl-treeTableSortIcon field="size" /></th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode">
+                    <td><agl-treetable-toggler [rowNode]="rowNode" /><agl-tree-table-checkbox [value]="rowNode" /><span class="name">{{ rowData.name }}</span></td>
+                    <td>{{ rowData.size }}</td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class KebabTreeTableHost {
+    nodes: TreeNode[] = [{ key: '0', data: { name: 'Documents', size: 1 }, children: [{ key: '0-0', data: { name: 'Work', size: 2 } }] }];
+}
+
 /**
  * [element, pseudo-element or null, CSS property, token the rule colours it with] — one row per
  * rule the `ng-invalid.ng-dirty` fallback declares. The `:enabled:focus` variants are the same
@@ -258,6 +316,29 @@ describe('Rules that select an agl-* host', () => {
             const sortIcon = style(fixture, 'agl-treetable-sort-icon');
 
             expect([sortIcon.display, sortIcon.alignItems, sortIcon.columnGap]).toEqual(['inline-flex', 'center', '9px']);
+        });
+
+        it('reaches the kebab-case spellings too (#174)', async () => {
+            const toggle = TestBed.createComponent(KebabToggleSwitchHost);
+            toggle.detectChanges();
+            await toggle.whenStable();
+            toggle.componentInstance.group.markAllAsDirty();
+            toggle.detectChanges();
+            await toggle.whenStable();
+            const slider = (toggle.nativeElement as HTMLElement).querySelector('#kebab-toggleswitch > .p-toggleswitch-slider')!;
+            expect(getComputedStyle(slider).borderTopColor).withContext('agl-toggle-switch, invalid and dirty').toBe(TOKENS['--p-toggleswitch-invalid-border-color']);
+
+            const table = await render(KebabTableHost);
+            expect(style(table, 'th').fontWeight).toBe('700');
+            expect(style(table, 'agl-column-filter').fontWeight).withContext('agl-column-filter').toBe('400');
+
+            const tree = await render(KebabTreeTableHost);
+            for (const host of ['agl-tree-table-sort-icon', 'agl-treeTableSortIcon']) {
+                const icon = style(tree, host);
+                expect([icon.display, icon.alignItems, icon.columnGap]).withContext(host).toEqual(['inline-flex', 'center', '9px']);
+            }
+            expect(style(tree, 'agl-tree-table-checkbox agl-checkbox').verticalAlign).withContext('agl-treetable-toggler + agl-tree-table-checkbox').toBe('middle');
+            expect(style(tree, 'agl-tree-table-checkbox + span').verticalAlign).toBe('middle');
         });
 
         it('centres a tree table row checkbox, and the label after it, beside the toggler', async () => {
