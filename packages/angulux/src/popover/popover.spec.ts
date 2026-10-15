@@ -532,6 +532,39 @@ describe('Popover', () => {
 
             expect(popoverInstance.overlayVisible).toBe(false);
         });
+
+        it('Esc with focus inside the panel hands focus back to the trigger (#188)', async () => {
+            const target = component.targetButton.nativeElement as HTMLElement;
+            popoverInstance.show(new MouseEvent('click'), target);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const inside = document.createElement('button');
+            (popoverInstance.container as HTMLElement).appendChild(inside);
+            inside.focus();
+            expect(document.activeElement).toBe(inside);
+
+            popoverInstance.onEscapeKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
+            expect(popoverInstance.overlayVisible).toBe(false);
+            expect(document.activeElement).toBe(target);
+        });
+
+        it('a hide after focus already left the panel does not move focus (#188)', async () => {
+            const target = component.targetButton.nativeElement as HTMLElement;
+            popoverInstance.show(new MouseEvent('click'), target);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const elsewhere = document.createElement('input');
+            document.body.appendChild(elsewhere);
+            elsewhere.focus();
+
+            popoverInstance.hide();
+            expect(document.activeElement).toBe(elsewhere);
+            elsewhere.remove();
+        });
     });
 
     describe('CSS Classes and Styling', () => {
