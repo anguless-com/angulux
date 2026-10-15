@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -739,6 +739,68 @@ describe('Dialog', () => {
             await new Promise((resolve) => setTimeout(resolve, 0));
 
             expect(dialogInstance.focusOnShow).toBe(true);
+        });
+
+        describe('which element gets focus on open (#187)', () => {
+            const settle = () => new Promise((resolve) => setTimeout(resolve, 60));
+            let root: HTMLElement;
+            let first: HTMLInputElement;
+            let second: HTMLInputElement;
+
+            beforeEach(() => {
+                root = document.createElement('div');
+                const content = document.createElement('div');
+                first = document.createElement('input');
+                second = document.createElement('input');
+                second.className = 'the-field';
+                content.append(first, second);
+                root.appendChild(content);
+                document.body.appendChild(root);
+                dialogInstance.container.set(root);
+                dialogInstance.contentViewChild = new ElementRef(content);
+                dialogInstance.transitionOptions = '0ms';
+            });
+
+            afterEach(() => root.remove());
+
+            it('without a mark, the first focusable element (unchanged)', async () => {
+                dialogInstance.focus();
+                await settle();
+                expect(document.activeElement).toBe(first);
+            });
+
+            it('an element marked autofocus wins over the first field', async () => {
+                second.setAttribute('autofocus', '');
+                dialogInstance.focus();
+                await settle();
+                expect(document.activeElement).toBe(second);
+            });
+
+            it('initialFocus names the target, over autofocus', async () => {
+                first.setAttribute('autofocus', '');
+                dialogInstance.initialFocus = '.the-field';
+                dialogInstance.focus();
+                await settle();
+                expect(document.activeElement).toBe(second);
+            });
+
+            it('an initialFocus selector that matches nothing, or is invalid, falls back without throwing', async () => {
+                dialogInstance.initialFocus = '[[[';
+                expect(() => dialogInstance.focus()).not.toThrow();
+                await settle();
+                expect(document.activeElement).toBe(first);
+            });
+
+            it('a target that cannot take focus yet is retried until it can', async () => {
+                second.setAttribute('autofocus', '');
+                root.style.display = 'none';
+                dialogInstance.focus();
+                await settle();
+                expect(document.activeElement).not.toBe(second);
+                root.style.display = '';
+                await settle();
+                expect(document.activeElement).toBe(second);
+            });
         });
 
         it('should handle custom role attribute', async () => {

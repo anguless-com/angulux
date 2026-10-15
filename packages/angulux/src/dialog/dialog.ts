@@ -279,10 +279,18 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
      */
     @Input({ transform: numberAttribute }) minY: number = 0;
     /**
-     * When enabled, first focusable element receives focus on show.
+     * When enabled, focus moves into the dialog on show: to the `initialFocus` target, else an element
+     * marked `autofocus` in the content, else the first focusable element.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) focusOnShow: boolean = true;
+    /**
+     * Names the element that receives focus when the dialog opens: a CSS selector matched inside the
+     * dialog. Use it when the first field is not the one to type into, or when a lint rule forbids the
+     * `autofocus` attribute. Applies with `focusOnShow`.
+     * @group Props
+     */
+    @Input() initialFocus: string | undefined;
     /**
      * Whether the dialog can be displayed full screen.
      * @group Props
@@ -679,7 +687,48 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
         return false;
     }
 
+    /**
+     * The element the app named (`initialFocus`), else one marked `autofocus` in the content (#187).
+     * The dialog still renders hidden when the enter timer fires on a slow machine, so focus is
+     * retried each frame until it lands, for at most about a second.
+     */
+    private _focusNamed(): boolean {
+        const root = this.container();
+        if (!root) {
+            return false;
+        }
+        let named: HTMLElement | null = null;
+        if (this.initialFocus) {
+            try {
+                named = root.querySelector<HTMLElement>(this.initialFocus);
+            } catch {
+                named = null;
+            }
+        }
+        named ??= (this.contentViewChild?.nativeElement as HTMLElement | undefined)?.querySelector<HTMLElement>('[autofocus]') ?? null;
+        if (!named) {
+            return false;
+        }
+        const target = named;
+        const doc = root.ownerDocument;
+        const delay = this.parseDurationToMilliseconds(this.transitionOptions) || 5;
+        this.zone.runOutsideAngular(() => {
+            let tries = 0;
+            const attempt = () => {
+                target.focus();
+                if (doc.activeElement !== target && ++tries < 60 && target.isConnected) {
+                    requestAnimationFrame(attempt);
+                }
+            };
+            setTimeout(attempt, delay);
+        });
+        return true;
+    }
+
     focus(focusParentElement: HTMLElement = this.contentViewChild?.nativeElement) {
+        if (this._focusNamed()) {
+            return;
+        }
         let focused = this._focus(focusParentElement);
 
         if (!focused) {

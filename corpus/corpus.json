@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "7ca7ee2781a67204a4fdef84dac42e5f4fa97d12827aebb441c504c60954debc",
+        "sourceHash": "7b6fba3f8c2077e80eb3f575bf53ae262b50ee57962167a0df55ef10b0a4d2c5",
         "closureCount": 65
     },
     "modules": [
@@ -3815,7 +3815,18 @@
                             "name": "focusOnShow",
                             "field": "focusOnShow",
                             "type": "boolean",
-                            "description": "When enabled, first focusable element receives focus on show.",
+                            "description": "When enabled, focus moves into the dialog on show: to the `initialFocus` target, else an element\nmarked `autofocus` in the content, else the first focusable element.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": null,
+                            "signal": false
+                        },
+                        {
+                            "name": "initialFocus",
+                            "field": "initialFocus",
+                            "type": "string | undefined",
+                            "description": "Names the element that receives focus when the dialog opens: a CSS selector matched inside the\ndialog. Use it when the first field is not the one to type into, or when a lint rule forbids the\n`autofocus` attribute. Applies with `focusOnShow`.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -10033,7 +10044,18 @@
                             "name": "focusOnShow",
                             "field": "focusOnShow",
                             "type": "boolean",
-                            "description": "When enabled, first button receives focus on show.",
+                            "description": "When enabled, focus moves into the panel on show: to the `initialFocus` target, else an element\nmarked `autofocus`, else the first focusable element.",
+                            "group": "Props",
+                            "default": null,
+                            "defaultDeclared": false,
+                            "deprecated": null,
+                            "signal": false
+                        },
+                        {
+                            "name": "initialFocus",
+                            "field": "initialFocus",
+                            "type": "string | undefined",
+                            "description": "Names the element that receives focus when the panel opens: a CSS selector matched inside the\npanel. Applies with `focusOnShow`.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,

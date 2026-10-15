@@ -498,6 +498,11 @@ export class ShadowHost {}
                 <agl-select id="af-plain-select" [options]="cities" optionLabel="name" placeholder="City" />
                 <agl-button id="af-plain-save" label="Save" />
             </agl-popover>
+            <agl-button id="af-named-open" label="Popover naming its target" (onClick)="afNamed.toggle($event)" />
+            <agl-popover #afNamed initialFocus="#af-named-save button">
+                <input id="af-named-name" aglInputText placeholder="Name" />
+                <agl-button id="af-named-save" label="Save" />
+            </agl-popover>
         </section>
     `
 })

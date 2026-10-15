@@ -494,24 +494,44 @@ describe('Popover', () => {
             expect(focusableInput.focus).toHaveBeenCalled();
         });
 
-        it('should focus the first button when nothing is marked autofocus', async () => {
+        it('without a mark, the first focusable element of any kind, not only a button (#187)', async () => {
             const container = document.createElement('div');
-            const input = document.createElement('input');
-            const first = document.createElement('button');
-            const second = document.createElement('button');
-            container.append(input, first, second);
+            const link = document.createElement('a');
+            link.href = '#row';
+            const button = document.createElement('button');
+            container.append(link, button);
             document.body.appendChild(container);
             popoverInstance.container = container;
 
-            spyOn(input, 'focus');
-            spyOn(first, 'focus');
-            spyOn(second, 'focus');
+            spyOn(link, 'focus');
+            spyOn(button, 'focus');
             popoverInstance.focus();
             await new Promise((resolve) => setTimeout(resolve, 10));
 
-            expect(first.focus).toHaveBeenCalled();
-            expect(input.focus).not.toHaveBeenCalled();
-            expect(second.focus).not.toHaveBeenCalled();
+            expect(link.focus).toHaveBeenCalled();
+            expect(button.focus).not.toHaveBeenCalled();
+            container.remove();
+        });
+
+        it('initialFocus names the target, over autofocus (#187)', async () => {
+            const container = document.createElement('div');
+            const marked = document.createElement('input');
+            marked.setAttribute('autofocus', '');
+            const named = document.createElement('button');
+            named.className = 'mark-all';
+            container.append(marked, named);
+            document.body.appendChild(container);
+            popoverInstance.container = container;
+            popoverInstance.initialFocus = '.mark-all';
+
+            spyOn(marked, 'focus');
+            spyOn(named, 'focus');
+            popoverInstance.focus();
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            expect(named.focus).toHaveBeenCalled();
+            expect(marked.focus).not.toHaveBeenCalled();
+            popoverInstance.initialFocus = undefined;
             container.remove();
         });
 
