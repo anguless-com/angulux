@@ -132,10 +132,17 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
      */
     @Input({ transform: numberAttribute }) baseZIndex: number = 0;
     /**
-     * When enabled, first button receives focus on show.
+     * When enabled, focus moves into the panel on show: to the `initialFocus` target, else an element
+     * marked `autofocus`, else the first focusable element.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) focusOnShow: boolean = true;
+    /**
+     * Names the element that receives focus when the panel opens: a CSS selector matched inside the
+     * panel. Applies with `focusOnShow`.
+     * @group Props
+     */
+    @Input() initialFocus: string | undefined;
     /**
      * Transition options of the show animation.
      * @group Props
@@ -388,8 +395,17 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
     }
 
     focus() {
-        // A field the app marked autofocus wins; otherwise the first button, as focusOnShow promises.
-        let focusable = <any>(findSingle(this.container!, '[autofocus]') ?? getFocusableElements(this.container!).find((el) => el.tagName === 'BUTTON'));
+        // The element the app named wins, then one marked autofocus, then the first focusable element of
+        // any kind (#187: only buttons were considered, so a panel of links focused a secondary action).
+        let named: Element | null = null;
+        if (this.initialFocus) {
+            try {
+                named = this.container!.querySelector(this.initialFocus);
+            } catch {
+                named = null;
+            }
+        }
+        let focusable = <any>(named ?? findSingle(this.container!, '[autofocus]') ?? getFocusableElements(this.container!)[0]);
         if (focusable) {
             this.zone.runOutsideAngular(() => {
                 setTimeout(() => focusable.focus(), 5);
