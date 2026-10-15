@@ -625,8 +625,17 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
         }
     }
 
+    /**
+     * The box a right-positioned tooltip measures. On a component host (`agl-*`) that is the
+     * component's own root (`.p-component`), not the host element, whose box can be wider (a block
+     * host around an inline root). The host is used when it is itself the root, or when no root is
+     * found inside it. The prefix tested here was still `P-` after the rename, so this branch never
+     * ran and every component host measured the host element (#173).
+     */
     private get activeElement(): HTMLElement {
-        return this.el.nativeElement.nodeName.startsWith('P-') ? (findSingle(this.el.nativeElement, '.p-component') as HTMLElement) : this.el.nativeElement;
+        const host = this.el.nativeElement as HTMLElement;
+        if (!host.nodeName.startsWith('AGL-') || host.classList.contains('p-component')) return host;
+        return (findSingle(host, '.p-component') as HTMLElement | null) ?? host;
     }
 
     alignRight() {

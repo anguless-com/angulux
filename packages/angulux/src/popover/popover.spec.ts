@@ -452,8 +452,23 @@ describe('Popover', () => {
                 expect(popoverElement.nativeElement.getAttribute('role')).toBe('dialog');
                 expect(popoverElement.nativeElement.getAttribute('aria-label')).toBe('Test popover');
                 expect(popoverElement.nativeElement.getAttribute('aria-labelledBy')).toBe('test-label');
-                expect(popoverElement.nativeElement.getAttribute('aria-modal')).toBe('true');
+                expect(popoverElement.nativeElement.getAttribute('aria-modal')).toBeNull();
             }
+        });
+
+        it('an open popover does not claim to be modal (#189)', async () => {
+            // No focus trap, the page stays interactive, an outside click closes it: aria-modal="true"
+            // would tell assistive technology that everything outside the panel is inert.
+            popoverInstance.show(new MouseEvent('click'), component.targetButton.nativeElement);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            fixture.detectChanges();
+            await fixture.whenStable();
+
+            const panel = popoverInstance.container as HTMLElement;
+            expect(panel).toBeTruthy();
+            expect(panel.getAttribute('role')).toBe('dialog');
+            expect(panel.hasAttribute('aria-modal')).toBe(false);
+            popoverInstance.hide();
         });
 
         it('should focus autofocus element when focusOnShow is true', async () => {
