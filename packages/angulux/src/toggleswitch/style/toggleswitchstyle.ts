@@ -5,7 +5,7 @@ import { BaseStyle } from '@anguless/angulux/base';
 const style = /*css*/ `
     ${toggleswitch_style}
 
-    agl-toggleswitch.ng-invalid.ng-dirty > .p-toggleswitch-slider {
+    :is(agl-toggleswitch, agl-toggle-switch).ng-invalid.ng-dirty > .p-toggleswitch-slider {
         border-color: dt('toggleswitch.invalid.border.color');
     }
 `;

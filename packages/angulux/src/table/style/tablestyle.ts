@@ -72,7 +72,7 @@ ${datatable_style}
         box-shadow dt('datatable.transition.duration');
 }
 
-.p-datatable-thead > tr > th agl-columnfilter {
+.p-datatable-thead > tr > th :is(agl-columnfilter, agl-column-filter) {
     font-weight: normal;
 }
 
@@ -100,7 +100,7 @@ ${datatable_style}
     color: dt('datatable.row.selected.color');
 }
 
-agl-sortIcon, agl-sort-icon, agl-sorticon {
+agl-sorticon {
     display: inline-flex;
     align-items: center;
     gap: dt('datatable.header.cell.gap');
