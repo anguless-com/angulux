@@ -99,7 +99,6 @@ const TOAST_INSTANCE = new InjectionToken<Toast>('TOAST_INSTANCE');
                                 (click)="onCloseIconClick($event)"
                                 (keydown.enter)="onCloseIconClick($event)"
                                 [attr.aria-label]="closeAriaLabel"
-                                autofocus
                                 [attr.data-p]="dataP"
                             >
                                 @if (message.closeIcon) {

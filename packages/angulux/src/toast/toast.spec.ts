@@ -338,6 +338,27 @@ describe('Toast', () => {
             expect(toastInstance.messages).toContain(message);
         });
 
+        it('the close button does not carry autofocus, and focus stays where it was (#190)', async () => {
+            // A toast is a status message: it is announced, it does not take focus (WCAG 4.1.3).
+            // A literal `autofocus` on the close button could move focus into the toast whenever the
+            // document had no focused element yet, and every `[autofocus]` query found it.
+            const outside = document.createElement('button');
+            document.body.appendChild(outside);
+            outside.focus();
+
+            messageService.add({ severity: 'info', summary: 'Saved', detail: 'Done', key: 'test' });
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            await fixture.whenStable();
+            fixture.detectChanges();
+
+            const closeButton = fixture.debugElement.query(By.css('agl-toast button'));
+            expect(closeButton).toBeTruthy();
+            expect(closeButton.nativeElement.hasAttribute('autofocus')).toBe(false);
+            expect(fixture.nativeElement.querySelector('agl-toast [autofocus]')).toBeNull();
+            expect(document.activeElement).toBe(outside);
+            outside.remove();
+        });
+
         it('should handle array of messages from messageService', async () => {
             const messages: ToastMessageOptions[] = [
                 { severity: 'success', summary: 'Success 1', detail: 'First message', key: 'test' },
