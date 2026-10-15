@@ -488,19 +488,15 @@ const style = /*css*/ `
     padding: 0.9375rem 1.25rem;
 }
 
-agl-treetabletoggler + agl-treetablecheckbox .p-checkbox,
-agl-treetable-toggler + agl-treetable-checkbox .p-checkbox,
-agl-tree-table-toggler + agl-tree-table-checkbox .p-checkbox {
+:is(agl-treetabletoggler, agl-treetable-toggler) + :is(agl-treetablecheckbox, agl-treetable-checkbox, agl-tree-table-checkbox) .p-checkbox {
     vertical-align: middle;
 }
 
-agl-treetabletoggler + agl-treetablecheckbox + span,
-agl-treetable-toggler + agl-treetable-checkbox + span,
-agl-tree-table-toggler + agl-tree-table-checkbox + span {
+:is(agl-treetabletoggler, agl-treetable-toggler) + :is(agl-treetablecheckbox, agl-treetable-checkbox, agl-tree-table-checkbox) + span {
     vertical-align: middle;
 }
 
-agl-treetable-sort-icon {
+agl-treetablesorticon, agl-treetable-sort-icon, agl-tree-table-sort-icon {
     display: inline-flex;
     align-items: center;
     gap: dt('treetable.header.cell.gap');

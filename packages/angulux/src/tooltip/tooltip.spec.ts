@@ -91,11 +91,27 @@ class TestTooltipOptionsComponent {
     };
 }
 
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    selector: 'agl-tooltip-fake-field',
+    host: { style: 'display:block;width:400px' },
+    template: `<div class="p-component" style="display:inline-block;width:120px;height:20px">field</div>`
+})
+class FakeComponentHost {}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-tooltip-fake-field aglTooltip="Right tip" tooltipPosition="right" [tooltipOptions]="{ appendTo: 'body' }"></agl-tooltip-fake-field>`
+})
+class TestComponentHostTooltipComponent {}
+
 describe('Tooltip', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Tooltip],
-            declarations: [TestBasicTooltipComponent, TestTemplateTooltipComponent, TestTooltipOptionsComponent],
+            declarations: [TestBasicTooltipComponent, TestTemplateTooltipComponent, TestTooltipOptionsComponent, FakeComponentHost, TestComponentHostTooltipComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
     });
@@ -161,6 +177,30 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             expect(tooltipDirective.disabled).toBe(true);
+        });
+    });
+
+    describe('Right alignment on a component host (#173)', () => {
+        it('measures the component root inside an agl-* host, not the host element', async () => {
+            const fixture = TestBed.createComponent(TestComponentHostTooltipComponent);
+            fixture.detectChanges();
+            const hostDebug = fixture.debugElement.query(By.directive(Tooltip));
+            const tooltip = hostDebug.injector.get(Tooltip);
+            const host = hostDebug.nativeElement as HTMLElement;
+            const root = host.firstElementChild as HTMLElement; // the template's component root
+
+            tooltip.activate();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            fixture.detectChanges();
+
+            const container = tooltip.container as HTMLElement;
+            expect(container).toBeTruthy();
+            const hostLeft = host.getBoundingClientRect().left + window.scrollX;
+            const offset = parseFloat(container.style.left) - hostLeft;
+            // Next to the 120px root, not past the 400px host.
+            expect(Math.round(offset)).toBe(Math.round(root.getBoundingClientRect().width));
+            expect(offset).toBeLessThan(host.getBoundingClientRect().width);
+            tooltip.deactivate();
         });
     });
 
