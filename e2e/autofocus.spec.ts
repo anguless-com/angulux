@@ -50,13 +50,26 @@ test('autofocus — a popover focuses the field the app marked, not a component 
     expect(errors).toEqual([]);
 });
 
-test('autofocus — a popover with nothing marked focuses its first button, as Popover documents', async ({ page }) => {
+test('autofocus — a popover with nothing marked focuses its first focusable element, as Popover documents (#187)', async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto('/');
     await page.locator('#sec-autofocus').scrollIntoViewIfNeeded();
 
+    // Until #187 only buttons were considered, so the Save button won over the field above it.
     await page.locator('#af-plain-open button').click();
-    await expect(page.locator('#af-plain-save button')).toBeFocused();
+    await expect(page.locator('#af-plain-name')).toBeFocused();
+
+    expect(errors).toEqual([]);
+});
+
+test('autofocus — initialFocus names the element a popover focuses (#187)', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/');
+    await page.locator('#sec-autofocus').scrollIntoViewIfNeeded();
+
+    await page.locator('#af-named-open button').click();
+    await expect(page.locator('#af-named-save button')).toBeFocused();
+    await expect(page.locator('#af-named-name')).not.toBeFocused();
 
     expect(errors).toEqual([]);
 });
