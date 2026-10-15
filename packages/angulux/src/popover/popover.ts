@@ -54,7 +54,6 @@ const POPOVER_INSTANCE = new InjectionToken<Popover>('POPOVER_INSTANCE');
                 [ngStyle]="style"
                 (click)="onOverlayClick($event)"
                 role="dialog"
-                [attr.aria-modal]="overlayVisible"
                 [attr.aria-label]="ariaLabel"
                 [attr.aria-labelledBy]="ariaLabelledBy"
                 [aglMotion]="overlayVisible"
