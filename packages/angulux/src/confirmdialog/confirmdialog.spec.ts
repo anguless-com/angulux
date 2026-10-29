@@ -1475,3 +1475,125 @@ describe('ConfirmDialog', () => {
         });
     });
 });
+
+// One confirmation must not inherit another's options (anguless-com/anguless-core#140).
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-confirmdialog></agl-confirmdialog>`,
+    providers: [ConfirmationService]
+})
+class TestSequentialConfirmationsComponent {
+    constructor(public confirmationService: ConfirmationService) {}
+}
+
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
+    template: `<agl-confirmdialog header="Bound header" acceptLabel="Bound yes"></agl-confirmdialog>`,
+    providers: [ConfirmationService]
+})
+class TestBoundSequentialConfirmationsComponent {
+    constructor(public confirmationService: ConfirmationService) {}
+}
+
+describe('ConfirmDialog: one confirmation does not inherit another', () => {
+    /** The prompt of the report: everything a later prompt could pick up. */
+    const WITHDRAW = {
+        message: 'Withdraw this request?',
+        header: 'Withdraw',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Submit request',
+        rejectLabel: 'Keep it',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectVisible: false,
+        closable: false
+    };
+    const DISCARD = { message: 'Discard your changes?' };
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            declarations: [TestSequentialConfirmationsComponent, TestBoundSequentialConfirmationsComponent],
+            imports: [ConfirmDialog, Dialog, Button],
+            providers: [provideZonelessChangeDetection()]
+        }).compileComponents();
+    });
+
+    async function settle(fixture: ComponentFixture<unknown>) {
+        fixture.changeDetectorRef.markForCheck();
+        await fixture.whenStable();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        fixture.changeDetectorRef.markForCheck();
+        await fixture.whenStable();
+    }
+
+    /** What the open confirm dialog shows, read from the page. */
+    function shown() {
+        const root = document.querySelector('.p-confirmdialog') as HTMLElement | null;
+        const accept = root?.querySelector('.p-confirmdialog-accept-button') as HTMLElement | null;
+        return {
+            open: !!root,
+            header: root?.querySelector('.p-dialog-title')?.textContent?.trim() ?? '',
+            icon: !!root?.querySelector('.p-confirmdialog-icon'),
+            accept: accept?.textContent?.trim() ?? '',
+            danger: !!accept?.classList.contains('p-button-danger'),
+            reject: !!root?.querySelector('.p-confirmdialog-reject-button'),
+            close: !!root?.querySelector('.p-dialog-close-button')
+        };
+    }
+
+    async function open<T extends { confirmationService: ConfirmationService }>(fixture: ComponentFixture<T>, confirmation: object) {
+        fixture.componentInstance.confirmationService.confirm(confirmation);
+        await settle(fixture);
+        return shown();
+    }
+
+    async function close<T extends { confirmationService: ConfirmationService }>(fixture: ComponentFixture<T>) {
+        fixture.componentInstance.confirmationService.close();
+        await settle(fixture);
+    }
+
+    it('shows a confirmation after another exactly as it shows it on a fresh dialog', async () => {
+        const fresh = TestBed.createComponent(TestSequentialConfirmationsComponent);
+        await settle(fresh);
+        const onFresh = await open(fresh, DISCARD);
+        await close(fresh);
+        fresh.destroy();
+
+        const fixture = TestBed.createComponent(TestSequentialConfirmationsComponent);
+        await settle(fixture);
+        const first = await open(fixture, WITHDRAW);
+        // The precondition: the first prompt did show everything it set.
+        expect(first).toEqual(jasmine.objectContaining({ open: true, header: 'Withdraw', accept: 'Submit request', danger: true, reject: false, close: false }));
+        await close(fixture);
+        const afterIt = await open(fixture, DISCARD);
+
+        expect(onFresh.open).toBe(true);
+        expect(afterIt).toEqual(onFresh);
+        expect(afterIt).toEqual(jasmine.objectContaining({ header: '', icon: false, danger: false, reject: true, close: true }));
+        fixture.destroy();
+    });
+
+    it('keeps the options bound on the element for every confirmation', async () => {
+        const fixture = TestBed.createComponent(TestBoundSequentialConfirmationsComponent);
+        await settle(fixture);
+        await open(fixture, { ...WITHDRAW, header: 'Withdraw', acceptLabel: 'Submit request' });
+        await close(fixture);
+        const afterIt = await open(fixture, DISCARD);
+
+        expect(afterIt.header).toBe('Bound header');
+        expect(afterIt.accept).toBe('Bound yes');
+        fixture.destroy();
+    });
+
+    it("still shows a confirmation's own options", async () => {
+        const fixture = TestBed.createComponent(TestSequentialConfirmationsComponent);
+        await settle(fixture);
+        await open(fixture, WITHDRAW);
+        await close(fixture);
+        const afterIt = await open(fixture, { message: 'Leave the page?', header: 'Leave', acceptLabel: 'Leave' });
+
+        expect(afterIt).toEqual(jasmine.objectContaining({ header: 'Leave', accept: 'Leave', danger: false, reject: true }));
+        fixture.destroy();
+    });
+});
