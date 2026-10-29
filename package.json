@@ -75,9 +75,9 @@
         "@angular/forms": "catalog:angular22",
         "@angular/platform-browser": "catalog:angular22",
         "@angular/router": "catalog:angular22",
-        "@playwright/test": "1.63.0",
+        "@playwright/test": "1.64.1",
         "@types/jasmine": "7.0.0",
-        "@types/node": "26.6.4",
+        "@types/node": "26.6.5",
         "chart.js": "catalog:",
         "cross-env": "^10.1.0",
         "fs-extra": "^11.4.1",
@@ -86,7 +86,7 @@
         "ng-packagr": "catalog:angular22",
         "rxjs": "catalog:angular22",
         "tslib": "catalog:angular22",
-        "tsup": "^8.5.0",
+        "tsup": "^9.0.0",
         "typescript": "catalog:angular22",
         "zone.js": "catalog:angular22"
     }
