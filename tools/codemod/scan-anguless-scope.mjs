@@ -72,7 +72,12 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // `.p-togglebutton-content` and `.p-badge` in `togglebutton.spec.ts` assert it did NOT land on the
 // inner span, and `.p-badge` in `button.spec.ts` asserts a Tailwind `p-4` on the host does not move
 // the anchor off the inner button.
-const P_CLASS_BASELINE = 520;
+// 520 → 526 on 2026-10-29: six in `confirmdialog.spec.ts`, which read what an open confirm dialog
+// shows (`.p-confirmdialog`, its title, icon, accept, reject and close buttons) to prove a
+// confirmation renders exactly as it does on a fresh dialog after another one has run
+// (anguless-com/anguless-core#140). The test compares the page, not the component's fields,
+// because what the user saw was the page.
+const P_CLASS_BASELINE = 526;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];

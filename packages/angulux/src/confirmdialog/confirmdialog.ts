@@ -437,10 +437,12 @@ export class ConfirmDialog extends BaseComponent<ConfirmDialogPassThrough> imple
                 return;
             }
             if (confirmation.key === this.key) {
+                this.restoreOwnOptions();
                 this.confirmation = confirmation;
 
                 const keys = Object.keys(confirmation);
 
+                this.applied = keys.map((key) => ({ key, before: this[key], value: confirmation[key] }));
                 keys.forEach((key) => {
                     this[key] = confirmation[key];
                 });
@@ -554,6 +556,28 @@ export class ConfirmDialog extends BaseComponent<ConfirmDialogPassThrough> imple
 
     onDialogHide() {
         this.confirmation = null;
+    }
+
+    /**
+     * Every key the open confirmation wrote onto this dialog, with what it held before. A confirmation
+     * is applied by copying its keys onto the one long-lived instance, so without putting them back a
+     * key the next confirmation does not set showed the previous one's value: its header, its icon,
+     * its button text, its danger style.
+     */
+    private applied: { key: string; before: unknown; value: unknown }[] = [];
+
+    /**
+     * Puts back what the previous confirmation overwrote, so the next one starts from the dialog's
+     * own options: its defaults and whatever is bound on the element. A key that has changed since
+     * the confirmation set it was set by something else (a binding on the element) and is left as is.
+     */
+    private restoreOwnOptions() {
+        for (const { key, before, value } of this.applied) {
+            if (this[key] === value) {
+                this[key] = before;
+            }
+        }
+        this.applied = [];
     }
 
     destroyStyle() {
