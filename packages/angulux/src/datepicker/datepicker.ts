@@ -257,6 +257,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                             <ng-container *ngIf="date.otherMonth ? showOtherMonths : true">
                                                 <span
                                                     [ngClass]="dayClass(date)"
+                                                    [attr.aria-disabled]="$disabled() || !date.selectable ? true : null"
                                                     (click)="onDateSelect($event, date)"
                                                     draggable="false"
                                                     [attr.data-date]="formatDateKey(formatDateMetaToDate(date))"

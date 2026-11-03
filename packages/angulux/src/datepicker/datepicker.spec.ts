@@ -1995,4 +1995,55 @@ describe('DatePicker', () => {
             expect([value.getHours(), value.getMinutes()]).toEqual([11, 30]);
         });
     });
+
+    // ── An unselectable day says so to assistive technology (#168) ─────────────────
+    //
+    // minDate, maxDate, disabledDates and disabledDays declare days "disabled (not selectable)",
+    // and the picker drew them that way with the p-disabled class, which a screen reader does
+    // not read. Measured in the browser: 19 disabled day cells and no aria-disabled anywhere.
+    describe('Unselectable days and assistive technology', () => {
+        async function inlineMarch(): Promise<HTMLElement> {
+            testComponent.inline = true;
+            testComponent.selectedDate = new Date(2026, 2, 18);
+            testComponent.minDate = new Date(2026, 2, 10);
+            testComponent.disabledDays = [0, 6];
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+            return testFixture.nativeElement as HTMLElement;
+        }
+
+        const day = (root: HTMLElement, key: string) => root.querySelector(`.p-datepicker-day[data-date="${key}"]`) as HTMLElement;
+
+        it('marks a day before minDate aria-disabled', async () => {
+            const root = await inlineMarch();
+            expect(day(root, '2026-2-9').getAttribute('aria-disabled')).toBe('true');
+        });
+
+        it('marks a disabled weekday aria-disabled', async () => {
+            const root = await inlineMarch();
+            expect(day(root, '2026-2-14').getAttribute('aria-disabled')).toBe('true');
+        });
+
+        it('leaves a selectable day without aria-disabled', async () => {
+            const root = await inlineMarch();
+            expect(day(root, '2026-2-18').hasAttribute('aria-disabled')).toBe(false);
+        });
+
+        it('gives every disabled-looking day the attribute, and no other', async () => {
+            const root = await inlineMarch();
+            const days = Array.from(root.querySelectorAll('.p-datepicker-day')) as HTMLElement[];
+            const looksDisabled = days.filter((d) => d.classList.contains('p-disabled')).map((d) => d.getAttribute('data-date'));
+            const saysDisabled = days.filter((d) => d.getAttribute('aria-disabled') === 'true').map((d) => d.getAttribute('data-date'));
+            expect(looksDisabled.length).toBeGreaterThan(0);
+            expect(saysDisabled).toEqual(looksDisabled);
+        });
+
+        it('marks every day aria-disabled when the whole picker is disabled', async () => {
+            testComponent.disabled = true;
+            const root = await inlineMarch();
+            const days = Array.from(root.querySelectorAll('.p-datepicker-day')) as HTMLElement[];
+            expect(days.length).toBeGreaterThan(0);
+            expect(days.every((d) => d.getAttribute('aria-disabled') === 'true')).toBe(true);
+        });
+    });
 });

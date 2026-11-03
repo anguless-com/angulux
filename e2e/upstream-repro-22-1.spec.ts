@@ -19,7 +19,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *
  * MEASURED 2026-11-02, 19 entries: 12 reproduce, 7 do not. The verdict and the mechanism of
  * each are in tools/upstream/seen.json under the digest named on its test. Fixed since: the
- * 12-hour hour buttons and the typed timeOnly time (2026-11-03).
+ * 12-hour hour buttons, the typed timeOnly time and aria-disabled (2026-11-03).
  *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
@@ -63,15 +63,15 @@ test('upstream 22.1.4 · DatePicker — the scene: unselectable days are rendere
     expect(errors).toEqual([]);
 });
 
-test('upstream 22.1.4 · DatePicker — an unselectable day must say so to assistive technology', async ({ page }) => {
-    // REPRODUCES. Measured: 19 day cells carry p-disabled, and no element in the picker carries
-    // aria-disabled — neither the span nor its td. The only disabled signal is a class, which
-    // a screen reader does not read.
-    test.fail();
+test('upstream 22.1.4 · DatePicker — an unselectable day says so to assistive technology', async ({ page }) => {
+    // FIXED 2026-11-03 under Constitution P3.a; held with test.fail() until then. Measured
+    // before: 19 day cells carried p-disabled and no element in the picker carried
+    // aria-disabled. The day span now carries it whenever it carries p-disabled.
     await open(page, 'dp-aria');
-    const day = page.locator('.p-datepicker-day[data-date="2026-2-9"]');
-    const said = await day.evaluate((el) => el.getAttribute('aria-disabled') ?? el.parentElement?.getAttribute('aria-disabled'));
-    expect(said).toBe('true');
+    await expect(page.locator('.p-datepicker-day[data-date="2026-2-9"]')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('.p-datepicker-day[data-date="2026-2-14"]')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.locator('.p-datepicker-day[data-date="2026-2-18"]')).not.toHaveAttribute('aria-disabled', /.*/);
+    expect(await page.locator('.p-datepicker-day.p-disabled:not([aria-disabled="true"])').count()).toBe(0);
 });
 
 /** 22.1.4 · DatePicker · 2c0b4d9bb30d. */
