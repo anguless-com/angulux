@@ -33,9 +33,12 @@ From [the promotion issue template](../.github/ISSUE_TEMPLATE/module_promotion.y
    checks, the `corpusSourceHash` in the MCP benchmark, this page (regenerate it, do
    not edit it), and the prose counts in the README and the issue templates.
 
-Two traps worth knowing before you start. The attic is **un-renamed** — its imports still say
-`primeng/*` — so the rename codemod has to run over it. And a promotion may need upstream
+Three traps worth knowing before you start. The attic is **un-renamed** — its imports still say
+`primeng/*` — so the rename codemod has to run over it. A promotion may need upstream
 attribute names added to `selectors.json`, or `check:names` stays blind to them in templates.
+And the module's stylesheet still selects its hosts as `p-*` elements, which the codemod does
+not rewrite: `check:names` fails on each one, and the replacement lists every spelling the
+component's `selector:` declares, because `style-host-selectors` in `npm run test:tools` checks that.
 
 ## All 52, cheapest first
 
