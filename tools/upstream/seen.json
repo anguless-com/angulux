@@ -182,6 +182,141 @@
         "22.0.0 · Highlights · d6b868399b5a": {
             "verdict": "cross-cutting",
             "module": null
+        },
+        "22.1.4 · DatePicker · 769fb13bdf0f": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-02. In an inline picker with a minDate and weekends disabled, 19 day cells carry the p-disabled class and no element in the picker carries aria-disabled, neither the day span nor its td. The class is the only disabled signal, and a screen reader does not read classes. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.4 · Table · 5b2f43899b05": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce, measured 2026-11-02. In a virtual-scroll table of 1,000 rows, a 200 px scroll keeps every row still in view as the same DOM element and adds only the rows that scrolled in; a resize recreates none. Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.4 · DatePicker · 2c0b4d9bb30d": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-02, in the INLINE picker only. Enter on the next-month button moves the month and drops focus on <body>, because the header holding the button is rebuilt with the month and nothing puts focus back: the restore in the contentWrapper setter runs only when this.overlay is set, which an inline picker never sets. The popup keeps focus (ArrowLeft from 1 March lands on 28 February, PageDown on 28 March). Measured alongside: the inline day grid has no tabindex=0 cell, so Tab goes prev, month, year, next and then leaves the picker without reaching a day. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.4 · Table · 096a73ca9524": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "REPRODUCED 2026-11-02, only when a column filter is declared. Without one, resetPageOnSort=false keeps page 3 on sort. With a <agl-columnFilter> in the header, page 3 becomes page 1: the filter registers an empty constraint when it starts, so hasFilter() is true from then on, and sortSingle() runs _filter(), which sets first = 0 and resets the scroll without reading resetPageOnSort. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.4 · Drawer · 717c3af903be": {
+            "verdict": "follow",
+            "module": "drawer",
+            "note": "REPRODUCED 2026-11-02, exactly as stated. In a ViewEncapsulation.ShadowDom host, opening a modal drawer throws \"TypeError: Cannot read properties of undefined (reading 'style')\" from enableModality() and no mask is created. enableModality() counts open drawers with document.querySelectorAll('[data-p-open=\"true\"]'), which does not see into a shadow root; with zero found it reads the entry at index -1. The same drawer in the light DOM opens with its mask and no error. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.3 · Table · 808f9fd0181d": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce, measured 2026-11-02. The sort icon renders sort-alt on an unsorted column, sort-amount-down for an initial [sortOrder]=\"-1\", and sort-amount-up-alt after a click, with aria-sort and p-datatable-column-sorted set. A static sortOrder=\"-1\" attribute does not compile under strictTemplates (the input has no number transform), so it was not measured. Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.3 · DatePicker · 05c817919d3e": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-02, as a date loss. Typing 11:30 into a timeOnly picker bound to 2020-01-15 10:00 produced TODAY at 11:30: parseDateTime() builds a typed time on new Date() when timeOnly is set. The hour button on the same picker keeps the date (2020-01-15 11:00), so the two input paths disagree. Not reproduced: a 12-hour timeOnly picker with no value shows the current hour correctly (a reading of the source had predicted 00). Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.3 · MultiSelect · dca7c6429b5f": {
+            "verdict": "follow",
+            "module": "multiselect",
+            "note": "REPRODUCED 2026-11-02, with [selectAll] bound to a field that was never assigned. onToggleAll() tests selectAll != null and allSelected() tests selectAll !== null, so undefined is uncontrolled to the first and an answer of undefined to the second: every click takes the select-all branch. The second click re-selects all four options and the checkbox shows unchecked over them. Unbound, and with a disabled option preselected, select-all and unselect-all both work. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.3 · Toast · ddf710dbc96a": {
+            "verdict": "follow",
+            "module": "toast",
+            "note": "Does NOT reproduce: angulux has no swipe-to-dismiss. toast.ts has no touch or pointer handler, so a swipe leaves every message in place and there is no half-dismissed state to leak. Measured 2026-11-02 with a real CDP touch swipe; the close button then removes the right message by index. Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.3 · Table · ec1148b1cfc0": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "REPRODUCED 2026-11-02, and the cause is CSS, not the component. Script time per render on Chrome: 1,000 / 2,000 / 4,000 / 8,000 / 16,000 rows took 15 / 35 / 100 / 321 / 1,225 ms (each doubling x2.2, 2.9, 3.2, 3.8, converging on x4), against a native table of the same rows at 3 / 4 / 6 / 10 / 20 ms. A CPU profile put the growth in the DOM's insertBefore (1.7 ms at 4,000 rows, 697 ms at 16,000). Deleting one rule, .p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td (angulux-styles/datatable), took 16,000 rows from 1,172 ms to 144 ms, the same as with every stylesheet disabled (139 ms). The gate holds the mechanism, not a timing a slow runner could flake. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.3 · TreeTable · 5188ee327f1f": {
+            "verdict": "follow",
+            "module": "treetable",
+            "note": "Does NOT reproduce, measured 2026-11-02. Same sizes as the table: 35 / 64 / 140 / 368 / 892 ms (x1.8, 2.2, 2.6, 2.4) for flat nodes, and the same shape with nine expanded children per node. The treetable stylesheet loaded at runtime carries no :has() rule that looks at the next row, which is the difference from the table entry of the same release. The passing test in e2e/upstream-repro-22-1.spec.ts holds on to that."
+        },
+        "22.1.3 · Overlay · d1ba5cd100ac": {
+            "verdict": "follow",
+            "module": "overlay",
+            "note": "REPRODUCED 2026-11-02. After an option is picked, a Select panel stays in place through its leave phase with pointer-events auto: hovering focuses another option and a click selects it. At the DEFAULT timing, sampled every frame, the panel stays hit-testable for about 320 ms after the selecting click, which a quick second click reaches. The gate stretches the leave phase to 1.5 s through motionOptions so the window is hit on purpose; the length of the window does not decide whether it takes pointer events. Overlay listeners are removed only in onOverlayAfterLeave. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.2 · ConfirmDialog · fa30946dc213": {
+            "verdict": "follow",
+            "module": "confirmdialog",
+            "note": "Does NOT reproduce, measured 2026-11-02. acceptIcon and rejectIcon render as <i class=\"pi pi-check\"> and <i class=\"pi pi-times\"> on the accept and reject buttons, both when set as inputs on <agl-confirmdialog> and when carried by the confirmation object. Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.2 · DatePicker · a01f058bf31d": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-02, on a 12-hour clock next to a bound; without a bound the buttons step correctly through noon. Four scenarios, all on 15 March 2026: (1) 4 PM, maxDate 5 PM, two increments: shows \"17 PM\", value 05:00 the NEXT DAY. (2) 1:45 PM, minDate 1:30 PM, one decrement: shows \"13 PM\", value 01:30 the NEXT DAY. (3) stepHour=2 back from 1 PM: 11 PM instead of 11 AM, since PM flips only on passing exactly 12. (4) 11 AM, maxDate 11:30 AM, one increment: 11:30 PM, twelve hours past the maximum. The clamps in incrementHour/decrementHour write 24-hour values into a 12-hour field and leave pm set. Silent, and the value lands outside the bound the app declared. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed. (one held test per scenario, so a partial fix announces itself)."
+        },
+        "22.1.1 · Table · 9155687471bf": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce, measured 2026-11-02, in three shapes: lazy with no state, lazy with stateKey, and lazy with stateKey and reorderableColumns, each receiving its columns together with the first page from onLazyLoad. All render two header cells and two cells per row, before and after a reload restores the saved state (including a saved columnOrder). Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.1 · Table · 9b82eeae3e1b": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce, measured 2026-11-02. With a paginator and 20 rows, a menu column filter takes totalRecords to 2 and its Clear button back to 20; a row filter does the same when its text is emptied (it filters on Enter, the filterOn default). The paginator report follows both. Kept as a passing test in e2e/upstream-repro-22-1.spec.ts."
+        },
+        "22.1.1 · Menu · 621fd8489601": {
+            "verdict": "follow",
+            "module": "menu",
+            "note": "REPRODUCED 2026-11-02, in part. Arrow keys move through items drawn by a custom #item template as they do without one. Activation does not: with a template drawing a plain <span>, Enter and Space run nothing. onEnterKey() clicks a link or button inside the item and otherwise clicks the <li>, but the click handler sits on the content element inside the <li>, which a click on the <li> never reaches. A template that draws an <a> is not affected. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.1 · Dialog · fa3ac51daa10": {
+            "verdict": "follow",
+            "module": "dialog",
+            "note": "REPRODUCED 2026-11-02. [appendTo] set to an element puts the dialog's mask under document.body, not inside the element: any value other than 'self' appends to body. The input's own documentation names \"a local ng-template variable of another element\" as a valid value. appendTo=\"body\" behaves as declared. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.1 · DatePicker · 1843658c4d5a": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-02. With a required FormControl, pressing the mouse on a day blurs the input, which calls onModelTouched while the control is still empty: an error gated on touched && invalid appears, and goes away when the click lands and the value is written (event order: touched, value, status). From the keyboard it lasts longer: ArrowDown moves focus into the grid, marks the control touched, and the error stays up while the user chooses. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+        },
+        "22.1.4 · TreeSelect · 36929d763057": {
+            "verdict": "attic",
+            "module": "treeselect",
+            "note": "Parked in attic/, so nothing ships treeselect and nothing was measured (2026-11-02). This one is a feature, a new template, not a defect; adding a template is API and would wait for the Angular 23 round even after promotion. Revisit when treeselect is promoted: #63 is the promotion issue, and the promotion has to reproduce this against our copy first."
+        },
+        "22.1.4 · Showcase · bb3d67a5f747": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "Their documentation site, not a library module. Nothing to measure here (2026-11-02)."
+        },
+        "22.1.4 · Panel · 5c419dc9f2cd": {
+            "verdict": "attic",
+            "module": "panel",
+            "note": "Parked in attic/, so nothing ships panel and nothing was measured (2026-11-02). A keyboard-reachability defect in the collapsed state. Revisit when panel is promoted: #47 is the promotion issue, and the promotion has to reproduce this against our copy first."
+        },
+        "22.1.4 · ConfirmPopup · 9bae2c59ccb5": {
+            "verdict": "attic",
+            "module": "confirmpopup",
+            "note": "Parked in attic/, so nothing ships confirmpopup and nothing was measured (2026-11-02). A missing ConfirmEventType on two reject paths. Revisit when confirmpopup is promoted: #20 is the promotion issue, and the promotion has to reproduce this against our copy first."
+        },
+        "22.1.4 · CommandMenu · a98b65b79bf9": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "No CommandMenu in angulux, shipped or parked, and the entry is about an example on their documentation site. Nothing to measure here (2026-11-02)."
+        },
+        "22.1.3 · Showcase · d52d8d3fd839": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "Their documentation site, not a library module. Nothing to measure here (2026-11-02)."
+        },
+        "22.1.1 · Carousel · cad681246155": {
+            "verdict": "attic",
+            "module": "carousel",
+            "note": "Parked in attic/, so nothing ships carousel and nothing was measured (2026-11-02). The page input not setting the initial page. Revisit when carousel is promoted: #17 is the promotion issue, and the promotion has to reproduce this against our copy first."
+        },
+        "22.1.1 · TreeSelect · fe9ce2c40b70": {
+            "verdict": "attic",
+            "module": "treeselect",
+            "note": "Parked in attic/, so nothing ships treeselect and nothing was measured (2026-11-02). A positioning defect with virtual scrolling. Revisit when treeselect is promoted: #63 is the promotion issue, and the promotion has to reproduce this against our copy first."
         }
     }
 }
