@@ -216,7 +216,7 @@
         "22.1.3 · DatePicker · 05c817919d3e": {
             "verdict": "follow",
             "module": "datepicker",
-            "note": "REPRODUCED 2026-11-02, as a date loss. Typing 11:30 into a timeOnly picker bound to 2020-01-15 10:00 produced TODAY at 11:30: parseDateTime() builds a typed time on new Date() when timeOnly is set. The hour button on the same picker keeps the date (2020-01-15 11:00), so the two input paths disagree. Not reproduced: a 12-hour timeOnly picker with no value shows the current hour correctly (a reading of the source had predicted 00). Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+            "note": "REPRODUCED 2026-11-02, as a date loss, then FIXED 2026-11-03 under Constitution P3.a. Typing 11:30 into a timeOnly picker bound to 2020-01-15 10:00 produced TODAY at 11:30: parseDateTime() builds a typed time on new Date() when timeOnly is set. The hour button on the same picker keeps the date (2020-01-15 11:00), so the two input paths disagree. Not reproduced: a 12-hour timeOnly picker with no value shows the current hour correctly (a reading of the source had predicted 00). Fix: a typed time is built on the date of the bound value, so it writes the instant the hour button writes; with no value it still starts from today. The date is remembered apart from the model, because typing empties the model on the way (\"1\" is not a time): a first version that read the model passed a unit test that set the whole string at once and failed the browser test, which types one key at a time. Held with test.fail() until the fix."
         },
         "22.1.3 · MultiSelect · dca7c6429b5f": {
             "verdict": "follow",

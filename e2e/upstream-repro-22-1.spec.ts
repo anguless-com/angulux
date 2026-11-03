@@ -19,7 +19,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *
  * MEASURED 2026-11-02, 19 entries: 12 reproduce, 7 do not. The verdict and the mechanism of
  * each are in tools/upstream/seen.json under the digest named on its test. Fixed since: the
- * 12-hour hour buttons (2026-11-03).
+ * 12-hour hour buttons and the typed timeOnly time (2026-11-03).
  *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
@@ -123,16 +123,16 @@ test('upstream 22.1.3 · DatePicker — the scene: in timeOnly, the hour button 
     expect(errors).toEqual([]);
 });
 
-test('upstream 22.1.3 · DatePicker — a time typed into timeOnly must keep the date of the value', async ({ page }) => {
-    // REPRODUCES. Typing 11:30 over 2020-01-15 10:00 produced TODAY at 11:30: parseDateTime()
-    // builds the typed time on `new Date()` when timeOnly is set, so the bound value's date is
-    // replaced without a word. The hour button above keeps it, so the two input paths disagree.
-    test.fail();
+test('upstream 22.1.3 · DatePicker — a time typed into timeOnly keeps the date of the value', async ({ page }) => {
+    // FIXED 2026-11-03 under Constitution P3.a; held with test.fail() until then. Typing 11:30
+    // over 2020-01-15 10:00 produced TODAY at 11:30, because parseDateTime() built a typed time
+    // on new Date() when timeOnly was set. It now builds it on the bound value, as the hour
+    // button above always did.
     await open(page, 'dp-timeonly');
     await page.locator('#dp-timeonly-input').click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type('11:30');
-    await expect(page.locator('#probe-dp-timeonly')).toHaveText('2020-01-15 11:30', { timeout: 2000 });
+    await expect(page.locator('#probe-dp-timeonly')).toHaveText('2020-01-15 11:30');
 });
 
 /**
