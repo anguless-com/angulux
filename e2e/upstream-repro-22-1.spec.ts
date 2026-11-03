@@ -19,7 +19,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *
  * MEASURED 2026-11-02, 19 entries: 12 reproduce, 7 do not. The verdict and the mechanism of
  * each are in tools/upstream/seen.json under the digest named on its test. Fixed since: the
- * 12-hour hour buttons, the typed timeOnly time and aria-disabled (2026-11-03).
+ * 12-hour hour buttons, the typed timeOnly time, aria-disabled and Dialog appendTo (2026-11-03).
  *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
@@ -323,11 +323,10 @@ test("upstream 22.1.1 · Dialog — the scene: appendTo body puts the dialog's m
     expect(errors).toEqual([]);
 });
 
-test('upstream 22.1.1 · Dialog — appendTo an element must put the dialog inside that element', async ({ page }) => {
-    // REPRODUCES. Any appendTo other than 'self' appends the wrapper to document.body, so an
-    // element target is ignored — while the input's own documentation names "a local
-    // ng-template variable of another element" as a valid value.
-    test.fail();
+test('upstream 22.1.1 · Dialog — appendTo an element puts the dialog inside that element', async ({ page }) => {
+    // FIXED 2026-11-03 under Constitution P3.a; held with test.fail() until then. Every
+    // appendTo other than 'self' appended the wrapper to document.body, while the input's own
+    // documentation names "a local ng-template variable of another element" as a valid value.
     await open(page, 'dialog-append');
     await page.locator('#dialog-append-open').click();
     await expect(page.locator('.dialog-to-element')).toBeVisible();

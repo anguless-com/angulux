@@ -1376,6 +1376,66 @@ describe('Dialog', () => {
         });
     });
 
+    // ── appendTo an element (#168) ────────────────────────────────────────────────
+    //
+    // appendTo documents "a local ng-template variable of another element" as a valid value, and
+    // every value other than 'self' went to document.body: measured in the browser, the dialog's
+    // mask sat under body with [appendTo]="mydiv". Drawer and Overlay already honoured an element.
+    describe('appendTo', () => {
+        @Component({
+            changeDetection: ChangeDetectionStrategy.Eager,
+            standalone: false,
+            template: `
+                <div id="append-target" #target></div>
+                <agl-dialog [visible]="visible" [appendTo]="mode === 'element' ? target : mode" header="Append" styleClass="append-probe">Content</agl-dialog>
+            `
+        })
+        class TestAppendToComponent {
+            visible = true;
+            mode: 'element' | 'body' | 'self' = 'element';
+        }
+
+        async function openWith(mode: TestAppendToComponent['mode']): Promise<ComponentFixture<TestAppendToComponent>> {
+            TestBed.resetTestingModule();
+            await TestBed.configureTestingModule({
+                declarations: [TestAppendToComponent],
+                imports: [Dialog],
+                providers: [provideZonelessChangeDetection()]
+            }).compileComponents();
+            const host = TestBed.createComponent(TestAppendToComponent);
+            host.componentInstance.mode = mode;
+            host.changeDetectorRef.markForCheck();
+            await host.whenStable();
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            return host;
+        }
+
+        const dialogElement = () => document.querySelector('.append-probe') as HTMLElement | null;
+
+        it('puts the dialog inside an element target', async () => {
+            const host = await openWith('element');
+            const target = host.nativeElement.querySelector('#append-target') as HTMLElement;
+            expect(dialogElement()).not.toBeNull();
+            expect(target.contains(dialogElement())).toBe(true);
+            host.destroy();
+        });
+
+        it("still puts it under body for 'body'", async () => {
+            const host = await openWith('body');
+            const dialog = dialogElement();
+            expect(dialog).not.toBeNull();
+            expect(dialog!.parentElement!.parentElement).toBe(document.body);
+            host.destroy();
+        });
+
+        it("still leaves it in place for 'self'", async () => {
+            const host = await openWith('self');
+            expect(host.nativeElement.contains(dialogElement())).toBe(true);
+            expect((host.nativeElement.querySelector('#append-target') as HTMLElement).contains(dialogElement())).toBe(false);
+            host.destroy();
+        });
+    });
+
     describe('PT (PassThrough) Tests', () => {
         describe('Case 1: Simple string classes', () => {
             @Component({
