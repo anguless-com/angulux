@@ -77,7 +77,10 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // confirmation renders exactly as it does on a fresh dialog after another one has run
 // (anguless-com/anguless-core#140). The test compares the page, not the component's fields,
 // because what the user saw was the page.
-const P_CLASS_BASELINE = 526;
+// 526 → 528 on 2026-11-03: two in `datepicker.spec.ts`, which read the day cells (`.p-datepicker-day`)
+// to prove every day drawn as disabled also says so to assistive technology (#168). Like the six
+// above, the test compares what the page shows, not the component's fields.
+const P_CLASS_BASELINE = 528;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];

@@ -186,7 +186,7 @@
         "22.1.4 · DatePicker · 769fb13bdf0f": {
             "verdict": "follow",
             "module": "datepicker",
-            "note": "REPRODUCED 2026-11-02. In an inline picker with a minDate and weekends disabled, 19 day cells carry the p-disabled class and no element in the picker carries aria-disabled, neither the day span nor its td. The class is the only disabled signal, and a screen reader does not read classes. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+            "note": "REPRODUCED 2026-11-02, then FIXED 2026-11-03 under Constitution P3.a. In an inline picker with a minDate and weekends disabled, 19 day cells carry the p-disabled class and no element in the picker carries aria-disabled, neither the day span nor its td. The class is the only disabled signal, and a screen reader does not read classes. Fix: the day span carries aria-disabled=\"true\" exactly when it carries p-disabled (before minDate, after maxDate, a disabled date or weekday, or the whole picker disabled). Condition 2 of P3.a: the inputs declare those days \"disabled (not selectable)\", and the picker withheld that from the accessibility tree. Held with test.fail() until the fix."
         },
         "22.1.4 · Table · 5b2f43899b05": {
             "verdict": "follow",
