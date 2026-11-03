@@ -18,7 +18,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *     that would notice a regression, and the only evidence the question was asked.
  *
  * MEASURED 2026-11-02, 19 entries: 12 reproduce, 7 do not. The verdict and the mechanism of
- * each are in tools/upstream/seen.json under the digest named on its test.
+ * each are in tools/upstream/seen.json under the digest named on its test. Fixed since: the
+ * 12-hour hour buttons (2026-11-03).
  *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
@@ -173,37 +174,36 @@ test('upstream 22.1.2 · DatePicker — the scene: with no bound in reach, the 1
     expect(errors).toEqual([]);
 });
 
-test('upstream 22.1.2 · DatePicker — stepping the hour into maxDate must stop at maxDate', async ({ page }) => {
-    // REPRODUCES. 4 PM with maxDate 5 PM, two increments: the hour shows "17 PM" and the value
-    // becomes 05:00 the NEXT DAY. The clamp writes the 24-hour value into a 12-hour field, and
-    // the PM offset is added on top.
-    test.fail();
+// FIXED 2026-11-03 under Constitution P3.a. The four tests below were held with test.fail() from
+// 2026-11-02 until then. The step and the clamp now run on a 24-hour clock and only the result is
+// turned back into a 12-hour hour, so each lands where the same picker on a 24-hour clock lands
+// (asserted in datepicker.spec.ts). Measured before the fix: "17 PM" and 05:00 the next day;
+// "13 PM" and 01:30 the next day; 11 PM; 11:30 PM.
+
+test('upstream 22.1.2 · DatePicker — stepping the hour into maxDate stops at maxDate', async ({ page }) => {
     await open(page, 'dp-hour');
     expect(await stepHour(page, 'max', 'increment', 2)).toBe('2026-03-15 17:00');
+    await expect(page.locator('#dp-hour-max .p-datepicker-hour-picker > span')).toHaveText('05');
+    await expect(page.locator('#dp-hour-max .p-datepicker-ampm-picker > span')).toHaveText('PM');
 });
 
-test('upstream 22.1.2 · DatePicker — stepping the hour below minDate must stop at minDate', async ({ page }) => {
-    // REPRODUCES. 1:45 PM with minDate 1:30 PM, one decrement: the hour shows "13 PM" and the
-    // value becomes 01:30 the NEXT DAY.
-    test.fail();
+test('upstream 22.1.2 · DatePicker — stepping the hour below minDate stops at minDate', async ({ page }) => {
+    // The minimum itself, minutes included, as the 24-hour picker has always clamped it.
     await open(page, 'dp-hour');
-    expect(await stepHour(page, 'min', 'decrement', 1)).toBe('2026-03-15 13:45');
+    expect(await stepHour(page, 'min', 'decrement', 1)).toBe('2026-03-15 13:30');
+    await expect(page.locator('#dp-hour-min .p-datepicker-hour-picker > span')).toHaveText('01');
 });
 
-test('upstream 22.1.2 · DatePicker — a two-hour step back from 1 PM must land on 11 AM', async ({ page }) => {
-    // REPRODUCES. stepHour=2 from 1 PM lands on 11 PM: AM/PM flips only when the hour passes
-    // exactly 12, and a step of two jumps over it.
-    test.fail();
+test('upstream 22.1.2 · DatePicker — a two-hour step back from 1 PM lands on 11 AM', async ({ page }) => {
     await open(page, 'dp-hour');
     expect(await stepHour(page, 'step', 'decrement', 1)).toBe('2026-03-15 11:00');
+    await expect(page.locator('#dp-hour-step .p-datepicker-ampm-picker > span')).toHaveText('AM');
 });
 
-test('upstream 22.1.2 · DatePicker — an increment past noon that maxDate forbids must not land in the evening', async ({ page }) => {
-    // REPRODUCES. 11 AM with maxDate 11:30 AM, one increment: the value becomes 11:30 PM, twelve
-    // hours past the maximum. PM is switched on before the clamp, and the clamp never resets it.
-    test.fail();
+test('upstream 22.1.2 · DatePicker — an increment past noon that maxDate forbids stays at maxDate in the morning', async ({ page }) => {
     await open(page, 'dp-hour');
-    expect(await stepHour(page, 'noon', 'increment', 1)).not.toMatch(/ (1[2-9]|2\d):/);
+    expect(await stepHour(page, 'noon', 'increment', 1)).toBe('2026-03-15 11:30');
+    await expect(page.locator('#dp-hour-noon .p-datepicker-ampm-picker > span')).toHaveText('AM');
 });
 
 /** 22.1.1 · DatePicker · 1843658c4d5a. */

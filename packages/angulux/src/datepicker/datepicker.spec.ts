@@ -1860,4 +1860,83 @@ describe('DatePicker', () => {
             expect(picker.constrainTime(9, 10, 0, false)).toEqual([9, 30, 15]);
         });
     });
+
+    // ── Twelve-hour clock beside a bound (#168) ─────────────────────────────────────
+    //
+    // The hour buttons used to step and clamp on the DISPLAYED hour. Bounds are read with
+    // getHours(), which is 24-hour, so on a 12-hour clock a clamp wrote 17 into a field holding
+    // 1 to 12 and updateTime() added the PM offset on top. Measured in the browser: 4 PM stepped
+    // twice toward a 5 PM maximum became 05:00 the next day; 1:45 PM stepped once toward a 1:30
+    // PM minimum became 01:30 the next day; 11 AM toward an 11:30 AM maximum became 11:30 PM; a
+    // two-hour step back from 1 PM landed on 11 PM.
+    //
+    // The 24-hour picker never had the problem, so it is the reference: each scenario runs on
+    // both clocks and must write the SAME instant, as well as the one written out below.
+    describe('Twelve-hour clock beside a bound', () => {
+        const at = (h: number, m = 0) => new Date(2026, 2, 15, h, m, 0, 0);
+
+        interface Scenario {
+            name: string;
+            value: Date;
+            min?: Date;
+            max?: Date;
+            step?: number;
+            direction: 1 | -1;
+            times: number;
+            expected: Date;
+        }
+
+        const scenarios: Scenario[] = [
+            { name: 'stops at maxDate instead of running into the next day', value: at(16), max: at(17), direction: 1, times: 2, expected: at(17) },
+            { name: 'stops at minDate instead of running into the next day', value: at(13, 45), min: at(13, 30), direction: -1, times: 1, expected: at(13, 30) },
+            { name: 'stays in the morning when maxDate forbids noon', value: at(11), max: at(11, 30), direction: 1, times: 1, expected: at(11, 30) },
+            { name: 'lands on 11 AM two hours back from 1 PM', value: at(13), step: 2, direction: -1, times: 1, expected: at(11) },
+            { name: 'crosses noon forward', value: at(11), direction: 1, times: 1, expected: at(12) },
+            { name: 'crosses noon backward', value: at(12), direction: -1, times: 1, expected: at(11) },
+            { name: 'wraps from 11 PM to midnight on the same day', value: at(23), direction: 1, times: 1, expected: at(0) },
+            { name: 'wraps from midnight to 11 PM on the same day', value: at(0), direction: -1, times: 1, expected: at(23) }
+        ];
+
+        async function step(s: Scenario, hourFormat: '12' | '24'): Promise<Date> {
+            testComponent.showTime = true;
+            testComponent.inline = true;
+            testComponent.hourFormat = hourFormat;
+            testComponent.stepHour = s.step ?? 1;
+            testComponent.minDate = s.min ?? null;
+            testComponent.maxDate = s.max ?? null;
+            testComponent.selectedDate = new Date(s.value.getTime());
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+
+            const picker = testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+            const event = { preventDefault: () => {} };
+            for (let i = 0; i < s.times; i++) {
+                if (s.direction === 1) picker.incrementHour(event);
+                else picker.decrementHour(event);
+            }
+            // What a mouseup on the button does: write the picker's time into the model.
+            picker.updateTime();
+            return picker.value as Date;
+        }
+
+        for (const s of scenarios) {
+            it(s.name, async () => {
+                const twelve = await step(s, '12');
+                expect(twelve.getTime()).toBe(s.expected.getTime());
+            });
+
+            it(`${s.name}: the 12-hour clock writes what the 24-hour clock writes`, async () => {
+                const twelve = await step(s, '12');
+                const twentyFour = await step(s, '24');
+                expect(twelve.getTime()).toBe(twentyFour.getTime());
+            });
+        }
+
+        it('shows the clamped hour as a 12-hour hour with the right meridiem', async () => {
+            await step(scenarios[0], '12');
+            const picker = testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+            expect(picker.currentHour).toBe(5);
+            expect(picker.pm).toBe(true);
+        });
+    });
 });
