@@ -2693,10 +2693,7 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
     }
 
     constrainTime(hour: number, minute: number, second: number, pm: boolean) {
-        let returnTimeTriple: number[] = [hour, minute, second];
-        let minHoursExceeds12: boolean = false;
         let value = this.value;
-        const convertedHour = this.convertTo24Hour(hour, pm);
         const isRange = this.isRangeSelection(),
             isMultiple = this.isMultipleSelection(),
             isMultiValue = isRange || isMultiple;
@@ -2713,86 +2710,54 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
             }
         }
         const valueDateString = value && isDate(value) ? value.toDateString() : null;
-        let isMinDate = this.minDate && valueDateString && this.minDate.toDateString() === valueDateString;
-        let isMaxDate = this.maxDate && valueDateString && this.maxDate.toDateString() === valueDateString;
+        const isMinDate = this.minDate && valueDateString && this.minDate.toDateString() === valueDateString;
+        const isMaxDate = this.maxDate && valueDateString && this.maxDate.toDateString() === valueDateString;
+
+        // The clamp runs on a 24-hour clock whatever the picker displays, and only the result is
+        // turned back into what a 12-hour picker shows (#168).
+        //
+        // It used to run on the displayed hour. Every bound is read with getHours(), which is
+        // 24-hour, so on a 12-hour clock the branches wrote 17 into a field that holds 1 to 12, and
+        // updateTime() then added the PM offset on top: 4 PM stepped twice toward a 5 PM maximum
+        // became 05:00 the NEXT DAY, and 1:45 PM stepped once toward a 1:30 PM minimum became 01:30
+        // the next day. AM/PM was never set from the clamped time either, so 11 AM stepped toward
+        // an 11:30 AM maximum came out as 11:30 PM. Each was written into the bound model with
+        // nothing reported. Measured in e2e/upstream-repro-22-1.spec.ts.
+        //
+        // The rule itself is the one the 24-hour picker always applied, and still applies: a time
+        // before the minimum becomes the minimum, a time after the maximum becomes the maximum,
+        // compared hour, then minute, then second. (The switch this replaces said the same thing
+        // through fall-through; two of its branches assigned a hard-coded 11 until 2026-09-05.)
+        let time = [this.convertTo24Hour(hour, pm), minute, second];
+        const compare = (a: number[], b: number[]) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 
         if (isMinDate) {
-            minHoursExceeds12 = this.minDate!.getHours() >= 12;
+            const min = [this.minDate!.getHours(), this.minDate!.getMinutes(), this.minDate!.getSeconds()];
+            if (compare(time, min) < 0) time = min;
         }
 
-        switch (
-            true // intentional fall through
-        ) {
-            // TWO BRANCHES REMOVED HERE, both of which assigned a hard-coded 11.
-            //
-            // They read:
-            //
-            //     case isMinDate && minHoursExceeds12 && minDate.getHours() === 12
-            //          && minDate.getHours() > convertedHour:
-            //         returnTimeTriple[0] = 11;
-            //     case isMinDate && !minHoursExceeds12 && minDate.getHours() - 1 === convertedHour
-            //          && minDate.getHours() > convertedHour:
-            //         returnTimeTriple[0] = 11;
-            //         this.pm = true;
-            //
-            // 11 is neither the minimum nor the hour the user asked for. With minDate and the
-            // value both at 09:00 and one step down, the second branch matched (9 - 1 === 8 and
-            // 9 > 8) and the picker rendered 11 — then updateTime() wrote 11:00 into the bound
-            // model. The application asked for a minimum of 09:00 and received a later time it
-            // never chose, with nothing reported. Measured in e2e/upstream-repro.spec.ts.
-            //
-            // Deleting them is safe because each condition is a STRICT SUBSET of a general
-            // clamp further down, and those clamps already do the right thing:
-            //   • the first is subsumed by the minHoursExceeds12 branch below, which converts
-            //     properly through setCurrentHourPM() instead of guessing;
-            //   • the second is subsumed by the plain "minDate.getHours() > convertedHour"
-            //     branch, which assigns the minimum itself.
-            // The minute and second lines they fell through into are repeated verbatim in both
-            // of those groups, so minute and second clamping is unchanged.
-            //
-            // this.pm = true was wrong on its own terms as well: that branch only ran when the
-            // minimum was BEFORE noon.
-            case isMinDate && minHoursExceeds12 && this.minDate!.getHours() > convertedHour && convertedHour !== 12:
-                this.setCurrentHourPM(this.minDate!.getHours());
-                returnTimeTriple[0] = this.currentHour || 0;
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() > minute:
-                returnTimeTriple[1] = this.minDate!.getMinutes();
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() === minute && this.minDate!.getSeconds() > second:
-                returnTimeTriple[2] = this.minDate!.getSeconds();
-                break;
-            case isMinDate && this.minDate!.getHours() > convertedHour:
-                returnTimeTriple[0] = this.minDate!.getHours();
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() > minute:
-                returnTimeTriple[1] = this.minDate!.getMinutes();
-            case isMinDate && this.minDate!.getHours() === convertedHour && this.minDate!.getMinutes() === minute && this.minDate!.getSeconds() > second:
-                returnTimeTriple[2] = this.minDate!.getSeconds();
-                break;
-            case isMaxDate && this.maxDate!.getHours() < convertedHour:
-                returnTimeTriple[0] = this.maxDate!.getHours();
-            case isMaxDate && this.maxDate!.getHours() === convertedHour && this.maxDate!.getMinutes() < minute:
-                returnTimeTriple[1] = this.maxDate!.getMinutes();
-            case isMaxDate && this.maxDate!.getHours() === convertedHour && this.maxDate!.getMinutes() === minute && this.maxDate!.getSeconds() < second:
-                returnTimeTriple[2] = this.maxDate!.getSeconds();
-                break;
+        if (isMaxDate) {
+            const max = [this.maxDate!.getHours(), this.maxDate!.getMinutes(), this.maxDate!.getSeconds()];
+            if (compare(time, max) > 0) time = max;
         }
 
-        return returnTimeTriple;
+        if (this.hourFormat == '12') {
+            this.pm = time[0] > 11;
+            return [time[0] % 12 === 0 ? 12 : time[0] % 12, time[1], time[2]];
+        }
+
+        return time;
     }
 
     incrementHour(event: any) {
-        const prevHour = this.currentHour ?? 0;
-        let newHour = (this.currentHour ?? 0) + this.stepHour;
-        let newPM = this.pm;
-        if (this.hourFormat == '24') newHour = newHour >= 24 ? newHour - 24 : newHour;
-        else if (this.hourFormat == '12') {
-            // Before the AM/PM break, now after
-            if (prevHour < 12 && newHour > 11) {
-                newPM = !this.pm;
-            }
-            newHour = newHour >= 13 ? newHour - 12 : newHour;
-        }
-        this.toggleAMPMIfNotMinDate(newPM!);
-        [this.currentHour, this.currentMinute, this.currentSecond] = this.constrainTime(newHour, this.currentMinute!, this.currentSecond!, newPM!);
+        // The step runs on a 24-hour clock, and constrainTime() clamps the result and returns what
+        // the picker displays (#168). On a 12-hour clock it used to run on the displayed hour and
+        // flip AM/PM only when it passed exactly 12, so a two-hour step back from 1 PM landed on
+        // 11 PM. decrementHour() is the same with the step negated.
+        const twelve = this.hourFormat == '12';
+        const current = twelve ? this.convertTo24Hour(this.currentHour ?? 0, !!this.pm) : (this.currentHour ?? 0);
+        const next = (((current + this.stepHour) % 24) + 24) % 24;
+        [this.currentHour, this.currentMinute, this.currentSecond] = this.constrainTime(twelve ? next % 12 || 12 : next, this.currentMinute!, this.currentSecond!, next > 11);
         event.preventDefault();
     }
 
@@ -2865,18 +2830,10 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
     }
 
     decrementHour(event: any) {
-        let newHour = (this.currentHour ?? 0) - this.stepHour;
-        let newPM = this.pm;
-        if (this.hourFormat == '24') newHour = newHour < 0 ? 24 + newHour : newHour;
-        else if (this.hourFormat == '12') {
-            // If we were at noon/midnight, then switch
-            if (this.currentHour === 12) {
-                newPM = !this.pm;
-            }
-            newHour = newHour <= 0 ? 12 + newHour : newHour;
-        }
-        this.toggleAMPMIfNotMinDate(newPM!);
-        [this.currentHour, this.currentMinute, this.currentSecond] = this.constrainTime(newHour, this.currentMinute!, this.currentSecond!, newPM!);
+        const twelve = this.hourFormat == '12';
+        const current = twelve ? this.convertTo24Hour(this.currentHour ?? 0, !!this.pm) : (this.currentHour ?? 0);
+        const next = (((current - this.stepHour) % 24) + 24) % 24;
+        [this.currentHour, this.currentMinute, this.currentSecond] = this.constrainTime(twelve ? next % 12 || 12 : next, this.currentMinute!, this.currentSecond!, next > 11);
         event.preventDefault();
     }
 
