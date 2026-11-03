@@ -1073,8 +1073,12 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
     }
 
     appendContainer() {
-        if (this.$appendTo() !== 'self') {
-            appendChild(this.document.body, this.wrapper as HTMLElement);
+        const target = this.$appendTo();
+        if (target !== 'self') {
+            // An element target is honoured, as appendTo's own documentation says it is (#168).
+            // Every value other than 'self' used to go to body, so [appendTo]="mydiv" placed the
+            // dialog under body with nothing reported. 'body', and no value at all, still mean body.
+            appendChild(target && target !== 'body' ? target : this.document.body, this.wrapper as HTMLElement);
         }
     }
 

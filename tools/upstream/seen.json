@@ -271,7 +271,7 @@
         "22.1.1 · Dialog · fa3ac51daa10": {
             "verdict": "follow",
             "module": "dialog",
-            "note": "REPRODUCED 2026-11-02. [appendTo] set to an element puts the dialog's mask under document.body, not inside the element: any value other than 'self' appends to body. The input's own documentation names \"a local ng-template variable of another element\" as a valid value. appendTo=\"body\" behaves as declared. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts; not fixed."
+            "note": "REPRODUCED 2026-11-02, then FIXED 2026-11-03 under Constitution P3.a. [appendTo] set to an element puts the dialog's mask under document.body, not inside the element: any value other than 'self' appends to body. The input's own documentation names \"a local ng-template variable of another element\" as a valid value. appendTo=\"body\" behaves as declared. Fix: an element target is honoured, as Drawer and Overlay already did; 'body' and no value at all still mean body, and 'self' still leaves the dialog in place. AnguLess BASE passes only appendTo=\"body\", so it is unaffected. Held with test.fail() until the fix."
         },
         "22.1.1 · DatePicker · 1843658c4d5a": {
             "verdict": "follow",
