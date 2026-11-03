@@ -1939,4 +1939,60 @@ describe('DatePicker', () => {
             expect(picker.pm).toBe(true);
         });
     });
+
+    // ── A time typed into timeOnly keeps the date (#168) ───────────────────────────
+    //
+    // parseDateTime() built a typed time on new Date() when timeOnly was set, so typing 11:30
+    // over 2020-01-15 10:00 wrote TODAY at 11:30. The hour buttons on the same picker always kept
+    // the date: updateTime() copies the value it edits. Typing now does the same.
+    describe('A time typed into timeOnly', () => {
+        async function timeOnlyPicker(value: Date | null): Promise<DatePicker> {
+            testComponent.timeOnly = true;
+            testComponent.selectedDate = value;
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+            return testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+        }
+
+        function type(picker: DatePicker, text: string) {
+            // What a keystroke does: keydown arms onUserInput(), which then parses the field.
+            picker.isKeydown = true;
+            picker.onUserInput({ target: { value: text } });
+        }
+
+        it('keeps the date of the bound value', async () => {
+            const picker = await timeOnlyPicker(new Date(2020, 0, 15, 10, 0, 0, 0));
+            type(picker, '11:30');
+            const value = picker.value as Date;
+            expect([value.getFullYear(), value.getMonth(), value.getDate(), value.getHours(), value.getMinutes()]).toEqual([2020, 0, 15, 11, 30]);
+        });
+
+        it('keeps the date when the time is typed one character at a time', async () => {
+            // What a browser sends: one input event per keystroke. "1" is not a time, so the
+            // first one empties the model, and the date has to survive that.
+            const picker = await timeOnlyPicker(new Date(2020, 0, 15, 10, 0, 0, 0));
+            for (const text of ['1', '11', '11:', '11:3', '11:30']) type(picker, text);
+            const value = picker.value as Date;
+            expect([value.getFullYear(), value.getMonth(), value.getDate(), value.getHours(), value.getMinutes()]).toEqual([2020, 0, 15, 11, 30]);
+        });
+
+        it('writes the same instant the hour button writes', async () => {
+            const typed = await timeOnlyPicker(new Date(2020, 0, 15, 10, 0, 0, 0));
+            type(typed, '11:00');
+            const byTyping = (typed.value as Date).getTime();
+
+            const buttoned = await timeOnlyPicker(new Date(2020, 0, 15, 10, 0, 0, 0));
+            buttoned.incrementHour({ preventDefault: () => {} });
+            buttoned.updateTime();
+            expect(byTyping).toBe((buttoned.value as Date).getTime());
+        });
+
+        it('still starts from today when there is no value', async () => {
+            const picker = await timeOnlyPicker(null);
+            type(picker, '11:30');
+            const value = picker.value as Date;
+            expect(value.toDateString()).toBe(new Date().toDateString());
+            expect([value.getHours(), value.getMinutes()]).toEqual([11, 30]);
+        });
+    });
 });

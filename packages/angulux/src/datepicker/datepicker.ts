@@ -1094,6 +1094,13 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
 
     isKeydown: Nullable<boolean>;
 
+    /**
+     * The date a time typed into a timeOnly picker is built on (#168). Kept apart from the model
+     * because typing empties the model on the way: "1" is not a time, so the first keystroke of
+     * "11:30" writes null, and by the last one the bound value's date would be gone.
+     */
+    private timeOnlyDate: Date | null = null;
+
     _minDate?: Date | null;
 
     _maxDate?: Date | null;
@@ -2914,6 +2921,8 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
         }
         this.isKeydown = false;
 
+        if (isDate(this.value)) this.timeOnlyDate = this.value;
+
         let val = (<HTMLInputElement>event.target).value;
         try {
             let value = this.parseValueFromString(val);
@@ -2974,7 +2983,14 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
         let parts: string[] = text.split(' ');
 
         if (this.timeOnly) {
-            date = new Date();
+            // A time typed into a timeOnly picker edits the time of the bound value; the date is
+            // not on screen and is not the user's to lose (#168). It used to be built on new
+            // Date(), so typing 11:30 over 2020-01-15 10:00 wrote TODAY at 11:30, while the hour
+            // buttons on the same picker kept the date (updateTime() copies the value). The base
+            // is the value, or the last date it held if typing has emptied it; with neither, or
+            // with more than one value, today is still the base.
+            const base = this.isSingleSelection() ? (isDate(this.value) ? (this.value as Date) : this.timeOnlyDate) : null;
+            date = base ? new Date(base.getTime()) : new Date();
             this.populateTime(date, parts[0], parts[1]);
         } else {
             const dateFormat = this.getDateFormat();
@@ -3696,6 +3712,7 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
                 }
             }
         }
+        this.timeOnlyDate = isDate(this.value) ? this.value : null;
 
         this.updateInputfield();
         this.updateUI();
