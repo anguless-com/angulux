@@ -147,11 +147,31 @@ function watchErrors(page: Page): string[] {
     return errors;
 }
 
+/**
+ * How long a demo page gets to render its sections. This is a LOAD budget, kept apart from the
+ * 5 s an assertion waits by default (#176).
+ *
+ * The section waits used to run on that 5 s default. On a 2-core machine at load 7 to 8 a
+ * different demo missed it on each run, while every one of them passed alone. A wait that
+ * times out there measures the machine, not the library.
+ *
+ * The longer budget weakens nothing:
+ * - A section that never renders still fails, only later.
+ * - Nothing after the wait gained time. The geometry is read with page.evaluate, which
+ *   retries nothing, and the badge and table counts still wait the 5 s default.
+ *
+ * The test timeout grows with it, so one slow page fails on the section that is late, not
+ * on a test-level timeout that names no section.
+ */
+const PAGE_READY_MS = 30_000;
+
+test.describe.configure({ timeout: 2 * PAGE_READY_MS });
+
 async function openModule(page: Page, module: string, sectionIds: string[]): Promise<void> {
     await page.goto(`/${module}`);
 
     for (const id of sectionIds) {
-        await expect(page.locator(`#${id}`)).toBeVisible();
+        await expect(page.locator(`#${id}`)).toBeVisible({ timeout: PAGE_READY_MS });
     }
 }
 
