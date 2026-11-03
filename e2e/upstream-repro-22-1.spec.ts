@@ -18,8 +18,22 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *     that would notice a regression, and the only evidence the question was asked.
  *
  * MEASURED 2026-11-02, 19 entries: 12 reproduce, 7 do not. The verdict and the mechanism of
- * each are in tools/upstream/seen.json under the digest named on its test. Fixed since: the
- * 12-hour hour buttons, the typed timeOnly time, aria-disabled and Dialog appendTo (2026-11-03).
+ * each are in tools/upstream/seen.json under the digest named on its test.
+ *
+ * Each reproduction was then put through Constitution P3.a on 2026-11-03:
+ *
+ *   - FIXED, four, now ordinary tests. The 12-hour hour buttons, the typed timeOnly time,
+ *     aria-disabled on unselectable days, and Dialog appendTo an element. Each passed all four
+ *     conditions.
+ *   - HELD, seven, still test.fail(). Each fails condition 2 (nothing the component declares
+ *     says what it should do), condition 3 (the user can see it go wrong), or both. They are
+ *     the drawer in a shadow root, the closing overlay, touched before the value,
+ *     resetPageOnSort with a filter, Menu Enter on a custom template, select-all with an
+ *     unassigned selectAll, and inline month-change focus. They wait for the Angular 23 round.
+ *     The condition each one fails is in seen.json.
+ *   - DEFERRED, one. The table render time is performance work and out of P3's way, but the
+ *     rule lives in @anguless/angulux-styles and its replacement must be shown pixel-identical
+ *     first.
  *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
