@@ -43,13 +43,20 @@
  * @primeuix/themes keep working. The boundary:
  *   `.p-button`  → class, KEEP
  *   `p-button`   in type-selector position → element, RENAME
+ *
+ * Group 12 holds that boundary inside the stylesheets themselves (#175). Until 2026-11-02 no
+ * group read the CSS in a style file's template literal, so about 40 element names there outlived
+ * the rename — 22 of them the Reactive Forms invalid fallbacks — while `npm run check` stayed
+ * green. None of those rules matched an element again, and a rule that matches nothing fails
+ * nothing. Group 12 reports them and does not rename them: #196 showed the right replacement lists
+ * every spelling the component declares, which a token swap cannot know.
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, exemptionState, templateLiterals } from './name-scan-lib.mjs';
+import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, cssLiterals, exemptionState, pTypeSelectors, templateLiterals } from './name-scan-lib.mjs';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const SRC = join(ROOT, 'packages/angulux/src');
@@ -173,6 +180,9 @@ function attributionsIn(file, text) {
 
 const inAttribution = (regions, idx) => regions.some((r) => idx >= r.start && idx < r.end);
 
+/** Stylesheets group 12 read in src/. Zero means it read nothing, which is not a pass. */
+let stylesheetsExamined = 0;
+
 for (const [scope, dir] of [
     ['src', SRC],
     ['attic', ATTIC],
@@ -260,6 +270,15 @@ for (const [scope, dir] of [
             record(file, original, m.index, 'template-tag', m[1], false);
         }
 
+        // ── Group 12: element names in the CSS of a style literal (#175) ──
+        // A stylesheet that selects `p-inputnumber` styles nothing since the rename, silently.
+        // Not auto-fixable on purpose: the fix is every declared spelling, not one token.
+        const stylesheets = cssLiterals(original, /[\\/]style[\\/][^\\/]+$/.test(file));
+        if (scope === 'src') stylesheetsExamined += stylesheets.length;
+        for (const { start, css } of stylesheets) {
+            for (const { name, index } of pTypeSelectors(css)) record(file, original, start + index, 'css-type-selector', name, false);
+        }
+
         // ── Group 7: exported identifiers carrying the trademark ──
         for (const m of original.matchAll(EXPORTED_DECL)) {
             if (/prime/i.test(m[1])) record(file, original, m.index, 'exported-brand-symbol', m[1], false);
@@ -306,6 +325,7 @@ const KIND_LABEL = {
     'brand-string': 'brand strings in code/JSDoc (leak into IntelliSense)',
     'brand-dom-attribute': "brand DOM attributes (leak into the consumer's HTML)",
     'attic-leak': 'src/ importing from attic/',
+    'css-type-selector': "element names in type-selector position in a style literal's CSS (`p-foo`, not `.p-foo`)",
     'attribution-oversized': 'attribution region larger than the cap — narrow it or split it'
 };
 
@@ -375,6 +395,13 @@ if (listProblems.length) {
     console.error('\n✗ scan-prime-names: tools/codemod/name-exceptions.json is out of date\n');
     for (const p of listProblems) console.error(`   ${p}`);
     console.error('');
+    process.exit(1);
+}
+
+if (stylesheetsExamined === 0) {
+    // The vacuous shape: a renamed marker or a moved style/ folder and group 12 finds nothing
+    // because it reads nothing. src/ holds dozens of stylesheets; reading none is a failure.
+    console.error('\n✗ scan-prime-names: group 12 examined no stylesheet in packages/angulux/src — the CSS net is not looking at anything\n');
     process.exit(1);
 }
 

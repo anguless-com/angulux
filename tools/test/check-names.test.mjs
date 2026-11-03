@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, exemptionState, templateLiterals } from '../codemod/name-scan-lib.mjs';
+import { ATTRIBUTION_MAX, SIGNAL_PROP_RE, TEMPLATE_ATTR_RE, angularMajorFrom, attributionRanges, cssLiterals, exemptionState, pTypeSelectors, templateLiterals } from '../codemod/name-scan-lib.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const at = (p) => join(repoRoot, p);
@@ -142,4 +142,91 @@ test('every declared attribution region is announced on green runs', () => {
     const out = execFileSync(process.execPath, [at('tools/codemod/scan-prime-names.mjs')], { cwd: repoRoot, encoding: 'utf8' });
     assert.match(out, /📎 ATTRIBUTION REGIONS/);
     assert.match(out, /apps.showcase.src.pages.home\.ts/, 'the site renders the MIT notice, so it must hold a declared region');
+});
+
+/**
+ * Group 12, added 2026-11-02 for #175. No group read the CSS inside a style file's template
+ * literal, so about 40 `p-*` element names there outlived the rename while the gate stayed green:
+ * `p-inputnumber.ng-invalid.ng-dirty > .p-inputtext` matched no element again, and a rule that
+ * matches nothing fails nothing. Run against the tree at 6f8c0ba (main when #175 was filed), the
+ * new group reports exactly 40 of them, 22 in the Reactive Forms invalid fallbacks.
+ */
+
+const typeSelectors = (css) => pTypeSelectors(css).map((h) => h.name);
+
+test('the CSS net flags p-* element names in type-selector position, the shapes #175 found', () => {
+    assert.deepEqual(typeSelectors('p-inputnumber.ng-invalid.ng-dirty > .p-inputtext { color: red; }'), ['p-inputnumber']);
+    assert.deepEqual(typeSelectors('.p-datatable-thead > tr > th p-columnfilter { width: 100%; }'), ['p-columnfilter']);
+    assert.deepEqual(typeSelectors('p-sortIcon, p-sort-icon, p-sorticon { vertical-align: middle; }'), ['p-sortIcon', 'p-sort-icon', 'p-sorticon']);
+    assert.deepEqual(typeSelectors(':is(agl-foo, p-foo) + p-bar { gap: 0; }'), ['p-foo', 'p-bar']);
+    assert.deepEqual(typeSelectors('@media (min-width: 640px) { th p-columnfilter { width: auto; } }'), ['p-columnfilter']);
+    assert.deepEqual(typeSelectors('.p-a { color: red; & > p-b { color: blue; } }'), ['p-b'], 'a nested rule is a selector too');
+});
+
+test('the CSS net leaves classes, values, keyframes, comments and strings alone', () => {
+    // Each of these is a p-* name angulux keeps on purpose, or one that is not a selector at all.
+    assert.deepEqual(typeSelectors('.p-button.p-component > .p-button-label { color: red; }'), [], 'a class is kept by design');
+    assert.deepEqual(typeSelectors('[data-p-disabled="true"] .p-x, [p-foo] { opacity: 0.5; }'), [], 'attribute selectors are not elements');
+    assert.deepEqual(typeSelectors('.p-drawer-left { animation: p-animate-drawer-enter-left 0.5s; }'), [], 'a declaration value is not a selector');
+    assert.deepEqual(typeSelectors('@keyframes p-animate-password-enter { from { opacity: 0; } to { opacity: 1; } }'), [], 'neither a keyframe name nor its steps');
+    assert.deepEqual(typeSelectors('/* p-columnfilter used to sit here */ .p-x { content: "p-foo"; color: var(--p-primary-color); }'), []);
+    assert.deepEqual(typeSelectors('agl-p-foo, x-p-bar, #p-baz, :p-qux { color: red; }'), [], 'p- inside a longer name, an id or a pseudo');
+});
+
+test('a stylesheet is found by its marker anywhere, and by its shape inside style/', () => {
+    const file = [
+        "// a comment with a stray backtick ` must not pair with the next one",
+        'const style = /*css*/ `',
+        '    ${base_style}',
+        '    p-checkbox.ng-invalid { color: red; }',
+        '`;',
+        'const tagged = css`p-radiobutton { color: red; }`;',
+        'const unmarked = `p-password { color: red; }`;',
+        "const classes = { root: ({ instance }) => [`p-button-${instance.size === 'small' ? `sm` : 'lg'}`] };"
+    ].join('\n');
+
+    const outside = cssLiterals(file, false).flatMap(({ start, css }) => pTypeSelectors(css).map((h) => [h.name, file.slice(start + h.index, start + h.index + h.name.length)]));
+    assert.deepEqual(outside, [['p-checkbox', 'p-checkbox'], ['p-radiobutton', 'p-radiobutton']], 'offsets point back into the file; an unmarked literal outside style/ is not CSS');
+
+    const inside = cssLiterals(file, true).flatMap(({ css }) => typeSelectors(css));
+    assert.deepEqual(inside, ['p-checkbox', 'p-radiobutton', 'p-password'], 'inside style/ a rule block is enough, and a class-name template is not one');
+
+    assert.equal(cssLiterals(file, true)[0].css.includes('base_style'), false, 'an interpolated stylesheet is blanked, not read as this one');
+});
+
+test('the CSS net reads every marked stylesheet in src, and the gate refuses to read none', () => {
+    // A floor on what was EXAMINED, never on what was found: finding nothing is the pass.
+    const src = at('packages/angulux/src');
+    const files = [];
+    const walk = (dir) => {
+        for (const name of readdirSync(dir)) {
+            const p = join(dir, name);
+            if (statSync(p).isDirectory()) walk(p);
+            else if (p.endsWith('.ts')) files.push(p);
+        }
+    };
+    walk(src);
+
+    let markers = 0;
+    let read = 0;
+    for (const file of files) {
+        const text = readFileSync(file, 'utf8');
+        markers += (text.match(/\/\*css\*\/\s*`/g) ?? []).length;
+        read += cssLiterals(text, /[\\/]style[\\/][^\\/]+$/.test(file)).length;
+    }
+    assert.ok(markers >= 20, `only ${markers} marked stylesheets under ${src}: did the marker change?`);
+    assert.ok(read >= markers, `${read} stylesheets read, ${markers} marked: the parser lost some`);
+
+    const gate = readFileSync(at('tools/codemod/scan-prime-names.mjs'), 'utf8');
+    assert.match(gate, /if \(stylesheetsExamined === 0\) \{[\s\S]*?process\.exit\(1\)/, 'reading no stylesheet must fail the gate, not pass it');
+});
+
+test('a p-* host put back into a real stylesheet is caught', () => {
+    // Mutation on the shipped source rather than a fixture: the shape #175 found, restored.
+    const real = readFileSync(at('packages/angulux/src/inputnumber/style/inputnumberstyle.ts'), 'utf8');
+    const scan = (text) => cssLiterals(text, true).flatMap(({ css }) => typeSelectors(css));
+    assert.deepEqual(scan(real), [], 'the shipped stylesheet is clean');
+    const mutated = real.replace('agl-inputnumber.ng-invalid.ng-dirty', 'p-inputnumber.ng-invalid.ng-dirty');
+    assert.notEqual(mutated, real, 'the mutation must apply');
+    assert.deepEqual(scan(mutated), ['p-inputnumber']);
 });
