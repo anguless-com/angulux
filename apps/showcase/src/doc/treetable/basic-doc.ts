@@ -6,7 +6,7 @@ import { TreeTableModule } from '@anguless/angulux/treetable';
     selector: 'agl-treetable-basic-doc',
     imports: [TreeTableModule],
     template: `
-        <div class="card">
+        <div class="card card-block">
             <agl-treeTable [value]="nodes" [tableStyle]="{ 'min-width': '32rem' }">
                 <ng-template #header>
                     <tr>

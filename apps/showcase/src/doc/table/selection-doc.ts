@@ -6,7 +6,7 @@ import { TableModule } from '@anguless/angulux/table';
     selector: 'agl-table-selection-doc',
     imports: [FormsModule, TableModule],
     template: `
-        <div class="card">
+        <div class="card card-block">
             <div style="width: 100%">
                 <agl-table [value]="products" [(selection)]="selected" dataKey="code" selectionMode="single" [tableStyle]="{ 'min-width': '32rem' }">
                     <ng-template #header>
