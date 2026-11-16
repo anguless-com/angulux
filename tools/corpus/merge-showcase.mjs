@@ -32,8 +32,8 @@
  * Usage: node tools/corpus/merge-showcase.mjs [--from <dir>] [--out <dir>]
  */
 
-import { cpSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { constants, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '../..');
 const arg = (name, fallback) => {
@@ -81,16 +81,24 @@ if (collisions.length) {
     process.exit(1);
 }
 
-// `errorOnExist` is what makes the refusal real. The pre-flight above exists to print the
+// `COPYFILE_EXCL` is what makes the refusal real. The pre-flight above exists to print the
 // COMPLETE list in one go, which a throw cannot do — but a check taken a moment before the
 // write is a decision about a state that may have changed since. The filesystem gets the
-// final say, and `index.html` is excluded because it is the one file meant to be replaced.
-cpSync(FROM, OUT, {
-    recursive: true,
-    force: false,
-    errorOnExist: true,
-    filter: (src) => relative(FROM, src).replace(/\\/g, '/') !== TAKEOVER
-});
+// final say on every file, and `index.html` is skipped because it is the one file meant to
+// be replaced.
+//
+// This used to be `cpSync(FROM, OUT, { force: false, errorOnExist: true })`. Node 24.22 made
+// `errorOnExist` refuse an existing DIRECTORY too, and the merge's whole job is copying into
+// directories that already exist — `site/` itself, first of all (#216). So the copy walks the
+// files itself: directories are created or shared, files are never overwritten.
+for (const file of incoming) {
+    if (file === TAKEOVER) continue;
+
+    const target = join(OUT, file);
+
+    mkdirSync(dirname(target), { recursive: true });
+    copyFileSync(join(FROM, file), target, constants.COPYFILE_EXCL);
+}
 
 const shell = readFileSync(join(FROM, TAKEOVER));
 
