@@ -48,7 +48,6 @@
         "onlyBuiltDependencies": ["@parcel/watcher", "esbuild", "lmdb", "msgpackr-extract"],
         "overrides": {
             "postcss": "8.5.23",
-            "esbuild": "^0.28.1",
             "@hono/node-server": "^2.1.6",
             "hono": "^4.13.16",
             "fast-uri": "^3.1.9",
