@@ -5,7 +5,7 @@ import { TableModule } from '@anguless/angulux/table';
     selector: 'agl-table-sort-doc',
     imports: [TableModule],
     template: `
-        <div class="card">
+        <div class="card card-block">
             <agl-table [value]="products" [tableStyle]="{ 'min-width': '32rem' }">
                 <ng-template #header>
                     <tr>

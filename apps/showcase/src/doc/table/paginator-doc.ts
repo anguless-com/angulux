@@ -5,7 +5,7 @@ import { TableModule } from '@anguless/angulux/table';
     selector: 'agl-table-paginator-doc',
     imports: [TableModule],
     template: `
-        <div class="card">
+        <div class="card card-block">
             <agl-table [value]="products" [paginator]="true" [rows]="2" [rowsPerPageOptions]="[2, 3, 5]" [tableStyle]="{ 'min-width': '32rem' }">
                 <ng-template #header>
                     <tr>
