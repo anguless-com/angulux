@@ -31,7 +31,7 @@
       "static_site_generator",
       "token"
     ],
-    "actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128": [
+    "actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346": [
       "artifact_name",
       "error_count",
       "preview",
@@ -62,7 +62,7 @@
       "repo-token",
       "sync-labels"
     ],
-    "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020": [
+    "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1": [
       "architecture",
       "cache",
       "cache-dependency-path",
@@ -76,7 +76,7 @@
       "scope",
       "token"
     ],
-    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a": [
+    "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9": [
       "archive",
       "compression-level",
       "if-no-files-found",
@@ -92,7 +92,7 @@
       "path",
       "retention-days"
     ],
-    "amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50": [
+    "amannn/action-semantic-pull-request@2252a14e810aa9b85c2d560bd7070c802206ecf6": [
       "disallowScopes",
       "githubBaseUrl",
       "headerPattern",
@@ -107,7 +107,7 @@
       "validateSingleCommitMatchesPrTitle",
       "wip"
     ],
-    "github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
+    "github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066": [
       "add-snippets",
       "category",
       "check_name",
@@ -127,7 +127,7 @@
       "upload-database",
       "wait-for-processing"
     ],
-    "github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
+    "github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066": [
       "analysis-kinds",
       "build-mode",
       "check-run-id",
@@ -139,6 +139,7 @@
       "debug-database-name",
       "dependency-caching",
       "external-repository-token",
+      "job-status",
       "languages",
       "matrix",
       "packs",
@@ -153,7 +154,7 @@
       "tools",
       "trap-caching"
     ],
-    "github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938": [
+    "github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066": [
       "category",
       "checkout_path",
       "matrix",
@@ -163,7 +164,7 @@
       "token",
       "wait-for-processing"
     ],
-    "ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc": [
+    "ossf/scorecard-action@fa7117db83c52d787ae5a89f350999701505d78e": [
       "file_mode",
       "internal_default_token",
       "internal_publish_base_url",
