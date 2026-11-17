@@ -14,7 +14,10 @@ const classes = {
             'p-button-raised': instance.raised || instance.buttonProps?.raised,
             'p-button-rounded': instance.rounded || instance.buttonProps?.rounded,
             'p-button-text': instance.text || instance.variant === 'text' || instance.buttonProps?.text || instance.buttonProps?.variant === 'text',
-            'p-button-outlined': instance.outlined || instance.variant === 'outlined' || instance.buttonProps?.outlined || instance.buttonProps?.variant === 'outlined',
+            // A value given in buttonProps decides, false included: it is the only handle Table offers
+            // over its filter clear button, which sets [outlined]="true" itself (upstream 22.1.0, held
+            // under P3.a, fixed under P3.c on 2026-11-17).
+            'p-button-outlined': (instance.buttonProps?.outlined ?? instance.outlined) || (instance.buttonProps?.variant ?? instance.variant) === 'outlined',
             'p-button-sm': instance.size === 'small' || instance.buttonProps?.size === 'small',
             'p-button-lg': instance.size === 'large' || instance.buttonProps?.size === 'large',
             'p-button-plain': instance.plain || instance.buttonProps?.plain,

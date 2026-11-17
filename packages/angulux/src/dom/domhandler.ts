@@ -224,6 +224,14 @@ export class DomHandler {
 
         if (element) {
             let parents = this.getParents(element);
+            // Inside a shadow root the walk ends at the root, which is not an element and has no
+            // computed style: getComputedStyle threw, and the listeners bound after this one never
+            // were (upstream 22.1.3, held under P3.a, fixed under P3.c on 2026-11-17). The walk goes
+            // on from the host, whose ancestors can scroll as well.
+            const last = parents[parents.length - 1];
+            if (last && last.nodeType === 11 && last.host) {
+                parents = parents.concat([last.host], this.getParents(last.host));
+            }
             const overflowRegex = /(auto|scroll)/;
             const overflowCheck = (node: any) => {
                 let styleDeclaration = window['getComputedStyle'](node, null);
@@ -242,7 +250,7 @@ export class DomHandler {
                     }
                 }
 
-                if (parent.nodeType !== 9 && overflowCheck(parent)) {
+                if (parent.nodeType === 1 && overflowCheck(parent)) {
                     scrollableParents.push(parent);
                 }
             }

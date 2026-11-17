@@ -1898,7 +1898,10 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
     }
 
     allSelected() {
-        return this.selectAll !== null ? this.selectAll : isNotEmpty(this.visibleOptions()) && this.visibleOptions().every((option) => this.isOptionGroup(option) || this.isOptionDisabled(option) || this.isSelected(option));
+        // != null, as in onToggleAll(): bound to undefined, selectAll is uncontrolled in both, or the
+        // header checkbox showed unchecked over a full selection and never unselected (upstream
+        // 22.1.3, held under P3.a, fixed under P3.c on 2026-11-17).
+        return this.selectAll != null ? this.selectAll : isNotEmpty(this.visibleOptions()) && this.visibleOptions().every((option) => this.isOptionGroup(option) || this.isOptionDisabled(option) || this.isSelected(option));
     }
 
     partialSelected() {

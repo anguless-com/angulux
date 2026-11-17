@@ -515,6 +515,7 @@ export class Overlay extends BaseComponent {
     container = signal<any>(undefined);
 
     onOverlayBeforeEnter(event: MotionEvent) {
+        if (this.overlayEl) this.overlayEl.style.pointerEvents = '';
         this.handleEvents('onBeforeShow', { overlay: this.overlayEl, target: this.targetEl, mode: this.overlayMode });
         this.container.set(this.overlayEl || event.element);
         this.show(this.overlayEl, true);
@@ -537,6 +538,10 @@ export class Overlay extends BaseComponent {
     }
 
     onOverlayBeforeLeave(event: MotionEvent) {
+        // A panel on its way out takes no pointer input: it stayed hit-testable through its leave
+        // animation, about 320 ms, so a quick second click picked another option (upstream 22.1.3,
+        // held under P3.a, fixed under P3.c on 2026-11-17).
+        if (this.overlayEl) this.overlayEl.style.pointerEvents = 'none';
         this.handleEvents('onBeforeHide', { overlay: this.overlayEl, target: this.targetEl, mode: this.overlayMode });
         this.handleEvents('onBeforeLeave', event);
     }
@@ -644,7 +649,10 @@ export class Overlay extends BaseComponent {
     bindDocumentClickListener() {
         if (!this.documentClickListener) {
             this.documentClickListener = this.renderer.listen(this.document, 'click', (event) => {
-                const isTargetClicked = this.targetEl && ((this.targetEl as any).isSameNode(event.target) || (!this.isOverlayClicked && (this.targetEl as any).contains(event.target)));
+                // The node actually clicked: at the document, a click inside a shadow root is
+                // retargeted to its host, which the target element never contains.
+                const origin = (event.composedPath?.()[0] as Node | undefined) ?? event.target;
+                const isTargetClicked = this.targetEl && ((this.targetEl as any).isSameNode(origin) || (!this.isOverlayClicked && (this.targetEl as any).contains(origin)));
                 const isOutsideClicked = !isTargetClicked && !this.isOverlayContentClicked;
                 const valid = this.listener ? this.listener(event, { type: 'outside', mode: this.overlayMode, valid: event.which !== 3 && isOutsideClicked }) : isOutsideClicked;
 

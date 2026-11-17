@@ -1029,7 +1029,10 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
     @ViewChild('contentWrapper', { static: false }) set content(content: ElementRef) {
         this.contentViewChild = content;
 
-        if (this.contentViewChild && this.overlay) {
+        // An inline picker has no overlay, but its header is rebuilt with the month all the same, so
+        // focus is put back for it too: Enter on the next-month button left focus on <body>
+        // (upstream 22.1.4, held under P3.a since 2026-11-02, fixed under P3.c on 2026-11-17).
+        if (this.contentViewChild && (this.overlay || (this.inline && this.isMonthNavigate))) {
             if (this.isMonthNavigate) {
                 Promise.resolve(null).then(() => this.updateFocus());
                 this.isMonthNavigate = false;
@@ -2060,7 +2063,13 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
         if (!this.keepInvalid) {
             this.updateInputfield();
         }
-        this.onModelTouched();
+        // While the panel is open, a blur is the user moving into it to pick, not leaving the
+        // control: marking it touched then showed a required error over an empty field until the
+        // pick landed, or for as long as the keyboard stayed in the grid (upstream 22.1.1). Closing
+        // the panel puts focus back on the input, and leaving it marks the control touched.
+        if (!this.overlayVisible) {
+            this.onModelTouched();
+        }
     }
 
     onButtonClick(event: Event, inputfield: any = this.inputfieldViewChild?.nativeElement) {

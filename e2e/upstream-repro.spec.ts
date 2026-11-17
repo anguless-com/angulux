@@ -63,6 +63,11 @@ import { expect, test, type Page } from '@playwright/test';
  * and left that refusal standing. Shadow-root support needs a new container option on
  * `useStyle`, which is API. Both stay held below.
  *
+ * 2026-11-17: Constitution P3.c (v1.5.0) lets a measured defect be fixed on 22.x when it touches
+ * no API, without the "silent" condition. `buttonProps.outlined` false, on a Button and on the
+ * Table filter clear button, was FIXED under it and is an ordinary test now. Shadow-root styles
+ * still need the new option and stay held.
+ *
  * The ones that still reproduce are held with `test.fail()`. The ones that do not are kept
  * as ordinary passing tests: they are now the thing that would notice a regression, and
  * deleting them would throw away the only evidence that the question was ever asked.
@@ -366,7 +371,7 @@ test('upstream 22.1.0 · Button — buttonProps.outlined false must be able to t
     // while its buttonProps says `outlined: false`. Unreachable by construction rather than by
     // accident — `instance.outlined` is the first operand of the `||` chain.
     // Fixing it changes runtime behaviour, so it is gated by P3 in Phase 1.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
 
     await expect(page.locator('#up-btn-cannot-off button')).not.toHaveClass(/p-button-outlined/);
 });
@@ -425,7 +430,7 @@ test('upstream 22.1.0 · Table — filterButtonProps.popover.clear.outlined must
     // `p-ripple p-button p-button-outlined p-button-sm p-component` while
     // filterButtonProps.popover.clear is `{ outlined: false, size: 'small' }`.
     // Fixing it changes runtime behaviour, so it is gated by P3 in Phase 1.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
 
     const section = page.locator('#sec-up-table-clearbtn');
     await section.locator('.p-datatable-column-filter-button').click();
