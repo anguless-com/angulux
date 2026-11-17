@@ -2,6 +2,20 @@ import { Injectable } from '@angular/core';
 import { style } from '@anguless/angulux-styles/toast';
 import { BaseStyle } from '@anguless/angulux/base';
 
+/**
+ * The theme makes the toast 25rem wide whatever the screen, and every position sits 20px from its
+ * edge (inlineStyles below). On a phone narrower than that, the start of each message was off
+ * screen. The cap leaves the same 20px on both sides; on a wider screen it changes nothing.
+ * A width set through `breakpoints` is written with !important and still wins.
+ */
+const toastStyle = /*css*/ `
+${String(style)}
+
+.p-toast {
+    max-width: calc(100vw - 40px);
+}
+`;
+
 // Position
 const inlineStyles = {
     root: ({ instance }) => {
@@ -53,7 +67,7 @@ const classes = {
 export class ToastStyle extends BaseStyle {
     name = 'toast';
 
-    style = style;
+    style = toastStyle;
 
     classes = classes;
 

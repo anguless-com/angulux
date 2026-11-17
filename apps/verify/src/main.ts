@@ -42,6 +42,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/narrow')) {
+    /* Components at phone widths (narrow.ts, e2e/narrow-reflow.spec.ts). */
+    import('./narrow')
+        .then(({ Narrow }) =>
+            bootstrapApplication(Narrow, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else {
     /* `/upstream-22-1`, `/upstream-22-1-5` and `/upstream-select` are the upstream probe pages, one scenario per `?case=`,
        so a table of two thousand rows is only built by the test that measures it. */
