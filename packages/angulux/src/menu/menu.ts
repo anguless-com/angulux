@@ -77,7 +77,7 @@ export class SafeHtmlPipe implements PipeTransform {
                 [attr.tabindex]="-1"
                 [class]="cn(cx('itemLink'), item?.linkClass)"
                 [ngStyle]="item?.linkStyle"
-                [target]="item.target"
+                [attr.target]="item.target"
                 [aglBind]="getPTOptions('itemLink')"
                 aglRipple
             >

@@ -51,6 +51,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/menu-links')) {
+    /* Menu items that are plain links (menu-links.ts, e2e/menu-links.spec.ts). */
+    import('./menu-links')
+        .then(({ MenuLinks }) =>
+            bootstrapApplication(MenuLinks, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/narrow')) {
     /* Components at phone widths (narrow.ts, e2e/narrow-reflow.spec.ts). */
     import('./narrow')
