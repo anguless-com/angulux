@@ -346,31 +346,7 @@ export const style = /*css*/ `
         color: dt('datatable.row.selected.color');
     }
 
-    /* The line above a selected row, drawn from the selected row: a sibling :has() made rendering grow with the square of the rows. */
-    .p-datatable {
-        --agl-datatable-selected-edge: dt('datatable.body.cell.selected.border.color');
-    }
-
-    .p-datatable-gridlines {
-        --agl-datatable-selected-edge: transparent;
-    }
-
-    .p-datatable.p-datatable-gridlines:has(.p-datatable-thead):has(.p-datatable-tbody) {
-        --agl-datatable-selected-edge: dt('datatable.body.cell.selected.border.color');
-    }
-
-    .p-datatable-tbody > tr + tr:where(.p-datatable-row-selected) {
-        box-shadow: 0 -1px 0 0 var(--agl-datatable-selected-edge);
-    }
-
-    @media not ((resolution: 1x) or (resolution: 2x) or (resolution: 3x)) {
-        .p-datatable-tbody > tr + tr:where(.p-datatable-row-selected) {
-            box-shadow: 0 -1.5px 0 -0.5px var(--agl-datatable-selected-edge);
-        }
-    }
-
-    /* A frozen cell paints after every row and would hide that shadow, so it keeps the border rule. Its subject is the frozen cell, so a table without frozen columns never evaluates the :has(). */
-    .p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td.p-datatable-frozen-column {
+    .p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td {
         border-block-end-color: dt('datatable.body.cell.selected.border.color');
     }
 

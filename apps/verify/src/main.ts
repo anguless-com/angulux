@@ -23,13 +23,18 @@ if (path.startsWith('/upstream-zone')) {
 } else if (path.startsWith('/table-edge')) {
     /* The line above a selected row (table-edge.ts), in the preset `?preset=` names, so the
        comparison in e2e/table-selected-edge.spec.ts covers every preset the themes package ships. */
-    const presets = new Map<string, () => Promise<{ default: unknown }>>([
-        ['aura', () => import('@primeuix/themes/aura')],
-        ['lara', () => import('@primeuix/themes/lara')],
-        ['nora', () => import('@primeuix/themes/nora')],
-        ['material', () => import('@primeuix/themes/material')]
-    ]);
-    const loadPreset = presets.get(new URLSearchParams(location.search).get('preset') ?? '') ?? presets.get('aura')!;
+    const loadPreset = (): Promise<{ default: unknown }> => {
+        switch (new URLSearchParams(location.search).get('preset')) {
+            case 'lara':
+                return import('@primeuix/themes/lara');
+            case 'nora':
+                return import('@primeuix/themes/nora');
+            case 'material':
+                return import('@primeuix/themes/material');
+            default:
+                return import('@primeuix/themes/aura');
+        }
+    };
     Promise.all([loadPreset(), import('./table-edge')])
         .then(([preset, { TableEdge }]) =>
             bootstrapApplication(TableEdge, {

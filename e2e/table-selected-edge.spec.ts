@@ -2,57 +2,32 @@ import { writeFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
 /**
- * The line above a selected row: the replacement of `tr:has(+ .p-datatable-row-selected) > td` must
- * draw what that rule drew.
+ * The line above a selected row: drawn from a class Table sets, it must look exactly as it did when
+ * a sibling `:has()` drew it.
  *
- * That rule recoloured the bottom border of the row before a selected row. Chrome re-evaluates a
- * sibling `:has()` for every row inserted next to it, so rendering a long Table grew with the square
- * of its rows (#168, upstream 22.1.3). Measured 2026-11-18 on the verify app, best of three: 1,000 /
- * 4,000 / 8,000 / 16,000 rows took 17 / 111 / 344 / 1,176 ms with it and 12 / 50 / 92 / 180 ms with the
- * replacement. TreeTable loads its own stylesheet, which never had the rule.
+ * The stylesheet drew that line with `tr:has(+ .p-datatable-row-selected) > td`, recolouring the
+ * bottom border of the row before a selected one. Chrome re-evaluates a sibling `:has()` for every
+ * row inserted beside it, so rendering a long table grew with the square of its rows (#168, upstream
+ * 22.1.3). Table now puts `p-datatable-row-before-selected` on that row after each change detection
+ * (markRowsBeforeSelected in table.ts), and the stylesheet recolours the same border from the class.
  *
- * The replacement draws the line from the selected row: `tr + tr:where(.p-datatable-row-selected)`
- * gets an upward 1px box-shadow over the row above's bottom border. A row paints after the cells of
- * the row before it, so the shadow lies over that border. Three details carry the rest:
- *   - A custom property on the table root switches the line off where the row above has no bottom
- *     border (gridlines without a header row). Nested tables each read their own root.
- *   - A frozen cell is positioned and paints after every row, over the row shadow, so frozen cells
- *     keep the old border rule (FROZEN_RULE). A table without frozen columns never evaluates it.
- *   - At a fractional device pixel ratio the shadow is inset half a pixel on each side. Its edges
- *     then never fall where the row's own edges are cut, which is what left a faint vertical
- *     hairline at every such edge.
- * A focused row keeps its focus shadow (Material draws a glow there), so it draws no line.
+ * Two replacements that draw the line from the selected row itself, with a box-shadow, were built
+ * and rejected first (2026-11-18). They were byte-identical at device pixel ratios 1 and 2. But a
+ * box-shadow cut at a fractional edge leaves faint hairlines. And on Linux (CI) a box-shadow inside a
+ * composited scroller switched all the text in it from LCD to greyscale anti-aliasing: 3,519 against
+ * 1,874 colour-fringed text pixels in the same scene. The class keeps the very same primitive, so
+ * none of that can happen. This test is the proof: every scene must be byte-identical.
  *
  * How the comparison works. The page (apps/verify/src/table-edge.ts) renders each layout the
- * stylesheet treats apart. The test removes BOTH versions of the rule from the page's stylesheets
- * and adds back one of them from the texts below, so it compares the two the same way whichever
- * version the build ships. A last test pins the texts to what the build ships. Each scene is
- * screenshotted with the old rule and with the new one, in every preset, both colour schemes and
- * four device pixel ratios. At ratios 1 and 2 the plain layouts must be byte-identical; where they
- * cannot be, see mustBeIdentical(). A premise check requires the old rule to change the picture
- * where it applies, so the comparison cannot pass by drawing nothing.
+ * stylesheet treats apart. The test removes BOTH rules from the page's stylesheets and adds back one
+ * of them, so it compares the two the same way whichever the build ships. Each scene is screenshotted
+ * with each rule, in every preset, both colour schemes and four device pixel ratios. A premise check
+ * requires the old rule to change the picture where it applies, so the comparison cannot pass by
+ * drawing nothing.
  */
 
-const OLD_RULES = ['.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }'];
-
-/**
- * A frozen cell is positioned and paints after every row, over the row shadow. A box-shadow on the
- * sticky cell itself changed how Chrome on Linux anti-aliases its text (CI, 2026-11-18), so frozen
- * cells keep the old border rule. Its subject is `td.p-datatable-frozen-column`, matched first, so a
- * table without frozen columns never evaluates the :has().
- */
-const FROZEN_RULE = '.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td.p-datatable-frozen-column { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
-
-const SELECTED_EDGE = '.p-datatable-tbody > tr + tr:where(.p-datatable-row-selected)';
-
-const NEW_RULES = [
-    '.p-datatable { --agl-datatable-selected-edge: var(--p-datatable-body-cell-selected-border-color); }',
-    '.p-datatable-gridlines { --agl-datatable-selected-edge: transparent; }',
-    '.p-datatable.p-datatable-gridlines:has(.p-datatable-thead):has(.p-datatable-tbody) { --agl-datatable-selected-edge: var(--p-datatable-body-cell-selected-border-color); }',
-    `${SELECTED_EDGE} { box-shadow: 0 -1px 0 0 var(--agl-datatable-selected-edge); }`,
-    `@media not ((resolution: 1x) or (resolution: 2x) or (resolution: 3x)) { ${SELECTED_EDGE} { box-shadow: 0 -1.5px 0 -0.5px var(--agl-datatable-selected-edge); } }`,
-    FROZEN_RULE
-];
+const OLD_RULE = '.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
+const NEW_RULE = '.p-datatable-tbody > tr.p-datatable-row-before-selected > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
 
 const SCENES = [
     'd-default',
@@ -78,15 +53,12 @@ const OLD_RULE_VISIBLE = ['d-default', 'd-gridlines', 'd-striped-small', 'd-larg
 
 type State = 'none' | 'old' | 'new';
 
-/** Remove every version of the rule from the page and add back the one asked for. */
+/** Remove both rules from the page and add back the one asked for. */
 async function setState(page: Page, state: State): Promise<void> {
     await page.evaluate(
-        ({ state, oldRules, newRules }) => {
-            const isEdgeRule = (rule: CSSRule): boolean => {
-                if (!(rule instanceof CSSStyleRule)) return false;
-                const text = rule.cssText;
-                return /:has\(\+\s*\.p-datatable-row-selected\)/.test(rule.selectorText) || text.includes('--agl-datatable-selected-edge');
-            };
+        ({ state, oldRule, newRule }) => {
+            const isEdgeRule = (rule: CSSRule): boolean =>
+                rule instanceof CSSStyleRule && (/:has\(\+\s*\.p-datatable-row-selected\)/.test(rule.selectorText) || rule.selectorText.includes('p-datatable-row-before-selected'));
             const strip = (list: CSSRuleList) => {
                 for (let i = list.length - 1; i >= 0; i--) {
                     const rule = list[i];
@@ -107,10 +79,10 @@ async function setState(page: Page, state: State): Promise<void> {
             }
             const style = document.createElement('style');
             style.id = 'edge-probe';
-            style.textContent = (state === 'old' ? oldRules : state === 'new' ? newRules : []).join('\n');
+            style.textContent = state === 'old' ? oldRule : state === 'new' ? newRule : '';
             document.head.appendChild(style);
         },
-        { state, oldRules: OLD_RULES, newRules: NEW_RULES }
+        { state, oldRule: OLD_RULE, newRule: NEW_RULE }
     );
 }
 
@@ -130,7 +102,7 @@ async function shoot(page: Page, scene: string): Promise<Buffer> {
 }
 
 /** Count the pixels that differ between two PNG screenshots of the same size, in the browser. */
-async function differingPixels(page: Page, a: Buffer, b: Buffer): Promise<{ count: number; box: number[]; rows: number[]; deltas: number[] }> {
+async function differingPixels(page: Page, a: Buffer, b: Buffer): Promise<{ count: number; box: number[] }> {
     return page.evaluate(
         async ({ a, b }) => {
             const load = (src: string) =>
@@ -148,75 +120,25 @@ async function differingPixels(page: Page, a: Buffer, b: Buffer): Promise<{ coun
                 ctx.drawImage(img, 0, 0);
                 return ctx.getImageData(0, 0, img.width, img.height).data;
             };
-            if (ia.width !== ib.width || ia.height !== ib.height) return { count: -1, box: [ia.width, ia.height, ib.width, ib.height], rows: [], deltas: [] };
+            if (ia.width !== ib.width || ia.height !== ib.height) return { count: -1, box: [ia.width, ia.height, ib.width, ib.height] };
             const da = read(ia);
             const db = read(ib);
             let count = 0;
             let [x0, y0, x1, y1] = [Infinity, Infinity, -1, -1];
-            const rows = new Map<number, number>();
             for (let i = 0; i < da.length; i += 4) {
                 if (da[i] !== db[i] || da[i + 1] !== db[i + 1] || da[i + 2] !== db[i + 2] || da[i + 3] !== db[i + 3]) {
                     count++;
                     const p = i / 4;
-                    const x = p % ia.width;
-                    const y = Math.floor(p / ia.width);
-                    x0 = Math.min(x0, x);
-                    y0 = Math.min(y0, y);
-                    x1 = Math.max(x1, x);
-                    y1 = Math.max(y1, y);
-                    const delta = Math.max(Math.abs(da[i] - db[i]), Math.abs(da[i + 1] - db[i + 1]), Math.abs(da[i + 2] - db[i + 2]), Math.abs(da[i + 3] - db[i + 3]));
-                    rows.set(y, Math.max(rows.get(y) ?? 0, delta));
+                    x0 = Math.min(x0, p % ia.width);
+                    y0 = Math.min(y0, Math.floor(p / ia.width));
+                    x1 = Math.max(x1, p % ia.width);
+                    y1 = Math.max(y1, Math.floor(p / ia.width));
                 }
             }
-            const sorted = [...rows.keys()].sort((p, q) => p - q);
-            return { count, box: count ? [x0, y0, x1, y1] : [], rows: sorted, deltas: sorted.map((y) => rows.get(y)!) };
+            return { count, box: count ? [x0, y0, x1, y1] : [] };
         },
         { a: a.toString('base64'), b: b.toString('base64') }
     );
-}
-
-/**
- * The device-pixel rows the line above each selected row can touch, in a scene's screenshot: from
- * one device pixel above the top of the row before's bottom border to one below the selected row's
- * top. The line is the only thing the rule draws, so a difference anywhere else is a real one.
- */
-async function lineBands(page: Page, scene: string, dpr: number): Promise<number[][]> {
-    return page.evaluate(
-        ({ scene, dpr }) => {
-            const host = document.getElementById(scene)!.getBoundingClientRect();
-            return Array.from(document.querySelectorAll(`#${scene} tr.p-datatable-row-selected`))
-                .filter((tr) => tr.previousElementSibling?.tagName === 'TR')
-                .map((tr) => {
-                    const top = tr.getBoundingClientRect().top - host.top;
-                    return [Math.floor((top - 1) * dpr) - 1, Math.ceil(top * dpr) + 1];
-                });
-        },
-        { scene, dpr }
-    );
-}
-
-/** The largest per-channel difference anti-aliasing accounts for, off the line itself. */
-const AA_DELTA = 12;
-
-/**
- * Where the two rules cannot draw the same bytes, and why; everywhere else they must.
- *   - At a fractional device pixel ratio the border is anti-aliased across two device pixels,
- *     and the shadow, inset half a pixel on each side there, ends half a pixel short at a row's ends.
- *   - With gridlines, the old border met each vertical gridline in a corner split diagonally
- *     between the two colours; the shadow covers that joint whole.
- *   - A focused selected row keeps its focus shadow and draws no line. In Material that shadow is
- *     a glow that covered the old border anyway; in the other presets the line above a focused row
- *     is the plain border colour while it has focus.
- * In all three, a pixel may differ freely on the line above a selected row, and anywhere else by no
- * more than AA_DELTA per channel. That allowance is for one more effect: the old rule gave a cell one
- * border of a different colour, so Chrome drew all four of its borders as mitred polygons, and at a
- * fractional ratio that moves the anti-aliasing of the cell's other borders by a level or so.
- */
-function mustBeIdentical(scene: string, preset: string, dpr: number): boolean {
-    if (!Number.isInteger(dpr)) return false;
-    if (scene.startsWith('d-gridlines') || scene.startsWith('d-nested')) return false;
-    if (scene === 'd-focus') return false;
-    return true;
 }
 
 for (const dpr of [1, 1.25, 1.5, 2]) {
@@ -225,7 +147,7 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
 
         for (const preset of ['aura', 'lara', 'nora', 'material']) {
             for (const scheme of ['light', 'dark'] as const) {
-                test(`${preset} ${scheme}: the new rule draws the line above a selected row exactly as the old one did`, async ({ page }) => {
+                test(`${preset} ${scheme}: the class draws the line above a selected row exactly as the sibling :has() did`, async ({ page }) => {
                     const errors: string[] = [];
                     page.on('pageerror', (e) => errors.push(e.message));
                     await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
@@ -234,7 +156,6 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
                     await page.evaluate(() => document.fonts.ready);
 
                     const report: string[] = [];
-                    const confined: string[] = [];
                     for (const scene of SCENES) {
                         await page.locator(`#${scene}`).scrollIntoViewIfNeeded();
                         await prepare(page, scene);
@@ -250,21 +171,13 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
                         }
                         if (!old.equals(fresh)) {
                             const diff = await differingPixels(page, old, fresh);
-                            const bands = await lineBands(page, scene, dpr);
-                            const offLine = diff.rows.map((y, k) => [y, diff.deltas[k]]).filter(([y]) => !bands.some(([a, b]) => y >= a && y <= b));
-                            const worst = Math.max(0, ...offLine.map(([, d]) => d));
-                            if (!mustBeIdentical(scene, preset, dpr) && diff.count > 0 && worst <= AA_DELTA) {
-                                confined.push(`${scene} ${diff.count}px${offLine.length ? ` (off the line ≤${worst})` : ''}`);
-                                continue;
-                            }
-                            report.push(`${scene}: ${diff.count} pixels differ in ${JSON.stringify(diff.box)}, worst off the line ${worst} in rows ${JSON.stringify(offLine.slice(0, 6))}`);
-                            writeFileSync(test.info().outputPath(`${scene}-none.png`), none);
+                            report.push(`${scene}: ${diff.count} pixels differ in ${JSON.stringify(diff.box)}`);
                             writeFileSync(test.info().outputPath(`${scene}-old.png`), old);
                             writeFileSync(test.info().outputPath(`${scene}-new.png`), fresh);
                         }
                     }
-                    console.log(`[edge ${dpr} ${preset} ${scheme}] ${report.length ? 'FAIL ' + report.join(' | ') : 'ok'}${confined.length ? ' · on the line only: ' + confined.join(', ') : ''}`);
-                    expect(report, 'scenes where the new rule draws differently').toEqual([]);
+                    console.log(`[edge ${dpr} ${preset} ${scheme}] ${report.length ? 'FAIL ' + report.join(' | ') : 'identical'}`);
+                    expect(report, 'scenes the class draws differently').toEqual([]);
                     expect(errors).toEqual([]);
                 });
             }
@@ -272,30 +185,81 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
     });
 }
 
-test('the shipped Table stylesheet draws the line with exactly the rules compared above, and no other sibling :has()', async ({ page }) => {
+test('the class follows the selected row through selection changes and sorting', async ({ page }) => {
+    await page.goto('/table-edge?preset=aura');
+    const rows = page.locator('#d-live .p-datatable-tbody > tr');
+    await expect(rows).toHaveCount(6);
+    const marked = () => page.locator('#d-live .p-datatable-tbody > tr.p-datatable-row-before-selected');
+
+    await expect(marked()).toHaveCount(0);
+    await rows.nth(2).click();
+    await expect(marked()).toHaveCount(1);
+    await expect(rows.nth(1)).toHaveClass(/p-datatable-row-before-selected/);
+
+    await rows.nth(4).click();
+    await expect(marked()).toHaveCount(1);
+    await expect(rows.nth(3)).toHaveClass(/p-datatable-row-before-selected/);
+    await expect(rows.nth(1)).not.toHaveClass(/p-datatable-row-before-selected/);
+
+    // Sorting moves the selected row; the mark moves to whatever row now comes right before it.
+    await page.locator('#live-sort').click();
+    await page.locator('#live-sort').click();
+    await expect(page.locator('#live-sort')).toHaveAttribute('aria-sort', 'descending');
+    const selectedIndex = await rows.evaluateAll((list) => list.findIndex((tr) => tr.classList.contains('p-datatable-row-selected')));
+    expect(selectedIndex).toBeGreaterThan(0);
+    await expect(marked()).toHaveCount(1);
+    expect(await marked().getAttribute('data-id')).toBe(await rows.nth(selectedIndex - 1).getAttribute('data-id'));
+
+    // And the line is drawn: the marked row's cells take the selected border colour.
+    const colours = await page.evaluate(() => {
+        const cell = (selector: string) => document.querySelector(`#d-live .p-datatable-tbody > tr${selector} > td`);
+        const marked = cell('.p-datatable-row-before-selected');
+        const plain = cell(':not(.p-datatable-row-before-selected):not(.p-datatable-row-selected)');
+        return { marked: getComputedStyle(marked!).borderBottomColor, plain: getComputedStyle(plain!).borderBottomColor };
+    });
+    expect(colours.marked).not.toBe(colours.plain);
+
+    // Unselecting clears the mark.
+    await page.locator('#d-live .p-datatable-tbody > tr.p-datatable-row-selected').click({ modifiers: ['ControlOrMeta'] });
+    await expect(page.locator('#d-live .p-datatable-tbody > tr.p-datatable-row-selected')).toHaveCount(0);
+    await expect(marked()).toHaveCount(0);
+});
+
+test('the class follows the selected row as virtual scrolling brings it into view and out again', async ({ page }) => {
+    await page.goto('/table-edge?preset=aura');
+    const scene = page.locator('#d-virtual');
+    await expect(scene.locator('.p-datatable-tbody > tr').first()).toBeVisible();
+    const selected = scene.locator('.p-datatable-tbody > tr.p-datatable-row-selected');
+    const marked = scene.locator('.p-datatable-tbody > tr.p-datatable-row-before-selected');
+    await expect(selected).toHaveCount(0);
+    await expect(marked).toHaveCount(0);
+
+    // Row 50 of 200 is selected; bring it into view.
+    await scene.locator('.p-virtualscroller').evaluate((scroller) => (scroller.scrollTop = 45 * 46));
+    await expect(selected).toHaveAttribute('data-id', 'v50');
+    await expect(marked).toHaveCount(1);
+    await expect(marked).toHaveAttribute('data-id', 'v49');
+
+    // And out of view again: no row is left marked.
+    await scene.locator('.p-virtualscroller').evaluate((scroller) => (scroller.scrollTop = 0));
+    await expect(scene.locator('.p-datatable-tbody > tr').first()).toHaveAttribute('data-id', 'v0');
+    await expect(selected).toHaveCount(0);
+    await expect(marked).toHaveCount(0);
+});
+
+test('the shipped Table stylesheet draws the line from the class and has no sibling :has()', async ({ page }) => {
     await page.goto('/table-edge?preset=aura');
     await expect(page.locator('#d-default .p-datatable-tbody > tr').first()).toBeVisible();
-    const { shipped, expected, siblingHas } = await page.evaluate((newRules) => {
-        const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
-        const collect = (list: CSSRuleList, out: string[]) => {
-            for (const rule of Array.from(list)) {
-                const frozen = rule instanceof CSSStyleRule && /:has\(\+\s*\.p-datatable-row-selected\)/.test(rule.selectorText);
-                if (frozen || ((rule instanceof CSSMediaRule || rule instanceof CSSStyleRule) && rule.cssText.includes('--agl-datatable-selected-edge'))) out.push(norm(rule.cssText));
-            }
-        };
-        const shipped: string[] = [];
+    const found = await page.evaluate(() => {
         let siblingHas = 0;
-        for (const sheet of Array.from(document.styleSheets)) {
-            collect(sheet.cssRules, shipped);
-            for (const rule of Array.from(sheet.cssRules)) if (rule instanceof CSSStyleRule && /:has\(\+/.test(rule.selectorText) && rule.selectorText.includes('p-datatable') && !rule.selectorText.endsWith('td.p-datatable-frozen-column')) siblingHas++;
-        }
-        // Parse the expected texts the same way, so both sides are serialized by the browser.
-        const probe = new CSSStyleSheet();
-        probe.replaceSync(newRules.join('\n'));
-        const expected: string[] = [];
-        collect(probe.cssRules, expected);
-        return { shipped, expected, siblingHas };
-    }, NEW_RULES);
-    expect(siblingHas, 'a sibling :has() rule on Table rows other than the frozen-cell one').toBe(0);
-    expect(shipped.sort()).toEqual(expected.sort());
+        let classRule = 0;
+        for (const sheet of Array.from(document.styleSheets))
+            for (const rule of Array.from(sheet.cssRules)) {
+                if (!(rule instanceof CSSStyleRule)) continue;
+                if (/:has\(\+/.test(rule.selectorText) && rule.selectorText.includes('p-datatable')) siblingHas++;
+                if (rule.selectorText === '.p-datatable-tbody > tr.p-datatable-row-before-selected > td' && rule.style.borderBlockEndColor.includes('--p-datatable-body-cell-selected-border-color')) classRule++;
+            }
+        return { siblingHas, classRule };
+    });
+    expect(found).toEqual({ siblingHas: 0, classRule: 1 });
 });

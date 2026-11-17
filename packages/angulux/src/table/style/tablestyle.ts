@@ -2,8 +2,24 @@ import { Injectable } from '@angular/core';
 import { style as datatable_style } from '@anguless/angulux-styles/datatable';
 import { BaseStyle } from '@anguless/angulux/base';
 
+/**
+ * The rule that drew the line above a selected row from the row before it, with a sibling :has().
+ * Chrome re-evaluates such a selector for every row inserted beside it, so rendering a long table
+ * grew with the square of its rows. It is replaced in place, so the cascade order stays as it was,
+ * by a rule on `p-datatable-row-before-selected`, the class Table puts on that row
+ * (markRowsBeforeSelected in table.ts). Same property, same colour: the same border is drawn.
+ *
+ * Done here rather than in @anguless/angulux-styles, so this release works with any version of that
+ * package: one without the rule leaves the replace with nothing to do.
+ */
+const SIBLING_HAS_RULE = /\.p-datatable-tbody\s*>\s*tr:has\(\+\s*\.p-datatable-row-selected\)\s*>\s*td\s*\{[^}]*\}/;
+
+const ROW_BEFORE_SELECTED_RULE = `.p-datatable-tbody > tr.p-datatable-row-before-selected > td {
+        border-block-end-color: dt('datatable.body.cell.selected.border.color');
+    }`;
+
 const style = /*css*/ `
-${datatable_style}
+${String(datatable_style).replace(SIBLING_HAS_RULE, ROW_BEFORE_SELECTED_RULE)}
 
 /* For AnguluxConfig */
 .p-datatable-scrollable-table > .p-datatable-thead {

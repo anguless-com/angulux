@@ -8,9 +8,10 @@ import { TableModule } from '@anguless/angulux/table';
  * Until 2026-11-18 that line was drawn by `tr:has(+ .p-datatable-row-selected) > td`, which recolours the
  * bottom border of the row BEFORE a selected one. Chrome re-evaluates such a sibling `:has()` for
  * every row inserted beside it, so rendering a long table grew with the square of its rows (#168,
- * 22.1.3). e2e/table-selected-edge.spec.ts renders each scene below twice, once with that rule and
- * once with its replacement, and requires the two screenshots to be identical, byte for byte, in
- * every preset, colour scheme and device pixel ratio it tries.
+ * 22.1.3). Table now marks that row with `p-datatable-row-before-selected`, and the stylesheet
+ * recolours the same border from the class. e2e/table-selected-edge.spec.ts renders each scene below
+ * with each rule and requires the screenshots to be identical, byte for byte, in every preset,
+ * colour scheme and device pixel ratio it tries.
  *
  * main.ts bootstraps this page with the preset named by `?preset=` (aura, lara, nora, material).
  */
@@ -70,6 +71,36 @@ const pick = (...indexes: number[]): Row[] => indexes.map((i) => ROWS[i]);
                     </agl-table>
                 </div>
             }
+
+            <!-- Live: the user selects and sorts, and the row before the selected one follows. -->
+            <div class="scene" id="d-live">
+                <agl-table [value]="liveRows" selectionMode="single" [(selection)]="liveSelection" dataKey="id">
+                    <ng-template #header>
+                        <tr>
+                            <th id="live-sort" aglSortableColumn="name">Name <agl-sortIcon field="name" /></th>
+                            <th>City</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-row let-i="rowIndex">
+                        <tr [aglSelectableRow]="row" [aglSelectableRowIndex]="i" [attr.data-id]="row.id">
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.city }}</td>
+                        </tr>
+                    </ng-template>
+                </agl-table>
+            </div>
+
+            <!-- Virtual scrolling: the selected row exists only while it is scrolled into view. -->
+            <div class="scene" id="d-virtual">
+                <agl-table [value]="manyRows" selectionMode="single" [selection]="virtualSelection" dataKey="id" [scrollable]="true" scrollHeight="300px" [virtualScroll]="true" [virtualScrollItemSize]="46">
+                    <ng-template #body let-row let-i="rowIndex">
+                        <tr [aglSelectableRow]="row" [aglSelectableRowIndex]="i" [attr.data-id]="row.id" style="height: 46px">
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.city }}</td>
+                        </tr>
+                    </ng-template>
+                </agl-table>
+            </div>
 
             <!-- Frozen first column in a scrollable table: its cells are positioned (sticky). -->
             <div class="scene" id="d-frozen">
@@ -148,6 +179,12 @@ export class TableEdge {
     ];
 
     readonly frozenSelection = pick(1, 3);
+
+    liveRows = ROWS.map((row) => ({ ...row }));
+    liveSelection: Row | null = null;
+
+    readonly manyRows: Row[] = Array.from({ length: 200 }, (_, i) => ({ id: `v${i}`, name: `Name ${i}`, code: `C${i}`, city: ROWS[i % ROWS.length].city }));
+    readonly virtualSelection = this.manyRows[50];
 
     readonly nested = [
         { id: 'd-nested-in-plain', outerGridlines: false },
