@@ -47,6 +47,14 @@ The consequence is deliberate: when PrimeTek publishes a package this tool has n
 your build goes red and a human looks at it. A tool that guesses "probably fine" about a
 licensing question is worse than no tool, because it produces confidence instead of an answer.
 
+## LTS builds
+
+PrimeNG also publishes a long-term-support line with an `-lts` suffix, numbered inside the
+MIT range (`20.5.1-lts`, for example). Those builds are under PrimeTek's separate LTS licence,
+not MIT, so the guard reports any version carrying an `lts` prerelease tag as commercial,
+whatever its number. Versions 1.0.1 and earlier compared the number alone and reported them
+as clean.
+
 ## When you have checked something yourself
 
 If you have verified a package's licence — or you hold a PrimeUI licence and the dependency is

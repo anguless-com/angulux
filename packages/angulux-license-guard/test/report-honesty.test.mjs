@@ -90,3 +90,18 @@ test('an unreadable lockfile reports the tool\'s own message, not a Node stack t
         rmSync(dir, { recursive: true, force: true });
     }
 });
+
+test('an -lts build gets the commercial headline, not "all on MIT releases"', () => {
+    const dir = projectWith({ primeng: '20.5.1-lts' });
+    try {
+        const { code, lines } = run(dir);
+        const text = lines.join('\n');
+        assert.equal(code, 1);
+        assert.match(text, /COMMERCIALLY LICENSED/);
+        assert.match(text, /primeng@20\.5\.1-lts/);
+        assert.match(text, /LTS/);
+        assert.doesNotMatch(text, /all on MIT releases/);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});

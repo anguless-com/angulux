@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, TABLE_VERIFIED } from '../src/boundary.mjs';
+import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, COMMERCIAL_TAGS, TABLE_VERIFIED } from '../src/boundary.mjs';
 import { detect } from '../src/detect.mjs';
 
 test('records the boundary for every package PrimeTek moved', () => {
@@ -29,6 +29,14 @@ test('records the packages the guard treats as commercial at every version', () 
     // false version is how the invention survives the correction.
     assert.ok(ALWAYS_COMMERCIAL.includes('@primeui/license-manager'));
     assert.ok(ALWAYS_COMMERCIAL.includes('@primeicons/angular'));
+});
+
+test('records the prerelease tags that are commercial at any version number', () => {
+    // PrimeNG's -lts line is numbered below the 22.0.0 boundary and is not MIT. Its licence is
+    // the "PRIMENG LTS VERSIONS LICENSE (Versions with -lts suffix)" section, read out of the
+    // tarballs on 2026-11-17. Pinned like the table above, because removing the tag would turn
+    // 77 published builds back into a clean pass.
+    assert.deepEqual(COMMERCIAL_TAGS, ['lts']);
 });
 
 test('a prerelease of a commercial major is commercial, not "below the boundary"', () => {

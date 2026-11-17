@@ -4,7 +4,7 @@ import { readLock, NoLockfileError } from './lockfile.mjs';
 import { detect } from './detect.mjs';
 import { loadAcknowledgements, applyAcknowledgements, CONFIG_FILENAME } from './acknowledge.mjs';
 
-export { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, TABLE_VERIFIED, isPrimeTekPackage } from './boundary.mjs';
+export { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, COMMERCIAL_TAGS, TABLE_VERIFIED, isPrimeTekPackage } from './boundary.mjs';
 export { detect } from './detect.mjs';
 export { readLock, NoLockfileError } from './lockfile.mjs';
 export { loadAcknowledgements, applyAcknowledgements, CONFIG_FILENAME } from './acknowledge.mjs';
@@ -70,7 +70,7 @@ export function run(projectRoot = process.cwd()) {
             for (const v of commercial) lines.push(`   ${v.name}@${v.version}`, `      → ${v.reason}`);
             lines.push(
                 '',
-                '  These versions are NOT MIT. Using them requires a PrimeUI licence.',
+                '  These versions are NOT MIT. Using them requires a licence from PrimeTek.',
                 '  Fix: downgrade to the last MIT release and pin it exactly (drop the ^).'
             );
         }
