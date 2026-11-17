@@ -36,14 +36,20 @@ export class Narrow {
 type Position = 'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center' | 'center';
 
 function positionFrom(value: string | null): Position {
+    // Each case returns its own literal, so no text from the address bar reaches the component.
     switch (value) {
         case 'top-left':
+            return 'top-left';
         case 'top-center':
+            return 'top-center';
         case 'bottom-right':
+            return 'bottom-right';
         case 'bottom-left':
+            return 'bottom-left';
         case 'bottom-center':
+            return 'bottom-center';
         case 'center':
-            return value;
+            return 'center';
         default:
             return 'top-right';
     }
