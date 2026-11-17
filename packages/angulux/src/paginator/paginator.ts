@@ -76,7 +76,7 @@ const PAGINATOR_INSTANCE = new InjectionToken<Paginator>('PAGINATOR_INSTANCE');
         </span>
         <agl-select
             [options]="pageItems"
-            [ngModel]="getPage()"
+            [ngModel]="getPage()" [ngModelOptions]="{ standalone: true }"
             *ngIf="showJumpToPageDropdown"
             [disabled]="empty()"
             [attr.aria-label]="getAriaLabel('jumpToPageDropdownLabel')"
@@ -109,10 +109,10 @@ const PAGINATOR_INSTANCE = new InjectionToken<Paginator>('PAGINATOR_INSTANCE');
                 <ng-template *ngTemplateOutlet="lastPageLinkIconTemplate()"></ng-template>
             </span>
         </button>
-        <agl-inputnumber [pt]="ptm('pcJumpToPageInput')" *ngIf="showJumpToPageInput" [ngModel]="currentPage()" [class]="cx('pcJumpToPageInput')" [disabled]="empty()" (ngModelChange)="changePage($event - 1)" [unstyled]="unstyled()"></agl-inputnumber>
+        <agl-inputnumber [pt]="ptm('pcJumpToPageInput')" *ngIf="showJumpToPageInput" [ngModel]="currentPage()" [ngModelOptions]="{ standalone: true }" [class]="cx('pcJumpToPageInput')" [disabled]="empty()" (ngModelChange)="changePage($event - 1)" [unstyled]="unstyled()"></agl-inputnumber>
         <agl-select
             [options]="rowsPerPageItems"
-            [(ngModel)]="rows"
+            [(ngModel)]="rows" [ngModelOptions]="{ standalone: true }"
             *ngIf="rowsPerPageOptions"
             [styleClass]="cx('pcRowPerPageDropdown')"
             [disabled]="empty()"

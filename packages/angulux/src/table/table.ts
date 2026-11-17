@@ -4847,7 +4847,7 @@ export class CellEditor extends BaseComponent {
 @Component({
     selector: 'agl-tableRadioButton',
     standalone: false,
-    template: `<agl-radioButton #rb [(ngModel)]="checked" [disabled]="disabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [binary]="true" [value]="value" (onClick)="onClick($event)" [unstyled]="unstyled()" /> `,
+    template: `<agl-radioButton #rb [(ngModel)]="checked" [ngModelOptions]="{ standalone: true }" [disabled]="disabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [binary]="true" [value]="value" (onClick)="onClick($event)" [unstyled]="unstyled()" /> `,
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None
 })
@@ -4910,7 +4910,7 @@ export class TableRadioButton extends BaseComponent {
     selector: 'agl-tableCheckbox',
     standalone: false,
     template: `
-        <agl-checkbox [(ngModel)]="checked" [binary]="true" (onChange)="onClick($event)" [required]="required()" [disabled]="disabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
+        <agl-checkbox [(ngModel)]="checked" [ngModelOptions]="{ standalone: true }" [binary]="true" (onChange)="onClick($event)" [required]="required()" [disabled]="disabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
             @if (dataTable._checkboxIconTemplate(); as template) {
                 <ng-template #icon >
                     <ng-template *ngTemplateOutlet="template; context: { $implicit: checked }" />
@@ -4976,7 +4976,7 @@ export class TableCheckbox extends BaseComponent {
     selector: 'agl-tableHeaderCheckbox',
     standalone: false,
     template: `
-        <agl-checkbox [pt]="ptm('pcCheckbox')" [(ngModel)]="checked" (onChange)="onClick($event)" [binary]="true" [disabled]="isDisabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
+        <agl-checkbox [pt]="ptm('pcCheckbox')" [(ngModel)]="checked" [ngModelOptions]="{ standalone: true }" (onChange)="onClick($event)" [binary]="true" [disabled]="isDisabled()" [inputId]="inputId()" [name]="name()" [ariaLabel]="ariaLabel" [unstyled]="unstyled()">
             @if (dataTable._headerCheckboxIconTemplate(); as template) {
                 <ng-template #icon >
                     <ng-template *ngTemplateOutlet="template; context: { $implicit: checked }" />
@@ -5328,14 +5328,14 @@ export class ReorderableRow extends BaseComponent {
                     </ul>
                     <ng-template #menu>
                         <div [class]="cx('filterOperator')" [aglBind]="ptm('filterOperator')" *ngIf="isShowOperator">
-                            <agl-select [options]="operatorOptions" [pt]="ptm('pcFilterOperatorDropdown')" [ngModel]="operator" (ngModelChange)="onOperatorChange($event)" [styleClass]="cx('pcFilterOperatorDropdown')" [unstyled]="unstyled()"></agl-select>
+                            <agl-select [options]="operatorOptions" [pt]="ptm('pcFilterOperatorDropdown')" [ngModel]="operator" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onOperatorChange($event)" [styleClass]="cx('pcFilterOperatorDropdown')" [unstyled]="unstyled()"></agl-select>
                         </div>
                         <div [class]="cx('filterRuleList')" [aglBind]="ptm('filterRuleList')">
                             <div *ngFor="let fieldConstraint of fieldConstraints; let i = index" [ngClass]="cx('filterRule')" [aglBind]="ptm('filterRule')">
                                 <agl-select
                                     *ngIf="showMatchModes && matchModes"
                                     [options]="matchModes"
-                                    [ngModel]="fieldConstraint.matchMode"
+                                    [ngModel]="fieldConstraint.matchMode" [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="onMenuMatchModeChange($event, fieldConstraint)"
                                     [styleClass]="cx('pcFilterConstraintDropdown')"
                                     [pt]="ptm('pcFilterConstraintDropdown')"
@@ -6211,7 +6211,7 @@ export class ColumnFilter extends BaseComponent {
                 />
                 <agl-inputNumber
                     *ngSwitchCase="'numeric'"
-                    [ngModel]="filterConstraint?.value"
+                    [ngModel]="filterConstraint?.value" [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="onModelChange($event)"
                     (onKeyDown)="onNumericInputKeyDown($event)"
                     [showButtons]="showButtons"
@@ -6235,7 +6235,7 @@ export class ColumnFilter extends BaseComponent {
                     [indeterminate]="filterConstraint?.value === null"
                     [binary]="true"
                     *ngSwitchCase="'boolean'"
-                    [ngModel]="filterConstraint?.value"
+                    [ngModel]="filterConstraint?.value" [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="onModelChange($event)"
                     [unstyled]="unstyled()"
                 />
@@ -6245,7 +6245,7 @@ export class ColumnFilter extends BaseComponent {
                     [ariaLabel]="ariaLabel"
                     *ngSwitchCase="'date'"
                     [placeholder]="placeholder"
-                    [ngModel]="filterConstraint?.value"
+                    [ngModel]="filterConstraint?.value" [ngModelOptions]="{ standalone: true }"
                     (ngModelChange)="onModelChange($event)"
                     appendTo="body"
                     [unstyled]="unstyled()"

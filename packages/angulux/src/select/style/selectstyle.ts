@@ -39,7 +39,9 @@ const classes = {
     label: ({ instance }) => [
         'p-select-label',
         {
-            'p-placeholder': instance.placeholder() && instance.label() === instance.placeholder(),
+            // The editable input shows a typed value no option matches, while label() falls back to the
+            // placeholder: that text is not a placeholder (upstream 22.1.3).
+            'p-placeholder': instance.placeholder() && (instance.editable ? instance.modelValue() === undefined || instance.modelValue() === null || instance.modelValue() === '' : instance.label() === instance.placeholder()),
             'p-select-label-empty': !instance.editable && !instance.selectedItemTemplate() && (instance.label() === undefined || instance.label() === null || instance.label() === 'p-emptylabel' || instance.label().length === 0)
         }
     ],

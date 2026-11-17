@@ -3551,7 +3551,12 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
             selectable: true
         };
 
-        this.createMonths(date.getMonth(), date.getFullYear());
+        // Move the navigation state with the view. createMonths() draws the month but does not set
+        // currentMonth / currentYear, so Previous and Next went on from the month shown before Today
+        // was pressed (upstream 22.1.5).
+        this.currentMonth = date.getMonth();
+        this.currentYear = date.getFullYear();
+        this.createMonths(this.currentMonth, this.currentYear);
         this.onDateSelect(event, dateMeta);
         this.onTodayClick.emit(date);
     }

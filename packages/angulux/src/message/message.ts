@@ -72,7 +72,10 @@ const MESSAGE_INSTANCE = new InjectionToken<Message>('MESSAGE_INSTANCE');
         '[class]': 'cn(cx("root"), styleClass)',
         '[animate.enter]': '"p-message-enter-active"',
         '[animate.leave]': '"p-message-leave-active"',
-        '[class.p-message-leave-active]': '!visible()'
+        '[class.p-message-leave-active]': '!visible()',
+        // A closed message only collapses to nothing on screen; inert takes its close button out of
+        // the tab order and the message out of the accessibility tree (upstream 22.1.5).
+        '[attr.inert]': '!visible() ? "" : null'
     }
 })
 export class Message extends BaseComponent<MessagePassThrough> {

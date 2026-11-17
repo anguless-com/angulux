@@ -3190,7 +3190,7 @@ export class TTContextMenuRow extends BaseComponent {
     selector: 'agl-treeTableCheckbox, agl-treetable-checkbox, agl-tree-table-checkbox',
     standalone: false,
     template: `
-        <agl-checkbox [ngModel]="checked" [pt]="ptm('pcRowCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="disabled" [indeterminate]="partialChecked" [styleClass]="cx('pcNodeCheckbox')" [tabIndex]="-1" [unstyled]="unstyled()">
+        <agl-checkbox [ngModel]="checked" [ngModelOptions]="{ standalone: true }" [pt]="ptm('pcRowCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="disabled" [indeterminate]="partialChecked" [styleClass]="cx('pcNodeCheckbox')" [tabIndex]="-1" [unstyled]="unstyled()">
             <ng-container *ngIf="tt._checkboxIconTemplate()">
                 <ng-template #icon >
                     <ng-template *ngTemplateOutlet="tt._checkboxIconTemplate(); context: { $implicit: checked, partialSelected: partialChecked }"></ng-template>
@@ -3286,7 +3286,7 @@ export class TTCheckbox extends BaseComponent {
     selector: 'agl-treeTableHeaderCheckbox',
     standalone: false,
     template: `
-        <agl-checkbox [ngModel]="checked" [pt]="ptm('pcHeaderCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="!tt.value || tt.value.length === 0" [unstyled]="unstyled()">
+        <agl-checkbox [ngModel]="checked" [ngModelOptions]="{ standalone: true }" [pt]="ptm('pcHeaderCheckbox')" (onChange)="onClick($event)" [binary]="true" [disabled]="!tt.value || tt.value.length === 0" [unstyled]="unstyled()">
             <ng-container *ngIf="tt._headerCheckboxIconTemplate()">
                 <ng-template #icon >
                     <ng-template *ngTemplateOutlet="tt._headerCheckboxIconTemplate(); context: { $implicit: checked }"></ng-template>

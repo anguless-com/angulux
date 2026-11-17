@@ -514,16 +514,18 @@ describe('Tooltip', () => {
             await fixture.whenStable();
             fixture.detectChanges();
 
-            spyOn(document, 'createTextNode').and.callThrough();
-
-            tooltipDirective.setOption({ tooltipLabel: 'Test content' });
+            tooltipDirective.setOption({ tooltipLabel: '<b>Test content</b>' });
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
 
             tooltipDirective.updateText();
 
-            expect(document.createTextNode).toHaveBeenCalledWith('Test content');
+            // The outcome, not the DOM call that produced it: escaped content is text. It is set with
+            // textContent since 2026-11-17, because an innerHTML write needs TrustedHTML under
+            // require-trusted-types-for (upstream 22.1.5).
+            expect(tooltipDirective.tooltipText.textContent).toBe('<b>Test content</b>');
+            expect(tooltipDirective.tooltipText.querySelector('b')).toBeNull();
         });
 
         it('should handle HTML content when escape is false', async () => {

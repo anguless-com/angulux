@@ -387,6 +387,446 @@
             "verdict": "cross-cutting",
             "module": null,
             "note": "Nothing to remove here. In our tree onOverlayHide is defined and called in datepicker, table, menu and tieredmenu, each from its overlay's after-leave path and from its own hide, so none is unused (read 2026-11-17). Removing a public method would be API in any case (Constitution P3)."
+        },
+        "22.1.5 · Highlights · 2fab258e0d16": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A summary of the 22.1.5 Tooltip entries, each recorded on its own. Nothing to measure here (2026-11-17)."
+        },
+        "22.1.5 · Highlights · 39bd007104ec": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A summary of the 22.1.5 Select entries, each recorded on its own. Nothing to measure here (2026-11-17)."
+        },
+        "22.1.5 · Forms · 9e04023d99e2": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "REPRODUCED 2026-11-17 although filed out of reach (no module is named Forms): a Paginator, a MultiSelect and a Table inside a <form> logged NG01354 fourteen times. Angular 22 warns when an ngModel inside a component cannot reach the parent NgForm across @Host(); sixteen bindings in our own templates (Paginator, MultiSelect, SelectButton, Table, TreeTable) are internal state, not form fields. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: each now says [ngModelOptions]=\"{ standalone: true }\". No warning left (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · FileUpload · dad0d579eddf": {
+            "verdict": "follow",
+            "module": "fileupload",
+            "note": "Their showcase, not the component: where their FileUpload demos send files. angulux has its own showcase. Nothing to measure (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · 195e7f4388ce": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "Hygiene in their test suite. Ours now drives Tooltip with real pointer, keyboard and focus events in e2e/upstream-repro-22-1-5.spec.ts (sixteen tests). Nothing to fix (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · 2fa3853d72fb": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "Hygiene in their test suite. The verify app loads Aura, and the placement tests in e2e/upstream-repro-22-1-5.spec.ts run against it (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · f0c146d390bd": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: with autoHide false and a link in the content, Tab from the target went past the tooltip, which is appended to the body, and the target blur hid it first. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: Tab from the target moves into the tooltip, Tab past its last link goes on to what follows the target and closes it, Shift+Tab goes back, Escape returns focus to the target, and a blur into the tooltip does not hide it (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · c9049c8a51d7": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "A feature. fitContent works as an input; TooltipOptions does not declare it, and adding a field to an exported type is API, which Constitution P3 keeps off 22.x. A candidate for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · a1cdaff3550f": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: with prefers-reduced-motion: reduce the tooltip still faded in from opacity 0. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: no fade when the user asked for reduced motion (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · bec3cbb0978c": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "API housekeeping: marking public members deprecated changes the API surface, which Constitution P3 keeps for the Angular 23 round. Nothing measured (2026-11-17)."
+        },
+        "22.1.5 · Core · c0e35c730096": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "MEASURED 2026-11-17, not changed: a Select rendering 2,000 options took 325 ms with a plain item template and 425 ms with one rooted in @if (?case=core-template). The extra time is the view Angular creates for the @if block in each row; angulux renders the item template once per row through ngTemplateOutlet and does nothing per root node. Held by an ordinary test at a 1.5x bound (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Compare · d829b6499414": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "Their showcase demo. Nothing of ours to measure (2026-11-17)."
+        },
+        "22.1.5 · Gallery · e2ca50704188": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "Their Galleria showcase demo; Galleria is parked in attic/ here and ships nowhere (2026-11-17)."
+        },
+        "22.1.5 · Tabs · 816ae4707131": {
+            "verdict": "follow",
+            "module": "tabs",
+            "note": "REPRODUCED 2026-11-17: tabs sharing the width of a container that narrowed from 720 to 320 px kept a 240 px active bar under a 107 px tab. The ResizeObserver on the tab list updated only the scroll buttons. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it measures the active bar too (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Message · 169ec0df79fd": {
+            "verdict": "follow",
+            "module": "message",
+            "note": "REPRODUCED 2026-11-17: a closed message collapses to nothing on screen but stays in the DOM, and Tab landed on its close button. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a closed message is inert, out of the tab order and the accessibility tree (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Gallery · fc2d8c9646e3": {
+            "verdict": "out-of-reach",
+            "module": null,
+            "note": "Galleria, parked in attic/ here and shipped nowhere. Matters only if it is promoted (2026-11-17)."
+        },
+        "22.1.5 · Table · 7eb5d1e706e3": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce 2026-11-17: a press and release on the resizer of a sortable column in expand mode left its width (838 px) and its sort (none) as they were (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Table · f54b4a07c97a": {
+            "verdict": "follow",
+            "module": "table",
+            "note": "Does NOT reproduce 2026-11-17: a table restoring a saved state whose name filter was cleared rendered all four rows without an error, in all four shapes Table writes (row display with an empty string or null, menu display with a null constraint or an empty list); a state with a value filtered to one row (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · DatePicker · d1cca79b04ec": {
+            "verdict": "follow",
+            "module": "datepicker",
+            "note": "REPRODUCED 2026-11-17: Today drew the current month but left currentMonth and currentYear at the month shown before (March), so Previous went to February instead of October. NgModel does not write back the value it just emitted, so nothing else moved them. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: Today sets both before drawing (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · 3192276cc799": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: after a hide the shared fadeIn() kept writing opacity to the removed element, seventeen times, until it reached 1. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the tooltip runs its own fade and cancels the frame when it is removed (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · cf2ad3b76c2e": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: inside a dialog the tooltip waited a fixed 100 ms and started its fade at once, so it appeared already 40% opaque. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it waits only for animations still running on the dialog and starts the fade when it is shown; in an open dialog it showed after 45 ms at opacity 0, the same as outside (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · 317f5de38a61": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "Does NOT reproduce 2026-11-17: on a zone.js page (/upstream-zone) a hover in and out ran change detection 0 times for a plain button, 0 for a tooltip target and 0 with show and hide delays. The listeners and timers are set outside the Angular zone (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · f9503dee0f07": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "Does NOT reproduce 2026-11-17: with tooltipEvent both, Tab onto the target showed its tooltip (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · ScrollTop · efdb525945ec": {
+            "verdict": "attic",
+            "module": "scrolltop",
+            "note": "ScrollTop is parked in attic/ and ships nowhere. Matters only if it is promoted (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · 20b3dfd3c2f0": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: unbindContainerMouseleaveListener() called bindContainerMouseleaveListener(), which does nothing while a listener is bound, so the listener was added once and removed never. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it calls the unlisten function (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · 25b3e211707e": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: tooltipOptions { tooltipPosition: undefined }, and an undefined [tooltipPosition] binding, replaced the default position with undefined, and the tooltip was drawn at the left edge of the page (x 24 beside a target at x 574). FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: an option given as undefined goes back to its default (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · c9afd7b2ff8c": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "Types are API: tightening an exported option type can break code that compiles today, which Constitution P3 keeps for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.5 · Tooltip · 34b97586fb98": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "PARTLY REPRODUCED 2026-11-17: beside an inline TieredMenu as wide as the page, an item tooltip with no room on its right was squeezed into the last 63 px, one word per line, 88 px tall, instead of moving to a side that fits: shrinking kept it inside the viewport, so isOutOfBounds() never asked for the next position. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a tooltip narrower than its natural width counts as not fitting; it now shows on one line above the item. Whether this is the mechanism upstream meant is not known (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · c6ab351863bf": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: Tooltip provided PARENT_INSTANCE, so on an IconField host it stood in for the IconField as the parent of the InputIcon inside (the parent a pass-through function sees). FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: Tooltip no longer provides it (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · e01a65081be6": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: under require-trusted-types-for no tooltip showed at all, because updateText() cleared the text with innerHTML = '', which needs TrustedHTML even when empty. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: escaped content is set with textContent. With escape false the content is HTML by request, and a TrustedHTML value from the app's own policy works (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · 6a23868c3db3": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "The reduced-motion half is the entry above, FIXED. The fade does NOT run twice here 2026-11-17: one hover created one container and started one fade, with no CSS animation on it (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Tooltip · f1dac3bf891d": {
+            "verdict": "follow",
+            "module": "tooltip",
+            "note": "REPRODUCED 2026-11-17: the tooltip had an id option it never used, and the target carried no aria-describedby. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the tooltip takes its id and the target is described by it while it shows; ids the author set are kept (e2e/upstream-repro-22-1-5.spec.ts)."
+        },
+        "22.1.5 · Select · 3dcf86f15b03": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Timers do outlive the component, but nothing measurable followed 2026-11-17: a keystroke immediately followed by removing the Select left its type-ahead timer pending, and the forms layer, already detached, dropped the write it led to. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request anyway as part of the same change: onDestroy clears both type-ahead timers (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · 9d61107f8998": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Hygiene in their test suite. Nothing to measure (2026-11-17)."
+        },
+        "22.1.5 · Select · 4a84312e3f1e": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "A feature: a new field on SelectChangeEvent, an exported type, so API (Constitution P3). A candidate for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.5 · Select · 21c5dbd2d839": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: with options carrying both name and label and optionLabel=\"name\", the shown label, the filter, type-ahead and the editable input all used name (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · 1ad94b322872": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Not applicable: it concerns a multiple-selection mode our Select does not have. Our label scans the options once per change of value or options (a computed) (2026-11-17)."
+        },
+        "22.1.5 · Select · be573726c4ff": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: with an option whose label is null, type-ahead threw from isOptionMatched() (null.toString()), and no option was focused. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the label is read as a string (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · b26b1dcbd716": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the editable input took its aria-label from the shown label, so it was named by its placeholder before a pick and by the value after, never by its <label>. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: aria-label only from ariaLabel, aria-labelledby from ariaLabelledBy, so an associated label names it (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · ced1c076d82c": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: with the filter on and nothing typed, an empty list showed emptyMessage (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · 1aeceba92c33": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "PARTLY REPRODUCED 2026-11-17: the label and the selectedItem template kept the selected value while the filter hid it, but the EDITABLE input showed \"[object Object]\": the selection was looked up among visible options only and the fallback printed the object. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: an editable Select keeps the selected option while the filter hides it, and an object value is shown by its optionLabel field (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · 9c5f82fbcb73": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce at the size measured 2026-11-17: 3,100 grouped rows opened in 780-926 ms against 823-837 ms for 3,100 flat ones, and filtered in about the same time. getAriaPosInset() is still linear per row; not changed (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · d57cf25dfb12": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Multiple mode does not exist here, but the single EDITABLE Select had the same defect, REPRODUCED 2026-11-17: an object value no option matched was printed as \"[object Object]\". FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it is shown by its optionLabel field (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · 659480504523": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the placeholder showed for null and undefined only. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: for an empty string too (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.5 · Select · b7ee131b5378": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: in a lazy virtual-scroll Select, typing in the filter scrolled the list back to the top and emitted onLazyLoad (1 before, 2 after) (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.4 · Select · 267ddf0fadfc": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Hygiene in their test suite. Ours: e2e/upstream-repro-select.spec.ts, thirty-seven browser tests (2026-11-17)."
+        },
+        "22.1.4 · Select · 1571b4260e3a": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Documented 2026-11-17: the lazy docblock now says it takes effect with virtualScroll, which is what emits onLazyLoad."
+        },
+        "22.1.4 · Select · 06183a973158": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Present here too: allowModelChange() can never return true. Removing a public method is API (Constitution P3); it waits for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.4 · Select · fcc3c30818ba": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "The pattern is present (scrollInView() starts a timeout per call in virtual mode); no visible effect measured, not changed (2026-11-17)."
+        },
+        "22.1.4 · Select · b12ad47e1abe": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: onTabKey() stopped every Tab keydown, open or closed, so a parent's own keydown handler (a focus trap, a form) never saw one: 0 of 2. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it is stopped only when focus is moved into the panel (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.4 · Select · f746c49aec3d": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does not reproduce here, because a label click did nothing at all (the 22.1.3 label entry). With that fixed, clicking the label of a disabled Select neither focuses nor touches it, held by a test 2026-11-17 (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.4 · Select · f277271827c7": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: keys typed into a custom filter template reached no handler, so Down arrow focused no option. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the header passes keys from a custom filter to the filter key handler (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · e739b700f3c9": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the editable input had no role, aria-expanded or aria-controls. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: role combobox with aria-autocomplete list, aria-expanded and aria-controls, per the WAI-ARIA combobox pattern (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · c8668ec9dbcf": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Hygiene in their test suite; e2e/upstream-repro-select.spec.ts covers all three (2026-11-17)."
+        },
+        "22.1.3 · Select · 01ad3ebb101f": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: a required Select made its form invalid until a pick and carried aria-required (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · b53e64501aed": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: nothing told a screen reader how a filter changed the list. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a polite status region in the panel reads the existing searchMessage or emptySearchMessage translation while filtering (WCAG 4.1.3) (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 9b12af313442": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Not reproduced as slow at the size measured 2026-11-17: 3,100 grouped rows filtered in 161-175 ms against 177-179 ms flat (e2e/upstream-repro-select.spec.ts). Not changed."
+        },
+        "22.1.3 · Select · ad301a113596": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Fixed with the combobox role entry 2026-11-17: the editable input carries aria-autocomplete=\"list\" (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · e192bbbccf48": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the trigger carried role button and an English aria-label but takes no focus, so assistive technology offered a button nobody can reach. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the trigger is aria-hidden; the combobox already carries aria-expanded (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 9039ca3040f5": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: a keydown Enter with isComposing in the filter, the Enter that commits an IME candidate, selected the focused option and closed the panel. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: keys pressed during a composition are left to the IME, in the filter and in the editable input (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · df2fab1203ad": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Hygiene in their test suite (2026-11-17)."
+        },
+        "22.1.3 · Select · 7a5ee15e082c": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Present here too: updatePlaceHolderForFloatingLabel() looks for a p-float-label parent, a class nothing renders since FloatLabel uses p-floatlabel. A public method, so removing it is API (Constitution P3); it waits for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.3 · Select · 0cf7bfa6306b": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "API (Constitution P3). Waits for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.3 · Select · a1738c38d8b4": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: \"Han\" edited in the middle became \"Hxan\" (e2e/upstream-repro-select.spec.ts). updateEditableLabel() now also writes only when the text differs, so the caret cannot jump."
+        },
+        "22.1.3 · Select · 83686beaa45c": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Not measured as a defect 2026-11-17: an editable Select shows a value set from outside even with no options; a non-editable one shows its placeholder until an option matches, which is what its label is defined from. Not changed."
+        },
+        "22.1.3 · Select · 0ea8e9510ebb": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Their documentation (2026-11-17)."
+        },
+        "22.1.3 · Select · 1a4895ff21aa": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: typing what matches nothing into the editable input focused the first option, on every other keystroke. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: in editable mode type-ahead does not fall back to the first option (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · da9b0200e8df": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Covered by the editable entries measured 2026-11-17: role, aria-autocomplete, aria-expanded, aria-controls and the accessible name, all FIXED (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · f0fcc8c6d2b1": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "A type change (SelectPassThroughOptions), so API (Constitution P3). Waits for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.3 · Select · f9ff082ebe99": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: with a disabled option selected and first, opening by click, Down arrow and Enter never focused it (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 2ac0ee6725d6": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: each keystroke in the editable input wrote the value twice (\"z\", \"z\"): onEditableInput() called onModelChange() and then updateModel(), which calls it again. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: one write (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · cac71ad04c15": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: our focus sentinels carry a tabindex and no aria-hidden (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 8dcd0ac680ff": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: every template Select declares rendered in its state, header to loader (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · ba6c3bb2bd2e": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: each option row ran isSelected() twice per change detection, once for its selected input and once more in getPTItemOptions(). FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: the row builds its pass-through context from the state it was given; one call per row (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 1b6dcc59e00d": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: with selectOnFocus, typing \"H\" wrote \"H\" twice and then \"Hanoi\", replacing what was typed. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: typing focuses the match without selecting it (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 4a41721b881b": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: filtering threw \"Cannot read properties of undefined (reading 'filter')\" when a group had no items. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: such a group has nothing to match (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 5b448c1edc8d": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the non-editable Select puts inputId on a span, which a label cannot target, so clicking <label for> did nothing. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a click on a label naming inputId focuses the Select, unless it is disabled (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 1f2fd8768805": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: a read-only Select refused to open by click or key, but it did not say it was read-only, and its clear icon emptied it (measured on the CI runner; in the first local run the click on the icon did not land, and the entry was wrongly read as not reproducing). FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: aria-readonly on the combobox, no clear icon on a read-only Select (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 985ba2d4e6f2": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: text typed into the editable input that matched nothing kept the p-placeholder class, because label() falls back to the placeholder. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: in editable mode the class follows an empty value (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · bade9346f947": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: the empty message was a listbox option like any other. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: it is aria-disabled (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 97f30d579136": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17: an option with a custom template was named by its label alone (\"Hanoi\" for \"Hanoi (HN)\"), because aria-label overrides content. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: no aria-label when a template renders the option (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.3 · Select · 857b1034857a": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Their showcase demo (2026-11-17)."
+        },
+        "22.1.3 · Select · 4153fdedd009": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "A styling choice with no defect to measure: with checkmark on, the selected option is both checked and highlighted, as the theme draws it. Not changed (2026-11-17)."
+        },
+        "22.1.2 · Select · 4d081d902be3": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Documented 2026-11-17: the dataKey docblock now says it is ignored when optionValue is set."
+        },
+        "22.1.2 · Select · 2366ea3ce1ff": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Does NOT reproduce 2026-11-17: moving focus through options with Down arrow re-created no custom option template (e2e/upstream-repro-select.spec.ts)."
+        },
+        "22.1.2 · Select · f42e9938c4ed": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Present here too: SelectItem injects SELECT_ITEM_INSTANCE, which nothing provides. Harmless; the field is public on an exported class, so removing it waits for the Angular 23 round (2026-11-17)."
+        },
+        "22.1.2 · Select · 4bff1098aee5": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "Not measured 2026-11-17: needs a server-rendered app with hydration; the showcase prerenders its Select pages without error. Not changed."
+        },
+        "22.1.2 · Select · 0ee45922ee5e": {
+            "verdict": "follow",
+            "module": "select",
+            "note": "REPRODUCED 2026-11-17 for readonly, on the CI runner: clicking the clear icon emptied a read-only Select. With loading the value stayed in both runs. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a read-only Select shows no clear icon, and clear() from the icon does nothing while readonly or loading (e2e/upstream-repro-select.spec.ts)."
         }
     }
 }

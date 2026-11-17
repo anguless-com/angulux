@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "6e9d2265c1f857ac0ab8e41f1a95fc8952a121d19c1b4df4620b7c23f0ba4da8",
+        "sourceHash": "3c9b0784e8d80db502607494e14d903751b7c22a1549c5a9a00f4e2635f93829",
         "closureCount": 65
     },
     "modules": [
@@ -11204,7 +11204,7 @@
                             "name": "dataKey",
                             "field": "dataKey",
                             "type": "string | undefined",
-                            "description": "A property to uniquely identify a value in options.",
+                            "description": "A property to uniquely identify a value in options. Ignored when optionValue is set: the value\nis then the field optionValue names, and is compared as it is.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -11391,7 +11391,7 @@
                             "name": "lazy",
                             "field": "lazy",
                             "type": "boolean",
-                            "description": "Defines if data is loaded and interacted with in lazy manner.",
+                            "description": "Defines if data is loaded and interacted with in lazy manner. Takes effect with virtualScroll,\nwhich is what emits onLazyLoad; without it, lazy does nothing.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
