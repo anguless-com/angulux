@@ -1426,6 +1426,12 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
      */
     public hide(isFocus?) {
         this.overlayVisible = false;
+        // The panel stops taking pointer input now, not when change detection starts its leave
+        // phase: Chrome runs a pending click before that timer, so a quick second click still picked
+        // an option of the closing panel (upstream 22.1.3, held under P3.a, fixed under P3.c on
+        // 2026-11-17). The overlay turns it back on when it opens.
+        const panel = this.overlayViewChild?.overlayEl as HTMLElement | undefined;
+        if (panel) panel.style.pointerEvents = 'none';
         this.focusedOptionIndex.set(-1);
         this.clicked.set(false);
         this.searchValue = '';

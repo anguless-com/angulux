@@ -357,7 +357,11 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
     }
 
     enableModality() {
-        const activeDrawers = this.document.querySelectorAll('[data-p-open="true"]');
+        // Count open drawers in the tree this drawer lives in. document.querySelectorAll does not see
+        // into a shadow root: it found none, read .style of index -1 and threw before the mask was
+        // created (upstream 22.1.4, held under P3.a, fixed under P3.c on 2026-11-17).
+        const root = ((this.container as HTMLElement | undefined)?.getRootNode?.() as Document | ShadowRoot | undefined) ?? this.document;
+        const activeDrawers = root.querySelectorAll ? root.querySelectorAll('[data-p-open="true"]') : this.document.querySelectorAll('[data-p-open="true"]');
         const activeDrawersLength = activeDrawers.length;
         const zIndex = activeDrawersLength == 1 ? String(parseInt((this.container as HTMLDivElement).style.zIndex) - 1) : String(parseInt((activeDrawers[activeDrawersLength - 1] as HTMLElement).style.zIndex) - 1);
 

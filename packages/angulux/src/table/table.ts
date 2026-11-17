@@ -1488,7 +1488,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 }
 
                 if (this.hasFilter()) {
-                    this._filter();
+                    this.filterAfterSort();
                 }
             }
 
@@ -1527,7 +1527,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 }
 
                 if (this.hasFilter()) {
-                    this._filter();
+                    this.filterAfterSort();
                 }
             }
 
@@ -2060,8 +2060,26 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
         return true;
     }
 
+    /**
+     * Filter again after a sort, keeping the page when resetPageOnSort is false. A sort leaves the
+     * set of matching rows as it was; only the order changes. A column filter registers an empty
+     * constraint when it starts, so hasFilter() is true from then on, and _filter() sent the table
+     * back to page 1 without reading resetPageOnSort (upstream 22.1.4, held under P3.a, fixed under
+     * P3.c on 2026-11-17).
+     */
+    private filterAfterSort() {
+        this.keepPageOnFilter = !this.resetPageOnSort;
+        try {
+            this._filter();
+        } finally {
+            this.keepPageOnFilter = false;
+        }
+    }
+
+    private keepPageOnFilter = false;
+
     _filter() {
-        if (!this.restoringFilter) {
+        if (!this.restoringFilter && !this.keepPageOnFilter) {
             this.first = 0;
             this.firstChange.emit(this.first);
         }

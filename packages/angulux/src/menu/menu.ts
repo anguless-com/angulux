@@ -689,7 +689,10 @@ export class Menu extends BaseComponent<MenuPassThrough> {
 
     onEnterKey(event) {
         const element = <any>findSingle(this.containerViewChild()?.nativeElement, `li[id="${`${this.focusedOptionIndex()}`}"]`);
-        const anchorElement = element && (<any>findSingle(element, '[data-pc-section="itemlink"]') || findSingle(element, 'a,button'));
+        // The item's click handler sits on its content element, inside the <li>; a click on the <li>
+        // never reaches it, so an item drawn by a template without a link or button ignored Enter
+        // and Space (upstream 22.1.1, held under P3.a, fixed under P3.c on 2026-11-17).
+        const anchorElement = element && (<any>findSingle(element, '[data-pc-section="itemlink"]') || findSingle(element, 'a,button') || findSingle(element, '[data-pc-section="itemcontent"], [data-pc-section="content"]'));
 
         this.popup && focus(this.target);
         anchorElement ? anchorElement.click() : element && element.click();

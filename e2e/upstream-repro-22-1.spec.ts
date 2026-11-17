@@ -47,6 +47,12 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *   - Overlays and focus in a shadow root: the overlay REPRODUCES twice (an error on opening, and
  *     no close on an outside click), held for the Angular 23 round; focus does not reproduce.
  *
+ * FOURTH PASS, 2026-11-17: Constitution P3.c (v1.5.0) lets a measured defect be fixed on 22.x
+ * when it touches no API, which lifts the P3.a holds above. FIXED the same day, now ordinary
+ * tests: the seven held from the second batch, and both shadow-root overlay defects. Still held:
+ * the instance attribute, because renaming it changes what a stylesheet can select (P3.c
+ * condition 1, the API surface), and the deferred table rule. The fix of each is in seen.json.
+ *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
 
@@ -126,13 +132,15 @@ test('upstream 22.1.4 · DatePicker — focus must stay in an inline picker afte
     // drops focus on <body>: the header the button sat in is rebuilt with the month. The popup
     // restores focus after a month change; the inline picker does not. (The inline day grid has
     // no tabindex=0 cell either, so Tab never reaches a day; that is noted in seen.json.)
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'dp-nav');
     const inline = page.locator('#dp-nav-inline');
     await inline.locator('button.p-datepicker-next-button').focus();
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
-    expect((await activeElement(page)).inside).toBe('dp-nav-inline');
+    // Inside the picker, not "the nearest id is the picker's": the panel inside it carries an id of
+    // its own, so the held assertion could not have passed even with the defect gone.
+    expect(await page.evaluate(() => !!document.activeElement?.closest('#dp-nav-inline'))).toBe(true);
 });
 
 /** 22.1.3 · DatePicker · 05c817919d3e. */
@@ -251,7 +259,7 @@ test('upstream 22.1.1 · DatePicker — a required control must not show its err
     // while it is still empty: the error appears, and goes away when the click lands and the
     // value is written. From the keyboard it is worse — ArrowDown moves focus into the grid and
     // the error stays up for as long as the user is choosing.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'dp-touched');
     await page.locator('#dp-touched-input').click();
     const day = page.locator('.p-datepicker-panel .p-datepicker-day:not(.p-disabled)').nth(10);
@@ -285,7 +293,7 @@ test('upstream 22.1.4 · Drawer — a modal drawer inside a shadow root must ope
     // REPRODUCES, exactly as stated. enableModality() counts open drawers with
     // document.querySelectorAll, which does not see into a shadow root; with zero found it reads
     // .style of the entry at index -1 and throws a TypeError before the mask is created.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'drawer-shadow');
     const errors = watchErrors(page);
     await page.locator('#drawer-shadow-open').click();
@@ -313,7 +321,7 @@ test('upstream 22.1.3 · Overlay — a panel that is closing must not take a cli
     // with pointer-events auto, so the next click lands on it: hovering focuses an option and a
     // click selects it. Measured at the DEFAULT timing too — a select panel stays hit-testable
     // for about 320 ms after the selecting click, which a quick second click reaches.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'overlay-closing');
     await page.locator('#sec-overlay-closing > agl-select').click();
     await page.locator('.p-select-option').nth(1).waitFor({ state: 'visible' });
@@ -410,7 +418,7 @@ test('upstream 22.1.1 · Menu — Enter must run an item drawn by a custom templ
     // or a button inside the item and otherwise clicks the <li>, but the item's click handler
     // sits on the content element INSIDE the <li>, which a click on the <li> never reaches. A
     // template drawing a plain <span> therefore leaves Enter and Space doing nothing.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'menu-template');
     await page.locator('#menu-template ul.p-menu-list').focus();
     await page.keyboard.press('ArrowDown');
@@ -449,7 +457,7 @@ test('upstream 22.1.3 · MultiSelect — with selectAll bound to a field never a
     // `selectAll !== null`. Bound to undefined, the first treats the box as uncontrolled and the
     // second returns undefined, so every click takes the select-all branch: the second click
     // re-selects everything and the checkbox shows unchecked over four selected options.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'ms-selectall');
     await page.locator('#ms-unset .p-multiselect').click();
     const header = page.locator('.p-multiselect-overlay .p-multiselect-header .p-checkbox');
@@ -482,7 +490,7 @@ test('upstream 22.1.4 · Table — resetPageOnSort false must keep the page on s
     // REPRODUCES, with a column filter only. A <agl-columnFilter> registers an empty constraint
     // when it starts, so hasFilter() is true from then on; sortSingle() then runs _filter(),
     // which sets first = 0 without reading resetPageOnSort. Page 3 becomes page 1.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await open(page, 'table-sort-page');
     await expect(await sortOnPageThree(page, 'filtered')).toHaveText('3', { timeout: 1000 });
 });
@@ -751,7 +759,7 @@ test('upstream 22.1.3 · Core — a Select inside a shadow root must open withou
     // 1 is not of type 'Element'": Overlay.bindListeners() starts with the scroll listener, whose
     // DomHandler.getScrollableParents() walks parentNode up and reaches the ShadowRoot, which is
     // not an element. The document click, resize and keyboard listeners bound after it never are.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     const errors = watchErrors(page);
     await open(page, 'overlay-shadow');
     await page.locator('#select-shadow-host .p-select').first().click();
@@ -765,7 +773,7 @@ test('upstream 22.1.3 · Core — a Select inside a shadow root must close on a 
     // listener is never bound, so a click on empty page leaves the options open. In the light DOM
     // the same click closes them. Escape still closes it in both, because Select handles that key
     // on its own input rather than through the overlay.
-    test.fail();
+    // FIXED 2026-11-17 under Constitution P3.c (v1.5.0); held with test.fail() until then.
     await page.setViewportSize({ width: 1280, height: 900 });
     await open(page, 'overlay-shadow');
     await page.locator('#select-shadow-host .p-select').first().click();
