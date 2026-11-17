@@ -476,7 +476,10 @@ export class Overlay extends BaseComponent {
     }
 
     show(overlay?: HTMLElement, isFocus: boolean = false) {
-        this.onVisibleChange(true);
+        // Only a change is reported. The enter motion calls this for an overlay that is already
+        // visible; reporting `true` again then overwrote a hide its owner had just asked for and
+        // that change detection had not yet brought here, so the panel stayed open.
+        if (!this._visible) this.onVisibleChange(true);
         this.handleEvents('onShow', { overlay: overlay || this.overlayEl, target: this.targetEl, mode: this.overlayMode });
 
         isFocus && focus(this.targetEl);
