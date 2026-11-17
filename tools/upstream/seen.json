@@ -317,6 +317,76 @@
             "verdict": "attic",
             "module": "treeselect",
             "note": "Parked in attic/, so nothing ships treeselect and nothing was measured (2026-11-02). A positioning defect with virtual scrolling. Revisit when treeselect is promoted: #63 is the promotion issue, and the promotion has to reproduce this against our copy first."
+        },
+        "22.1.4 · Highlights · 38f542ae7304": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature, not a defect: an opt-in reset for the native elements components render. The same feature as the 22.1.4 Core entry, where the verdict is written. Nothing to measure (2026-11-17)."
+        },
+        "22.1.4 · Highlights · ab3d8fb830cf": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A summary of the 22.1.4 Select entries, each listed on its own. Nothing to measure here: the Select batch measures them (2026-11-17)."
+        },
+        "22.1.4 · Core · 10cad1572e19": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature, not a defect: an opt-in reset of the native elements inside components. Nothing in angulux promises such a reset, and adding one is a new option, which Constitution P3 keeps off 22.x (GOVERNANCE.md, The API freeze). A candidate for the Angular 23 round only if a user asks for it (2026-11-17)."
+        },
+        "22.1.3 · Highlights · 1ca80d4c5387": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature: the same isolated mode as the 22.1.3 Core entry, where the verdict is written (2026-11-17)."
+        },
+        "22.1.3 · Highlights · 9077c8ca44d1": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature: the same class-prefix option as the 22.1.3 Core entry, where the verdict is written (2026-11-17)."
+        },
+        "22.1.3 · Highlights · 9e05384edaa6": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A summary of the 22.1.3 Select entries, each listed on its own. Nothing to measure here: the Select batch measures them (2026-11-17)."
+        },
+        "22.1.3 · Core · 966f2437711d": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature, and the answer to a limitation already recorded here: styles cannot reach a shadow root, because useStyle always appends to document.head and nothing calls getRootNode() (the 22.1.0 Core entry, measured 2026-09-05). Isolating a widget needs a new option naming the container, which is API, so Constitution P3 keeps it off 22.x. It belongs to the Angular 23 round, together with the shadow-root defects held in e2e/upstream-repro-22-1.spec.ts (2026-11-17)."
+        },
+        "22.1.3 · Core · 9077c8ca44d1": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "A feature. angulux renders the p-* class names it inherited, and a configurable prefix is a new option, which Constitution P3 keeps off 22.x. A candidate for the Angular 23 round only if users ask for it: changing the default would break every stylesheet written against p-* (2026-11-17)."
+        },
+        "22.1.3 · Core · 8720ee0c1bdb": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "REPRODUCED 2026-11-17. Every component host carries an empty attribute named by its instance id (pc1, pc2 and so on). basecomponent.ts sets it in ngAfterViewInit and again among the root pass-through datasets, beside an inherited @todo that says to use data-pc-id. HTML leaves the names it does not define to data- attributes, so a validator flags every component, and the scoped theme CSS keys on the same name. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts. NOT FIXED on 22.x: Constitution P3.a condition 2 fails, because nothing a component declares names the attribute, and renaming it changes what a stylesheet or a test can select. Waits for the Angular 23 round."
+        },
+        "22.1.3 · Core · abd28cc0afe0": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "STRUCTURE PRESENT, read in our source 2026-11-17; the consequence is not measured. uuid() in angulux-utils keeps one counter per prefix at module scope (uuid/index.ts), and every BaseComponent takes its instance id from it when it is constructed (basecomponent.ts, $attrSelector = uuid('pc')). So a server process numbers the components of its second request after those of its first. Measuring what that costs a user needs a server-rendered app with client hydration, and this repository has none: the showcase prerenders without hydration. It waits for an SSR audit on such an app. Not fixed on 22.x: angulux documents no SSR support, so Constitution P3.a condition 2 has nothing to contradict."
+        },
+        "22.1.3 · Core · 9b4e34e6a7c3": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "REPRODUCED 2026-11-17, measured in Chrome on the verify app (?case=new-components). With every stylesheet already loaded, adding 300 / 750 / 1,500 / 3,000 components made 500 / 1,250 / 2,500 / 5,000 lookups over the document, all of them querySelector for the base <style> element. Each component registers its theme-change listeners through _themeChangeListener() (basecomponent.ts), which calls Base.clearLoadedStyleNames() every time. That wipes the flag saying the base stylesheet is loaded, so the next component resolves and minifies the base CSS again and searches the document for its <style>. With that one call removed from the build, the same steps made 0 lookups, and +750 / +3,000 components took 74 / 257 ms instead of 104 / 359 ms, about 28% of creation time in this probe. The cost is linear, not quadratic: the element sits in <head>, so each search stops early. Held with test.fail() in e2e/upstream-repro-22-1.spec.ts. A FIX IS IN SCOPE on 22.x: GOVERNANCE.md puts performance work there, and nothing visible changes, provided a theme change still reloads the base stylesheet, which is what the clear is there for. Not fixed yet."
+        },
+        "22.1.3 · Core · 2b53c3f37497": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "PARTLY REPRODUCED 2026-11-17 (?case=overlay-shadow). Overlay: a Select inside a ViewEncapsulation.ShadowDom host opens and takes a pick, but opening it throws a TypeError from getComputedStyle. Overlay.bindListeners() binds the scroll listener first, and DomHandler.getScrollableParents() walks parentNode up to the ShadowRoot, which is not an element. The click, resize and keyboard listeners bound after it never are, so a click outside leaves the options open. Escape still closes them, because Select handles that key on its own input. The same Select in the light DOM opens cleanly and closes on an outside click. Focus: does NOT reproduce. A modal dialog in a shadow root puts focus on its field and keeps Tab inside, as in the light DOM. The two overlay findings are held with test.fail() in e2e/upstream-repro-22-1.spec.ts. NOT FIXED on 22.x, like the Drawer in a shadow root (22.1.4): Constitution P3.a condition 2 fails, because angulux declares no shadow-root support, and so does condition 3, because the error reaches the console and the open panel can be seen. Both wait for the Angular 23 round, with the container option that styles need anyway (22.1.0 Core)."
+        },
+        "22.1.1 · Core · 2a78ee1f8516": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "Hygiene in their own codebase, with no behaviour change. Our tree is held by its own lint gates (npm run check). Nothing to measure (2026-11-17)."
+        },
+        "22.1.1 · Core · 9005277f70da": {
+            "verdict": "cross-cutting",
+            "module": null,
+            "note": "Nothing to remove here. In our tree onOverlayHide is defined and called in datepicker, table, menu and tieredmenu, each from its overlay's after-leave path and from its own hide, so none is unused (read 2026-11-17). Removing a public method would be API in any case (Constitution P3)."
         }
     }
 }
