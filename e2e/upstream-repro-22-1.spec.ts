@@ -33,7 +33,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *     The condition each one fails is in seen.json.
  *   - DEFERRED, one. The table render time is performance work and out of P3's way, but the
  *     rule lives in @anguless/angulux-styles and its replacement must be shown pixel-identical
- *     first.
+ *     first. FIXED 2026-11-18 with the comparison in e2e/table-selected-edge.spec.ts.
  *
  * THIRD BATCH, 2026-11-17: the 14 cross-cutting entries (Core and Highlights) of the same
  * releases. Two are summaries of the Select entries and six announce features, so neither has
@@ -640,7 +640,7 @@ test('upstream 22.1.3 · Table — no rule may select a body row by looking at t
     // `.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td` — took 16,000 rows from
     // 1,172 ms to 144 ms, the same as with every stylesheet disabled (139 ms): with that rule
     // live, every inserted row invalidates the row before it.
-    test.fail();
+    // FIXED 2026-11-18: the line above a selected row is drawn from the selected row (e2e/table-selected-edge.spec.ts); held with test.fail() until then.
     await open(page, 'table-perf');
     await page.evaluate(() => (window as unknown as { __aglRenderRows: (n: number) => number }).__aglRenderRows(10));
     expect(await siblingHasRules(page, '.p-datatable-tbody')).toEqual([]);
