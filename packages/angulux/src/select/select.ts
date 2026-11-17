@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
     AfterViewChecked,
     AfterViewInit,
@@ -79,7 +79,7 @@ export const SELECT_VALUE_ACCESSOR: any = {
             (mouseenter)="onOptionMouseEnter($event)"
             role="option"
             aglRipple
-            [attr.aria-label]="label"
+            [attr.aria-label]="template ? null : label"
             [attr.aria-setsize]="ariaSetSize"
             [attr.aria-posinset]="ariaPosInset"
             [attr.aria-selected]="selected"
@@ -149,18 +149,21 @@ export class SelectItem extends BaseComponent {
         this.onMouseEnter.emit(event);
     }
 
+    /**
+     * The pass-through options of this row, from the state this row was given. Asking the Select
+     * (getPTItemOptions) checked the selection a second time for every row on every change
+     * detection (upstream 22.1.3, measured 2026-11-17: two isSelected calls per row).
+     */
     getPTOptions() {
-        return (
-            this.$pcSelect?.getPTItemOptions?.(this.option, this.scrollerOptions, this.index ?? 0, 'option') ??
-            this.$pcSelect?.ptm('option', {
-                context: {
-                    option: this.option,
-                    selected: this.selected,
-                    focused: this.focused,
-                    disabled: this.disabled
-                }
-            })
-        );
+        return this.$pcSelect?.ptm('option', {
+            context: {
+                option: this.option,
+                index: this.index ?? 0,
+                selected: this.selected,
+                focused: this.focused,
+                disabled: this.disabled
+            }
+        });
     }
 }
 
@@ -199,6 +202,7 @@ export class SelectItem extends BaseComponent {
             (blur)="onInputBlur($event)"
             (keydown)="onKeyDown($event)"
             [attr.aria-required]="$required()"
+            [attr.aria-readonly]="readonly || undefined"
             [attr.aria-invalid]="$invalid() || undefined"
             [attr.required]="$required() ? '' : undefined"
             [attr.disabled]="$disabled() ? '' : undefined"
@@ -217,9 +221,14 @@ export class SelectItem extends BaseComponent {
             [attr.id]="inputId"
             [class]="cx('label')"
             [aglBind]="ptm('label')"
+            role="combobox"
+            aria-autocomplete="list"
             [attr.aria-haspopup]="'listbox'"
-            [attr.placeholder]="modelValue() === undefined || modelValue() === null ? placeholder() : undefined"
-            [attr.aria-label]="ariaLabel || (label() === 'p-emptylabel' ? undefined : label())"
+            [attr.aria-expanded]="overlayVisible ?? false"
+            [attr.aria-controls]="overlayVisible ? id + '_list' : null"
+            [attr.placeholder]="modelValue() === undefined || modelValue() === null || modelValue() === '' ? placeholder() : undefined"
+            [attr.aria-label]="ariaLabel"
+            [attr.aria-labelledby]="ariaLabelledBy"
             (input)="onEditableInput($event)"
             (keydown)="onKeyDown($event)"
             [aglAutoFocus]="autofocus"
@@ -246,7 +255,7 @@ export class SelectItem extends BaseComponent {
             </span>
         </ng-container>
 
-        <div [class]="cx('dropdown')" [aglBind]="ptm('dropdown')" role="button" aria-label="dropdown trigger" aria-haspopup="listbox" [attr.aria-expanded]="overlayVisible ?? false" [attr.data-pc-section]="'trigger'">
+        <div [class]="cx('dropdown')" [aglBind]="ptm('dropdown')" aria-hidden="true" [attr.data-pc-section]="'trigger'">
             <ng-container *ngIf="loading; else elseBlock">
                 <ng-container *ngIf="loadingIconTemplate()">
                     <ng-container *ngTemplateOutlet="loadingIconTemplate()"></ng-container>
@@ -296,7 +305,7 @@ export class SelectItem extends BaseComponent {
                     >
                     </span>
                     <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
-                    <div [class]="cx('header')" *ngIf="filter" (click)="$event.stopPropagation()" [aglBind]="ptm('header')">
+                    <div [class]="cx('header')" *ngIf="filter" (click)="$event.stopPropagation()" (keydown)="filterTemplate() && onFilterKeyDown($event)" [aglBind]="ptm('header')">
                         <ng-container *ngIf="filterTemplate(); else builtInFilterElement">
                             <ng-container *ngTemplateOutlet="filterTemplate(); context: { options: filterOptions }"></ng-container>
                         </ng-container>
@@ -331,6 +340,7 @@ export class SelectItem extends BaseComponent {
                             </agl-iconfield>
                         </ng-template>
                     </div>
+                    <span *ngIf="filter" role="status" aria-live="polite" class="p-hidden-accessible" [attr.data-p-hidden-accessible]="true">{{ filterResultMessage }}</span>
                     <div [class]="cx('listContainer')" [style.max-height]="virtualScroll ? 'auto' : scrollHeight || 'auto'" [aglBind]="ptm('listContainer')">
                         <agl-scroller
                             *ngIf="virtualScroll"
@@ -387,14 +397,14 @@ export class SelectItem extends BaseComponent {
                                         ></agl-selectItem>
                                     </ng-container>
                                 </ng-template>
-                                <li *ngIf="filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" [aglBind]="ptm('emptyMessage')">
+                                <li *ngIf="filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" aria-disabled="true" [aglBind]="ptm('emptyMessage')">
                                     @if (!emptyFilterTemplate() && !emptyTemplate()) {
                                         {{ emptyFilterMessageLabel }}
                                     } @else {
                                         <ng-container #emptyFilter *ngTemplateOutlet="emptyFilterTemplate() || emptyTemplate()"></ng-container>
                                     }
                                 </li>
-                                <li *ngIf="!filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" [aglBind]="ptm('emptyMessage')">
+                                <li *ngIf="!filterValue && isEmpty()" [class]="cx('emptyMessage')" [ngStyle]="{ height: scrollerOptions.itemSize + 'px' }" role="option" aria-disabled="true" [aglBind]="ptm('emptyMessage')">
                                     @if (!emptyTemplate()) {
                                         {{ emptyMessageLabel || emptyFilterMessageLabel }}
                                     } @else {
@@ -511,7 +521,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
      */
     @Input() inputId: string | undefined;
     /**
-     * A property to uniquely identify a value in options.
+     * A property to uniquely identify a value in options. Ignored when optionValue is set: the value
+     * is then the field optionValue names, and is compared as it is.
      * @group Props
      */
     @Input() dataKey: string | undefined;
@@ -596,7 +607,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
      */
     @Input() emptyMessage: string = '';
     /**
-     * Defines if data is loaded and interacted with in lazy manner.
+     * Defines if data is loaded and interacted with in lazy manner. Takes effect with virtualScroll,
+     * which is what emits onLazyLoad; without it, lazy does nothing.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) lazy: boolean = false;
@@ -945,6 +957,15 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
         return this.modelValue() != null && this.hasSelectedOption() && this.showClear && !this.$disabled();
     }
 
+    /** What the status region says while filtering: that results are there, or that none are. */
+    get filterResultMessage(): string {
+        if (!this._filterValue()) return '';
+        const count = (this.visibleOptions() ?? []).filter((option) => !this.isOptionGroup(option)).length;
+        // The keys the translation already carries (searchMessage, emptySearchMessage), read by name.
+        const message = this.config.getTranslation(count ? 'searchMessage' : 'emptySearchMessage');
+        return String(message ?? '').replace('{0}', String(count));
+    }
+
     get listLabel(): string {
         return this.config.getTranslation(TranslationKeys.ARIA)['listLabel'];
     }
@@ -974,7 +995,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
                 const filtered: any[] = [];
 
                 optionGroups.forEach((group) => {
-                    const groupChildren = this.getOptionGroupChildren(group);
+                    // A group may have no children; it then has nothing to match (upstream 22.1.3).
+                    const groupChildren = this.getOptionGroupChildren(group) ?? [];
                     const filteredItems = groupChildren.filter((item) => filteredOptions?.includes(item));
 
                     if (filteredItems.length > 0)
@@ -1026,7 +1048,10 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             if (visibleOptions && isNotEmpty(visibleOptions)) {
                 const selectedOptionIndex = this.findSelectedOptionIndex();
 
-                if (selectedOptionIndex !== -1 || modelValue === undefined || (typeof modelValue === 'string' && modelValue.length === 0) || this.isModelValueNotSet() || this.editable) {
+                if (this.editable && selectedOptionIndex === -1) {
+                    // The filter can hide the selected option; it is still the selected one.
+                    this.selectedOption = this.getAllVisibleAndNonVisibleOptions().find((option) => this.isValidSelectedOption(option));
+                } else if (selectedOptionIndex !== -1 || modelValue === undefined || (typeof modelValue === 'string' && modelValue.length === 0) || this.isModelValueNotSet() || this.editable) {
                     this.selectedOption = visibleOptions[selectedOptionIndex];
                 } else {
                     // If no valid selected option found but we have a model value,
@@ -1160,6 +1185,40 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             this.updateEditableLabel();
         }
         this.updatePlaceHolderForFloatingLabel();
+        this.bindLabelClickListener();
+    }
+
+    private labelClickListener: (() => void) | null = null;
+
+    private searchFocusTimeout: any = null;
+
+    /**
+     * A label naming inputId focuses the Select when clicked, as a label does for a native control.
+     * The non-editable Select's inputId sits on a span, which a label cannot target natively, so a
+     * click on it did nothing (upstream 22.1.3). A disabled Select is neither focused nor touched.
+     */
+    private bindLabelClickListener() {
+        if (!isPlatformBrowser(this.platformId) || this.labelClickListener) return;
+        this.zone.runOutsideAngular(() => {
+            this.labelClickListener = this.renderer.listen(this.document, 'click', (event: MouseEvent) => {
+                const label = (event.target as Element | null)?.closest?.('label');
+                if (!label || !this.inputId || label.htmlFor !== this.inputId || this.$disabled()) return;
+                this.applyFocus();
+            });
+        });
+    }
+
+    private clearTimer(timer: any) {
+        if (timer) clearTimeout(timer);
+    }
+
+    onDestroy() {
+        this.labelClickListener?.();
+        this.labelClickListener = null;
+        // Timers started by a keystroke do not outlive the component (upstream 22.1.5).
+        this.clearTimer(this.searchTimeout);
+        this.clearTimer(this.searchFocusTimeout);
+        this.searchTimeout = this.searchFocusTimeout = null;
     }
 
     updatePlaceHolderForFloatingLabel(): void {
@@ -1175,8 +1234,29 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
 
     updateEditableLabel(): void {
         if (this.editableInputViewChild) {
-            this.editableInputViewChild.nativeElement.value = this.getOptionLabel(this.selectedOption) || this.modelValue() || '';
+            const input = this.editableInputViewChild.nativeElement as HTMLInputElement;
+            const value = this.editableLabel();
+            // Only write when it differs: writing moves the caret to the end, so a partly matched
+            // value could not be edited in the middle.
+            if (input.value !== value) input.value = value;
         }
+    }
+
+    /**
+     * The text of the editable input: the label of the selected option, else the model value. An
+     * object value no option matches is shown by its optionLabel field, not as "[object Object]"
+     * (upstream 22.1.5).
+     */
+    private editableLabel(): string {
+        const label = this.getOptionLabel(this.selectedOption);
+        if (label !== undefined && label !== null && label !== '') return String(label);
+        const value = this.modelValue();
+        if (value === undefined || value === null) return '';
+        if (typeof value === 'object') {
+            const own = this.optionLabel ? resolveFieldData(value, this.optionLabel) : value.label;
+            return own === undefined || own === null ? '' : String(own);
+        }
+        return String(value);
     }
 
     clearEditableLabel(): void {
@@ -1279,7 +1359,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
         const matched = this.searchOptions(event, value);
         !matched && this.focusedOptionIndex.set(-1);
 
-        this.onModelChange(value);
+        // One write per keystroke. onModelChange was also called here, before updateModel calls it
+        // (upstream 22.1.3: the form saw every keystroke twice).
         this.updateModel(value || null, event);
         setTimeout(() => {
             this.onChange.emit({ originalEvent: event, value: value });
@@ -1394,6 +1475,12 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             return;
         }
 
+        // Keys pressed while an IME composes belong to the IME: Enter commits a candidate, arrows
+        // move through candidates (upstream 22.1.3).
+        if (event.isComposing) {
+            return;
+        }
+
         switch (event.code) {
             //down
             case 'ArrowDown':
@@ -1472,6 +1559,12 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
     }
 
     onFilterKeyDown(event) {
+        // Keys pressed while an IME composes belong to the IME: an Enter that committed a candidate
+        // selected the focused option (upstream 22.1.3).
+        if (event.isComposing) {
+            return;
+        }
+
         switch (event.code) {
             case 'ArrowDown':
                 this.onArrowDownKey(event);
@@ -1735,6 +1828,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             if (this.overlayVisible && this.hasFocusableElements()) {
                 focus(event.shiftKey ? this.lastHiddenFocusableElementOnOverlay?.nativeElement : this.firstHiddenFocusableElementOnOverlay?.nativeElement);
                 event.preventDefault();
+                // Focus was moved into the panel, so the Tab is handled here.
+                event.stopPropagation();
             } else {
                 if (this.focusedOptionIndex() !== -1 && this.overlayVisible) {
                     const option = this.visibleOptions()[this.focusedOptionIndex()];
@@ -1743,7 +1838,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
                 this.overlayVisible && this.hide(this.filter);
             }
         }
-        event.stopPropagation();
+        // Otherwise Tab goes on to the parent. It was stopped on every keydown, so a parent's own
+        // handler (a focus trap, a form) never saw it (upstream 22.1.4).
     }
 
     onFirstHiddenFocus(event) {
@@ -1784,13 +1880,24 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
             matched = true;
         }
 
-        if (optionIndex === -1 && this.focusedOptionIndex() === -1) {
+        // Type-ahead falls back to the first option; typing into the editable input does not, since
+        // what was typed is the value (upstream 22.1.3: every second keystroke focused it).
+        if (optionIndex === -1 && this.focusedOptionIndex() === -1 && !this.editable) {
             optionIndex = this.findFirstFocusedOptionIndex();
         }
 
         if (optionIndex !== -1) {
-            setTimeout(() => {
-                this.changeFocusedOptionIndex(event, optionIndex);
+            this.clearTimer(this.searchFocusTimeout);
+            this.searchFocusTimeout = setTimeout(() => {
+                this.searchFocusTimeout = null;
+                if (this.editable) {
+                    // Typing focuses the match without selecting it, even with selectOnFocus: the
+                    // typed text is the value (upstream 22.1.3: a second write replaced it).
+                    this.focusedOptionIndex.set(optionIndex);
+                    this.scrollInView();
+                } else {
+                    this.changeFocusedOptionIndex(event, optionIndex);
+                }
             });
         }
 
@@ -1807,7 +1914,9 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
     }
 
     isOptionMatched(option) {
-        return this.isValidOption(option) && this.getOptionLabel(option).toString().toLocaleLowerCase(this.filterLocale).startsWith(this.searchValue?.toLocaleLowerCase(this.filterLocale));
+        // String(… ?? ''): an option whose label is null threw here (upstream 22.1.5).
+        const label = String(this.getOptionLabel(option) ?? '');
+        return this.isValidOption(option) && label.toLocaleLowerCase(this.filterLocale).startsWith(String(this.searchValue ?? '').toLocaleLowerCase(this.filterLocale));
     }
 
     onFilterInputChange(event: Event | any): void {

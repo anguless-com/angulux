@@ -1,8 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { booleanAttribute, computed, Directive, effect, ElementRef, inject, InjectionToken, input, Input, NgModule, NgZone, numberAttribute, SimpleChanges, TemplateRef, ViewContainerRef } from '@angular/core';
-import { appendChild, createElement, fadeIn, findSingle, getOuterHeight, getOuterWidth, getViewport, getWindowScrollLeft, getWindowScrollTop, hasClass, removeChild, uuid } from '@anguless/angulux-utils';
+import { appendChild, createElement, findSingle, getFocusableElements, getOuterHeight, getOuterWidth, getViewport, getWindowScrollLeft, getWindowScrollTop, hasClass, removeChild, uuid } from '@anguless/angulux-utils';
 import { TooltipOptions } from '@anguless/angulux/api';
-import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
+import { BaseComponent } from '@anguless/angulux/basecomponent';
 import { BindModule } from '@anguless/angulux/bind';
 import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
 import { Nullable } from '@anguless/angulux/ts-helpers';
@@ -13,6 +13,35 @@ import type { TooltipPassThrough } from '@anguless/angulux/types/tooltip';
 
 const TOOLTIP_INSTANCE = new InjectionToken<Tooltip>('TOOLTIP_INSTANCE');
 
+/** The options a tooltip starts with. An option set to `undefined` goes back to its value here. */
+const TOOLTIP_DEFAULTS = {
+    tooltipLabel: null,
+    tooltipPosition: 'right',
+    tooltipEvent: 'hover',
+    appendTo: 'body',
+    positionStyle: null,
+    tooltipStyleClass: null,
+    tooltipZIndex: 'auto',
+    escape: true,
+    disabled: null,
+    showDelay: null,
+    hideDelay: null,
+    positionTop: null,
+    positionLeft: null,
+    life: null,
+    autoHide: true,
+    hideOnEscape: true,
+    showOnEllipsis: false
+};
+
+/** Length of the fade-in, in milliseconds. */
+const FADE_DURATION = 250;
+
+/** Whether the user asked the system to reduce motion. */
+function prefersReducedMotion(): boolean {
+    return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
+
 /**
  * Tooltip directive provides advisory information for a component.
  * @group Components
@@ -20,7 +49,11 @@ const TOOLTIP_INSTANCE = new InjectionToken<Tooltip>('TOOLTIP_INSTANCE');
 @Directive({
     selector: '[aglTooltip]',
     standalone: true,
-    providers: [TooltipStyle, { provide: TOOLTIP_INSTANCE, useExisting: Tooltip }, { provide: PARENT_INSTANCE, useExisting: Tooltip }]
+    // No PARENT_INSTANCE here. A directive on a component host that provided it would stand in for
+    // that component as the parent of everything inside it: an InputIcon in an IconField carrying
+    // a tooltip found the Tooltip as its parent instead of the IconField (upstream 22.1.5, measured
+    // 2026-11-17 in e2e/upstream-repro-22-1-5.spec.ts).
+    providers: [TooltipStyle, { provide: TOOLTIP_INSTANCE, useExisting: Tooltip }]
 })
 export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
     componentName = 'Tooltip';
@@ -133,26 +166,25 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
-    _tooltipOptions = {
-        tooltipLabel: null,
-        tooltipPosition: 'right',
-        tooltipEvent: 'hover',
-        appendTo: 'body',
-        positionStyle: null,
-        tooltipStyleClass: null,
-        tooltipZIndex: 'auto',
-        escape: true,
-        disabled: null,
-        showDelay: null,
-        hideDelay: null,
-        positionTop: null,
-        positionLeft: null,
-        life: null,
-        autoHide: true,
-        hideOnEscape: true,
-        showOnEllipsis: false,
+    _tooltipOptions: typeof TOOLTIP_DEFAULTS & { id: string } = {
+        ...TOOLTIP_DEFAULTS,
         id: uuid('pn_id_') + '_tooltip'
     };
+
+    /** The element `aria-describedby` was set on while the tooltip shows, so hiding can take it off. */
+    private describedElement: HTMLElement | null = null;
+
+    /** The pending frame of the fade-in, cancelled when the tooltip is removed. */
+    private fadeFrame: number | null = null;
+
+    /** The pending wait for a dialog's opening animation, so a tooltip removed meanwhile is not shown. */
+    private showToken = 0;
+
+    private targetKeydownListener: Nullable<() => void>;
+
+    private containerKeydownListener: Nullable<() => void>;
+
+    private containerFocusoutListener: Nullable<() => void>;
 
     _disabled: boolean | undefined;
 
@@ -256,12 +288,7 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
                     this.focusListener = this.onFocus.bind(this);
                     this.blurListener = this.onBlur.bind(this);
 
-                    let target = this.el.nativeElement.querySelector('.p-component');
-
-                    if (!target) {
-                        target = this.getTarget(this.el.nativeElement);
-                    }
-
+                    const target: any = this.describedTarget;
                     target.addEventListener('focus', this.focusListener);
                     target.addEventListener('blur', this.blurListener);
                 }
@@ -352,7 +379,7 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
         }
 
         if (simpleChange.tooltipOptions) {
-            this._tooltipOptions = { ...this._tooltipOptions, ...simpleChange.tooltipOptions.currentValue };
+            this.setOption(simpleChange.tooltipOptions.currentValue ?? {});
             this.deactivate();
 
             if (this.active) {
@@ -428,6 +455,9 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
     }
 
     onBlur(e: Event) {
+        // Focus moving into a persistent tooltip stays with it, so its links can be reached by Tab.
+        const to = (e as FocusEvent)?.relatedTarget;
+        if (this.container && to instanceof Node && this.container.contains(to)) return;
         this.deactivate();
     }
 
@@ -463,8 +493,12 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
 
             if (this.getOption('hideOnEscape')) {
                 this.documentEscapeListener = this.renderer.listen('document', 'keydown.escape', () => {
+                    // Escape from inside a persistent tooltip returns focus to the target it belongs to.
+                    const returnFocus = !!this.container?.contains(document.activeElement);
+                    const target = this.describedTarget;
                     this.deactivate();
                     this.documentEscapeListener?.();
+                    returnFocus && target.focus();
                 });
             }
             this.interactionInProgress = true;
@@ -498,6 +532,7 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
 
         this.container = createElement('div', { class: this.cx('root'), 'p-bind': this.ptm('root'), 'data-pc-section': 'root' });
         this.container.setAttribute('role', 'tooltip');
+        this.container.setAttribute('id', this.getOption('id'));
         let tooltipArrow = createElement('div', { class: this.cx('arrow'), 'p-bind': this.ptm('arrow'), 'data-pc-section': 'arrow' });
         this.container.appendChild(tooltipArrow);
         this.tooltipText = createElement('div', { class: this.cx('text'), 'p-bind': this.ptm('text'), 'data-pc-section': 'text' });
@@ -540,7 +575,9 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
 
     unbindContainerMouseleaveListener() {
         if (this.containerMouseleaveListener) {
-            this.bindContainerMouseleaveListener();
+            // This called bindContainerMouseleaveListener(), which does nothing while a listener is
+            // bound, so the listener was never removed (upstream 22.1.5).
+            this.containerMouseleaveListener();
             this.containerMouseleaveListener = null;
         }
     }
@@ -552,26 +589,153 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
 
         this.create();
 
-        const nativeElement = this.el.nativeElement;
-        const pDialogWrapper = nativeElement.closest('agl-dialog');
-
-        if (pDialogWrapper) {
-            setTimeout(() => {
-                this.container && (this.container.style.display = 'inline-block');
-                this.container && this.align();
-            }, 100);
-        } else {
+        const token = ++this.showToken;
+        const reveal = () => {
+            if (token !== this.showToken || !this.container) return;
             this.container.style.display = 'inline-block';
             this.align();
-        }
-
-        fadeIn(this.container, 250);
+            this.fadeIn();
+        };
+        const opening = this.openingDialogAnimations();
+        if (opening.length) Promise.all(opening.map((a) => a.finished)).then(reveal, reveal);
+        else reveal();
 
         if (this.getOption('tooltipZIndex') === 'auto') ZIndexUtils.set('tooltip', this.container, this.config.zIndex.tooltip);
         else this.container.style.zIndex = this.getOption('tooltipZIndex');
 
+        this.describe();
+        this.bindKeyboardListeners();
         this.bindDocumentResizeListener();
         this.bindScrollListener();
+    }
+
+    /**
+     * The animations still running on the dialog around the target. While a dialog opens, its
+     * animation moves the target, so the tooltip waits for it before measuring. It used to wait a
+     * fixed 100 ms inside any dialog, opening or long open, and start its fade at once, so it
+     * appeared late and already 40% opaque (upstream 22.1.5).
+     */
+    private openingDialogAnimations(): Animation[] {
+        const dialog = (this.el.nativeElement as HTMLElement).closest('.p-dialog') as HTMLElement | null;
+        if (!dialog || typeof dialog.getAnimations !== 'function') return [];
+        return dialog.getAnimations().filter((a) => a.playState === 'running' && a.effect?.getComputedTiming().endTime !== Infinity);
+    }
+
+    /**
+     * Fade the tooltip in, unless the user asked the system to reduce motion. The frame is kept, so
+     * removing the tooltip cancels the fade: the shared fadeIn() helper kept writing opacity to the
+     * removed element until it reached 1, and ignored reduced motion (upstream 22.1.5).
+     */
+    private fadeIn() {
+        this.cancelFade();
+        const el = this.container as HTMLElement | null;
+        if (!el || prefersReducedMotion()) return;
+        el.style.opacity = '0';
+        let last = performance.now();
+        const tick = () => {
+            this.fadeFrame = null;
+            if (this.container !== el) return;
+            const now = performance.now();
+            const opacity = Math.min(1, Number(el.style.opacity) + (now - last) / FADE_DURATION);
+            el.style.opacity = String(opacity);
+            last = now;
+            if (opacity < 1) this.fadeFrame = requestAnimationFrame(tick);
+        };
+        this.zone.runOutsideAngular(() => (this.fadeFrame = requestAnimationFrame(tick)));
+    }
+
+    private cancelFade() {
+        if (this.fadeFrame !== null) {
+            cancelAnimationFrame(this.fadeFrame);
+            this.fadeFrame = null;
+        }
+    }
+
+    /**
+     * The element the tooltip listens on for focus and describes: the focusable root of a component
+     * host, or the target itself (an input inside an input wrapper).
+     */
+    private get describedTarget(): HTMLElement {
+        const host = this.el.nativeElement as HTMLElement;
+        return (host.querySelector('.p-component') as HTMLElement | null) ?? (this.getTarget(host) as HTMLElement);
+    }
+
+    /**
+     * Link the target to the tooltip while it shows (WAI-ARIA tooltip pattern). The tooltip had an id
+     * option and never used it, so assistive technology had no way to tie the two (upstream 22.1.5).
+     * Ids the author put in aria-describedby are kept.
+     */
+    private describe() {
+        const target = this.describedTarget;
+        const id = this.getOption('id');
+        const ids = (target.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
+        if (!ids.includes(id)) target.setAttribute('aria-describedby', [...ids, id].join(' '));
+        this.describedElement = target;
+    }
+
+    private undescribe() {
+        const target = this.describedElement;
+        if (!target) return;
+        const id = this.container?.id || this.getOption('id');
+        const ids = (target.getAttribute('aria-describedby') ?? '').split(/\s+/).filter((t) => t && t !== id);
+        if (ids.length) target.setAttribute('aria-describedby', ids.join(' '));
+        else target.removeAttribute('aria-describedby');
+        this.describedElement = null;
+    }
+
+    /**
+     * A persistent tooltip (autoHide false) can hold links. Tab from the target moves into it, Tab
+     * past its last focusable element leaves it for whatever follows the target, and Shift+Tab from
+     * its first goes back to the target. Appended to the body, it sat at the end of the tab order,
+     * and the target's blur hid it before focus could arrive (upstream 22.1.5).
+     */
+    private bindKeyboardListeners() {
+        if (this.isAutoHide() || !this.container) return;
+        const target = this.describedTarget;
+        const container = this.container as HTMLElement;
+        this.targetKeydownListener = this.renderer.listen(target, 'keydown', (e: KeyboardEvent) => {
+            if (e.key !== 'Tab' || e.shiftKey) return;
+            const first = this.focusablesInside()[0];
+            if (first) {
+                e.preventDefault();
+                first.focus();
+            }
+        });
+        this.containerKeydownListener = this.renderer.listen(container, 'keydown', (e: KeyboardEvent) => {
+            if (e.key !== 'Tab') return;
+            const inside = this.focusablesInside();
+            const index = inside.indexOf(document.activeElement as HTMLElement);
+            if (e.shiftKey && index === 0) {
+                e.preventDefault();
+                target.focus();
+            } else if (!e.shiftKey && index === inside.length - 1) {
+                e.preventDefault();
+                const after = this.focusableAfter(target);
+                this.deactivate();
+                after?.focus();
+            }
+        });
+        this.containerFocusoutListener = this.renderer.listen(container, 'focusout', (e: FocusEvent) => {
+            const to = e.relatedTarget as Node | null;
+            if (!to || (!container.contains(to) && !target.contains(to))) this.deactivate();
+        });
+    }
+
+    private unbindKeyboardListeners() {
+        this.targetKeydownListener?.();
+        this.containerKeydownListener?.();
+        this.containerFocusoutListener?.();
+        this.targetKeydownListener = this.containerKeydownListener = this.containerFocusoutListener = null;
+    }
+
+    private focusablesInside(): HTMLElement[] {
+        return this.container ? (getFocusableElements(this.container) as HTMLElement[]) : [];
+    }
+
+    /** The first focusable element after the target in document order, outside the target and the tooltip. */
+    private focusableAfter(target: HTMLElement): HTMLElement | null {
+        const all = getFocusableElements(document.body) as HTMLElement[];
+        return all.find((el) => !target.contains(el) && !this.container?.contains(el) && !!(target.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) ?? null;
     }
 
     hide() {
@@ -588,8 +752,10 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
             embeddedViewRef.detectChanges();
             embeddedViewRef.rootNodes.forEach((node) => this.tooltipText.appendChild(node));
         } else if (this.getOption('escape')) {
-            this.tooltipText.innerHTML = '';
-            this.tooltipText.appendChild(document.createTextNode(content));
+            // textContent, not innerHTML: under require-trusted-types-for even an empty string needs
+            // TrustedHTML, so every tooltip threw in such an app (upstream 22.1.5). With escape false
+            // the content is HTML by request, and a TrustedHTML value from the app's policy works.
+            this.tooltipText.textContent = content;
         } else {
             this.tooltipText.innerHTML = content;
         }
@@ -711,8 +877,17 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
         this.container.style.top = top + this.getOption('positionTop') + 'px';
     }
 
+    /**
+     * Merge options in. An option given as `undefined` goes back to its default rather than becoming
+     * undefined: `[tooltipPosition]="maybe"` or `tooltipOptions: { tooltipPosition: undefined }` left the
+     * tooltip with no position at all, drawn at the left edge of the page (upstream 22.1.5).
+     */
     setOption(option: any) {
-        this._tooltipOptions = { ...this._tooltipOptions, ...option };
+        const next: Record<string, unknown> = { ...this._tooltipOptions };
+        for (const [key, value] of Object.entries(option ?? {})) {
+            next[key] = value === undefined ? (key === 'id' ? this._tooltipOptions.id : TOOLTIP_DEFAULTS[key as keyof typeof TOOLTIP_DEFAULTS]) : value;
+        }
+        this._tooltipOptions = next as typeof this._tooltipOptions;
     }
 
     getOption(option: string) {
@@ -723,10 +898,14 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
         return hasClass(el, 'p-inputwrapper') ? findSingle(el, 'input') : el;
     }
 
+    /** The width the tooltip takes with room to spare, measured off-screen before each placement. */
+    private naturalWidth = 0;
+
     preAlign(position: string) {
         this.container.style.left = -999 + 'px';
         this.container.style.top = -999 + 'px';
         this.container.className = this.cn(this.cx('root'), this.ptm('root')?.class, 'p-tooltip-' + position, this.getOption('tooltipStyleClass'));
+        this.naturalWidth = getOuterWidth(this.container);
     }
 
     isOutOfBounds(): boolean {
@@ -737,7 +916,13 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
         let height = getOuterHeight(this.container);
         let viewport = getViewport();
 
-        return targetLeft + width > viewport.width || targetLeft < 0 || targetTop < 0 || targetTop + height > viewport.height;
+        // A tooltip placed against the edge of the page does not overflow it: it shrinks, down to a
+        // word per line, so it still looked in bounds and the next position was never tried (measured
+        // 2026-11-17 beside a menu as wide as the page). Narrower than its natural width means it
+        // does not fit there.
+        const squeezed = width < this.naturalWidth - 1;
+
+        return squeezed || targetLeft + width > viewport.width || targetLeft < 0 || targetTop < 0 || targetTop + height > viewport.height;
     }
 
     onWindowResize(e: Event) {
@@ -790,12 +975,7 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
             this.unbindDocumentTouchListener();
         }
         if (tooltipEvent === 'focus' || tooltipEvent === 'both') {
-            let target = this.el.nativeElement.querySelector('.p-component');
-
-            if (!target) {
-                target = this.getTarget(this.el.nativeElement);
-            }
-
+            const target: any = this.describedTarget;
             target.removeEventListener('focus', this.focusListener);
             target.removeEventListener('blur', this.blurListener);
         }
@@ -803,6 +983,11 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
     }
 
     remove() {
+        this.showToken++;
+        this.cancelFade();
+        this.undescribe();
+        this.unbindKeyboardListeners();
+
         if (this.container && this.container.parentElement) {
             if (this.getOption('appendTo') === 'body') document.body.removeChild(this.container);
             else if (this.getOption('appendTo') === 'target') this.el.nativeElement.removeChild(this.container);

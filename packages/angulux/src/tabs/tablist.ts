@@ -211,7 +211,13 @@ export class TabList extends BaseComponent<TabListPassThrough> {
     }
 
     bindResizeObserver() {
-        this.resizeObserver = new ResizeObserver(() => this.updateButtonState());
+        // The active bar is sized in pixels from the active tab, so it is measured again whenever the
+        // list is resized: tabs that share the width changed size and the bar kept the old one
+        // (upstream 22.1.5).
+        this.resizeObserver = new ResizeObserver(() => {
+            this.updateButtonState();
+            this.updateInkBar();
+        });
         this.resizeObserver.observe(this.el.nativeElement);
     }
 
