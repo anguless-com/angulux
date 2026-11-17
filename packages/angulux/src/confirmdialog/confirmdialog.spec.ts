@@ -852,6 +852,24 @@ describe('ConfirmDialog', () => {
             expect(dialog.componentInstance.blockScroll).toBe(false);
         });
 
+        it('should apply breakpoints through the inner dialog, to an attribute its container carries', async () => {
+            const bpFixture = TestBed.createComponent(TestBasicConfirmDialogComponent);
+            bpFixture.componentInstance.breakpoints = { '960px': '75vw' };
+            bpFixture.componentInstance.visible = true;
+            bpFixture.changeDetectorRef.markForCheck();
+            await bpFixture.whenStable();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            const confirm = bpFixture.debugElement.query(By.directive(ConfirmDialog)).componentInstance as ConfirmDialog;
+            const dialog = bpFixture.debugElement.query(By.directive(Dialog)).componentInstance as Dialog;
+            expect(dialog.breakpoints).toEqual({ '960px': '75vw' });
+            expect(confirm.styleElement).toBeFalsy();
+            const rule = Array.from(document.head.querySelectorAll('style')).find((st) => (st.textContent ?? '').includes('75vw'));
+            expect(rule?.textContent).toContain(`.p-dialog[${dialog.id}]`);
+            expect(document.querySelector(`.p-dialog[${dialog.id}]`)).toBeTruthy();
+            bpFixture.destroy();
+        });
+
         it('should handle dialog visibility changes', async () => {
             const visibilityChangeSpy = spyOn(confirmDialogInstance, 'onVisibleChange').and.callThrough();
 

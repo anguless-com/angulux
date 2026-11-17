@@ -59,6 +59,7 @@ const CONFIRMDIALOG_INSTANCE = new InjectionToken<ConfirmDialog>('CONFIRMDIALOG_
             [appendTo]="$appendTo()"
             [position]="position"
             [style]="style"
+            [breakpoints]="breakpoints"
             [dismissableMask]="dismissableMask"
             [draggable]="draggable"
             [baseZIndex]="baseZIndex"
@@ -464,10 +465,9 @@ export class ConfirmDialog extends BaseComponent<ConfirmDialogPassThrough> imple
     }
 
     onInit() {
-        if (this.breakpoints) {
-            this.createStyle();
-        }
-
+        // `breakpoints` is passed to the inner dialog, which writes the media rule for the attribute it
+        // sets on its own container. The rule this component wrote named its OWN id, which no element
+        // carries, so it never applied.
         this.translationSubscription = this.config.translationObserver.subscribe(() => {
             if (this.visible) {
                 this.cd.markForCheck();
@@ -518,6 +518,10 @@ export class ConfirmDialog extends BaseComponent<ConfirmDialogPassThrough> imple
         }
     }
 
+    /**
+     * @deprecated No longer called: `breakpoints` is applied by the inner dialog. Its rule named this
+     * component's own id, which no element carries, so it never matched. Kept for API compatibility.
+     */
     createStyle() {
         if (!this.styleElement) {
             this.styleElement = this.document.createElement('style');
