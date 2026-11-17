@@ -23,14 +23,14 @@ if (path.startsWith('/upstream-zone')) {
 } else if (path.startsWith('/table-edge')) {
     /* The line above a selected row (table-edge.ts), in the preset `?preset=` names, so the
        comparison in e2e/table-selected-edge.spec.ts covers every preset the themes package ships. */
-    const presets: Record<string, () => Promise<{ default: unknown }>> = {
-        aura: () => import('@primeuix/themes/aura'),
-        lara: () => import('@primeuix/themes/lara'),
-        nora: () => import('@primeuix/themes/nora'),
-        material: () => import('@primeuix/themes/material')
-    };
-    const name = new URLSearchParams(location.search).get('preset') ?? 'aura';
-    Promise.all([(presets[name] ?? presets['aura'])(), import('./table-edge')])
+    const presets = new Map<string, () => Promise<{ default: unknown }>>([
+        ['aura', () => import('@primeuix/themes/aura')],
+        ['lara', () => import('@primeuix/themes/lara')],
+        ['nora', () => import('@primeuix/themes/nora')],
+        ['material', () => import('@primeuix/themes/material')]
+    ]);
+    const loadPreset = presets.get(new URLSearchParams(location.search).get('preset') ?? '') ?? presets.get('aura')!;
+    Promise.all([loadPreset(), import('./table-edge')])
         .then(([preset, { TableEdge }]) =>
             bootstrapApplication(TableEdge, {
                 providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: preset.default } })]

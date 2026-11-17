@@ -643,7 +643,9 @@ test('upstream 22.1.3 · Table — no rule may select a body row by looking at t
     // FIXED 2026-11-18: the line above a selected row is drawn from the selected row (e2e/table-selected-edge.spec.ts); held with test.fail() until then.
     await open(page, 'table-perf');
     await page.evaluate(() => (window as unknown as { __aglRenderRows: (n: number) => number }).__aglRenderRows(10));
-    expect(await siblingHasRules(page, '.p-datatable-tbody')).toEqual([]);
+    // The one sibling :has() left has a frozen cell as its subject, so it is never evaluated for a
+    // table without frozen columns, such as this one (e2e/table-selected-edge.spec.ts).
+    expect((await siblingHasRules(page, '.p-datatable-tbody')).filter((selector) => !selector.endsWith('td.p-datatable-frozen-column'))).toEqual([]);
 });
 
 test('upstream 22.1.3 · TreeTable — rows render, and no rule selects a body row by looking at the next row', async ({ page }) => {

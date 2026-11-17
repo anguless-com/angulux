@@ -16,8 +16,8 @@ import { expect, test, type Page } from '@playwright/test';
  * the row before it, so the shadow lies over that border. Three details carry the rest:
  *   - A custom property on the table root switches the line off where the row above has no bottom
  *     border (gridlines without a header row). Nested tables each read their own root.
- *   - A frozen cell is positioned and paints after every row, so the selected row's frozen cell
- *     carries the shadow there too.
+ *   - A frozen cell is positioned and paints after every row, over the row shadow, so frozen cells
+ *     keep the old border rule (FROZEN_RULE). A table without frozen columns never evaluates it.
  *   - At a fractional device pixel ratio the shadow is inset half a pixel on each side. Its edges
  *     then never fall where the row's own edges are cut, which is what left a faint vertical
  *     hairline at every such edge.
@@ -35,15 +35,23 @@ import { expect, test, type Page } from '@playwright/test';
 
 const OLD_RULES = ['.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }'];
 
+/**
+ * A frozen cell is positioned and paints after every row, over the row shadow. A box-shadow on the
+ * sticky cell itself changed how Chrome on Linux anti-aliases its text (CI, 2026-11-18), so frozen
+ * cells keep the old border rule. Its subject is `td.p-datatable-frozen-column`, matched first, so a
+ * table without frozen columns never evaluates the :has().
+ */
+const FROZEN_RULE = '.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td.p-datatable-frozen-column { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
+
 const SELECTED_EDGE = '.p-datatable-tbody > tr + tr:where(.p-datatable-row-selected)';
-const SELECTED_EDGE_FROZEN = '.p-datatable-tbody > tr + tr:where(.p-datatable-row-selected:not(:focus-visible, .p-datatable-contextmenu-row-selected)) > td:where(.p-datatable-frozen-column)';
 
 const NEW_RULES = [
     '.p-datatable { --agl-datatable-selected-edge: var(--p-datatable-body-cell-selected-border-color); }',
     '.p-datatable-gridlines { --agl-datatable-selected-edge: transparent; }',
     '.p-datatable.p-datatable-gridlines:has(.p-datatable-thead):has(.p-datatable-tbody) { --agl-datatable-selected-edge: var(--p-datatable-body-cell-selected-border-color); }',
-    `${SELECTED_EDGE}, ${SELECTED_EDGE_FROZEN} { box-shadow: 0 -1px 0 0 var(--agl-datatable-selected-edge); }`,
-    `@media not ((resolution: 1x) or (resolution: 2x) or (resolution: 3x)) { ${SELECTED_EDGE}, ${SELECTED_EDGE_FROZEN} { box-shadow: 0 -1.5px 0 -0.5px var(--agl-datatable-selected-edge); } }`
+    `${SELECTED_EDGE} { box-shadow: 0 -1px 0 0 var(--agl-datatable-selected-edge); }`,
+    `@media not ((resolution: 1x) or (resolution: 2x) or (resolution: 3x)) { ${SELECTED_EDGE} { box-shadow: 0 -1.5px 0 -0.5px var(--agl-datatable-selected-edge); } }`,
+    FROZEN_RULE
 ];
 
 const SCENES = [
@@ -264,21 +272,22 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
     });
 }
 
-test('the shipped Table stylesheet draws the line with exactly the rules compared above, and no sibling :has()', async ({ page }) => {
+test('the shipped Table stylesheet draws the line with exactly the rules compared above, and no other sibling :has()', async ({ page }) => {
     await page.goto('/table-edge?preset=aura');
     await expect(page.locator('#d-default .p-datatable-tbody > tr').first()).toBeVisible();
     const { shipped, expected, siblingHas } = await page.evaluate((newRules) => {
         const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
         const collect = (list: CSSRuleList, out: string[]) => {
             for (const rule of Array.from(list)) {
-                if ((rule instanceof CSSMediaRule || rule instanceof CSSStyleRule) && rule.cssText.includes('--agl-datatable-selected-edge')) out.push(norm(rule.cssText));
+                const frozen = rule instanceof CSSStyleRule && /:has\(\+\s*\.p-datatable-row-selected\)/.test(rule.selectorText);
+                if (frozen || ((rule instanceof CSSMediaRule || rule instanceof CSSStyleRule) && rule.cssText.includes('--agl-datatable-selected-edge'))) out.push(norm(rule.cssText));
             }
         };
         const shipped: string[] = [];
         let siblingHas = 0;
         for (const sheet of Array.from(document.styleSheets)) {
             collect(sheet.cssRules, shipped);
-            for (const rule of Array.from(sheet.cssRules)) if (rule instanceof CSSStyleRule && /:has\(\+/.test(rule.selectorText) && rule.selectorText.includes('p-datatable')) siblingHas++;
+            for (const rule of Array.from(sheet.cssRules)) if (rule instanceof CSSStyleRule && /:has\(\+/.test(rule.selectorText) && rule.selectorText.includes('p-datatable') && !rule.selectorText.endsWith('td.p-datatable-frozen-column')) siblingHas++;
         }
         // Parse the expected texts the same way, so both sides are serialized by the browser.
         const probe = new CSSStyleSheet();
@@ -287,6 +296,6 @@ test('the shipped Table stylesheet draws the line with exactly the rules compare
         collect(probe.cssRules, expected);
         return { shipped, expected, siblingHas };
     }, NEW_RULES);
-    expect(siblingHas, 'a sibling :has() rule on Table rows').toBe(0);
+    expect(siblingHas, 'a sibling :has() rule on Table rows other than the frozen-cell one').toBe(0);
     expect(shipped.sort()).toEqual(expected.sort());
 });
