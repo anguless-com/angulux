@@ -1531,6 +1531,7 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
     function shown() {
         const root = document.querySelector('.p-confirmdialog') as HTMLElement | null;
         const accept = root?.querySelector('.p-confirmdialog-accept-button') as HTMLElement | null;
+        const closeButton = root?.querySelector('.p-dialog-close-button') as HTMLElement | null;
         return {
             open: !!root,
             header: root?.querySelector('.p-dialog-title')?.textContent?.trim() ?? '',
@@ -1538,7 +1539,8 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
             accept: accept?.textContent?.trim() ?? '',
             danger: !!accept?.classList.contains('p-button-danger'),
             reject: !!root?.querySelector('.p-confirmdialog-reject-button'),
-            close: !!root?.querySelector('.p-dialog-close-button')
+            close: !!closeButton,
+            closeName: closeButton?.getAttribute('aria-label') ?? closeButton?.querySelector('button')?.getAttribute('aria-label') ?? null
         };
     }
 
@@ -1556,18 +1558,11 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
     it('names its close button: the per-call label, then closeButtonProps, else the aria.close translation', async () => {
         const fixture = TestBed.createComponent(TestSequentialConfirmationsComponent);
         await settle(fixture);
-        const closeName = () => {
-            const btn = document.querySelector('.p-confirmdialog .p-dialog-close-button') as HTMLElement | null;
-            return btn?.getAttribute('aria-label') ?? btn?.querySelector('button')?.getAttribute('aria-label') ?? null;
-        };
-        await open(fixture, DISCARD);
-        expect(closeName()).toBe('Close');
+        expect((await open(fixture, DISCARD)).closeName).toBe('Close');
         await close(fixture);
-        await open(fixture, { ...DISCARD, closeAriaLabel: 'Dismiss' });
-        expect(closeName()).toBe('Dismiss');
+        expect((await open(fixture, { ...DISCARD, closeAriaLabel: 'Dismiss' })).closeName).toBe('Dismiss');
         await close(fixture);
-        await open(fixture, { ...DISCARD, closeButtonProps: { ariaLabel: 'Shut' } });
-        expect(closeName()).toBe('Shut');
+        expect((await open(fixture, { ...DISCARD, closeButtonProps: { ariaLabel: 'Shut' } })).closeName).toBe('Shut');
         await close(fixture);
     });
 
