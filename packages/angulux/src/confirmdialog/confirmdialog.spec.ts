@@ -1553,6 +1553,24 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
         await settle(fixture);
     }
 
+    it('names its close button: the per-call label, then closeButtonProps, else the aria.close translation', async () => {
+        const fixture = TestBed.createComponent(TestSequentialConfirmationsComponent);
+        await settle(fixture);
+        const closeName = () => {
+            const btn = document.querySelector('.p-confirmdialog .p-dialog-close-button') as HTMLElement | null;
+            return btn?.getAttribute('aria-label') ?? btn?.querySelector('button')?.getAttribute('aria-label') ?? null;
+        };
+        await open(fixture, DISCARD);
+        expect(closeName()).toBe('Close');
+        await close(fixture);
+        await open(fixture, { ...DISCARD, closeAriaLabel: 'Dismiss' });
+        expect(closeName()).toBe('Dismiss');
+        await close(fixture);
+        await open(fixture, { ...DISCARD, closeButtonProps: { ariaLabel: 'Shut' } });
+        expect(closeName()).toBe('Shut');
+        await close(fixture);
+    });
+
     it('shows a confirmation after another exactly as it shows it on a fresh dialog', async () => {
         const fresh = TestBed.createComponent(TestSequentialConfirmationsComponent);
         await settle(fresh);
