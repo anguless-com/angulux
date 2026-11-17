@@ -31,9 +31,14 @@ const PROGRESSBAR_INSTANCE = new InjectionToken<ProgressBar>('PROGRESSBAR_INSTAN
     host: {
         role: 'progressbar',
         '[attr.aria-valuemin]': '0',
-        '[attr.aria-valuenow]': 'value',
+        // The value is told only when there is one to tell: a determinate bar with a number
+        // (`value === value` is false for NaN). WAI-ARIA has an indeterminate progressbar omit
+        // aria-valuenow. The value with its unit goes in aria-valuetext; it was in aria-level, which
+        // a progressbar does not take and which must be an integer. Without a value the two read
+        // "NaN" and "undefined%".
+        '[attr.aria-valuenow]': "mode === 'determinate' && value != null && value === value ? value : null",
         '[attr.aria-valuemax]': '100',
-        '[attr.aria-level]': 'value + unit',
+        '[attr.aria-valuetext]': "mode === 'determinate' && value != null && value === value ? value + unit : null",
         '[class]': "cn(cx('root'), styleClass)",
         '[attr.data-p]': 'dataP'
     },
