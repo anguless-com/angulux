@@ -43,3 +43,9 @@ test('ALWAYS_COMMERCIAL is declared in exactly one place', () => {
     assert.equal(hits.length, 1, `expected one declaration, found:\n${hits.join('\n')}`);
     assert.match(hits[0], /packages\/angulux-license-guard\/src\/boundary\.mjs/);
 });
+
+test('COMMERCIAL_TAGS is declared in exactly one place', () => {
+    const hits = grepDeclarations('COMMERCIAL_TAGS');
+    assert.equal(hits.length, 1, `expected one declaration, found:\n${hits.join('\n')}`);
+    assert.match(hits[0], /packages\/angulux-license-guard\/src\/boundary\.mjs/);
+});

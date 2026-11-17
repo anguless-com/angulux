@@ -1,4 +1,21 @@
-import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, isPrimeTekPackage } from './boundary.mjs';
+import { FIRST_COMMERCIAL, ALWAYS_COMMERCIAL, COMMERCIAL_TAGS, isPrimeTekPackage } from './boundary.mjs';
+
+/**
+ * The tag in COMMERCIAL_TAGS that this version carries, or null.
+ *
+ * Read before the suffix is stripped, because stripping it is exactly what made `20.5.1-lts`
+ * compare as the MIT `20.5.1`. The prerelease is everything between the first `-` and any `+`.
+ * Its identifiers are split on `.` and `-` and matched whole, so `-lts.2` and `-lts-hotfix`
+ * are caught and `-alts` is not.
+ */
+function commercialTag(version) {
+    const prerelease = String(version).split('+')[0].split('-').slice(1).join('-');
+    if (!prerelease) return null;
+    return prerelease
+        .toLowerCase()
+        .split(/[.-]/)
+        .find((id) => COMMERCIAL_TAGS.includes(id)) ?? null;
+}
 
 /**
  * Compare two versions on their release triple.
@@ -78,6 +95,20 @@ export function detect(packages) {
                 version: raw,
                 kind: 'unverified',
                 reason: 'not a semver version — the licence could not be verified automatically'
+            });
+            continue;
+        }
+
+        const tag = commercialTag(version);
+        if (tag) {
+            // Listed in `seen` like a version across the boundary below, so an acknowledged
+            // -lts build is reported the same way an acknowledged commercial version is.
+            seen.push({ name, version });
+            violations.push({
+                name,
+                version,
+                kind: 'commercial',
+                reason: `-${tag} builds are under PrimeTek's separate ${tag.toUpperCase()} licence, not MIT, whatever the version number`
             });
             continue;
         }

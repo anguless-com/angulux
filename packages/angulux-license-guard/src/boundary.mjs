@@ -48,6 +48,36 @@ export const FIRST_COMMERCIAL = {
 export const ALWAYS_COMMERCIAL = ['@primeui/license-manager', '@primeicons/angular'];
 
 /**
+ * Prerelease tags that put a build under a separate licence, whatever its version number.
+ *
+ * `-lts` is PrimeNG's long-term-support line, and its builds are numbered inside the MIT range:
+ * 77 of them on npm on 2026-11-17, from `13.4.2-lts` (2023-04-19) to `20.5.1-lts`
+ * (2026-06-04), every one below the 22.0.0 boundary. Until 2026-11-17 the guard reported each
+ * of them as MIT. `detect.mjs` strips the prerelease suffix before comparing, which is what
+ * catches `22.0.0-rc.1`, and the same rule turned `20.5.1-lts` into `20.5.1`. PROVENANCE
+ * section 3 already said the -lts line is proprietary. The guard did not.
+ *
+ * The evidence, read out of the tarballs on 2026-11-17, including the part that is messy:
+ *
+ *   • PrimeTek's own LICENSE.md in the MIT community releases (21.1.9 and 21.1.10 are
+ *     byte-identical) has a section headed "PRIMENG LTS VERSIONS LICENSE (Versions with -lts
+ *     suffix)": a licence identified by a unique key, with no right to distribute derivative
+ *     works.
+ *   • `20.5.1-lts`, the newest, ships that same LICENSE.md.
+ *   • `13.4.2-lts`, the oldest, ships no LICENSE file at all, and its package.json says "MIT".
+ *     It also carries `api/licensemanager`, the licence-key check.
+ *
+ * Only the oldest and the newest build were read; the 75 between them were not. Every -lts
+ * build is treated as commercial. For `13.4.2-lts`, and any early build like it, that is a
+ * decision, not a reading of its own files, and it is the same trade as ALWAYS_COMMERCIAL above. The
+ * vendor's licence names the whole suffix, over-flagging fails closed, and the cost is a false
+ * alarm on a build that no caret range resolves to. Only primeng published -lts builds on
+ * 2026-11-17. The tag applies to every package in the table anyway, so another package's first
+ * -lts build is not waved through by its number either.
+ */
+export const COMMERCIAL_TAGS = ['lts'];
+
+/**
  * The date the table above was last checked against the published tarballs.
  *
  * No release cadence is promised. This date is what lets a reader judge the table's
@@ -69,8 +99,17 @@ export const ALWAYS_COMMERCIAL = ['@primeui/license-manager', '@primeicons/angul
  *      declared "SEE LICENSE IN LICENSE.md" since long before any of this. Their boundary
  *      rests on the LICENSE.md read by hand and on the archived tarballs, as PROVENANCE
  *      section 2 already says — not on metadata.
+ *
+ * WHAT THE 2026-11-17 CHECK DID. Every package in FIRST_COMMERCIAL was listed from the
+ * registry with its publish dates. Each boundary version exists. Two releases published after
+ * the 2026-06-28 flip sit BELOW their boundary: `primeng@21.1.10` (2026-09-09) and
+ * `primereact@10.9.9` (2026-08-27). Their LICENSE files were read. The primeng one is
+ * byte-identical to 21.1.9's (MIT for the community versions), and the primereact one is plain
+ * MIT. Every boundary stands. The same listing found the -lts line, now recorded in
+ * COMMERCIAL_TAGS above. The other unusual tags in it (`-patch`, `-watch`, `-SNAPSHOT`) are all
+ * older than the flip and below their boundary.
  */
-export const TABLE_VERIFIED = '2026-08-26';
+export const TABLE_VERIFIED = '2026-11-17';
 
 /**
  * Does this package name belong to PrimeTek?

@@ -2,7 +2,7 @@
 
 > The record of where this code came from. **This is a legal document.** Every change to it
 > needs a stated reason.
-> Last updated: 2026-08-26
+> Last updated: 2026-11-17
 
 ## 1. Summary
 
@@ -94,6 +94,24 @@ refuses the package at every version. Relaxing it would loosen a legal check to 
 a package angulux does not use — the trade is one-sided, so the list keeps the safe side and
 the record keeps the true statement.
 
+**`-lts` builds sit below the `primeng` boundary and are not MIT.** PrimeNG's long-term-support
+line is numbered inside the MIT range: 77 builds on npm on 2026-11-17, `13.4.2-lts`
+(2023-04-19) to `20.5.1-lts` (2026-06-04). This section has always said they are proprietary, but
+until 2026-11-17 the guard reported every one as MIT, because the same suffix-stripping that
+catches `22.0.0-rc.1` turned `20.5.1-lts` into `20.5.1`. The guard now reports any version
+carrying an `lts` prerelease tag as commercial (`COMMERCIAL_TAGS` in `boundary.mjs`). Read out of
+the tarballs on 2026-11-17: `20.5.1-lts` ships the LICENSE.md with the *"PRIMENG LTS VERSIONS
+LICENSE (Versions with -lts suffix)"* section. `13.4.2-lts` ships no LICENSE file, and its
+package.json says MIT, but it carries the licence-key manager. So `13.4.2-lts`, and any early
+build like it, is flagged on the vendor's statement about the whole suffix rather than on its
+own files, which is the same one-sided trade as above. Only the oldest and the newest build
+were read; the 75 between them were not.
+
+**Re-verified 2026-11-17.** Two releases published after the flip sit below their boundary:
+`primeng@21.1.10` (2026-09-09) and `primereact@10.9.9` (2026-08-27). Their LICENSE files were
+read. 21.1.10's is byte-identical to 21.1.9's (MIT for the community versions), and 10.9.9's is
+plain MIT. Every row above stands.
+
 **`@primeuix/motion` has two different "last MIT" answers.** `0.1.1` (2026-02-25) is the last
 MIT release PrimeTek published. `0.0.10` is the last one **this fork can reach**: `primeng@21.1.9`
 depends on `@primeuix/motion@^0.0.10`, and a leading-zero caret cannot cross into `0.1.x`.
@@ -102,7 +120,8 @@ sentences are not interchangeable, and the archive tool says which one it means.
 
 Additionally, every PrimeNG tag or branch with an **`-lts`** suffix falls under a separate
 proprietary license (the *"PRIMENG LTS VERSIONS LICENSE"* section), which states plainly
-that you *"cannot distribute modifications (derivative works)"*. **Do not touch them.**
+that you *"cannot distribute modifications (derivative works)"*. **Do not touch them.** The
+licence guard refuses them too, since 2026-11-17 (see the `-lts` note above).
 
 A practical note: `primeng@22.0.0` ships compiled files only (`.mjs` + `.d.ts`, **zero `.ts`
 sources**), and the v22 source was never pushed to GitHub — the public repository stopped at
@@ -187,7 +206,7 @@ dropped · PrimeTek trademarks removed from the public API surface.
 | Path | Role |
 |---|---|
 | `tools/check-prime-license.mjs` | the license guard — a thin delegate to `packages/angulux-license-guard/` |
-| `packages/angulux-license-guard/src/boundary.mjs` | **the boundary record itself** — `FIRST_COMMERCIAL`, `ALWAYS_COMMERCIAL`, `TABLE_VERIFIED`; declared exactly once, enforced by test |
+| `packages/angulux-license-guard/src/boundary.mjs` | **the boundary record itself** — `FIRST_COMMERCIAL`, `ALWAYS_COMMERCIAL`, `COMMERCIAL_TAGS`, `TABLE_VERIFIED`; declared exactly once, enforced by test |
 | `tools/check-catalog.mjs` | version discipline in the workspace catalogs |
 | `tools/check-language.mjs` | the English-only guard, accented and unaccented detectors |
 | `tools/scope/gen-closure.mjs` | transitive closure generator (BFS over the import graph) |
