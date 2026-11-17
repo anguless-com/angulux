@@ -2,6 +2,19 @@ import { Injectable } from '@angular/core';
 import { style } from '@anguless/angulux-styles/fileupload';
 import { BaseStyle } from '@anguless/angulux/base';
 
+/**
+ * The header kept its buttons on one line. With Choose, Upload and Cancel that is wider than a
+ * phone, so the page scrolled sideways and the last button was cut. They now wrap, with the gap
+ * the header already has between them.
+ */
+const fileUploadStyle = /*css*/ `
+${String(style)}
+
+.p-fileupload-header {
+    flex-wrap: wrap;
+}
+`;
+
 const classes = {
     root: ({ instance }) => `p-fileupload p-fileupload-${instance.mode} p-component`,
     header: 'p-fileupload-header',
@@ -25,7 +38,7 @@ const classes = {
 export class FileUploadStyle extends BaseStyle {
     name = 'fileupload';
 
-    style = style;
+    style = fileUploadStyle;
 
     classes = classes;
 }
