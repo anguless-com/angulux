@@ -776,7 +776,7 @@
         "22.1.3 · Select · 1f2fd8768805": {
             "verdict": "follow",
             "module": "select",
-            "note": "PARTLY REPRODUCED 2026-11-17: a read-only Select already refused to open by click or key and its clear icon did not empty it, but it did not say it was read-only. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: aria-readonly on the combobox (e2e/upstream-repro-select.spec.ts)."
+            "note": "REPRODUCED 2026-11-17: a read-only Select refused to open by click or key, but it did not say it was read-only, and its clear icon emptied it (measured on the CI runner; in the first local run the click on the icon did not land, and the entry was wrongly read as not reproducing). FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: aria-readonly on the combobox, no clear icon on a read-only Select (e2e/upstream-repro-select.spec.ts)."
         },
         "22.1.3 · Select · 985ba2d4e6f2": {
             "verdict": "follow",
@@ -826,7 +826,7 @@
         "22.1.2 · Select · 0ee45922ee5e": {
             "verdict": "follow",
             "module": "select",
-            "note": "Does NOT reproduce 2026-11-17: with readonly or loading, clicking the clear icon left the value as it was (e2e/upstream-repro-select.spec.ts)."
+            "note": "REPRODUCED 2026-11-17 for readonly, on the CI runner: clicking the clear icon emptied a read-only Select. With loading the value stayed in both runs. FIXED 2026-11-17 under Constitution P3.c (v1.5.0): no API change, red before and green after in the same pull request: a read-only Select shows no clear icon, and clear() from the icon does nothing while readonly or loading (e2e/upstream-repro-select.spec.ts)."
         }
     }
 }

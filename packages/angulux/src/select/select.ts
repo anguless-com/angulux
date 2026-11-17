@@ -954,7 +954,8 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
     }
 
     get isVisibleClearIcon(): boolean | undefined {
-        return this.modelValue() != null && this.hasSelectedOption() && this.showClear && !this.$disabled();
+        // A read-only Select offers no way to clear it (upstream 22.1.2: the icon emptied it).
+        return this.modelValue() != null && this.hasSelectedOption() && this.showClear && !this.$disabled() && !this.readonly;
     }
 
     /** What the status region says while filtering: that results are there, or that none are. */
@@ -1947,6 +1948,10 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
      * @group Method
      */
     public clear(event?: Event) {
+        // Neither a read-only nor a loading Select is cleared from its icon (upstream 22.1.2).
+        if (event && (this.readonly || this.loading)) {
+            return;
+        }
         this.updateModel(null, event);
         this.clearEditableLabel();
         this.onModelTouched();

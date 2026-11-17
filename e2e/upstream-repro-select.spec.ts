@@ -11,13 +11,14 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *
  * The probe page is apps/verify/src/upstream-select.ts, one scene per `?case=`.
  *
- * MEASURED 2026-11-17, the 56 Select entries of 22.1.2 to 22.1.5: 21 reproduce and were FIXED the
- * same day under Constitution P3.c, mostly the editable input (its role, name, writes,
- * placeholder, style and type-ahead) and keyboard paths (Tab to the parent, the custom filter, IME,
- * the label click); 13 do not. aria-autocomplete came with the combobox role, and the type-ahead
- * timers are cleared on destroy although nothing measurable followed. The other 20 are their tests,
- * docs or demos, a mode we do not have, or API, which waits for the Angular 23 round. Every test
- * below asserts the right behaviour; tools/upstream/seen.json has each verdict.
+ * MEASURED 2026-11-17, the 56 Select entries of 22.1.2 to 22.1.5: 22 reproduce and were FIXED
+ * the same day under Constitution P3.c, mostly the editable input (its role, name, writes,
+ * placeholder, style and type-ahead), keyboard paths (Tab to the parent, the custom filter, IME,
+ * the label click) and the read-only clear icon; 12 do not. aria-autocomplete came with the
+ * combobox role, and the type-ahead timers are cleared on destroy although nothing measurable
+ * followed. The other 20 are their tests, docs or demos, a mode we do not have, or API, which
+ * waits for the Angular 23 round. Every test below asserts the right behaviour;
+ * tools/upstream/seen.json has each verdict.
  */
 
 function watchErrors(page: Page): string[] {
