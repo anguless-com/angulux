@@ -2147,7 +2147,7 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
 
     get overlayDataP() {
         return this.cn({
-            ['overlay-' + this.appendTo]: 'overlay-' + this.appendTo
+            ['overlay-' + this.$appendTo()]: 'overlay-' + this.$appendTo()
         });
     }
 

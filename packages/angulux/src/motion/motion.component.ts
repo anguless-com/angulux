@@ -292,7 +292,21 @@ export class Motion extends BaseComponent<MotionPassThrough> {
             const hideStrategy = this.hideStrategy();
 
             if (this.visible()) {
+                const initialMount = this.isInitialMount;
                 await nextFrame();
+                // Told to hide during the frame this waited. Entering now would bring back an element
+                // its owner has closed: the overlay answers an enter by reporting itself visible, so
+                // the panel stayed open (a double click on a select did it). Nothing entered, so
+                // there is nothing to animate out. On a first mount the hide was not acted on
+                // either (the leave branch below skips a first mount), so say here that the
+                // element is gone: the owner clears what it set up for the show on that event.
+                if (this.destroyed || !untracked(this.visible)) {
+                    if (!this.destroyed && initialMount) {
+                        this.isInitialMount = false;
+                        this.handleAfterLeave({ element: this.$el });
+                    }
+                    return;
+                }
                 resetStyles(this.$el, hideStrategy);
 
                 if (shouldAppear || !this.isInitialMount) {
@@ -301,6 +315,8 @@ export class Motion extends BaseComponent<MotionPassThrough> {
                 }
             } else if (!this.isInitialMount) {
                 await nextFrame();
+                // Shown again during the frame this waited: the enter that follows owns the element.
+                if (this.destroyed || untracked(this.visible)) return;
                 this.applyMotionDuration('leave');
                 this.motion?.leave()?.then(async () => {
                     if (this.$el && !this.cancelled && !this.visible()) {

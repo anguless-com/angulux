@@ -42,6 +42,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/overlay-race')) {
+    /* Panels closed again before their enter motion starts (overlay-race.ts, e2e/overlay-race.spec.ts). */
+    import('./overlay-race')
+        .then(({ OverlayRace }) =>
+            bootstrapApplication(OverlayRace, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/narrow')) {
     /* Components at phone widths (narrow.ts, e2e/narrow-reflow.spec.ts). */
     import('./narrow')
