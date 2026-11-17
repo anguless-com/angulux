@@ -2,6 +2,7 @@ import { ApplicationRef, Component, inject, signal, ViewEncapsulation } from '@a
 import { FormControl, FormsModule, ReactiveFormsModule, StatusChangeEvent, TouchedChangeEvent, Validators, ValueChangeEvent } from '@angular/forms';
 import { ConfirmationService, MenuItem, MessageService } from '@anguless/angulux/api';
 import { ButtonModule } from '@anguless/angulux/button';
+import { CheckboxModule } from '@anguless/angulux/checkbox';
 import { ConfirmDialogModule } from '@anguless/angulux/confirmdialog';
 import { DatePickerModule } from '@anguless/angulux/datepicker';
 import { DialogModule } from '@anguless/angulux/dialog';
@@ -10,13 +11,15 @@ import { MenuModule } from '@anguless/angulux/menu';
 import { MultiSelectModule } from '@anguless/angulux/multiselect';
 import { SelectModule } from '@anguless/angulux/select';
 import { TableLazyLoadEvent, TableModule } from '@anguless/angulux/table';
+import { TagModule } from '@anguless/angulux/tag';
 import { ToastModule } from '@anguless/angulux/toast';
 import { TreeTableModule } from '@anguless/angulux/treetable';
 import { TreeNode } from '@anguless/angulux/api';
 
 /**
  * Second upstream probe page: the changelog entries of PrimeNG 22.1.1 to 22.1.4 that name a
- * module angulux ships, other than Select (#168).
+ * module angulux ships, other than Select (#168), and, since 2026-11-17, the cross-cutting Core
+ * entries a browser can measure (`new-components`, `overlay-shadow`).
  *
  * Same rules as section 9 onward of app.ts. Each scenario is written from OUR source and
  * measured in the browser; the only thing taken from upstream is the published sentence that a
@@ -57,6 +60,38 @@ export class ShadowDrawerHost {
     open = signal(false);
 }
 
+/** A Select inside a shadow root, with the same options as its light-DOM twin on the page. */
+@Component({
+    selector: 'agl-verify-shadow-select',
+    imports: [FormsModule, SelectModule],
+    encapsulation: ViewEncapsulation.ShadowDom,
+    template: `
+        <agl-select inputId="select-shadow-input" [options]="cities" optionLabel="name" [ngModel]="value()" (ngModelChange)="value.set($event)" placeholder="shadow" />
+        <p id="select-shadow-value">{{ value()?.name ?? 'none' }}</p>
+    `
+})
+export class ShadowSelectHost {
+    cities = [{ name: 'Hanoi' }, { name: 'Da Nang' }, { name: 'Hue' }, { name: 'Ho Chi Minh City' }];
+    value = signal<{ name: string } | null>(null);
+}
+
+/** A modal dialog inside a shadow root: a field and a button to take focus, as in its light-DOM twin. */
+@Component({
+    selector: 'agl-verify-shadow-dialog',
+    imports: [DialogModule],
+    encapsulation: ViewEncapsulation.ShadowDom,
+    template: `
+        <button id="dialog-shadow-open" type="button" (click)="open.set(true)">open the dialog in the shadow root</button>
+        <agl-dialog header="Shadow dialog" [modal]="true" [visible]="open()" (visibleChange)="open.set($event)">
+            <input id="dialog-shadow-field" />
+            <button id="dialog-shadow-ok" type="button">ok</button>
+        </agl-dialog>
+    `
+})
+export class ShadowDialogHost {
+    open = signal(false);
+}
+
 interface Row {
     id: number;
     name: string;
@@ -73,7 +108,26 @@ interface City {
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, ReactiveFormsModule, ButtonModule, ConfirmDialogModule, DatePickerModule, DialogModule, DrawerModule, MenuModule, MultiSelectModule, SelectModule, TableModule, ToastModule, TreeTableModule, ShadowDrawerHost],
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        ButtonModule,
+        CheckboxModule,
+        ConfirmDialogModule,
+        DatePickerModule,
+        DialogModule,
+        DrawerModule,
+        MenuModule,
+        MultiSelectModule,
+        SelectModule,
+        TableModule,
+        TagModule,
+        ToastModule,
+        TreeTableModule,
+        ShadowDrawerHost,
+        ShadowSelectHost,
+        ShadowDialogHost
+    ],
     providers: [ConfirmationService, MessageService],
     template: `
         <h1>angulux — upstream 22.1.x probes</h1>
@@ -415,6 +469,39 @@ interface City {
                 </section>
             }
 
+            <!-- Core (22.1.3): does creating a component search the whole document? The page grows in steps
+                 after the styles have loaded, so a count that follows the number of new components is
+                 a search per instance. -->
+            @case ('new-components') {
+                <section id="sec-new-components">
+                    @for (i of grown(); track i) {
+                        <agl-button [label]="'b' + i" />
+                        <agl-tag [value]="'t' + i" />
+                        <agl-checkbox [binary]="true" [inputId]="'cb' + i" />
+                    }
+                </section>
+            }
+
+            <!-- Core (22.1.3): an overlay, and a modal's focus, inside a shadow root, each beside the same
+                 thing in the light DOM. -->
+            @case ('overlay-shadow') {
+                <section id="sec-overlay-shadow">
+                    <div id="select-light">
+                        <agl-select inputId="select-light-input" [options]="cities" optionLabel="name" [ngModel]="selectLight()" (ngModelChange)="selectLight.set($event)" placeholder="light" />
+                        <p id="select-light-value">{{ selectLight()?.name ?? 'none' }}</p>
+                    </div>
+                    <agl-verify-shadow-select id="select-shadow-host" />
+                    <div id="dialog-light">
+                        <button id="dialog-light-open" type="button" (click)="dialogLight.set(true)">open the dialog in the light DOM</button>
+                        <agl-dialog header="Light dialog" [modal]="true" [visible]="dialogLight()" (visibleChange)="dialogLight.set($event)">
+                            <input id="dialog-light-field" />
+                            <button id="dialog-light-ok" type="button">ok</button>
+                        </agl-dialog>
+                    </div>
+                    <agl-verify-shadow-dialog id="dialog-shadow-host" />
+                </section>
+            }
+
             @default {
                 <p id="no-case">no case: {{ kase }}</p>
             }
@@ -513,6 +600,12 @@ export class Upstream221 {
     perfRows = signal<Row[]>([]);
     perfNodes = signal<TreeNode[]>([]);
 
+    // ── Core ──────────────────────────────────────────────────────────────────
+    /** Indexes of the button, tag and checkbox triples on the new-components page. */
+    grown = signal<number[]>([]);
+    selectLight = signal<City | null>(null);
+    dialogLight = signal(false);
+
     constructor() {
         const w = window as unknown as Record<string, unknown>;
         // Each call sets the rows and runs change detection synchronously, then forces layout, and
@@ -529,6 +622,8 @@ export class Upstream221 {
             return performance.now() - t0;
         };
         w['__aglRenderRows'] = (n: number) => timed(() => this.perfRows.set(makeRows(n)));
+        // Keeps the triples already there (tracked by index) and adds the rest, in one synchronous tick.
+        w['__aglGrow'] = (n: number) => timed(() => this.grown.set(Array.from({ length: n }, (_, i) => i)));
         w['__aglRenderNodes'] = (n: number, children = 0) =>
             timed(() =>
                 this.perfNodes.set(

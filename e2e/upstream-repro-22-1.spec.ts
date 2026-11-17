@@ -35,6 +35,18 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  *     rule lives in @anguless/angulux-styles and its replacement must be shown pixel-identical
  *     first.
  *
+ * THIRD BATCH, 2026-11-17: the 14 cross-cutting entries (Core and Highlights) of the same
+ * releases. Two are summaries of the Select entries and six announce features, so neither has
+ * anything to measure. Two are hygiene in their codebase, with nothing to remove from ours. One,
+ * server-rendered ids, is read in our source but needs a hydrating app to measure. The other
+ * three are measured at the end of this file:
+ *
+ *   - A search of the document per new component: REPRODUCES, held. It is performance work,
+ *     so a fix is in scope on 22.x.
+ *   - The empty instance attribute: REPRODUCES, held for the Angular 23 round.
+ *   - Overlays and focus in a shadow root: the overlay REPRODUCES twice (an error on opening, and
+ *     no close on an outside click), held for the Angular 23 round; focus does not reproduce.
+ *
  * The probe page is apps/verify/src/upstream-22-1.ts, one scenario per `?case=`.
  */
 
@@ -637,4 +649,157 @@ test('upstream 22.1.3 · TreeTable — rows render, and no rule selects a body r
     await expect(page.locator('#sec-treetable-perf tbody tr')).toHaveCount(2000);
     expect(await siblingHasRules(page, '.p-treetable-tbody')).toEqual([]);
     expect(errors).toEqual([]);
+});
+
+// ── Core, the cross-cutting entries (third batch, 2026-11-17) ──────────────────────────────────
+
+/**
+ * Lookups over the whole document made while the page grows to `triples` button, tag and checkbox
+ * triples in one synchronous tick: query methods called on the document, or on <html>, <head> or
+ * <body>. A count that follows the number of NEW components is a search made per instance.
+ */
+function documentLookupsWhileGrowing(page: Page, triples: number): Promise<number> {
+    return page.evaluate((n) => {
+        let count = 0;
+        const restore: Array<() => void> = [];
+        const wrap = (proto: Record<string, unknown>, name: string, whole: (self: unknown) => boolean) => {
+            const original = proto[name] as (...args: unknown[]) => unknown;
+            proto[name] = function (this: unknown, ...args: unknown[]) {
+                if (whole(this)) count++;
+                return original.apply(this, args);
+            };
+            restore.push(() => (proto[name] = original));
+        };
+        const isDocument = (self: unknown) => self instanceof Document;
+        const isRoot = (self: unknown) => self === document.documentElement || self === document.head || self === document.body;
+        for (const m of ['querySelector', 'querySelectorAll', 'getElementById', 'getElementsByClassName', 'getElementsByTagName', 'getElementsByName']) wrap(Document.prototype as never, m, isDocument);
+        for (const m of ['querySelector', 'querySelectorAll', 'getElementsByClassName', 'getElementsByTagName']) wrap(Element.prototype as never, m, isRoot);
+        try {
+            (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(n);
+        } finally {
+            restore.forEach((r) => r());
+        }
+        return count;
+    }, triples);
+}
+
+test('upstream 22.1.3 · Core — the scene: components added after the styles have loaded render', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'new-components');
+    await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(5));
+    await expect(page.locator('#sec-new-components agl-button')).toHaveCount(5);
+    await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(105));
+    await expect(page.locator('#sec-new-components agl-button')).toHaveCount(105);
+    await expect(page.locator('#sec-new-components agl-tag')).toHaveCount(105);
+    await expect(page.locator('#sec-new-components agl-checkbox')).toHaveCount(105);
+    expect(errors).toEqual([]);
+});
+
+test('upstream 22.1.3 · Core — a component added after the styles have loaded must not search the document', async ({ page }) => {
+    // REPRODUCES, measured 2026-11-17. With every stylesheet already in <head>, adding 100 / 250 /
+    // 500 / 1,000 triples made 500 / 1,250 / 2,500 / 5,000 lookups, all of them
+    // querySelector('style[data-angulux-style-id="base"]'): five per triple, a search per instance.
+    // Every component registers its theme-change listeners through _themeChangeListener()
+    // (basecomponent.ts), which calls Base.clearLoadedStyleNames() each time. That wipes the
+    // "base is loaded" flag, so the next component reloads the base stylesheet: it resolves and
+    // minifies the CSS again, and asks the document for the <style> element. With that one call
+    // removed from the build, the same steps made 0 lookups, and +750 / +3,000 components took
+    // 74 / 257 ms instead of 104 / 359 ms.
+    test.fail();
+    await open(page, 'new-components');
+    await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(5));
+    expect(await documentLookupsWhileGrowing(page, 105)).toBe(0);
+});
+
+test('upstream 22.1.3 · Core — the scene: a component host carries its instance attribute', async ({ page }) => {
+    await open(page, 'new-components');
+    await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(1));
+    // The root element the button renders inside its host carries the root pass-through datasets.
+    await expect(page.locator('#sec-new-components agl-button button').first()).toHaveAttribute('data-pc-name', 'button');
+});
+
+test('upstream 22.1.3 · Core — a component host must carry its instance attribute as a data- attribute', async ({ page }) => {
+    // REPRODUCES, measured 2026-11-17. Every component host gets an empty attribute named by its
+    // instance id, `pc1`, `pc2`... (basecomponent.ts, set in ngAfterViewInit and again among the
+    // root pass-through datasets, beside an inherited @todo that says to use data-pc-id). HTML
+    // reserves names outside its own list for data- attributes, so a validator flags every
+    // component, and the scoped theme CSS keys on the same name.
+    test.fail();
+    await open(page, 'new-components');
+    await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(1));
+    const names = await page.locator('#sec-new-components agl-button').first().evaluate((host) => [host, ...host.querySelectorAll('*')].flatMap((el) => el.getAttributeNames()));
+    expect(names.filter((n) => /^pc\d+$/.test(n))).toEqual([]);
+});
+
+/** Whether the option list of a Select is on screen, wherever its overlay was rendered. */
+const hueOptions = (page: Page) => page.getByRole('option', { name: 'Hue' });
+
+test('upstream 22.1.3 · Core — the scene: a Select takes a pick in the light DOM and in a shadow root', async ({ page }) => {
+    await open(page, 'overlay-shadow');
+    for (const where of ['light', 'shadow'] as const) {
+        const root = page.locator(where === 'light' ? '#select-light' : '#select-shadow-host');
+        await root.locator('.p-select').first().click();
+        await expect(hueOptions(page)).toHaveCount(1);
+        await hueOptions(page).click();
+        await expect(root.locator(`#select-${where}-value`)).toHaveText('Hue');
+        await expect(hueOptions(page)).toHaveCount(0);
+    }
+});
+
+test('upstream 22.1.3 · Core — a Select inside a shadow root must open without an error', async ({ page }) => {
+    // REPRODUCES, measured 2026-11-17. The same Select opens cleanly in the light DOM. Inside a
+    // shadow root, opening it throws "Failed to execute 'getComputedStyle' on 'Window': parameter
+    // 1 is not of type 'Element'": Overlay.bindListeners() starts with the scroll listener, whose
+    // DomHandler.getScrollableParents() walks parentNode up and reaches the ShadowRoot, which is
+    // not an element. The document click, resize and keyboard listeners bound after it never are.
+    test.fail();
+    const errors = watchErrors(page);
+    await open(page, 'overlay-shadow');
+    await page.locator('#select-shadow-host .p-select').first().click();
+    await expect(hueOptions(page)).toHaveCount(1);
+    await page.waitForTimeout(500);
+    expect(errors).toEqual([]);
+});
+
+test('upstream 22.1.3 · Core — a Select inside a shadow root must close on a click outside it', async ({ page }) => {
+    // REPRODUCES, measured 2026-11-17, and follows from the error above: the document click
+    // listener is never bound, so a click on empty page leaves the options open. In the light DOM
+    // the same click closes them. Escape still closes it in both, because Select handles that key
+    // on its own input rather than through the overlay.
+    test.fail();
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await open(page, 'overlay-shadow');
+    await page.locator('#select-shadow-host .p-select').first().click();
+    await expect(hueOptions(page)).toHaveCount(1);
+    await page.waitForTimeout(500);
+    await page.mouse.click(1250, 880);
+    await expect(hueOptions(page)).toHaveCount(0, { timeout: 2_000 });
+});
+
+/** The focused element, descending through open shadow roots: its id, or its tag. */
+function deepFocus(page: Page): Promise<string> {
+    return page.evaluate(() => {
+        let a: Element | null = document.activeElement;
+        while (a && (a as HTMLElement).shadowRoot?.activeElement) a = (a as HTMLElement).shadowRoot!.activeElement;
+        return a ? a.id || a.getAttribute('aria-label') || a.tagName.toLowerCase() : 'none';
+    });
+}
+
+test('upstream 22.1.3 · Core — a modal dialog takes focus and keeps Tab inside it, in the light DOM and in a shadow root', async ({ page }) => {
+    // Does NOT reproduce, measured 2026-11-17: in both, focus lands on the dialog's field when it
+    // opens, and Tab cycles field, ok, the close button, and back to the field.
+    await open(page, 'overlay-shadow');
+    for (const where of ['light', 'shadow'] as const) {
+        await page.locator(where === 'light' ? '#dialog-light-open' : '#dialog-shadow-host #dialog-shadow-open').click();
+        await expect.poll(() => deepFocus(page)).toBe(`dialog-${where}-field`);
+        const seen: string[] = [];
+        for (let i = 0; i < 3; i++) {
+            await page.keyboard.press('Tab');
+            seen.push(await deepFocus(page));
+        }
+        expect(seen[0], `${where}: Tab from the field`).toBe(`dialog-${where}-ok`);
+        expect(seen[2], `${where}: Tab wraps back into the dialog`).toBe(`dialog-${where}-field`);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('dialog')).toHaveCount(0);
+    }
 });
