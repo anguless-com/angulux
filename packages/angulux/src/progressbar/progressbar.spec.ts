@@ -473,24 +473,41 @@ describe('ProgressBar', () => {
             expect(rootElement.nativeElement.getAttribute('aria-valuenow')).toBe('80');
         });
 
-        it('should set aria-level with value and unit', async () => {
+        // WAI-ARIA: a progressbar takes aria-valuenow/min/max and aria-valuetext. aria-level belongs to
+        // headings and tree items and must be an integer, so "45 MB" there was invalid twice over.
+        it('says the value with its unit in aria-valuetext, and carries no aria-level', async () => {
             component.value = 45;
             component.unit = ' MB';
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
-            const rootElement = fixture.debugElement.query(By.directive(ProgressBar));
-            expect(rootElement.nativeElement.getAttribute('aria-level')).toBe('45 MB');
+            const root = fixture.debugElement.query(By.directive(ProgressBar)).nativeElement as HTMLElement;
+            expect(root.getAttribute('aria-valuetext')).toBe('45 MB');
+            expect(root.hasAttribute('aria-level')).toBe(false);
         });
 
-        it('should handle undefined value in ARIA attributes', async () => {
+        // It read aria-valuenow="NaN" and aria-level="undefined%" (found on the docs page, 2026-11-18).
+        it('writes no value attributes when there is no value', async () => {
             component.value = undefined as any;
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
-            const rootElement = fixture.debugElement.query(By.directive(ProgressBar));
-            const ariaValueNow = rootElement.nativeElement.getAttribute('aria-valuenow');
-            expect(ariaValueNow === 'null' || ariaValueNow === 'NaN').toBe(true);
+            const root = fixture.debugElement.query(By.directive(ProgressBar)).nativeElement as HTMLElement;
+            expect(root.hasAttribute('aria-valuenow')).toBe(false);
+            expect(root.hasAttribute('aria-valuetext')).toBe(false);
+            expect(root.hasAttribute('aria-level')).toBe(false);
+        });
+
+        // WAI-ARIA: an indeterminate progressbar omits aria-valuenow.
+        it('writes no value attributes while indeterminate, even with a value set', async () => {
+            component.value = 45;
+            component.mode = 'indeterminate';
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+
+            const root = fixture.debugElement.query(By.directive(ProgressBar)).nativeElement as HTMLElement;
+            expect(root.hasAttribute('aria-valuenow')).toBe(false);
+            expect(root.hasAttribute('aria-valuetext')).toBe(false);
         });
     });
 
