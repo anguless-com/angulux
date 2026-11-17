@@ -41,8 +41,8 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
  * server-rendered ids, is read in our source but needs a hydrating app to measure. The other
  * three are measured at the end of this file:
  *
- *   - A search of the document per new component: REPRODUCES, held. It is performance work,
- *     so a fix is in scope on 22.x.
+ *   - A search of the document per new component: REPRODUCED, then FIXED the same day as
+ *     performance work, which is in scope on 22.x. Now an ordinary test.
  *   - The empty instance attribute: REPRODUCES, held for the Angular 23 round.
  *   - Overlays and focus in a shadow root: the overlay REPRODUCES twice (an error on opening, and
  *     no close on an outside click), held for the Angular 23 round; focus does not reproduce.
@@ -696,16 +696,15 @@ test('upstream 22.1.3 · Core — the scene: components added after the styles h
 });
 
 test('upstream 22.1.3 · Core — a component added after the styles have loaded must not search the document', async ({ page }) => {
-    // REPRODUCES, measured 2026-11-17. With every stylesheet already in <head>, adding 100 / 250 /
-    // 500 / 1,000 triples made 500 / 1,250 / 2,500 / 5,000 lookups, all of them
+    // REPRODUCED 2026-11-17, then FIXED the same day. With every stylesheet already in <head>,
+    // adding 100 / 250 / 500 / 1,000 triples made 500 / 1,250 / 2,500 / 5,000 lookups, all of them
     // querySelector('style[data-angulux-style-id="base"]'): five per triple, a search per instance.
-    // Every component registers its theme-change listeners through _themeChangeListener()
-    // (basecomponent.ts), which calls Base.clearLoadedStyleNames() each time. That wipes the
-    // "base is loaded" flag, so the next component reloads the base stylesheet: it resolves and
-    // minifies the CSS again, and asks the document for the <style> element. With that one call
-    // removed from the build, the same steps made 0 lookups, and +750 / +3,000 components took
-    // 74 / 257 ms instead of 104 / 359 ms.
-    test.fail();
+    // Every component registered its theme-change listeners through _themeChangeListener()
+    // (basecomponent.ts), which called Base.clearLoadedStyleNames() each time, so the next
+    // component wrote the base stylesheet again. The record is now forgotten only when Theme swaps
+    // its theme object, which it does on every theme, preset or options change. Removing the call
+    // took +750 / +3,000 components from 104 / 359 ms to 74 / 257 ms. basecomponent.spec.ts holds
+    // the other half: a theme change still rewrites the base stylesheet.
     await open(page, 'new-components');
     await page.evaluate(() => (window as unknown as { __aglGrow: (n: number) => number }).__aglGrow(5));
     expect(await documentLookupsWhileGrowing(page, 105)).toBe(0);

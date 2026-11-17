@@ -9,6 +9,30 @@ import { BaseComponentStyle } from './style/basecomponentstyle';
 
 export const PARENT_INSTANCE = new InjectionToken<BaseComponent>('PARENT_INSTANCE');
 
+/**
+ * The theme object the `Base` style names were loaded under.
+ *
+ * The base stylesheet and each component's structural stylesheet are written through `dt()`, so
+ * their text names variables after the theme's prefix and has to be written again when the theme
+ * changes. `Theme` swaps in a new object whenever the theme, its preset or its options change
+ * (`update`, `setPreset`, `setOptions`), so a different object is a theme change, and the names
+ * loaded under the old one are forgotten once.
+ *
+ * This replaces a `Base.clearLoadedStyleNames()` that ran every time a component registered a
+ * theme listener, which is every time a component was created. Each new component then wrote the
+ * base stylesheet again and searched the document for its `<style>` (#168, upstream 22.1.3 Core).
+ */
+let baseStylesTheme: unknown;
+
+function forgetBaseStylesOnThemeChange(): void {
+    const theme = Theme.getTheme();
+
+    if (theme !== baseStylesTheme) {
+        baseStylesTheme = theme;
+        Base.clearLoadedStyleNames();
+    }
+}
+
 @Directive({
     standalone: true,
     providers: [BaseComponentStyle, BaseStyle]
@@ -325,12 +349,18 @@ export class BaseComponent<PT = any> implements Lifecycle {
     /********** Load Styles **********/
 
     private _load() {
+        forgetBaseStylesOnThemeChange();
+
         if (!Base.isStyleNameLoaded('base')) {
             this.baseStyle.loadBaseCSS(this.$styleOptions);
-            this._loadGlobalStyles();
 
             Base.setLoadedStyleName('base');
         }
+
+        // Outside the flag on purpose. `config.pt` is a signal an app can set at any time, and
+        // `global.css` may be a function of the instance, so it is evaluated for every component,
+        // as it always was. With no global CSS, the usual case, this writes nothing.
+        this._loadGlobalStyles();
 
         this._loadThemeStyles();
     }
@@ -347,6 +377,8 @@ export class BaseComponent<PT = any> implements Lifecycle {
     }
 
     private _loadCoreStyles() {
+        forgetBaseStylesOnThemeChange();
+
         if (!Base.isStyleNameLoaded(this.$style?.name) && this.$style?.name) {
             this.baseComponentStyle.loadCSS(this.$styleOptions);
             this.$style.loadCSS(this.$styleOptions);
@@ -402,7 +434,6 @@ export class BaseComponent<PT = any> implements Lifecycle {
 
     private _themeChangeListener(id: string, callback = () => {}) {
         this._offThemeChangeListener(id);
-        Base.clearLoadedStyleNames();
         const hold = callback.bind(this);
         this.themeChangeListenerMap.set(id, hold);
         ThemeService.on('theme:change', hold);
