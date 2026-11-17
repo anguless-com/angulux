@@ -50,6 +50,7 @@ const CONFIRMDIALOG_INSTANCE = new InjectionToken<ConfirmDialog>('CONFIRMDIALOG_
             (visibleChange)="onVisibleChange($event)"
             [role]="'alertdialog'"
             [closable]="option('closable')"
+            [closeAriaLabel]="option('closeAriaLabel') || option('closeButtonProps')?.ariaLabel"
             [styleClass]="cn(cx('root'), styleClass)"
             [modal]="option('modal')"
             [header]="option('header')"

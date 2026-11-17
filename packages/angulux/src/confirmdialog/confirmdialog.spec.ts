@@ -1531,6 +1531,7 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
     function shown() {
         const root = document.querySelector('.p-confirmdialog') as HTMLElement | null;
         const accept = root?.querySelector('.p-confirmdialog-accept-button') as HTMLElement | null;
+        const closeButton = root?.querySelector('.p-dialog-close-button') as HTMLElement | null;
         return {
             open: !!root,
             header: root?.querySelector('.p-dialog-title')?.textContent?.trim() ?? '',
@@ -1538,7 +1539,8 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
             accept: accept?.textContent?.trim() ?? '',
             danger: !!accept?.classList.contains('p-button-danger'),
             reject: !!root?.querySelector('.p-confirmdialog-reject-button'),
-            close: !!root?.querySelector('.p-dialog-close-button')
+            close: !!closeButton,
+            closeName: closeButton?.getAttribute('aria-label') ?? closeButton?.querySelector('button')?.getAttribute('aria-label') ?? null
         };
     }
 
@@ -1552,6 +1554,17 @@ describe('ConfirmDialog: one confirmation does not inherit another', () => {
         fixture.componentInstance.confirmationService.close();
         await settle(fixture);
     }
+
+    it('names its close button: the per-call label, then closeButtonProps, else the aria.close translation', async () => {
+        const fixture = TestBed.createComponent(TestSequentialConfirmationsComponent);
+        await settle(fixture);
+        expect((await open(fixture, DISCARD)).closeName).toBe('Close');
+        await close(fixture);
+        expect((await open(fixture, { ...DISCARD, closeAriaLabel: 'Dismiss' })).closeName).toBe('Dismiss');
+        await close(fixture);
+        expect((await open(fixture, { ...DISCARD, closeButtonProps: { ariaLabel: 'Shut' } })).closeName).toBe('Shut');
+        await close(fixture);
+    });
 
     it('shows a confirmation after another exactly as it shows it on a fresh dialog', async () => {
         const fresh = TestBed.createComponent(TestSequentialConfirmationsComponent);

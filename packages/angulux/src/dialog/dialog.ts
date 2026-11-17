@@ -127,7 +127,7 @@ const DIALOG_INSTANCE = new InjectionToken<Dialog>('DIALOG_INSTANCE');
                                         [pt]="ptm('pcCloseButton')"
                                         *ngIf="closable"
                                         [styleClass]="cx('pcCloseButton')"
-                                        [ariaLabel]="closeAriaLabel"
+                                        [ariaLabel]="closeAriaLabel || closeButtonProps?.ariaLabel || closeLabel"
                                         (onClick)="close($event)"
                                         (keydown.enter)="close($event)"
                                         [tabindex]="closeTabindex"
@@ -618,6 +618,15 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
 
 
     private zIndexForLayering?: number;
+
+    /**
+     * The close button's accessible name when the app gives none: the `aria.close` translation.
+     * Without it the button was announced as "button" (axe `button-name`, critical), in every dialog
+     * and in every ConfirmDialog, which forwarded no label of its own.
+     */
+    get closeLabel(): string | undefined {
+        return this.config.getTranslation(TranslationKeys.ARIA)?.['close'];
+    }
 
     get maximizeLabel(): string {
         return this.config.getTranslation(TranslationKeys.ARIA)['maximizeLabel'];
