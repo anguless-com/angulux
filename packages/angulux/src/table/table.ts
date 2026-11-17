@@ -119,6 +119,75 @@ export class TableService {
         this.columnsSource.next(columns);
     }
 }
+
+const ROW_SELECTED = 'p-datatable-row-selected';
+const ROW_BEFORE_SELECTED = 'p-datatable-row-before-selected';
+
+/** What markRowsBeforeSelected found in a table the last time, so a check that changed nothing costs little. */
+interface RowsBeforeSelected {
+    /** The selected rows, in document order. */
+    selected: Element[];
+    /** The element right before each of them, at that time. */
+    previous: (Element | null)[];
+    /** The rows marked. */
+    marks: Set<Element>;
+}
+
+const rowsBeforeSelected = new WeakMap<Element, RowsBeforeSelected>();
+
+/**
+ * Mark the row right before each selected row of a table with `p-datatable-row-before-selected`,
+ * which the stylesheet gives the selected border colour: the line above a selected row.
+ *
+ * The stylesheet used to find that row itself, with `tr:has(+ .p-datatable-row-selected)`. Chrome
+ * re-evaluates a sibling :has() for every row inserted beside it, so rendering a long table grew
+ * with the square of its rows: 16,000 rows took 1,176 ms, 190 ms with the class (upstream 22.1.3,
+ * measured 2026-11-18). The class draws the same border, so nothing on screen changes.
+ *
+ * Called after the table and after its body are checked: in a zoneless app a change to the rows can
+ * refresh the body alone. When the same rows are selected, each after the same element, and the
+ * marks are all there, it changes nothing and returns. Module-level, so Table's API is unchanged.
+ */
+function markRowsBeforeSelected(host: HTMLElement): void {
+    const last = rowsBeforeSelected.get(host);
+    // Live collections: the browser keeps their contents until the DOM under the host changes.
+    const selected = host.getElementsByClassName(ROW_SELECTED);
+    if (!selected.length && !last) return;
+
+    if (last && last.selected.length === selected.length && host.getElementsByClassName(ROW_BEFORE_SELECTED).length === last.marks.size) {
+        let i = 0;
+        for (; i < selected.length; i++) {
+            const row = selected[i];
+            if (row !== last.selected[i] || row.previousElementSibling !== last.previous[i]) break;
+        }
+        if (i === selected.length) return;
+    }
+
+    const rows: Element[] = [];
+    const previous: (Element | null)[] = [];
+    const marks = new Set<Element>();
+    // A row of a table nested in this one belongs to that table. Rows come in document order, so the
+    // rows of one tbody are consecutive: ask once per tbody, not once per row.
+    let parent: Element | null = null;
+    let own = false;
+    for (let i = 0; i < selected.length; i++) {
+        const row = selected[i];
+        const before = row.previousElementSibling;
+        rows.push(row);
+        previous.push(before);
+        if (row.parentElement !== parent) {
+            parent = row.parentElement;
+            own = parent?.closest(host.localName) === host;
+        }
+        if (own && before?.tagName === 'TR') marks.add(before);
+    }
+    if (last) for (const row of last.marks) if (!marks.has(row)) row.classList.remove(ROW_BEFORE_SELECTED);
+    // Checked one by one, not taken from the last set: a [className] binding can drop a class it does not know.
+    for (const row of marks) if (!row.classList.contains(ROW_BEFORE_SELECTED)) row.classList.add(ROW_BEFORE_SELECTED);
+    if (rows.length) rowsBeforeSelected.set(host, { selected: rows, previous, marks });
+    else rowsBeforeSelected.delete(host);
+}
+
 /**
  * Table displays data in tabular format.
  * @group Components
@@ -1168,6 +1237,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
     onAfterViewChecked(): void {
         this.bindDirectiveInstance.setAttrs(this.ptms(['host', 'root']));
+        isPlatformBrowser(this.platformId) && markRowsBeforeSelected(this.el.nativeElement);
     }
 
     onInit() {
@@ -3330,6 +3400,11 @@ export class TableBody extends BaseComponent {
         if (this.dataTable.scrollable && this.dataTable.rowGroupMode === 'subheader') {
             this.updateFrozenRowGroupHeaderStickyPosition();
         }
+    }
+
+    onAfterViewChecked(): void {
+        // The rows are this view's: a change to them can refresh it without its table.
+        isPlatformBrowser(this.platformId) && markRowsBeforeSelected(this.dataTable.el.nativeElement);
     }
 
     constructor(

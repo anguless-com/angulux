@@ -20,6 +20,28 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/table-edge')) {
+    /* The line above a selected row (table-edge.ts), in the preset `?preset=` names, so the
+       comparison in e2e/table-selected-edge.spec.ts covers every preset the themes package ships. */
+    const loadPreset = (): Promise<{ default: unknown }> => {
+        switch (new URLSearchParams(location.search).get('preset')) {
+            case 'lara':
+                return import('@primeuix/themes/lara');
+            case 'nora':
+                return import('@primeuix/themes/nora');
+            case 'material':
+                return import('@primeuix/themes/material');
+            default:
+                return import('@primeuix/themes/aura');
+        }
+    };
+    Promise.all([loadPreset(), import('./table-edge')])
+        .then(([preset, { TableEdge }]) =>
+            bootstrapApplication(TableEdge, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: preset.default } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else {
     /* `/upstream-22-1`, `/upstream-22-1-5` and `/upstream-select` are the upstream probe pages, one scenario per `?case=`,
        so a table of two thousand rows is only built by the test that measures it. */

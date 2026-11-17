@@ -80,7 +80,11 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // 526 → 528 on 2026-11-03: two in `datepicker.spec.ts`, which read the day cells (`.p-datepicker-day`)
 // to prove every day drawn as disabled also says so to assistive technology (#168). Like the six
 // above, the test compares what the page shows, not the component's fields.
-const P_CLASS_BASELINE = 528;
+// 528 → 530 on 2026-11-18: two in `tablestyle.spec.ts`, which read Table's composed stylesheet to
+// prove the line above a selected row is drawn from `p-datatable-row-before-selected`, right where
+// the sibling :has() rule stood, and that no sibling :has() is left (#168: it made rendering grow
+// with the square of the rows).
+const P_CLASS_BASELINE = 530;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];
