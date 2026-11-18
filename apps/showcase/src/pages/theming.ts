@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { GuidePayload, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
 import { Toc, TocEntry } from '../components/toc';
+import { CONTRAST_ROWS } from './contrast-rows';
 
 /**
  * How the components get their looks, and where the licence line is.
@@ -56,7 +57,8 @@ import { Toc, TocEntry } from '../components/toc';
                 <p class="mt-3 text-[15px] text-muted">
                     The default light preset does not meet WCAG AA on solid-coloured components. A sweep of this site — every text node inside a demo, measured against the
                     background actually painted behind it — found <strong class="font-medium text-ink">76 failing nodes across 20 of the 51 modules</strong> that have demos. The
-                    same sweep in dark mode finds none.
+                    same sweep in dark mode finds none on this site, whose demos sit on the page background. Put the same components on a card and two dark colours fall short as
+                    well: they are the last two rows below.
                 </p>
                 <p class="mt-3 text-[15px] text-muted">
                     This is worth stating plainly rather than quietly fixing on the site: these colours are not angulux's, and the demos here are styled exactly the way your
@@ -66,39 +68,50 @@ import { Toc, TocEntry } from '../components/toc';
                     <table class="w-full border-collapse text-[13px]">
                         <thead>
                             <tr class="bg-surface">
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Severity</th>
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Default fill</th>
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">On white</th>
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">First step that passes</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">What fails</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Scheme</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Default</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">With the override</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @for (row of contrast; track row.severity) {
+                            @for (row of contrast; track row.where + row.scheme) {
                                 <tr class="border-b border-line-soft last:border-0">
-                                    <td class="px-3 py-2 align-top font-mono text-ink">{{ row.severity }}</td>
-                                    <td class="px-3 py-2 align-top font-mono text-muted">{{ row.fill }}</td>
-                                    <td class="px-3 py-2 align-top font-mono text-caution">{{ row.ratio }}:1</td>
-                                    <td class="px-3 py-2 align-top font-mono text-muted">{{ row.fixed }} — {{ row.fixedRatio }}:1</td>
+                                    <td class="px-3 py-2 align-top text-ink">{{ row.where }}</td>
+                                    <td class="px-3 py-2 align-top text-muted">{{ row.scheme }}</td>
+                                    <td class="whitespace-nowrap px-3 py-2 align-top font-mono text-muted">
+                                        {{ row.stock }} — <span class="text-caution">{{ row.stockRatio.toFixed(2) }}:1</span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-2 align-top font-mono text-muted">{{ row.override }} — {{ row.overrideRatio.toFixed(2) }}:1</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
                 <p class="mt-4 text-sm text-muted">
-                    The pattern behind every row: the fill is the <code class="code-chip">-500</code> step of a palette carrying white text. That step is built for about
-                    <strong class="font-medium text-ink">3:1</strong> — the bar for a border or a large heading, not for a label. Note that
+                    A fill row is white text on that colour, and the same ratio holds for an outlined or text button, which is that colour on white. The pattern behind the fills:
+                    each one is the <code class="code-chip">-500</code> step of a palette, a step built for about <strong class="font-medium text-ink">3:1</strong> — the bar for a
+                    border or a large heading, not for a label. Note that
                     <strong class="font-medium text-ink">one step darker is not enough for four of the six</strong>: at <code class="code-chip">-600</code>, green still measures
                     3.30 and sky 4.10. Only danger and help clear AA there.
                 </p>
                 <p class="mb-4 mt-3 text-sm text-muted">
-                    <code class="code-chip">definePreset</code> reaches these without forking anything. Overriding the primitive steps fixes the fill everywhere it is used — button,
-                    badge, progress bar, split button, toast — rather than component by component.
+                    <code class="code-chip">definePreset</code> reaches all of these without forking anything. The override below is the one the right-hand column was measured
+                    with, in a browser, on every build of this library: the code is cut out of the file that test runs, not typed onto this page.
                 </p>
                 <agl-code-block [lines]="snippet('contrast')" [palette]="palette()" label="app.config.ts" />
                 <p class="mt-4 text-sm text-muted">
-                    What this costs you: those palette steps are now darker <em>everywhere</em>, including borders and focus rings. That direction is safe for text on a coloured
-                    fill, but if your own UI puts dark text on a light primary tint, re-check those places. If you would rather keep the change narrow, the same values work on
-                    <code class="code-chip">components.button.colorScheme.light.root.&lt;severity&gt;</code> — more precise, and repeated per component.
+                    <strong class="font-medium text-ink">Keep it scoped to the light scheme.</strong> The shorter way is to darken the palette steps themselves, under
+                    <code class="code-chip">primitive</code>, and until November 2026 this page printed exactly that. It was wrong. A primitive has no colour scheme, and the dark
+                    scheme uses those same steps as text on a dark surface: measured over a card, that override took the dark success message from 5.92 to 3.05 and the dark error
+                    message from 3.98 to 3.26. It also left the light warning message at 2.85 and the toggle label at 4.34, because neither reads a step it changed. If you copied
+                    it, replace it with the one above.
+                </p>
+                <p class="mt-3 text-sm text-muted">
+                    What the override costs you, and what it does not cover. The primary colour in light mode is now two steps darker everywhere it is read, focus rings and
+                    checked boxes included. It names palette steps, not ratios: if you also swap the primary palette for a brand colour, step 700 of your palette is a different
+                    colour and has to be measured again. Anything that extends the stock preset rather than this one starts from the stock colours. And the measurement reads
+                    resting text only — hover, focus and disabled states are not in it, nor are icons.
                 </p>
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="dark">Dark mode</h2>
@@ -182,22 +195,10 @@ export class ThemingPage {
     ];
 
     /**
-     * Measured, not quoted. Each ratio is the WCAG relative-luminance formula applied to the
-     * hex values read out of the installed preset package, so the table cannot drift from a
-     * screenshot somebody took once.
-     *
-     * `fixed` is the first step DOWN the same palette that reaches 4.5:1 — which is two steps
-     * for four of the six. The snippet below shifts 600 and 700 with it, because overriding
-     * only 500 leaves hover reading a lighter colour than the resting state.
+     * Measured, not quoted: e2e/contrast.spec.ts renders every row in a browser and requires both
+     * ratios to be the ones it reads. The rows live in their own file so that test can import them.
      */
-    readonly contrast = [
-        { severity: 'primary', fill: '#10b981', ratio: '2.54', fixed: '#047857', fixedRatio: '5.48' },
-        { severity: 'success', fill: '#22c55e', ratio: '2.28', fixed: '#15803d', fixedRatio: '5.02' },
-        { severity: 'info', fill: '#0ea5e9', ratio: '2.77', fixed: '#0369a1', fixedRatio: '5.93' },
-        { severity: 'warn', fill: '#f97316', ratio: '2.80', fixed: '#c2410c', fixedRatio: '5.18' },
-        { severity: 'danger', fill: '#ef4444', ratio: '3.76', fixed: '#dc2626', fixedRatio: '4.83' },
-        { severity: 'help', fill: '#a855f7', ratio: '3.96', fixed: '#9333ea', fixedRatio: '5.38' }
-    ];
+    readonly contrast = CONTRAST_ROWS;
 
     constructor() {
         inject(PendingTasks).run(async () => this.guide.set(await loadGuide()));

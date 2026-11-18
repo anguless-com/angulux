@@ -42,6 +42,26 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/contrast')) {
+    /* Severity colours for the contrast sweep (contrast.ts, e2e/contrast.spec.ts), in the preset
+       `?preset=` names: the stock one, the one the Theming guide prints, and the one it warns against. */
+    const loadPreset = (): Promise<unknown> => {
+        switch (new URLSearchParams(location.search).get('preset')) {
+            case 'accessible':
+                return import('./contrast-preset').then((m) => m.Accessible);
+            case 'primitive-shift':
+                return import('./contrast-preset').then((m) => m.PrimitiveShift);
+            default:
+                return Promise.resolve(Aura);
+        }
+    };
+    Promise.all([loadPreset(), import('./contrast')])
+        .then(([preset, { Contrast }]) =>
+            bootstrapApplication(Contrast, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/overlay-race')) {
     /* Panels closed again before their enter motion starts (overlay-race.ts, e2e/overlay-race.spec.ts). */
     import('./overlay-race')
