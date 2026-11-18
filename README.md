@@ -70,14 +70,14 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Eighteen gates run on every commit and every pull request. They do not check style — each one
+Nineteen gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
 |---|---|
 | `check:catalog` | a dependency version drifting off the pinned catalog |
 | `check:scope` | the transitive closure drifting off the 65 warranted modules |
-| `check:license` | any PrimeTek package from a post-MIT release entering the tree — and, separately, any licence-flagged material sitting in `ref/` that `PROVENANCE.md` does not declare |
+| `check:license` | any PrimeTek package from a post-MIT release entering the tree — and, separately, any licence-flagged material sitting in `ref/` that `PROVENANCE.md` does not declare, and either evidence clone in `ref/` being modified or moved off the commit `PROVENANCE.md` records |
 | `check:names` | PrimeNG names surviving in selector, API or **trademark** positions — including inside bare strings, JSDoc links and DOM attributes |
 | `check:risk-coverage` | the browser gate's scope drifting off the risky decorators computed from source |
 | `check:language` | non-English text reaching a public repository |
@@ -88,6 +88,7 @@ closes a class of failure that has already happened in this repository.
 | `check:release-plugins` | a release train listing the same plugin twice, or naming the wrong rail — the first published `22.2.1` with every changelog entry printed twice, and nothing else noticed because the version and the package were both correct |
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
+| `check:api-surface` | a selector, input, output or template slot that the last release shipped being removed, renamed or retyped — the API freeze in [GOVERNANCE.md](GOVERNANCE.md) was a promise nothing checked; the corpus is compared with the one committed at the most recent release tag, and an approved break has to be written down with its reason |
 | `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
 | `check:peer-licence` | angulux's own manifest telling a **consumer's** package manager to install a commercially-licensed PrimeTek package — `check:license` proves the tree installed *here* is clean, which is a different question from what the published version ranges admit |
 | `check:install-scripts` | a dependency running arbitrary code during `pnpm install` without anyone deciding it should — the release job installs while holding `id-token: write`, so one compromised transitive package could mint an npm credential and publish as this project with a valid attestation |
@@ -95,7 +96,7 @@ closes a class of failure that has already happened in this repository.
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all eighteen, no build needed
+npm run check     # all nineteen, no build needed
 ```
 
 Three further checks run after the build rather than inside that suite, because none has
@@ -149,7 +150,7 @@ Evidence measured at `22.2.3`, reproducible from a clean checkout:
      `17/17` IS gated, by check:gate-count. -->
 
 ```
-18/18 gates          exit 0
+19/19 gates          exit 0
 library build        exit 0 · 211 entrypoints
 inherited spec suite 3809 SUCCESS
 browser gate         70 tests · 14 behaviour + 56 visibility
@@ -210,7 +211,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 18 gates
+npm run check                                   # the 19 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do

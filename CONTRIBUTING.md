@@ -57,7 +57,7 @@ sign-off is the whole ceremony. Missing sign-off fails CI.
 
 ```bash
 corepack pnpm install
-npm run check     # the 18 gates, no build needed — run this first, it should be green
+npm run check     # the 19 gates, no build needed — run this first, it should be green
 ```
 
 Full build and test loop, in dependency order:
@@ -85,7 +85,7 @@ cd angulux
 git remote add upstream git@github.com:anguless-com/angulux.git
 
 corepack pnpm install
-npm run check          # should be 18/18 green before you change anything.
+npm run check          # should be 19/19 green before you change anything.
                        # If it is not, that is a bug — please report it.
 
 # 2. Branch.

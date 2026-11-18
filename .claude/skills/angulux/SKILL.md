@@ -73,7 +73,8 @@ Node `>=22`, pnpm 9.6.0 via corepack.
 
 **`ref/` is read-only (constitution P2).** It is the quarantined upstream evidence clone,
 reproducible from the SHA in `PROVENANCE.md`, and its whole value is that nothing has been
-written into it. Never edit it, and never point a build, dev server or test run at the
+written into it (`check:license` fails if either clone is modified or off its recorded
+commit). Never edit it, and never point a build, dev server or test run at the
 `angular.json` files inside it. The project-scoped `angular-cli` MCP server runs
 `--read-only` for exactly this reason — `run_target`, `devserver_start` and `devserver_stop`
 are gone. Run builds, tests and dev servers from the shell instead.
@@ -88,6 +89,10 @@ this one, and comments and test fixtures are in scope.
 installed packages (this is the license risk surface) and ranged for `@angular/*` peers.
 Never add a literal version to a package manifest — `check:catalog` fails, and a version
 nothing gates is a version that drifts.
+
+**The public API is frozen until the next Angular major.** `check:api-surface` compares the
+corpus with the last release and fails on a removed, renamed or retyped selector, input,
+output or slot. Do not add an exception to make it pass; that is the maintainers' decision.
 
 ## Before you call it done
 

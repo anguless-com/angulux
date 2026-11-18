@@ -1,0 +1,10 @@
+{
+    "$comment": [
+        "Approved breaks of the public API surface, read by tools/check-api-surface.mjs.",
+        "Each entry: key and since exactly as the gate prints them, change ('removed' or 'changed'),",
+        "and reason (why, and the pull request that decided it).",
+        "An entry holds until the next release becomes the baseline; then the gate reports it as",
+        "expired and it can be deleted. An entry for the current baseline that matches no break fails."
+    ],
+    "exceptions": []
+}

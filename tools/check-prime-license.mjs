@@ -27,6 +27,7 @@
 import { resolve } from 'node:path';
 import { run, EXIT_VIOLATION } from '../packages/angulux-license-guard/src/index.mjs';
 import { auditRefQuarantine } from './lib/ref-quarantine.mjs';
+import { auditRefIntegrity } from './lib/ref-integrity.mjs';
 
 const root = resolve(process.argv[2] ?? process.cwd());
 
@@ -45,4 +46,10 @@ const quarantine = auditRefQuarantine(root);
 (quarantine.ok ? console.log : console.error)('');
 for (const line of quarantine.lines) (quarantine.ok ? console.log : console.error)(line);
 
-process.exit(code === EXIT_VIOLATION || !quarantine.ok ? EXIT_VIOLATION : 0);
+// Stage 3 — are the MIT evidence clones in ref/ still the recorded commits, untouched
+// (Constitution P2)? Stage 2 audits what is installed there; this audits the checkouts.
+const integrity = auditRefIntegrity(root);
+(integrity.ok ? console.log : console.error)('');
+for (const line of integrity.lines) (integrity.ok ? console.log : console.error)(line);
+
+process.exit(code === EXIT_VIOLATION || !quarantine.ok || !integrity.ok ? EXIT_VIOLATION : 0);
