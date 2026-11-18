@@ -11,6 +11,34 @@
  * written by hand and can. Keep them short, keep them boring, and prefer sending the reader to
  * a module page — those are the ones the machinery guarantees.
  */
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * The one exception to the warning above: a snippet cut out of code that ran.
+ *
+ * Returns the text between `// guide:<name>:start` and `// guide:<name>:end` in a source file, with
+ * the file's imports in front. The contrast override is cut this way from the file the browser gate
+ * measures (e2e/contrast.spec.ts), so the numbers the guide quotes for it are numbers of the very
+ * code the reader copies.
+ */
+function cut(file, name) {
+    const source = readFileSync(resolve(HERE, file), 'utf8').replace(/\r\n/g, '\n');
+    const start = `// guide:${name}:start\n`;
+    const end = `// guide:${name}:end`;
+    const from = source.indexOf(start);
+    const to = source.indexOf(end);
+
+    if (from === -1 || to === -1 || to < from) throw new Error(`guide-snippets: ${file} has no guide:${name} region`);
+
+    const imports = source.split('\n').filter((line) => line.startsWith('import ')).join('\n');
+
+    return `${imports}\n\n${source.slice(from + start.length, to).trimEnd()}`;
+}
+
 export const SNIPPETS = {
     install: {
         lang: 'shell',
@@ -127,26 +155,7 @@ provideAngulux({ theme: { preset: Brand } });`
 
     contrast: {
         lang: 'source',
-        code: `import { definePreset } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
-
-// Every severity fill is the -500 step of a palette with white text on it, and
-// -500 is built for roughly 3:1 — enough for a border, short of AA for a label.
-// Move each one to the first step that clears 4.5:1.
-//
-// Shift 600 and 700 along with it. Overriding 500 alone leaves hover reading
-// the untouched 600, which is then LIGHTER than the resting state and still
-// below AA — emerald.600 is 3.77:1.
-const Accessible = definePreset(Aura, {
-    primitive: {
-        emerald: { 500: '#047857', 600: '#065f46', 700: '#064e3b' }, // primary  2.54 -> 5.48
-        green: { 500: '#15803d', 600: '#166534', 700: '#14532d' },   // success  2.28 -> 5.02
-        sky: { 500: '#0369a1', 600: '#075985', 700: '#0c4a6e' },     // info     2.77 -> 5.93
-        orange: { 500: '#c2410c', 600: '#9a3412', 700: '#7c2d12' },  // warn     2.80 -> 5.18
-        red: { 500: '#dc2626', 600: '#b91c1c', 700: '#991b1b' },     // danger   3.76 -> 4.83
-        purple: { 500: '#9333ea', 600: '#7e22ce', 700: '#6b21a8' }   // help     3.96 -> 5.38
-    }
-});
+        code: `${cut('../../verify/src/contrast-preset.ts', 'contrast')}
 
 provideAngulux({ theme: { preset: Accessible } });`
     },
