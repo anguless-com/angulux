@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { Theme } from '@anguless/angulux-styled';
+import { cn, getKeyValue } from '@anguless/angulux-utils';
 import { AnguluxConfig, provideAngulux } from '@anguless/angulux/config';
 import { Button } from '../button/button';
 import { Checkbox } from '../checkbox/checkbox';
@@ -88,5 +90,108 @@ describe('BaseComponent style loading', () => {
 
         expect(baseStylesheet()).toContain('--q-scrollbar-width');
         expect(baseStylesheet()).not.toContain('--p-scrollbar-width');
+    });
+});
+
+/*
+ * The shortcuts BaseComponent takes on every check since 22.6.10: `cx()` reads the class table
+ * without copying the style service, and `ptm()` skips the pass-through resolution when neither
+ * the component nor the application configured any. Each is held here to the long way it replaced.
+ */
+/** The members of a component these tests reach, most of them private. */
+interface Internals {
+    $name: string;
+    $params: object;
+    $style: { classes: Record<string, unknown> };
+    _componentStyle: { classes: Record<string, unknown> };
+    $pt(): unknown;
+    cx(key: string, params?: object): string | undefined;
+    ptm(key: string): Record<string, unknown>;
+    _getPTValue(pt: unknown, key: string, params: object): Record<string, unknown>;
+}
+
+describe('BaseComponent shortcuts', () => {
+    const create = (providers: unknown[] = []) => {
+        TestBed.configureTestingModule({ imports: [ManyComponents], providers: [provideZonelessChangeDetection(), ...(providers as [])] });
+        const fixture = TestBed.createComponent(ManyComponents);
+        fixture.detectChanges();
+        const instances = [Button, Tag, Checkbox].map((type) => fixture.debugElement.query(By.directive(type)).componentInstance as Internals);
+        return { fixture, instances };
+    };
+
+    it('cx() returns what getKeyValue finds in $style.classes, for every key and spelling', () => {
+        const { instances } = create();
+        let compared = 0;
+
+        for (const instance of instances) {
+            const classes = instance.$style.classes;
+            const keys = [...Object.keys(classes), ...Object.keys(classes).map((key) => key.toUpperCase()), 'missing', 'a.b', ''];
+
+            for (const key of keys) {
+                expect(instance.cx(key)).withContext(`${instance.$name} ${key}`).toEqual(cn(getKeyValue(classes, key, instance.$params)));
+                compared += 1;
+            }
+        }
+
+        expect(compared).toBeGreaterThan(20);
+    });
+
+    it('cx() passes the extra params on', () => {
+        const { instances } = create();
+        const [button] = instances;
+        const seen: unknown[] = [];
+
+        button._componentStyle.classes = { ...button._componentStyle.classes, probe: (params: unknown) => (seen.push(params), 'probe-class') };
+
+        expect(button.cx('probe', { extra: 1 })).toBe('probe-class');
+        expect(seen.length).toBeGreaterThan(0);
+        expect((seen[0] as { extra: number; instance: unknown }).extra).toBe(1);
+        expect((seen[0] as { extra: number; instance: unknown }).instance).toBe(button);
+    });
+
+    it('ptm() without any pass-through returns what the full resolution returns', () => {
+        const { instances } = create();
+
+        for (const instance of instances) {
+            for (const key of ['root', 'label', 'pcBadge', 'input.box-icon', 'transition', '']) {
+                expect(instance.ptm(key)).withContext(`${instance.$name} ${key}`).toEqual(instance._getPTValue(undefined, key, { ...instance.$params }));
+            }
+        }
+
+        expect(instances[0].ptm('root')['data-pc-name']).toBe('button');
+        expect(instances[0].ptm('label')).toEqual({ 'data-pc-section': 'label' });
+    });
+
+    it('ptm() sees a pass-through the application sets later', () => {
+        const { instances } = create();
+        const [button] = instances;
+
+        expect(button.ptm('root')['data-probe']).toBeUndefined();
+
+        TestBed.inject(AnguluxConfig).pt.set({ button: { root: { 'data-probe': 'app' } } } as never);
+
+        expect(button.ptm('root')['data-probe']).toBe('app');
+        expect(button.ptm('root')).toEqual(button._getPTValue(button.$pt(), 'root', { ...button.$params }));
+    });
+
+    it('a hook given through the application pass-through still runs', () => {
+        const calls: string[] = [];
+        const { fixture } = create([
+            provideAngulux({
+                pt: {
+                    tag: {
+                        hooks: {
+                            onAfterViewChecked: () => {
+                                calls.push('checked');
+                            }
+                        }
+                    }
+                }
+            } as never)
+        ]);
+
+        fixture.detectChanges();
+
+        expect(calls.length).toBeGreaterThan(0);
     });
 });

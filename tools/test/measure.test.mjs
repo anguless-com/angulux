@@ -1,4 +1,4 @@
-// The two measuring tools (tools/measure-size.mjs, tools/measure-load.mjs) report numbers that
+// The measuring tools (tools/measure-size.mjs, tools/measure-load.mjs, tools/measure-speed.mjs) report numbers that
 // decisions get made on. What is tested here is the arithmetic around the measurement — which
 // entry points get a row, whose bytes are whose, what "shared by all" means — because a wrong
 // attribution reads exactly like a right one.
@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { allowance, attribute, compressed, entryPoints, family, heaviestInputs, judge, owner, pruneBaseline, sharedInputs } from '../lib/size-measure.mjs';
 import { CLS_LIMIT, judgeLoad, kind, median, routes } from '../measure-load.mjs';
+import { change, counters, difference, SCENES, selfTimes, summarise } from '../measure-speed.mjs';
 
 test('entryPoints — every export that resolves to JavaScript, and nothing else', () => {
     const found = entryPoints({
@@ -187,4 +188,70 @@ test('judgeLoad — the limit itself is a failure, and each page is judged on it
     assert.equal(problems.length, 2);
     assert.match(problems[0], /^\/a: layout shift/);
     assert.match(problems[1], /^\/c: requested x\.ttf/);
+});
+
+test('counters — Chromium\'s seconds become milliseconds, and a missing counter is not a zero', () => {
+    const read = counters([
+        { name: 'TaskDuration', value: 1.5 },
+        { name: 'ScriptDuration', value: 0.25 },
+        { name: 'LayoutDuration', value: 0.004 }
+    ]);
+    assert.equal(read.busy, 1500);
+    assert.equal(read.script, 250);
+    assert.equal(read.layout, 4);
+    assert.ok(Number.isNaN(read.style));
+});
+
+test('difference — what a step cost is the counters after it less the counters before it', () => {
+    assert.deepEqual(difference({ busy: 130, script: 90, style: 12, layout: 9 }, { busy: 100, script: 80, style: 10, layout: 4 }), { busy: 30, script: 10, style: 2, layout: 5 });
+});
+
+test('summarise — each counter is its own median, and the range is of the busy time', () => {
+    const summary = summarise([
+        { busy: 300, script: 10, style: 3, layout: 1 },
+        { busy: 100, script: 30, style: 1, layout: 2 },
+        { busy: 200, script: 20, style: 2, layout: 9 }
+    ]);
+    assert.deepEqual(summary, { busy: 200, script: 20, style: 2, layout: 2, range: [100, 300] });
+});
+
+test('change — faster reads as a minus, slower as a plus, and no "before" reads as nothing', () => {
+    assert.equal(change(50, 100), '−50 %');
+    assert.equal(change(150, 100), '+50 %');
+    assert.equal(change(100, 100), '0 %');
+    assert.equal(change(100, undefined), '');
+    assert.equal(change(100, 0), '');
+});
+
+test('selfTimes — samples are summed per function, heaviest first', () => {
+    const frame = (functionName, url, lineNumber) => ({ functionName, url, lineNumber });
+    const profile = {
+        nodes: [
+            { id: 1, callFrame: frame('cx', 'http://x/chunk-A.js', 9) },
+            { id: 2, callFrame: frame('', 'http://x/main.js', 0) },
+            { id: 3, callFrame: frame('focus', '', -1) }
+        ],
+        samples: [1, 2, 1, 3],
+        timeDeltas: [1000, 500, 2500, 250]
+    };
+    assert.deepEqual(selfTimes(profile), [
+        ['cx  chunk-A.js:10', 3.5],
+        ['(anonymous)  main.js:1', 0.5],
+        ['focus  (native):0', 0.25]
+    ]);
+});
+
+test('SCENES — every step names one action and states what must be true after it', () => {
+    const names = new Set();
+    for (const entry of SCENES) {
+        assert.ok(!names.has(entry.scene), `${entry.scene} is listed twice`);
+        names.add(entry.scene);
+        assert.ok(entry.steps.length > 0, `${entry.scene} has no step`);
+        for (const step of entry.steps) {
+            const actions = ['click', 'type', 'scroll'].filter((kind) => step[kind] !== undefined);
+            assert.equal(actions.length, 1, `${entry.scene} — ${step.name}: one action, found ${actions.length}`);
+            assert.equal(typeof step.expect, 'string', `${entry.scene} — ${step.name}: no expectation`);
+            assert.ok(step.expect.length > 0);
+        }
+    }
 });

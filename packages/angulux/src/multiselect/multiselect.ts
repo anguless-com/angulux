@@ -1420,9 +1420,62 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
         return this.optionDisabled ? resolveFieldData(option, this.optionDisabled) : option && option.disabled !== undefined ? option.disabled : false;
     }
 
+    /**
+     * What is selected, indexed, for the model array it was built from. Every option row asks
+     * `isSelected` on every check, and so does "all selected", three times; each answer used to
+     * compare the option against every selected value, a million comparisons per check with a
+     * thousand options ticked. The index is thrown away at the start of every check (onDoCheck),
+     * so an array the application changed in place is read again, as it always was.
+     */
+    private _selectedIndex: { of: unknown[]; field: string; length: number; first: unknown; last: unknown; values: Set<unknown>; objects: object[] } | undefined;
+
+    private selectedIndex(model: unknown[], field: string) {
+        const known = this._selectedIndex;
+
+        if (known && known.of === model && known.field === field && known.length === model.length && known.first === model[0] && known.last === model[model.length - 1]) return known;
+
+        const values = new Set<unknown>();
+        const objects: object[] = [];
+
+        for (const value of model) {
+            if (field) {
+                values.add(resolveFieldData(value, field));
+            } else {
+                values.add(value);
+                if (value && typeof value === 'object') objects.push(value);
+            }
+        }
+
+        return (this._selectedIndex = { of: model, field, length: model.length, first: model[0], last: model[model.length - 1], values, objects });
+    }
+
+    onDoCheck() {
+        this._selectedIndex = undefined;
+    }
+
     isSelected(option) {
         const optionValue = this.getOptionValue(option);
-        return (this.modelValue() || []).some((value) => equals(value, optionValue, this.equalityKey() || ''));
+        const model = this.modelValue() || [];
+        const field = this.equalityKey() || '';
+
+        if (!Array.isArray(model)) return model.some((value) => equals(value, optionValue, field));
+
+        const selected = this.selectedIndex(model, field);
+
+        // With a key, `equals` compares the two fields with ===; a Set does the same but for NaN.
+        if (field) {
+            const key = resolveFieldData(optionValue, field);
+
+            return key === key && selected.values.has(key);
+        }
+
+        // Without one it compares deeply: the same value or reference first, and failing that
+        // only another object can be equal.
+        if (optionValue !== optionValue) return false;
+        if (selected.values.has(optionValue)) return true;
+        if (!optionValue || typeof optionValue !== 'object') return false;
+
+        return selected.objects.some((value) => equals(value, optionValue));
     }
 
     isOptionMatched(option) {
@@ -1437,19 +1490,40 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
         return this.virtualScrollerDisabled ? index : scrollerOptions && scrollerOptions.getItemOptions(index)['index'];
     }
 
+    /**
+     * For the list `visibleOptions()` returned last: how many group headers come before each
+     * index. Every option row asks for its position and for the size of the set on every check,
+     * and each answer used to walk the whole list, so a panel of a thousand options walked a
+     * million entries per check.
+     */
+    private _groupHeaders: { of: unknown[]; before: number[] } | undefined;
+
+    private groupHeadersBefore(options: unknown[]): number[] {
+        if (this._groupHeaders?.of !== options) {
+            const before: number[] = new Array(options.length + 1);
+            before[0] = 0;
+            for (let i = 0; i < options.length; i++) before[i + 1] = before[i] + (this.isOptionGroup(options[i]) ? 1 : 0);
+            this._groupHeaders = { of: options, before };
+        }
+
+        return this._groupHeaders.before;
+    }
+
     getAriaPosInset(index) {
-        return (
-            (this.optionGroupLabel
-                ? index -
-                  this.visibleOptions()
-                      .slice(0, index)
-                      .filter((option) => this.isOptionGroup(option)).length
-                : index) + 1
-        );
+        if (!this.optionGroupLabel) return index + 1;
+
+        const options = this.visibleOptions();
+
+        // Anything but a position in the list keeps the arithmetic `slice` did with it.
+        if (!Number.isInteger(index) || index < 0) return index - options.slice(0, index).filter((option) => this.isOptionGroup(option)).length + 1;
+
+        return index - this.groupHeadersBefore(options)[Math.min(index, options.length)] + 1;
     }
 
     get ariaSetSize() {
-        return this.visibleOptions().filter((option) => !this.isOptionGroup(option)).length;
+        const options = this.visibleOptions();
+
+        return options.length - this.groupHeadersBefore(options)[options.length];
     }
 
     getLabelByValue(value) {

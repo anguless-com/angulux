@@ -4065,3 +4065,88 @@ describe('Select PT (PassThrough)', () => {
         });
     });
 });
+
+/*
+ * Every option row asks for its position and for the size of the set on every check. Until
+ * 22.6.10 each answer walked the whole list, so a panel of a thousand options walked a million
+ * entries per check. The answers now come from one count per list, and these tests hold them to
+ * the walk they replaced.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Select, FormsModule],
+    template: `<agl-select [options]="options" [(ngModel)]="value" optionLabel="name" [group]="grouped" [optionGroupLabel]="grouped ? 'label' : undefined" optionGroupChildren="items" />`
+})
+class TestAriaPositionComponent {
+    grouped = true;
+    value: unknown = null;
+    options: unknown[] = [
+        { label: 'Germany', items: [{ name: 'Berlin' }, { name: 'Munich' }] },
+        { label: 'Empty', items: [] },
+        { label: 'USA', items: [{ name: 'New York' }, { name: 'Los Angeles' }, { name: 'Chicago' }] }
+    ];
+}
+
+describe('Select — position of an option in the set', () => {
+    const create = async (grouped: boolean, options?: unknown[]) => {
+        TestBed.configureTestingModule({ imports: [TestAriaPositionComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestAriaPositionComponent);
+        fixture.componentInstance.grouped = grouped;
+        if (options) fixture.componentInstance.options = options;
+        await fixture.whenStable();
+        return { fixture, instance: fixture.debugElement.query(By.directive(Select)).componentInstance as Select };
+    };
+
+    /** The arithmetic these replaced, kept here as the reference. */
+    const walked = (instance: Select) => {
+        const options = instance.visibleOptions();
+        return {
+            size: options.filter((option) => !instance.isOptionGroup(option)).length,
+            positions: options.map((_, index) => (instance.optionGroupLabel ? index - options.slice(0, index).filter((option) => instance.isOptionGroup(option)).length : index) + 1)
+        };
+    };
+
+    it('counts group headers out, in a grouped list', async () => {
+        const { instance } = await create(true);
+        const options = instance.visibleOptions();
+        const expected = walked(instance);
+
+        expect(options.length).toBe(8);
+        expect(instance.ariaSetSize).toBe(5);
+        expect(instance.ariaSetSize).toBe(expected.size);
+        expect(options.map((_, index) => instance.getAriaPosInset(index))).toEqual(expected.positions);
+        // Berlin is the second entry, after its header, and the first option.
+        expect(instance.getAriaPosInset(1)).toBe(1);
+        // New York follows three headers.
+        expect(instance.getAriaPosInset(5)).toBe(3);
+    });
+
+    it('counts every entry in a flat list', async () => {
+        const { instance } = await create(false, [{ name: 'a' }, { name: 'b' }, { name: 'c' }]);
+
+        expect(instance.ariaSetSize).toBe(3);
+        expect([0, 1, 2].map((index) => instance.getAriaPosInset(index))).toEqual([1, 2, 3]);
+    });
+
+    it('counts again when the list changes', async () => {
+        const { fixture, instance } = await create(true);
+
+        expect(instance.ariaSetSize).toBe(5);
+
+        fixture.componentInstance.options = [{ label: 'Vietnam', items: [{ name: 'Hanoi' }, { name: 'Hue' }] }];
+        fixture.changeDetectorRef.markForCheck();
+        await fixture.whenStable();
+
+        const expected = walked(instance);
+
+        expect(instance.ariaSetSize).toBe(2);
+        expect(instance.visibleOptions().map((_, index) => instance.getAriaPosInset(index))).toEqual(expected.positions);
+    });
+
+    it('answers for an index past the end as the walk did', async () => {
+        const { instance } = await create(true);
+        const options = instance.visibleOptions();
+
+        expect(instance.getAriaPosInset(options.length + 3)).toBe(options.length + 3 - 3 + 1);
+    });
+});

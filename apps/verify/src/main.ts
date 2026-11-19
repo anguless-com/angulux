@@ -80,6 +80,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/speed')) {
+    /* The scenes tools/measure-speed.mjs times (speed.ts), one per `?scene=`. */
+    import('./speed')
+        .then(({ Speed }) =>
+            bootstrapApplication(Speed, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/narrow')) {
     /* Components at phone widths (narrow.ts, e2e/narrow-reflow.spec.ts). */
     import('./narrow')

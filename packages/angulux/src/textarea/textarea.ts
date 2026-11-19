@@ -141,9 +141,9 @@ export class Textarea extends BaseModelHolder<TextareaPassThrough> {
     }
 
     onAfterViewInit() {
+        // No `cd.detectChanges()` here, for the reason given in InputText: it checked the whole
+        // containing view again, once per textarea and nested.
         if (this.autoResize) this.resize();
-
-        this.cd.detectChanges();
     }
 
     onAfterViewChecked() {

@@ -587,3 +587,61 @@ describe('InputText', () => {
         });
     });
 });
+
+/*
+ * Until 22.6.10 each InputText called `cd.detectChanges()` from its own ngAfterViewInit. A
+ * directive's ChangeDetectorRef is the view containing the element, so a screen of n inputs was
+ * checked n times, each from inside the one before, and several hundred inputs in one view
+ * overflowed the stack. `checks` counts how often the containing view's template runs.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [InputText],
+    template: `
+        {{ seen() }}
+        @for (field of fields; track field) {
+            <input aglInputText [value]="'value ' + field" />
+        }
+    `
+})
+class TestManyInputsComponent {
+    fields: number[] = [];
+    checks = 0;
+
+    seen(): string {
+        this.checks += 1;
+        return '';
+    }
+}
+
+describe('InputText — many inputs in one view', () => {
+    const render = (count: number) => {
+        TestBed.configureTestingModule({ imports: [TestManyInputsComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestManyInputsComponent);
+        fixture.componentInstance.fields = Array.from({ length: count }, (_, i) => i);
+        fixture.detectChanges();
+        return fixture;
+    };
+
+    it('checks the containing view as often for twelve inputs as for one', () => {
+        const one = render(1).componentInstance.checks;
+        TestBed.resetTestingModule();
+        const twelve = render(12).componentInstance.checks;
+
+        expect(twelve).toBe(one);
+    });
+
+    it('renders a thousand inputs in one view', () => {
+        const fixture = render(1000);
+        const inputs = fixture.nativeElement.querySelectorAll('input.p-inputtext');
+
+        expect(inputs.length).toBe(1000);
+    });
+
+    it('still marks an input that starts with a value as filled', () => {
+        const fixture = render(3);
+        const inputs: HTMLInputElement[] = Array.from(fixture.nativeElement.querySelectorAll('input'));
+
+        expect(inputs.every((input) => input.classList.contains('p-filled'))).toBe(true);
+    });
+});

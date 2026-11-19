@@ -632,3 +632,50 @@ describe('Bind', () => {
         });
     });
 });
+
+/*
+ * A component binds `[aglBind]="ptm('section')"`, and `ptm` returns a new object on every call.
+ * Until 22.6.10 the directive compared by identity, so every element carrying it had its
+ * attributes written to the DOM again on every check of the page.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Bind],
+    template: `<div [aglBind]="attrs()"></div>`
+})
+class TestBindEqualValueComponent {
+    attrs = signal<Record<string, string>>({ 'data-pc-section': 'root', class: 'one', title: 'first' });
+}
+
+describe('Bind — an equal object is not a change', () => {
+    const create = async () => {
+        TestBed.configureTestingModule({ imports: [TestBindEqualValueComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestBindEqualValueComponent);
+        await fixture.whenStable();
+        const element: HTMLElement = fixture.debugElement.query(By.directive(Bind)).nativeElement;
+        return { fixture, element, writes: spyOn(element, 'setAttribute').and.callThrough() };
+    };
+
+    it('writes nothing when given a new object with the same content', async () => {
+        const { fixture, element, writes } = await create();
+
+        expect(element.getAttribute('title')).toBe('first');
+
+        fixture.componentInstance.attrs.set({ 'data-pc-section': 'root', class: 'one', title: 'first' });
+        await fixture.whenStable();
+
+        expect(writes).not.toHaveBeenCalled();
+    });
+
+    it('writes when the content differs', async () => {
+        const { fixture, element, writes } = await create();
+
+        fixture.componentInstance.attrs.set({ 'data-pc-section': 'root', class: 'two', title: 'second' });
+        await fixture.whenStable();
+
+        expect(writes).toHaveBeenCalledWith('title', 'second');
+        expect(element.getAttribute('title')).toBe('second');
+        expect(element.classList.contains('two')).toBe(true);
+        expect(element.classList.contains('one')).toBe(false);
+    });
+});
