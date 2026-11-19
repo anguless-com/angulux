@@ -37,7 +37,13 @@ export class Bind {
     aglBind = input<{ [key: string]: any } | undefined>(undefined);
 
     private _attrs = signal<{ [key: string]: any } | undefined>(undefined);
-    private attrs = computed(() => this._attrs() || this.aglBind());
+    /*
+     * Compared by value. A component binds `[aglBind]="ptm('section')"`, and `ptm` builds a new
+     * object on every call, so by identity this changed on every check: every element with the
+     * directive had its attributes written to the DOM again each time anything on the page was
+     * checked. `setAttrs` below has always compared the same way.
+     */
+    private attrs = computed(() => this._attrs() || this.aglBind(), { equal: (a, b) => equals(a, b) });
 
     styles = computed(() => this.attrs()?.style);
     classes = computed(() => cn(this.attrs()?.class));

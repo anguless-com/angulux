@@ -5,6 +5,7 @@ import { FormControl, FormGroup, FormsModule, NgForm, NgModel, ReactiveFormsModu
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideAngulux } from '@anguless/angulux/config';
+import { equals } from '@anguless/angulux-utils';
 import { BehaviorSubject, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { MultiSelect, MultiSelectModule } from './multiselect';
@@ -3732,5 +3733,182 @@ describe('MultiSelect Complex Edge Cases', () => {
             // Verify component is created with PT configuration for child components
             expect(fixture.componentInstance).toBeTruthy();
         });
+    });
+});
+
+/*
+ * Every option row asks for its position and for the size of the set on every check. Until
+ * 22.6.10 each answer walked the whole list, so a panel of a thousand options walked a million
+ * entries per check. The answers now come from one count per list, and these tests hold them to
+ * the walk they replaced.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [MultiSelect, FormsModule],
+    template: `<agl-multiselect [options]="options" [(ngModel)]="value" optionLabel="name" [group]="grouped" [optionGroupLabel]="grouped ? 'label' : undefined" optionGroupChildren="items" />`
+})
+class TestAriaPositionComponent {
+    grouped = true;
+    value: unknown = null;
+    options: unknown[] = [
+        { label: 'Germany', items: [{ name: 'Berlin' }, { name: 'Munich' }] },
+        { label: 'Empty', items: [] },
+        { label: 'USA', items: [{ name: 'New York' }, { name: 'Los Angeles' }, { name: 'Chicago' }] }
+    ];
+}
+
+describe('MultiSelect — position of an option in the set', () => {
+    const create = async (grouped: boolean, options?: unknown[]) => {
+        TestBed.configureTestingModule({ imports: [TestAriaPositionComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestAriaPositionComponent);
+        fixture.componentInstance.grouped = grouped;
+        if (options) fixture.componentInstance.options = options;
+        await fixture.whenStable();
+        return { fixture, instance: fixture.debugElement.query(By.directive(MultiSelect)).componentInstance as MultiSelect };
+    };
+
+    /** The arithmetic these replaced, kept here as the reference. */
+    const walked = (instance: MultiSelect) => {
+        const options = instance.visibleOptions();
+        return {
+            size: options.filter((option) => !instance.isOptionGroup(option)).length,
+            positions: options.map((_, index) => (instance.optionGroupLabel ? index - options.slice(0, index).filter((option) => instance.isOptionGroup(option)).length : index) + 1)
+        };
+    };
+
+    it('counts group headers out, in a grouped list', async () => {
+        const { instance } = await create(true);
+        const options = instance.visibleOptions();
+        const expected = walked(instance);
+
+        expect(options.length).toBe(8);
+        expect(instance.ariaSetSize).toBe(5);
+        expect(instance.ariaSetSize).toBe(expected.size);
+        expect(options.map((_, index) => instance.getAriaPosInset(index))).toEqual(expected.positions);
+        // Berlin is the second entry, after its header, and the first option.
+        expect(instance.getAriaPosInset(1)).toBe(1);
+        // New York follows three headers.
+        expect(instance.getAriaPosInset(5)).toBe(3);
+    });
+
+    it('counts every entry in a flat list', async () => {
+        const { instance } = await create(false, [{ name: 'a' }, { name: 'b' }, { name: 'c' }]);
+
+        expect(instance.ariaSetSize).toBe(3);
+        expect([0, 1, 2].map((index) => instance.getAriaPosInset(index))).toEqual([1, 2, 3]);
+    });
+
+    it('counts again when the list changes', async () => {
+        const { fixture, instance } = await create(true);
+
+        expect(instance.ariaSetSize).toBe(5);
+
+        fixture.componentInstance.options = [{ label: 'Vietnam', items: [{ name: 'Hanoi' }, { name: 'Hue' }] }];
+        fixture.changeDetectorRef.markForCheck();
+        await fixture.whenStable();
+
+        const expected = walked(instance);
+
+        expect(instance.ariaSetSize).toBe(2);
+        expect(instance.visibleOptions().map((_, index) => instance.getAriaPosInset(index))).toEqual(expected.positions);
+    });
+
+    it('answers for an index past the end as the walk did', async () => {
+        const { instance } = await create(true);
+        const options = instance.visibleOptions();
+
+        expect(instance.getAriaPosInset(options.length + 3)).toBe(options.length + 3 - 3 + 1);
+    });
+});
+
+/*
+ * `isSelected` used to compare an option against every selected value. It now looks the option
+ * up in an index of the selection, and these tests hold the lookup to the comparison it replaced
+ * for every kind of value `equals` treats differently.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [MultiSelect, FormsModule],
+    template: `<agl-multiselect [options]="options" [(ngModel)]="value" optionLabel="name" [optionValue]="optionValue" [dataKey]="dataKey" />`
+})
+class TestSelectedLookupComponent {
+    options: unknown[] = [];
+    value: unknown[] = [];
+    optionValue: string | undefined;
+    dataKey: string | undefined;
+}
+
+describe('MultiSelect — which options are selected', () => {
+    const create = async (setup: Partial<TestSelectedLookupComponent>) => {
+        TestBed.configureTestingModule({ imports: [TestSelectedLookupComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestSelectedLookupComponent);
+        Object.assign(fixture.componentInstance, setup);
+        await fixture.whenStable();
+        return { fixture, instance: fixture.debugElement.query(By.directive(MultiSelect)).componentInstance as MultiSelect };
+    };
+
+    /** The comparison the lookup replaced. */
+    const compared = (instance: MultiSelect, option: unknown) => {
+        const optionValue = instance.getOptionValue(option);
+        return (instance.modelValue() || []).some((value: unknown) => equals(value, optionValue, instance.equalityKey() || ''));
+    };
+
+    const answers = (instance: MultiSelect, options: unknown[]) => options.map((option) => instance.isSelected(option));
+
+    it('finds plain values, and nothing that merely looks like one', async () => {
+        const options = [{ name: 'one', id: 1 }, { name: 'text one', id: '1' }, { name: 'zero', id: 0 }, { name: 'none', id: null }, { name: 'nan', id: NaN }, { name: 'two', id: 2 }];
+        const { instance } = await create({ options, optionValue: 'id', value: [1, null, NaN] });
+
+        expect(answers(instance, options)).toEqual([true, false, false, true, false, false]);
+        expect(answers(instance, options)).toEqual(options.map((option) => compared(instance, option)));
+    });
+
+    it('finds an object by reference and by content', async () => {
+        const options = [{ name: 'a', tags: ['x'] }, { name: 'b', tags: ['y'] }, { name: 'c', tags: [] }];
+        const { instance } = await create({ options, value: [options[0], { name: 'c', tags: [] }] });
+
+        expect(answers(instance, options)).toEqual([true, false, true]);
+        expect(answers(instance, options)).toEqual(options.map((option) => compared(instance, option)));
+    });
+
+    it('compares one field when a dataKey is given', async () => {
+        const options = [{ name: 'a', id: 1 }, { name: 'b', id: 2 }, { name: 'no id' }];
+        const { instance } = await create({ options, dataKey: 'id', value: [{ name: 'renamed', id: 2 }] });
+
+        expect(answers(instance, options)).toEqual([false, true, false]);
+        expect(answers(instance, options)).toEqual(options.map((option) => compared(instance, option)));
+
+        // Two values without the field compare equal, as `undefined === undefined` always did.
+        instance.writeModelValue([{ name: 'also no id' }]);
+
+        expect(answers(instance, options)).toEqual([false, false, true]);
+        expect(answers(instance, options)).toEqual(options.map((option) => compared(instance, option)));
+    });
+
+    it('reads again an array the application changed in place', async () => {
+        const options = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
+        const value = [options[0]];
+        const { fixture, instance } = await create({ options, value });
+
+        expect(answers(instance, options)).toEqual([true, false, false]);
+
+        value.push(options[2]);
+
+        expect(answers(instance, options)).toEqual([true, false, true]);
+
+        value[1] = options[1];
+        fixture.changeDetectorRef.markForCheck();
+        await fixture.whenStable();
+
+        expect(answers(instance, options)).toEqual([true, true, false]);
+    });
+
+    it('answers for a thousand ticked options without comparing each against all', async () => {
+        const options = Array.from({ length: 1000 }, (_, i) => ({ name: `n${i}`, id: i }));
+        const { instance } = await create({ options, optionValue: 'id', value: options.map((option) => option.id) });
+        const lookups = spyOn(Set.prototype, 'has').and.callThrough();
+
+        expect(answers(instance, options).every(Boolean)).toBe(true);
+        expect(lookups.calls.count()).toBe(1000);
     });
 });

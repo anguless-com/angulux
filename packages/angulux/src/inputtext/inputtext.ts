@@ -124,8 +124,12 @@ export class InputText extends BaseModelHolder<InputTextPassThrough> {
     }
 
     onAfterViewInit() {
+        // No `cd.detectChanges()` here. A directive's ChangeDetectorRef is the view that CONTAINS
+        // the element, so that call checked the whole screen again from inside its own check, and
+        // the next input's hook did the same from inside that one: a form of n inputs was checked
+        // n times, nested n deep, and about four hundred inputs in one view overflowed the stack.
+        // The value is a signal, so a change made here schedules its own check.
         this.writeModelValue(this.ngControl?.value ?? this.el.nativeElement.value);
-        this.cd.detectChanges();
     }
 
     onAfterViewChecked(): void {

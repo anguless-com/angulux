@@ -681,3 +681,60 @@ describe('Textarea', () => {
         });
     });
 });
+
+/*
+ * The same fault InputText had, until 22.6.10: every Textarea checked the whole containing view
+ * again from its ngAfterViewInit, one inside the other. `checks` counts how often the containing
+ * view's template runs.
+ */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Textarea],
+    template: `
+        {{ seen() }}
+        @for (field of fields; track field) {
+            <textarea aglTextarea [autoResize]="true" [value]="'value ' + field"></textarea>
+        }
+    `
+})
+class TestManyTextareasComponent {
+    fields: number[] = [];
+    checks = 0;
+
+    seen(): string {
+        this.checks += 1;
+        return '';
+    }
+}
+
+describe('Textarea — many textareas in one view', () => {
+    const render = (count: number) => {
+        TestBed.configureTestingModule({ imports: [TestManyTextareasComponent], providers: [provideZonelessChangeDetection()] });
+        const fixture = TestBed.createComponent(TestManyTextareasComponent);
+        fixture.componentInstance.fields = Array.from({ length: count }, (_, i) => i);
+        fixture.detectChanges();
+        return fixture;
+    };
+
+    it('checks the containing view as often for twelve textareas as for one', () => {
+        const one = render(1).componentInstance.checks;
+        TestBed.resetTestingModule();
+        const twelve = render(12).componentInstance.checks;
+
+        expect(twelve).toBe(one);
+    });
+
+    it('renders a thousand textareas in one view', () => {
+        const fixture = render(1000);
+
+        expect(fixture.nativeElement.querySelectorAll('textarea.p-textarea').length).toBe(1000);
+    });
+
+    it('still marks a textarea that starts with a value as filled', async () => {
+        const fixture = render(3);
+        await fixture.whenStable();
+        const areas: HTMLTextAreaElement[] = Array.from(fixture.nativeElement.querySelectorAll('textarea'));
+
+        expect(areas.every((area) => area.classList.contains('p-filled'))).toBe(true);
+    });
+});

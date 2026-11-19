@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformServer } from '@angular/common';
 import { ChangeDetectorRef, computed, Directive, effect, ElementRef, inject, InjectionToken, Injector, input, PLATFORM_ID, Renderer2, signal, SimpleChanges } from '@angular/core';
 import { Theme, ThemeService } from '@anguless/angulux-styled';
-import { cn, getKeyValue, isArray, isFunction, isNotEmpty, isString, mergeProps, resolve, toFlatCase, uuid } from '@anguless/angulux-utils';
+import { cn, getKeyValue, isArray, isFunction, isNotEmpty, isObject, isString, mergeProps, resolve, toFlatCase, uuid } from '@anguless/angulux-utils';
 import type { Lifecycle, PassThroughOptions } from '@anguless/angulux/api';
 import { Base, BaseStyle } from '@anguless/angulux/base';
 import { AnguluxConfig } from '@anguless/angulux/config';
@@ -31,6 +31,59 @@ function forgetBaseStylesOnThemeChange(): void {
         baseStylesTheme = theme;
         Base.clearLoadedStyleNames();
     }
+}
+
+/**
+ * For a style's `classes` or `inlineStyles` object: the key of it that each requested name
+ * resolves to. `getKeyValue` finds that key by lower-casing and stripping every key of the object
+ * until one matches, on every call, and a template makes that call for every element it styles on
+ * every check.
+ */
+const MATCHED_KEYS = new WeakMap<object, Map<string, string>>();
+
+/** `getKeyValue(options, key, params)`, remembering which key of `options` a plain name matched. */
+function optionValue(source: unknown, key: string, params: object) {
+    let matched: string | undefined;
+
+    if (key && !key.includes('.') && isObject(source)) {
+        let matchedKeys = MATCHED_KEYS.get(source);
+
+        if (!matchedKeys) MATCHED_KEYS.set(source, (matchedKeys = new Map()));
+
+        matched = matchedKeys.get(key);
+
+        if (matched === undefined || !(matched in source)) {
+            const flatKey = toFlatCase(key);
+
+            matched = flatKey ? Object.keys(source).find((k) => toFlatCase(k) === flatKey) : undefined;
+            matched !== undefined && matchedKeys.set(key, matched);
+        }
+    }
+
+    // Resolved twice, as getKeyValue does: once for the entry, once for what the entry returned.
+    return matched === undefined ? getKeyValue(source as Record<string, unknown> | undefined, key, params) : resolve(resolve((source as Record<string, unknown>)[matched], params), params);
+}
+
+/**
+ * `instance.$style[key]` without building `$style`. A template calls `cx()` for every element it
+ * styles on every check, and `$style` copies the style service and its host's into a new object
+ * each time it is read. The spread there copies own enumerable properties, the component's over
+ * the host's, so a property the component's own service has is the answer; otherwise this takes
+ * the long way.
+ */
+function styleValue(instance: BaseComponent, key: 'classes' | 'inlineStyles' | 'name') {
+    const own = instance['_componentStyle'];
+
+    return own && Object.prototype.propertyIsEnumerable.call(own, key) ? own[key] : instance.$style[key];
+}
+
+/**
+ * Whether any pass-through can apply to a component: its own `pt`, or the application's. With
+ * neither, `ptm()` has only the `data-pc-*` attributes to return and no hook exists, and that is
+ * the state of nearly every component in nearly every application.
+ */
+function hasPT(instance: BaseComponent) {
+    return instance.$pt() != null || instance.config?.pt() != null;
 }
 
 @Directive({
@@ -337,7 +390,8 @@ export class BaseComponent<PT = any> implements Lifecycle {
     }
 
     private _hook(hookName: string, ...args: any[]) {
-        if (!this.$hostName) {
+        // Called from every lifecycle hook, the three "checked" ones included, so on every check.
+        if (hasPT(this) && !this.$hostName) {
             const selfHook = this._usePT(this._getPT(this.$pt(), this.$name), this._getOptionValue, `hooks.${hookName}`);
             const defaultHook = this._useDefaultPT(this._getOptionValue, `hooks.${hookName}`);
 
@@ -379,7 +433,11 @@ export class BaseComponent<PT = any> implements Lifecycle {
     private _loadCoreStyles() {
         forgetBaseStylesOnThemeChange();
 
-        if (!Base.isStyleNameLoaded(this.$style?.name) && this.$style?.name) {
+        // The name is read on its own: `$style` copies the whole style service, and this runs
+        // for every component created, nearly always to find the stylesheet already loaded.
+        const name = styleValue(this, 'name');
+
+        if (!Base.isStyleNameLoaded(name) && name) {
             this.baseComponentStyle.loadCSS(this.$styleOptions);
             this.$style.loadCSS(this.$styleOptions);
 
@@ -403,7 +461,9 @@ export class BaseComponent<PT = any> implements Lifecycle {
         }
 
         // component
-        if (!Theme.isStyleNameLoaded(this.$style?.name) && this.$style?.name) {
+        const name = styleValue(this, 'name');
+
+        if (!Theme.isStyleNameLoaded(name) && name) {
             const { css, style } = this.$style?.getComponentTheme?.() || {};
 
             this.$style?.load(css, { name: `${this.$style?.name}-variables`, ...this.$styleOptions });
@@ -465,19 +525,24 @@ export class BaseComponent<PT = any> implements Lifecycle {
     }
 
     private _getPTDatasets(key = '') {
-        const datasetPrefix = 'data-pc-';
-        const isExtended = key === 'root' && isNotEmpty(this.$pt()?.['data-pc-section']);
+        if (key === 'transition') return false;
 
-        return (
-            key !== 'transition' && {
-                ...(key === 'root' && {
-                    [`${datasetPrefix}name`]: toFlatCase(isExtended ? this.$pt()?.['data-pc-section'] : this.$name),
-                    ...(isExtended && { [`${datasetPrefix}extend`]: toFlatCase(this.$name) }),
-                    [`${this.$attrSelector}`]: '' // @todo - use `data-pc-id: this.$attrSelector` instead.
-                }),
-                [`${datasetPrefix}section`]: toFlatCase(key.includes('.') ? (key.split('.').at(-1) ?? '') : key)
-            }
-        );
+        const datasetPrefix = 'data-pc-';
+        const datasets: Record<string, string> = {};
+
+        if (key === 'root') {
+            const extendedSection = this.$pt()?.['data-pc-section'];
+            const isExtended = isNotEmpty(extendedSection);
+
+            datasets[`${datasetPrefix}name`] = toFlatCase(isExtended ? extendedSection : this.$name);
+            if (isExtended) datasets[`${datasetPrefix}extend`] = toFlatCase(this.$name);
+            datasets[this.$attrSelector] = ''; // @todo - use `data-pc-id: this.$attrSelector` instead.
+        }
+
+        // The last segment of a dotted key.
+        datasets[`${datasetPrefix}section`] = toFlatCase(key.slice(key.lastIndexOf('.') + 1));
+
+        return datasets;
     }
 
     private _getPTClassValue(options?: any, key?: any, params?: any) {
@@ -533,6 +598,9 @@ export class BaseComponent<PT = any> implements Lifecycle {
     /******************** Exposed API ********************/
 
     public ptm(key = '', params = {}) {
+        // Nothing to merge: the result is the data attributes alone, as `_getPTValue` returns it.
+        if (!hasPT(this)) return this._getPTDatasets(key) || {};
+
         return this._getPTValue(this.$pt() as any, key, { ...this.$params, ...params });
     }
 
@@ -548,7 +616,7 @@ export class BaseComponent<PT = any> implements Lifecycle {
     }
 
     public cx(key: string, params = {}) {
-        return !this.$unstyled() ? cn(this._getOptionValue(this.$style.classes, key, { ...this.$params, ...params })) : undefined;
+        return !this.$unstyled() ? cn(optionValue(styleValue(this, 'classes'), key, Object.keys(params).length ? { ...this.$params, ...params } : this.$params)) : undefined;
     }
 
     public sx(key = '', when = true, params = {}) {

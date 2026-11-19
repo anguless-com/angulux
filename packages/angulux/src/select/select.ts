@@ -1306,19 +1306,40 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
         return this.optionGroupChildren !== undefined && this.optionGroupChildren !== null ? resolveFieldData(optionGroup, this.optionGroupChildren) : optionGroup.items;
     }
 
+    /**
+     * For the list `visibleOptions()` returned last: how many group headers come before each
+     * index. Every option row asks for its position and for the size of the set on every check,
+     * and each answer used to walk the whole list, so a panel of a thousand options walked a
+     * million entries per check.
+     */
+    private _groupHeaders: { of: unknown[]; before: number[] } | undefined;
+
+    private groupHeadersBefore(options: unknown[]): number[] {
+        if (this._groupHeaders?.of !== options) {
+            const before: number[] = new Array(options.length + 1);
+            before[0] = 0;
+            for (let i = 0; i < options.length; i++) before[i + 1] = before[i] + (this.isOptionGroup(options[i]) ? 1 : 0);
+            this._groupHeaders = { of: options, before };
+        }
+
+        return this._groupHeaders.before;
+    }
+
     getAriaPosInset(index) {
-        return (
-            (this.optionGroupLabel
-                ? index -
-                  this.visibleOptions()
-                      .slice(0, index)
-                      .filter((option) => this.isOptionGroup(option)).length
-                : index) + 1
-        );
+        if (!this.optionGroupLabel) return index + 1;
+
+        const options = this.visibleOptions();
+
+        // Anything but a position in the list keeps the arithmetic `slice` did with it.
+        if (!Number.isInteger(index) || index < 0) return index - options.slice(0, index).filter((option) => this.isOptionGroup(option)).length + 1;
+
+        return index - this.groupHeadersBefore(options)[Math.min(index, options.length)] + 1;
     }
 
     get ariaSetSize() {
-        return this.visibleOptions().filter((option) => !this.isOptionGroup(option)).length;
+        const options = this.visibleOptions();
+
+        return options.length - this.groupHeadersBefore(options)[options.length];
     }
 
     /**

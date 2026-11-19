@@ -234,6 +234,17 @@ jobs:
             - name: Pages load without a legacy font or a layout jump
               run: node tools/measure-load.mjs --check --runs 1 --only /,getting-started,theming,button,table,datepicker,select,dialog
 
+            # What the library costs while an application runs: a thousand-row table shown, sorted
+            # and filtered, a select opened over a thousand options, six hundred inputs in one view.
+            # The timings are printed and never judged, because a runner's speed is not a property
+            # of the code. What fails the step is a scene that does not finish what it measures:
+            # that is how six hundred inputs in one view were found to overflow the stack.
+            - name: Build the verification app for production
+              run: corepack pnpm --filter @angulux/verify run build
+
+            - name: Scenes of ordinary use run to completion
+              run: node tools/measure-speed.mjs --runs 1
+
             - name: Upload evidence
               if: always()
               uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
