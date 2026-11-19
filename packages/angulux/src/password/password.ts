@@ -34,7 +34,7 @@ import { PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
 import { BaseInput } from '@anguless/angulux/baseinput';
 import { Bind, BindModule } from '@anguless/angulux/bind';
-import { ConnectedOverlayScrollHandler, DomHandler } from '@anguless/angulux/dom';
+import { ConnectedOverlayScrollHandler, ɵnextZIndex } from '@anguless/angulux/dom';
 import { Fluid } from '@anguless/angulux/fluid';
 import { EyeIcon, EyeSlashIcon, TimesIcon } from '@anguless/angulux/icons';
 import { InputText } from '@anguless/angulux/inputtext';
@@ -220,7 +220,7 @@ export class PasswordDirective extends BaseEditableHolder {
                 this.createPanel();
             }
 
-            this.renderer.setStyle(this.panel, 'zIndex', String(++DomHandler.zindex));
+            this.renderer.setStyle(this.panel, 'zIndex', String(ɵnextZIndex()));
             this.renderer.setStyle(this.panel, 'display', 'block');
             this.zone.runOutsideAngular(() => {
                 setTimeout(() => {

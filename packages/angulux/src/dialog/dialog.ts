@@ -30,7 +30,7 @@ import { OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
 import { Button, ButtonProps } from '@anguless/angulux/button';
-import { blockBodyScroll, DomHandler, unblockBodyScroll } from '@anguless/angulux/dom';
+import { blockBodyScroll, unblockBodyScroll, ɵgetFocusableElements } from '@anguless/angulux/dom';
 import { FocusTrap } from '@anguless/angulux/focustrap';
 import { TimesIcon, WindowMaximizeIcon, WindowMinimizeIcon } from '@anguless/angulux/icons';
 import { MotionModule } from '@anguless/angulux/motion';
@@ -684,7 +684,7 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
     _focus(focusParentElement?: HTMLElement): boolean {
         if (focusParentElement) {
             const timeoutDuration = this.parseDurationToMilliseconds(this.transitionOptions);
-            let _focusableElements = DomHandler.getFocusableElements(focusParentElement);
+            let _focusableElements = ɵgetFocusableElements(focusParentElement);
             if (_focusableElements && _focusableElements.length > 0) {
                 this.zone.runOutsideAngular(() => {
                     setTimeout(() => _focusableElements[0].focus(), timeoutDuration || 5);

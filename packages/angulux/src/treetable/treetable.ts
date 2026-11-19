@@ -51,7 +51,7 @@ import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { Checkbox } from '@anguless/angulux/checkbox';
-import { DomHandler } from '@anguless/angulux/dom';
+import { ɵindexWithinGroup } from '@anguless/angulux/dom';
 import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, SortAltIcon, SortAmountDownIcon, SortAmountUpAltIcon, SpinnerIcon } from '@anguless/angulux/icons';
 import { PaginatorModule } from '@anguless/angulux/paginator';
 import { Ripple } from '@anguless/angulux/ripple';
@@ -1489,8 +1489,9 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
     onColumnDrop(event: DragEvent, dropColumn: any) {
         event.preventDefault();
         if (this.draggedColumn) {
-            let dragIndex = DomHandler.indexWithinGroup(this.draggedColumn, 'ttreorderablecolumn');
-            let dropIndex = DomHandler.indexWithinGroup(dropColumn, 'ttreorderablecolumn');
+            // `draggedColumn` is declared as an array and holds the dragged header element.
+            let dragIndex = ɵindexWithinGroup(this.draggedColumn as unknown as Node, 'ttreorderablecolumn');
+            let dropIndex = ɵindexWithinGroup(dropColumn, 'ttreorderablecolumn');
             let allowDrop = dragIndex != dropIndex;
             if (allowDrop && ((dropIndex - dragIndex == 1 && this.dropPosition === -1) || (dragIndex - dropIndex == 1 && this.dropPosition === 1))) {
                 allowDrop = false;
