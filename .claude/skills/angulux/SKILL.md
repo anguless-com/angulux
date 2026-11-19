@@ -91,11 +91,16 @@ Prefer a catalog entry to a literal version in a package manifest. `check:catalo
 every manifest and fails on anything installed that is not exact, a catalog entry or a
 `workspace:` member, and on a ranged `pnpm.overrides` entry; `peerDependencies` stay ranges.
 
-**The conventions above are linted.** `check:lint` runs ESLint over `apps/showcase`,
-`apps/verify` and `e2e` and fails on a decorator input, output or query, constructor
+**The conventions above are linted.** `check:lint` runs ESLint. `apps/showcase`,
+`apps/verify` and `e2e` are held at zero: a decorator input, output or query, constructor
 injection, `@HostBinding`, `*ngIf`, `ngClass`, `ngStyle`, `standalone`, explicit `OnPush`,
-`any` or `@ts-ignore`, and on a focused test in any spec. `eslint-disable` comments are
-ignored; fix the code. Library source is not linted until the Angular 23 trip.
+`any` or `@ts-ignore` fails, and so does inaccessible markup in the showcase. Library and
+forked-package source is held to `tools/lint-baseline.json`: a file may not gain a finding,
+and a new file starts at zero. One exception there: an input, output or query added to a
+decorator-based library component follows the file it is in, and is not linted. When you
+remove a finding, run `node tools/check-lint.mjs --prune` and commit the smaller baseline.
+Never raise a number in that file, and never add an `eslint-disable` comment: both are the
+maintainers' decision.
 
 **The public API is frozen until the next Angular major.** `check:api-surface` compares the
 corpus with the last release and fails on a removed, renamed or retyped selector, input,

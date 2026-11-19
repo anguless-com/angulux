@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { ESLint } from 'eslint';
+
+import { compare, prune, countFindings, ruleKey } from '../lib/lint-baseline.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const eslint = new ESLint({ cwd: repoRoot });
@@ -34,7 +37,7 @@ const cases = [
     ['standalone: true', component('', 'standalone: true'), /standalone: true/],
     ['standalone: false', component('', 'standalone: false'), /prefer-standalone/],
     ['explicit OnPush', `import { ChangeDetectionStrategy } from '@angular/core';` + component('', 'changeDetection: ChangeDetectionStrategy.OnPush'), /OnPush is the default/],
-    ['signal mutate', `declare const s: { mutate(f: (v: number[]) => void): void };\ns.mutate((v) => v.push(1));`, /no `mutate`/],
+    ['signal mutate', `declare const s: { mutate(f: (v: number[]) => void): void };\ns.mutate((v) => v.push(1));`, /Signal mutate/],
     ['any', `export const x: any = 1;`, /no-explicit-any/],
     ['@ts-ignore', `// @ts-ignore\nexport const x: number = 1;`, /ban-ts-comment/],
     ['decorator input', `import { Input } from '@angular/core';` + component('@Input() name = "";'), /prefer-signals/],
@@ -129,14 +132,79 @@ test('an eslint-disable comment does not silence a finding', async () => {
     assert.ok(found.some((f) => /no-explicit-any/.test(f)), found.join('\n'));
 });
 
-test('a package spec is held to "no focused test" and to nothing else', async () => {
-    const spec = 'packages/angulux/src/button/probe.spec.ts';
-    assert.equal((await rulesFor(spec, `fit('a', () => {});`)).length, 1);
-    // Inherited shape: skips, `any` and decorators are not this gate's business there.
-    assert.deepEqual(await rulesFor(spec, `xit('a', () => {});\nexport const x: any = 1;`), []);
+const LIB = 'packages/angulux/src/button/probe.ts';
+
+test('forked code is linted for the baseline to judge, except how its public members are declared', async () => {
+    const found = await rulesFor(LIB, `import { Input, Output, EventEmitter, ElementRef } from '@angular/core';` + component('@Input() name = ""; @Output() done = new EventEmitter<void>(); constructor(private el: ElementRef) {}') + `\nexport const x: any = 1;`);
+    assert.ok(found.some((f) => /no-explicit-any/.test(f)), found.join('\n'));
+    assert.ok(found.some((f) => /prefer-inject/.test(f)), found.join('\n'));
+    assert.equal(found.some((f) => /prefer-signals|prefer-output-emitter-ref|prefer-signal-model/.test(f)), false, found.join('\n'));
 });
 
-test('library source is out of scope: no config block applies to it', async () => {
-    const config = await eslint.calculateConfigForFile(join(repoRoot, 'packages/angulux/src/button/button.ts'));
+test('forked code: skipped tests, empty blocks and focused tests are all reported', async () => {
+    const found = await rulesFor('packages/angulux/src/button/probe.spec.ts', `xit('a', () => {});\nfit('b', () => {});\ntry { run(); } catch {}`);
+    assert.ok(found.some((f) => /Skipped test/.test(f)), found.join('\n'));
+    assert.ok(found.some((f) => /Focused test/.test(f)), found.join('\n'));
+    assert.ok(found.some((f) => /no-empty/.test(f)), found.join('\n'));
+});
+
+test('an eslint-disable comment in forked code is reported, so the baseline can count it', async () => {
+    const [result] = await eslint.lintText(`// eslint-disable-next-line\nexport const x = 1;`, { filePath: join(repoRoot, LIB) });
+    assert.deepEqual(result.messages.map(ruleKey), ['inert-eslint-comment']);
+});
+
+test('a package that is not forked code is out of scope: no config block applies to it', async () => {
+    const config = await eslint.calculateConfigForFile(join(repoRoot, 'packages/angulux-migrate/test/fixtures/probe.ts'));
     assert.equal(config, undefined);
+});
+
+// ---- the baseline arithmetic ----
+
+const base = { 'a.ts': { any: 3, inject: 1 }, 'gone.ts': { any: 2 } };
+
+test('baseline: at the allowance is clean', () => {
+    const v = compare({ 'a.ts': { any: 3 } }, { 'a.ts': { any: 3 } });
+    assert.deepEqual([v.over.length, v.under.length], [0, 0]);
+});
+
+test('baseline: one more than frozen is over, and names file and rule', () => {
+    const v = compare({ 'a.ts': { any: 3 } }, { 'a.ts': { any: 4 } });
+    assert.deepEqual(v.over, [{ file: 'a.ts', rule: 'any', found: 4, allowed: 3 }]);
+});
+
+test('baseline: a new file, or a new rule in a frozen file, starts at zero', () => {
+    const v = compare(base, { 'a.ts': { any: 3, inject: 1, signals: 1 }, 'gone.ts': { any: 2 }, 'new.ts': { any: 1 } });
+    assert.deepEqual(
+        v.over.map((o) => `${o.file}/${o.rule}`),
+        ['a.ts/signals', 'new.ts/any']
+    );
+});
+
+test('baseline: fewer than frozen is stale, and so is a file that no longer has findings', () => {
+    const v = compare(base, { 'a.ts': { any: 2, inject: 1 } });
+    assert.deepEqual(
+        v.under.map((u) => `${u.file}/${u.rule} ${u.found}<${u.allowed}`),
+        ['a.ts/any 2<3', 'gone.ts/any 0<2']
+    );
+});
+
+test('baseline: prune lowers and removes, and can never raise or add', () => {
+    const next = prune(base, { 'a.ts': { any: 9, inject: 0, signals: 4 }, 'new.ts': { any: 5 } });
+    assert.deepEqual(next, { 'a.ts': { any: 3 } });
+});
+
+test('baseline: pruning a clean state changes nothing, so the committed file is stable', () => {
+    const committed = JSON.parse(readFileSync(join(repoRoot, 'tools/lint-baseline.json'), 'utf8')).files;
+    assert.deepEqual(JSON.stringify(prune(committed, committed)), JSON.stringify(committed));
+    assert.ok(Object.keys(committed).length > 100, 'the committed baseline is not empty');
+    for (const file of Object.keys(committed)) assert.match(file, /^packages\/angulux(-utils|-styled|-styles|-motion)?\/src\//);
+});
+
+test('baseline: a focused test never appears in the committed baseline', () => {
+    assert.equal(readFileSync(join(repoRoot, 'tools/lint-baseline.json'), 'utf8').includes('focused-test'), false);
+});
+
+test('countFindings groups by file and rule key, and labels no-restricted-syntax by its message', () => {
+    const found = countFindings([{ file: 'a.ts', messages: [{ ruleId: 'x' }, { ruleId: 'x' }, { ruleId: 'no-restricted-syntax', message: 'Skipped test: `xit` …' }] }, { file: 'b.ts', messages: [] }]);
+    assert.deepEqual(found, { 'a.ts': { x: 2, 'no-restricted-syntax/skipped-test': 1 } });
 });
