@@ -100,8 +100,8 @@ closes a class of failure that has already happened in this repository.
 npm run check     # all twenty, no build needed
 ```
 
-Three further checks run after the build rather than inside that suite, because none has
-anything to inspect until there is a build to inspect. All three look at the artifact instead
+Four further checks run after the build rather than inside that suite, because none has
+anything to inspect until there is a build to inspect. All four look at the artifact instead
 of the source it came from:
 
 | Check | What it refuses to let ship |
@@ -109,8 +109,9 @@ of the source it came from:
 | `check:publishable` | packs every package and reads `package.json` back **out of the tarball**, so what gets inspected is the exact bytes npm would receive. It exists because a guard that read the source tree instead once passed while three packages were about to publish an uninstallable `workspace:` dependency |
 | `check:dts` | compiles the **emitted `.d.ts`** with `skipLibCheck: false`. Every tsconfig here sets it to `true`, which means our own declarations are the one thing no build in this repository type-checks — a consumer who turns it off compiles them for real, and if they do not stand up alone that consumer's build breaks while ours stays green |
 | `check:signal-forms` | compiles Signal Forms' `[formField]` on **every form control** against the built package, with `strictTemplates` on. `[formField]` binds a field's state into inputs by *name* — `min` typed as the field's value, `pattern` as `readonly RegExp[]` — so a narrower input is a type error in every consumer's template. Four controls shipped that way, invisible here: the library builds with `strictTemplates` off and the specs compile just in time. The form controls are read from the corpus, so a newly shipped one must join the fixture |
+| `check:size` | bundles **every entry point** the way an application build does — linked, optimised, minified, with everything of ours it drags in — and compares the bytes with `tools/size-baseline.json`. An entry point that grows more than 1 % (at least 512 bytes) fails; one that shrank past the same margin fails too, until `--prune` lowers its number, so an optimisation cannot be quietly taken back. `npm run measure:size` prints the table, and `-- --why table` what is inside one bundle |
 
-All three refuse to run against nothing, and two go further: `check:dts` and
+All four refuse to run against nothing, and two go further: `check:dts` and
 `check:signal-forms` report success only after a deliberately broken file has been put through
 the same program and rejected for the reason it was written for. A type-check aimed at zero
 files does not say "I found nothing" — it says "no errors".

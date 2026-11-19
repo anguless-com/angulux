@@ -154,6 +154,14 @@ jobs:
             - name: Every form control compiles under Signal Forms' [formField]
               run: npm run check:signal-forms
 
+            # What each entry point costs an application, taken the way an application build
+            # takes it: linked, optimised and minified with everything of ours it drags in.
+            # An entry point that grows past its allowance fails; so does one that shrank
+            # without the baseline being lowered, because an optimisation nobody wrote down
+            # is room the next change takes back unnoticed.
+            - name: No entry point grew
+              run: npm run check:size
+
             - name: Build the verification app
               run: corepack pnpm --filter @angulux/verify run build
 
