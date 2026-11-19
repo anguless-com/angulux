@@ -1,5 +1,5 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
 import { provideAngulux } from '@anguless/angulux/config';
@@ -14,6 +14,7 @@ bootstrapApplication(AppComponent, {
     providers: [
         provideBrowserGlobalErrorListeners(),
         provideZonelessChangeDetection(),
+        provideClientHydration(),
         provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' })),
         /* `.dark`, not the default `system`. The header has a toggle, and on the default the
            components would keep following the operating system while the chrome followed the

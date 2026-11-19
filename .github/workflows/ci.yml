@@ -221,6 +221,19 @@ jobs:
             - name: Run the browser gate
               run: corepack pnpm exec playwright test --config e2e/playwright.config.ts
 
+            # The gate above runs against the development server, which is the wrong thing to
+            # judge loading on: unbundled, and fast enough locally that a page rendering twice
+            # leaves no trace. This serves the PRODUCTION build under slow-4G and 4x CPU
+            # throttling and fails on two things a reader pays for on every visit — a legacy
+            # font file fetched next to the woff2, and a layout that jumps while the page
+            # loads. Both were measured before they were fixed (0.35 on 38 of 68 pages; 85 kB
+            # of .eot on all of them). Timings are printed and never judged.
+            - name: Build the showcase for production
+              run: corepack pnpm --filter @angulux/showcase run build
+
+            - name: Pages load without a legacy font or a layout jump
+              run: node tools/measure-load.mjs --check --runs 1 --only /,getting-started,theming,button,table,datepicker,select,dialog
+
             - name: Upload evidence
               if: always()
               uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
