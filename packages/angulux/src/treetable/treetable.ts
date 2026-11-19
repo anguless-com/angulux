@@ -52,7 +52,7 @@ import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent'
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { Checkbox } from '@anguless/angulux/checkbox';
 import { ɵindexWithinGroup } from '@anguless/angulux/dom';
-import { ArrowDownIcon, ArrowUpIcon, CheckIcon, ChevronDownIcon, ChevronRightIcon, SortAltIcon, SortAmountDownIcon, SortAmountUpAltIcon, SpinnerIcon } from '@anguless/angulux/icons';
+import { ArrowDownIcon, ArrowUpIcon, ChevronDownIcon, ChevronRightIcon, SortAltIcon, SortAmountDownIcon, SortAmountUpAltIcon, SpinnerIcon } from '@anguless/angulux/icons';
 import { PaginatorModule } from '@anguless/angulux/paginator';
 import { Ripple } from '@anguless/angulux/ripple';
 import { Scroller } from '@anguless/angulux/scroller';
@@ -3919,7 +3919,6 @@ export class TreeTableToggler extends BaseComponent {
         SortAmountUpAltIcon,
         SortAmountDownIcon,
         BadgeModule,
-        CheckIcon,
         ChevronDownIcon,
         ChevronRightIcon,
         Checkbox,
