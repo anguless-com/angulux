@@ -16,12 +16,16 @@ import { CodeLine } from '../data';
  *     text with no element at all. On a page like `/table` that is thousands of spans not
  *     created and not serialised into the HTML.
  *
+ * The `<pre>` scrolls sideways when a line is long, so it is in the tab order: a scroll
+ * container the keyboard cannot reach holds text a keyboard user cannot read.
+ *
  * Lines are block elements rather than text separated by newlines, because Angular collapses
  * whitespace in templates and `<pre>` is not an exception to that.
  */
 @Component({
     selector: 'agl-code-lines',
     template: `<pre
+        tabindex="0"
         class="thin-scroll overflow-x-auto p-4 text-[13px] leading-[1.6]"
     ><code>@for (line of lines(); track $index) {<span class="block min-h-[1.6em]">@for (token of line; track $index) {@if (token.c < 0) {{{ token.t }}} @else {<span
         [style.--l]="palette()[token.c][0]"

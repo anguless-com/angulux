@@ -7,8 +7,8 @@ import { InputNumberModule } from '@anguless/angulux/inputnumber';
     imports: [FormsModule, InputNumberModule],
     template: `
         <div class="card">
-            <agl-inputNumber [(ngModel)]="value" [minFractionDigits]="2" [maxFractionDigits]="5" />
-            <agl-inputNumber [(ngModel)]="percent" suffix="%" [min]="0" [max]="100" />
+            <agl-inputNumber [(ngModel)]="value" [minFractionDigits]="2" [maxFractionDigits]="5" ariaLabel="Decimal value" />
+            <agl-inputNumber [(ngModel)]="percent" suffix="%" [min]="0" [max]="100" ariaLabel="Percentage" />
         </div>
     `
 })

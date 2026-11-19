@@ -38,7 +38,7 @@ import { CodeLines } from './code-lines';
             @if (lines().length) {
                 <agl-code-lines [lines]="lines()" [palette]="palette()" />
             } @else {
-                <pre class="thin-scroll overflow-x-auto px-4 py-3 text-[13px] leading-relaxed"><code>{{ code() }}</code></pre>
+                <pre tabindex="0" class="thin-scroll overflow-x-auto px-4 py-3 text-[13px] leading-relaxed"><code>{{ code() }}</code></pre>
             }
         </div>
     `

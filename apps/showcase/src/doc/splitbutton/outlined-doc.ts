@@ -7,9 +7,9 @@ import { SplitButtonModule } from '@anguless/angulux/splitbutton';
     imports: [SplitButtonModule],
     template: `
         <div class="card">
-            <agl-splitButton label="Outlined" [model]="items" [outlined]="true" />
-            <agl-splitButton label="Text" [model]="items" [text]="true" />
-            <agl-splitButton label="Raised" [model]="items" [raised]="true" />
+            <agl-splitButton label="Outlined" [model]="items" expandAriaLabel="More actions" [outlined]="true" />
+            <agl-splitButton label="Text" [model]="items" expandAriaLabel="More actions" [text]="true" />
+            <agl-splitButton label="Raised" [model]="items" expandAriaLabel="More actions" [raised]="true" />
         </div>
     `
 })

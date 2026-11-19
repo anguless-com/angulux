@@ -7,8 +7,8 @@ import { ToggleSwitchModule } from '@anguless/angulux/toggleswitch';
     imports: [FormsModule, ToggleSwitchModule],
     template: `
         <div class="card">
-            <agl-toggleSwitch [(ngModel)]="small" size="small" />
-            <agl-toggleSwitch [(ngModel)]="large" size="large" />
+            <agl-toggleSwitch [(ngModel)]="small" size="small" ariaLabel="Small" />
+            <agl-toggleSwitch [(ngModel)]="large" size="large" ariaLabel="Large" />
         </div>
     `
 })

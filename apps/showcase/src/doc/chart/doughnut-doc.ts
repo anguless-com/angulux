@@ -6,7 +6,7 @@ import { ChartModule } from '@anguless/angulux/chart';
     imports: [ChartModule],
     template: `
         <div class="card">
-            <agl-chart type="doughnut" [data]="data" [options]="options" [style]="{ width: '18rem' }" />
+            <agl-chart type="doughnut" ariaLabel="Share by category" [data]="data" [options]="options" [style]="{ width: '18rem' }" />
         </div>
     `
 })
