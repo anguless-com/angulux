@@ -41,7 +41,6 @@ import { ArrowDownIcon } from '@anguless/angulux/icons/arrowdown';
 import { ArrowUpIcon } from '@anguless/angulux/icons/arrowup';
 import { FilterIcon } from '@anguless/angulux/icons/filter';
 import { FilterFillIcon } from '@anguless/angulux/icons/filterfill';
-import { FilterSlashIcon } from '@anguless/angulux/icons/filterslash';
 import { PlusIcon } from '@anguless/angulux/icons/plus';
 import { SortAltIcon } from '@anguless/angulux/icons/sortalt';
 import { SortAmountDownIcon } from '@anguless/angulux/icons/sortamountdown';
@@ -55,7 +54,6 @@ import { PaginatorModule } from '@anguless/angulux/paginator';
 import { RadioButton, RadioButtonClickEvent, RadioButtonModule } from '@anguless/angulux/radiobutton';
 import { Scroller, ScrollerModule } from '@anguless/angulux/scroller';
 import { SelectModule } from '@anguless/angulux/select';
-import { SelectButtonModule } from '@anguless/angulux/selectbutton';
 import { Nullable, VoidListener } from '@anguless/angulux/ts-helpers';
 import {
     ColumnFilterPassThrough,
@@ -6442,7 +6440,6 @@ export class ColumnFilterFormElement extends BaseComponent<ColumnFilterPassThrou
         SelectModule,
         FormsModule,
         ButtonModule,
-        SelectButtonModule,
         DatePickerModule,
         InputNumberModule,
         BadgeModule,
@@ -6456,7 +6453,6 @@ export class ColumnFilterFormElement extends BaseComponent<ColumnFilterPassThrou
         SortAmountDownIcon,
         FilterIcon,
         FilterFillIcon,
-        FilterSlashIcon,
         PlusIcon,
         TrashIcon,
         RadioButtonModule,

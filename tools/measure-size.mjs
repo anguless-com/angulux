@@ -64,6 +64,7 @@ if (typeof JavaScriptTransformer !== 'function') fail('@angular/build/private no
 const transformer = new JavaScriptTransformer({ sourcemap: false, advancedOptimizations: true, jit: false });
 const transformed = new Map();
 const byKey = new Map(entries.map((e) => [e.key, join(DIST, e.file)]));
+const SIDE_EFFECT_FREE = manifest.sideEffects === false;
 
 /** Self-references resolve through the built `exports`; every file gets the app builder's passes. */
 const plugin = {
@@ -72,10 +73,16 @@ const plugin = {
         build.onResolve({ filter: /^@anguless\/angulux(\/.*)?$/ }, (a) => {
             const key = a.path === '@anguless/angulux' ? '.' : `.${a.path.slice('@anguless/angulux'.length)}`;
             const file = byKey.get(key);
-            return file ? { path: file } : { errors: [{ text: `${a.path} is not an entry point of the built package` }] };
+            if (!file) return { errors: [{ text: `${a.path} is not an entry point of the built package` }] };
+            // A path a plugin resolves does not get the package's `sideEffects` flag from esbuild:
+            // esbuild reads it only for paths it resolved itself. Without it every library file
+            // counts as having side effects, so a file that is imported and then not used stays in
+            // the bundle, which no application build does. Found on 2026-11-20: an unused import of
+            // the date picker weighed 122 kB here and nothing in an application.
+            return { path: file, sideEffects: SIDE_EFFECT_FREE ? false : undefined };
         });
         build.onLoad({ filter: /\.m?js$/ }, async (a) => {
-            if (!transformed.has(a.path)) transformed.set(a.path, transformer.transformFile(a.path, { sideEffects: async () => false }));
+            if (!transformed.has(a.path)) transformed.set(a.path, transformer.transformFile(a.path, { sideEffects: async () => !SIDE_EFFECT_FREE }));
             return { contents: await transformed.get(a.path), loader: 'js' };
         });
     }
