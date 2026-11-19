@@ -32,7 +32,7 @@
  *        node tools/check-lint.mjs --prune    shrink the baseline to what is left
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, relative, sep, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
