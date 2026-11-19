@@ -31,6 +31,11 @@ catalog:
     '@modelcontextprotocol/sdk': 1.32.2
     # Benchmark harness only (devDependency of angulux-mcp, which is private and unpublished).
     '@anthropic-ai/sdk': 1.8.0
+    # The lint gate (`check:lint`). Root devDependencies only: nothing published depends on
+    # them and none of them reaches a built package. `angular-eslint` peers on the other two.
+    'eslint': 10.14.0
+    'angular-eslint': 22.6.0
+    'typescript-eslint': 8.72.1
 
 # ---------------------------------------------------------------------------
 # angular22 catalog — two groups, two opposite rules:

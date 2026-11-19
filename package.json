@@ -28,7 +28,7 @@
         "check:dts": "node tools/check-dts.mjs",
         "check:signal-forms": "node tools/check-signal-forms.mjs",
         "check:scope-names": "node tools/codemod/scan-anguless-scope.mjs",
-        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names && npm run check:tsup && npm run check:action-inputs && npm run check:release-plugins && npm run check:facet-single-route && npm run check:corpus && npm run check:api-surface && npm run check:demo-code && npm run check:peer-licence && npm run check:install-scripts && npm run check:module-counts && npm run check:gate-count",
+        "check": "npm run check:catalog && npm run check:scope && npm run check:license && npm run check:names && npm run check:risk-coverage && npm run check:language && npm run check:public-tree && npm run check:scope-names && npm run check:tsup && npm run check:action-inputs && npm run check:release-plugins && npm run check:facet-single-route && npm run check:corpus && npm run check:api-surface && npm run check:demo-code && npm run check:lint && npm run check:peer-licence && npm run check:install-scripts && npm run check:module-counts && npm run check:gate-count",
         "build:lib": "pnpm --filter @anguless/angulux run build",
         "test:lib": "pnpm --filter @anguless/angulux run test:unit",
         "test:tools": "node --test \"packages/angulux-license-guard/test/**/*.test.mjs\" \"packages/angulux-migrate/test/**/*.test.mjs\" \"tools/corpus/test/**/*.test.mjs\" \"tools/test/**/*.test.mjs\" \"packages/angulux-mcp/test/**/*.test.mjs\"",
@@ -38,6 +38,7 @@
         "check:module-counts": "node tools/check-module-counts.mjs",
         "check:corpus": "node tools/check-corpus.mjs",
         "check:api-surface": "node tools/check-api-surface.mjs",
+        "check:lint": "node tools/check-lint.mjs",
         "check:demo-code": "node tools/check-demo-code.mjs",
         "check:peer-licence": "node tools/check-peer-licence.mjs",
         "check:action-inputs": "node tools/check-action-inputs.mjs",
@@ -78,8 +79,10 @@
         "@playwright/test": "1.65.0",
         "@types/jasmine": "7.0.0",
         "@types/node": "26.6.6",
+        "angular-eslint": "catalog:",
         "chart.js": "catalog:",
         "cross-env": "10.1.0",
+        "eslint": "catalog:",
         "fs-extra": "11.4.1",
         "glob": "14.0.6",
         "jasmine-core": "7.0.2",
@@ -88,6 +91,7 @@
         "tslib": "catalog:angular22",
         "tsup": "9.0.0",
         "typescript": "catalog:angular22",
+        "typescript-eslint": "catalog:",
         "zone.js": "catalog:angular22"
     }
 }

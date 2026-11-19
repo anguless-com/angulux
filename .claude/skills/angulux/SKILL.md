@@ -91,6 +91,12 @@ Prefer a catalog entry to a literal version in a package manifest. `check:catalo
 every manifest and fails on anything installed that is not exact, a catalog entry or a
 `workspace:` member, and on a ranged `pnpm.overrides` entry; `peerDependencies` stay ranges.
 
+**The conventions above are linted.** `check:lint` runs ESLint over `apps/showcase`,
+`apps/verify` and `e2e` and fails on a decorator input, output or query, constructor
+injection, `@HostBinding`, `*ngIf`, `ngClass`, `ngStyle`, `standalone`, explicit `OnPush`,
+`any` or `@ts-ignore`, and on a focused test in any spec. `eslint-disable` comments are
+ignored; fix the code. Library source is not linted until the Angular 23 trip.
+
 **The public API is frozen until the next Angular major.** `check:api-surface` compares the
 corpus with the last release and fails on a removed, renamed or retyped selector, input,
 output or slot. Do not add an exception to make it pass; that is the maintainers' decision.
