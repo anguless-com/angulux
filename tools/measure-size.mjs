@@ -167,15 +167,23 @@ if (args.includes('--check') || args.includes('--prune')) {
     const found = Object.fromEntries(rows.filter((r) => r.min > 0).map((r) => [r.name, r.min]));
     found['(all components)'] = everything.min;
 
+    // Read it and handle its absence, rather than asking first whether it is there.
     let file = { entryPoints: {} };
-    if (existsSync(BASELINE)) {
+    let text = null;
+    try {
+        text = readFileSync(BASELINE, 'utf8');
+    } catch (error) {
+        if (error.code !== 'ENOENT') fail(`${relative(ROOT, BASELINE)} could not be read: ${error.message}`);
+        if (!args.includes('--prune')) fail(`${relative(ROOT, BASELINE)} is missing`);
+    }
+    if (text !== null) {
         try {
-            file = JSON.parse(readFileSync(BASELINE, 'utf8'));
+            file = JSON.parse(text);
         } catch (error) {
             fail(`${relative(ROOT, BASELINE)} is not valid JSON: ${error.message}`);
         }
         if (typeof file.entryPoints !== 'object' || file.entryPoints === null) fail(`${relative(ROOT, BASELINE)} has no "entryPoints"`);
-    } else if (!args.includes('--prune')) fail(`${relative(ROOT, BASELINE)} is missing`);
+    }
 
     if (args.includes('--prune')) {
         const next = pruneBaseline(file.entryPoints, found);
