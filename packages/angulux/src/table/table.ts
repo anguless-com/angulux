@@ -2668,8 +2668,6 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             let dropHeaderOffset = ɵgetOffset(dropHeader);
 
             if (this.draggedColumn != dropHeader) {
-                let dragIndex = ɵindexWithinGroup(this.draggedColumn, 'preorderablecolumn');
-                let dropIndex = ɵindexWithinGroup(dropHeader, 'preorderablecolumn');
                 let targetLeft = dropHeaderOffset.left - containerOffset.left;
                 let targetTop = containerOffset.top - dropHeaderOffset.top;
                 let columnCenter = dropHeaderOffset.left + dropHeader.offsetWidth / 2;

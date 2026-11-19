@@ -175,7 +175,7 @@ export function ɵisTouchDevice() {
 }
 
 export function ɵisElement(obj: unknown) {
-    return typeof HTMLElement === 'object' ? obj instanceof HTMLElement : obj && typeof obj === 'object' && obj !== null && (obj as Node).nodeType === 1 && typeof (obj as Node).nodeName === 'string';
+    return typeof HTMLElement === 'object' ? obj instanceof HTMLElement : obj && typeof obj === 'object' && (obj as Node).nodeType === 1 && typeof (obj as Node).nodeName === 'string';
 }
 
 export function ɵinvokeElementMethod(element: object | null, methodName: string, args?: unknown[]): void {
