@@ -1,7 +1,7 @@
 {
     "$comment": "Minified bytes of every entry point of @anguless/angulux, bundled the way an application build bundles it (tools/measure-size.mjs). Checked by `npm run check:size` after the build: an entry point more than 1 % (at least 512 bytes) over its number fails, and so does one that far under it, until `node tools/measure-size.mjs --prune` lowers the number. Pruning never raises anything. Raising a number is a decision: edit it by hand and say why in the pull request.",
     "entryPoints": {
-        "(all components)": 1449173,
+        "(all components)": 1449149,
         "api": 21133,
         "autofocus": 39925,
         "avatar": 47051,
@@ -107,7 +107,7 @@
         "selectbutton": 68329,
         "skeleton": 44136,
         "splitbutton": 194249,
-        "table": 753462,
+        "table": 750444,
         "tabs": 76792,
         "tag": 45997,
         "textarea": 50393,
