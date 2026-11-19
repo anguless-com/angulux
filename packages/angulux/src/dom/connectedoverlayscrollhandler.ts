@@ -1,4 +1,4 @@
-import { DomHandler } from './domhandler';
+import { ɵgetScrollableParents } from './domhandler';
 
 export class ConnectedOverlayScrollHandler {
     element: any;
@@ -13,7 +13,7 @@ export class ConnectedOverlayScrollHandler {
     }
 
     bindScrollListener() {
-        this.scrollableParents = DomHandler.getScrollableParents(this.element);
+        this.scrollableParents = ɵgetScrollableParents(this.element);
         for (let i = 0; i < this.scrollableParents.length; i++) {
             this.scrollableParents[i].addEventListener('scroll', this.listener);
         }

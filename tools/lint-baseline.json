@@ -361,7 +361,7 @@
             "@typescript-eslint/no-explicit-any": 5
         },
         "packages/angulux/src/dom/domhandler.ts": {
-            "@typescript-eslint/no-explicit-any": 51
+            "@typescript-eslint/no-explicit-any": 50
         },
         "packages/angulux/src/drawer/drawer.spec.ts": {
             "@angular-eslint/prefer-standalone": 17,

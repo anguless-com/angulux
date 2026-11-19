@@ -32,7 +32,7 @@ import { BaseEditableHolder } from '@anguless/angulux/baseeditableholder';
 import { Bind, BindModule } from '@anguless/angulux/bind';
 import { Checkbox } from '@anguless/angulux/checkbox';
 import { Chip } from '@anguless/angulux/chip';
-import { DomHandler, unblockBodyScroll } from '@anguless/angulux/dom';
+import { unblockBodyScroll, ɵfocus } from '@anguless/angulux/dom';
 import { Fluid } from '@anguless/angulux/fluid';
 import { IconField } from '@anguless/angulux/iconfield';
 import { CheckIcon, ChevronDownIcon, SearchIcon, SpinnerIcon, TimesIcon } from '@anguless/angulux/icons';
@@ -1861,7 +1861,7 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
         }
 
         this.onChange.emit({ originalEvent: event, value: this.value });
-        DomHandler.focus(this.headerCheckboxViewChild?.inputViewChild?.nativeElement);
+        ɵfocus(this.headerCheckboxViewChild?.inputViewChild?.nativeElement);
         this.headerCheckboxFocus = true;
 
         event.originalEvent.preventDefault();

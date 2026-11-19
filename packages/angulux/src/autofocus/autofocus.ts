@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Directive, ElementRef, inject, Input, NgModule, PLATFORM_ID } from '@angular/core';
 import { BaseComponent } from '@anguless/angulux/basecomponent';
-import { DomHandler } from '@anguless/angulux/dom';
+import { ɵgetFocusableElements } from '@anguless/angulux/dom';
 
 /**
  * AutoFocus manages focus on focusable element on load.
@@ -49,7 +49,7 @@ export class AutoFocus extends BaseComponent {
     autoFocus() {
         if (isPlatformBrowser(this.platformId) && this.autofocus) {
             setTimeout(() => {
-                const focusableElements = DomHandler.getFocusableElements(this.host?.nativeElement);
+                const focusableElements = ɵgetFocusableElements(this.host?.nativeElement);
 
                 if (focusableElements.length === 0) {
                     this.host.nativeElement.focus();

@@ -1,4 +1,266 @@
 import { getCSSVariableByRegex } from '@anguless/angulux-utils';
+/*
+ * The functions DomHandler's own callers inside the library use, as functions.
+ *
+ * DomHandler is a class of static methods, and a bundler cannot drop a static method: a
+ * module that calls `DomHandler.getFocusableElements` ships all 76 of them. Measured with
+ * `npm run measure:size`, that was 16 kB minified in 24 entry points, most of which reach the
+ * class only through AutoFocus and use one method of it.
+ *
+ * Each body below is the method's body, moved and not rewritten; the static method now calls
+ * it, so there is one implementation and DomHandler behaves exactly as before. The `ɵ` prefix
+ * is Angular's own mark for "exported so another entry point can import it, not public API":
+ * these may change without notice. `DomHandler` remains the public surface.
+ *
+ * They are NOT interchangeable with the same-named helpers in `@anguless/angulux-utils`. Several
+ * differ on purpose — `getScrollableParents` here walks out of a shadow root, and
+ * `getFocusableElements` also requires an offset parent — which is why callers were moved onto
+ * these rather than onto those.
+ */
+/** What the walk up from an element meets: elements, and at the top of a shadow tree its root. */
+type WalkedNode = HTMLElement & { host?: HTMLElement };
+
+/** DomHandler.zindex lives here so a caller can advance it without holding the class. */
+const zIndexState = { current: 1000 };
+
+export function ɵnextZIndex(): number {
+    return ++zIndexState.current;
+}
+
+export function ɵaddClass(element: Element | null | undefined, className: string): void {
+    if (element && className) {
+        if (element.classList) element.classList.add(className);
+        else element.className += ' ' + className;
+    }
+}
+
+export function ɵremoveClass(element: Element | null | undefined, className: string): void {
+    if (element && className) {
+        if (element.classList) element.classList.remove(className);
+        else element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+}
+
+export function ɵsiblings(element: Element): HTMLElement[] {
+    return Array.prototype.filter.call((element.parentNode as ParentNode).children, function (child) {
+        return child !== element;
+    });
+}
+
+export function ɵfind(element: ParentNode | null, selector: string): HTMLElement[] {
+    return Array.from((element as ParentNode).querySelectorAll(selector));
+}
+
+export function ɵfindSingle(element: unknown, selector: string): HTMLElement | null {
+    return ɵisElement(element) ? (element as HTMLElement).querySelector<HTMLElement>(selector) : null;
+}
+
+export function ɵindex(element: Node): number {
+    let children = (element.parentNode as ParentNode).childNodes;
+    let num = 0;
+    for (var i = 0; i < children.length; i++) {
+        if (children[i] == element) return num;
+        if (children[i].nodeType == 1) num++;
+    }
+    return -1;
+}
+
+export function ɵindexWithinGroup(element: Node, attributeName: string): number {
+    let children = (element.parentNode ? element.parentNode.childNodes : []) as ArrayLike<Element>;
+    let num = 0;
+    for (var i = 0; i < children.length; i++) {
+        if (children[i] == element) return num;
+        if (children[i].attributes && children[i].attributes[attributeName] && children[i].nodeType == 1) num++;
+    }
+    return -1;
+}
+
+export function ɵgetParents(element: Node, parents: WalkedNode[] = []): WalkedNode[] {
+    return element['parentNode'] === null ? parents : ɵgetParents(element.parentNode, parents.concat([element.parentNode as WalkedNode]));
+}
+
+export function ɵgetScrollableParents(element: Node | null | undefined) {
+    let scrollableParents: HTMLElement[] = [];
+
+    if (element) {
+        let parents = ɵgetParents(element);
+        // Inside a shadow root the walk ends at the root, which is not an element and has no
+        // computed style: getComputedStyle threw, and the listeners bound after this one never
+        // were (upstream 22.1.3, held under P3.a, fixed under P3.c on 2026-11-17). The walk goes
+        // on from the host, whose ancestors can scroll as well.
+        const last = parents[parents.length - 1];
+        if (last && last.nodeType === 11 && last.host) {
+            parents = parents.concat([last.host], ɵgetParents(last.host));
+        }
+        const overflowRegex = /(auto|scroll)/;
+        const overflowCheck = (node: Element) => {
+            let styleDeclaration = window['getComputedStyle'](node, null);
+            return overflowRegex.test(styleDeclaration.getPropertyValue('overflow')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowX')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowY'));
+        };
+
+        for (let parent of parents) {
+            let scrollSelectors = parent.nodeType === 1 && parent.dataset['scrollselectors'];
+            if (scrollSelectors) {
+                let selectors = scrollSelectors.split(',');
+                for (let selector of selectors) {
+                    let el = ɵfindSingle(parent, selector);
+                    if (el && overflowCheck(el)) {
+                        scrollableParents.push(el);
+                    }
+                }
+            }
+
+            if (parent.nodeType === 1 && overflowCheck(parent)) {
+                scrollableParents.push(parent);
+            }
+        }
+    }
+
+    return scrollableParents;
+}
+
+export function ɵgetHiddenElementOuterHeight(element: HTMLElement): number {
+    element.style.visibility = 'hidden';
+    element.style.display = 'block';
+    let elementHeight = element.offsetHeight;
+    element.style.display = 'none';
+    element.style.visibility = 'visible';
+
+    return elementHeight;
+}
+
+export function ɵgetHiddenElementOuterWidth(element: HTMLElement): number {
+    element.style.visibility = 'hidden';
+    element.style.display = 'block';
+    let elementWidth = element.offsetWidth;
+    element.style.display = 'none';
+    element.style.visibility = 'visible';
+
+    return elementWidth;
+}
+
+export function ɵgetOuterWidth(el, margin?) {
+    let width = el.offsetWidth;
+
+    if (margin) {
+        let style = getComputedStyle(el);
+        width += parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+    }
+
+    return width;
+}
+
+export function ɵgetOuterHeight(el, margin?) {
+    let height = el.offsetHeight;
+
+    if (margin) {
+        let style = getComputedStyle(el);
+        height += parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+    }
+
+    return height;
+}
+
+export function ɵgetOffset(el) {
+    var rect = el.getBoundingClientRect();
+
+    return {
+        top: rect.top + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0),
+        left: rect.left + (window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0)
+    };
+}
+
+export function ɵisTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+export function ɵisElement(obj: unknown) {
+    return typeof HTMLElement === 'object' ? obj instanceof HTMLElement : obj && typeof obj === 'object' && (obj as Node).nodeType === 1 && typeof (obj as Node).nodeName === 'string';
+}
+
+export function ɵinvokeElementMethod(element: object | null, methodName: string, args?: unknown[]): void {
+    (element as Record<string, (...a: unknown[]) => unknown>)[methodName].apply(element, args);
+}
+
+export function ɵclearSelection(): void {
+    if (window.getSelection && window.getSelection()) {
+        if (window.getSelection()?.empty) {
+            window.getSelection()?.empty();
+        } else if (window.getSelection()?.removeAllRanges && (window.getSelection()?.rangeCount || 0) > 0 && (window.getSelection()?.getRangeAt(0)?.getClientRects()?.length || 0) > 0) {
+            window.getSelection()?.removeAllRanges();
+        }
+    } else if (document['selection'] && document['selection'].empty) {
+        try {
+            document['selection'].empty();
+        } catch (error) {
+            //ignore IE bug
+        }
+    }
+}
+
+export function ɵisVisible(element: HTMLElement) {
+    return element && element.offsetParent != null;
+}
+
+export function ɵfocus(element: HTMLElement | null, options?: FocusOptions): void {
+    element && document.activeElement !== element && element.focus(options);
+}
+
+export function ɵgetFocusableSelectorString(selector = ''): string {
+    return `button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    [href][clientHeight][clientWidth]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    input:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    select:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    textarea:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    [tabIndex]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    [contenteditable]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    .p-inputtext:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    .p-button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector}`;
+}
+
+export function ɵgetFocusableElements(element: ParentNode | null, selector = ''): HTMLElement[] {
+    let focusableElements = ɵfind(element, ɵgetFocusableSelectorString(selector));
+
+    let visibleFocusableElements: HTMLElement[] = [];
+
+    for (let focusableElement of focusableElements) {
+        const computedStyle = getComputedStyle(focusableElement);
+        if (ɵisVisible(focusableElement) && computedStyle.display != 'none' && computedStyle.visibility != 'hidden') visibleFocusableElements.push(focusableElement);
+    }
+
+    return visibleFocusableElements;
+}
+
+export function ɵgetFirstFocusableElement(element, selector = '') {
+    const focusableElements = ɵgetFocusableElements(element, selector);
+
+    return focusableElements.length > 0 ? focusableElements[0] : null;
+}
+
+export function ɵgetAttribute(element, name) {
+    if (element) {
+        const value = element.getAttribute(name);
+
+        if (!isNaN(value)) {
+            return +value;
+        }
+
+        if (value === 'true' || value === 'false') {
+            return value === 'true';
+        }
+
+        return value;
+    }
+
+    return undefined;
+}
+
+export function ɵsetAttribute(element, attribute = '', value) {
+    if (ɵisElement(element) && value !== null && value !== undefined) {
+        element.setAttribute(attribute, value);
+    }
+}
+
 /**
  * @dynamic is for runtime initializing DomHandler.browser
  *
@@ -9,7 +271,13 @@ import { getCSSVariableByRegex } from '@anguless/angulux-utils';
  */
 // @dynamic
 export class DomHandler {
-    public static zindex: number = 1000;
+    public static get zindex(): number {
+        return zIndexState.current;
+    }
+
+    public static set zindex(value: number) {
+        zIndexState.current = value;
+    }
 
     private static calculatedScrollbarWidth: number | null = null;
 
@@ -18,10 +286,7 @@ export class DomHandler {
     private static browser: any;
 
     public static addClass(element: any, className: string): void {
-        if (element && className) {
-            if (element.classList) element.classList.add(className);
-            else element.className += ' ' + className;
-        }
+        ɵaddClass(element, className);
     }
 
     public static addMultipleClasses(element: any, className: string): void {
@@ -41,10 +306,7 @@ export class DomHandler {
     }
 
     public static removeClass(element: any, className: string): void {
-        if (element && className) {
-            if (element.classList) element.classList.remove(className);
-            else element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-        }
+        ɵremoveClass(element, className);
     }
 
     public static removeMultipleClasses(element, classNames) {
@@ -66,37 +328,23 @@ export class DomHandler {
     }
 
     public static siblings(element: any): any {
-        return Array.prototype.filter.call(element.parentNode.children, function (child) {
-            return child !== element;
-        });
+        return ɵsiblings(element);
     }
 
     public static find(element: any, selector: string): any[] {
-        return Array.from(element.querySelectorAll(selector));
+        return ɵfind(element, selector);
     }
 
     public static findSingle(element: any, selector: string): any {
-        return this.isElement(element) ? element.querySelector(selector) : null;
+        return ɵfindSingle(element, selector);
     }
 
     public static index(element: any): number {
-        let children = element.parentNode.childNodes;
-        let num = 0;
-        for (var i = 0; i < children.length; i++) {
-            if (children[i] == element) return num;
-            if (children[i].nodeType == 1) num++;
-        }
-        return -1;
+        return ɵindex(element);
     }
 
     public static indexWithinGroup(element: any, attributeName: string): number {
-        let children = element.parentNode ? element.parentNode.childNodes : [];
-        let num = 0;
-        for (var i = 0; i < children.length; i++) {
-            if (children[i] == element) return num;
-            if (children[i].attributes && children[i].attributes[attributeName] && children[i].nodeType == 1) num++;
-        }
-        return -1;
+        return ɵindexWithinGroup(element, attributeName);
     }
 
     public static appendOverlay(overlay: any, target: any, appendTo: any = 'self') {
@@ -216,67 +464,19 @@ export class DomHandler {
     }
 
     static getParents(element: any, parents: any = []): any {
-        return element['parentNode'] === null ? parents : this.getParents(element.parentNode, parents.concat([element.parentNode]));
+        return ɵgetParents(element, parents);
     }
 
-    static getScrollableParents(element: any) {
-        let scrollableParents: any[] = [];
-
-        if (element) {
-            let parents = this.getParents(element);
-            // Inside a shadow root the walk ends at the root, which is not an element and has no
-            // computed style: getComputedStyle threw, and the listeners bound after this one never
-            // were (upstream 22.1.3, held under P3.a, fixed under P3.c on 2026-11-17). The walk goes
-            // on from the host, whose ancestors can scroll as well.
-            const last = parents[parents.length - 1];
-            if (last && last.nodeType === 11 && last.host) {
-                parents = parents.concat([last.host], this.getParents(last.host));
-            }
-            const overflowRegex = /(auto|scroll)/;
-            const overflowCheck = (node: any) => {
-                let styleDeclaration = window['getComputedStyle'](node, null);
-                return overflowRegex.test(styleDeclaration.getPropertyValue('overflow')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowX')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowY'));
-            };
-
-            for (let parent of parents) {
-                let scrollSelectors = parent.nodeType === 1 && parent.dataset['scrollselectors'];
-                if (scrollSelectors) {
-                    let selectors = scrollSelectors.split(',');
-                    for (let selector of selectors) {
-                        let el = this.findSingle(parent, selector);
-                        if (el && overflowCheck(el)) {
-                            scrollableParents.push(el);
-                        }
-                    }
-                }
-
-                if (parent.nodeType === 1 && overflowCheck(parent)) {
-                    scrollableParents.push(parent);
-                }
-            }
-        }
-
-        return scrollableParents;
+    static getScrollableParents(element: any): any[] {
+        return ɵgetScrollableParents(element);
     }
 
     public static getHiddenElementOuterHeight(element: any): number {
-        element.style.visibility = 'hidden';
-        element.style.display = 'block';
-        let elementHeight = element.offsetHeight;
-        element.style.display = 'none';
-        element.style.visibility = 'visible';
-
-        return elementHeight;
+        return ɵgetHiddenElementOuterHeight(element);
     }
 
     public static getHiddenElementOuterWidth(element: any): number {
-        element.style.visibility = 'hidden';
-        element.style.display = 'block';
-        let elementWidth = element.offsetWidth;
-        element.style.display = 'none';
-        element.style.visibility = 'visible';
-
-        return elementWidth;
+        return ɵgetHiddenElementOuterWidth(element);
     }
 
     public static getHiddenElementDimensions(element: any): any {
@@ -371,14 +571,7 @@ export class DomHandler {
     }
 
     public static getOuterWidth(el, margin?) {
-        let width = el.offsetWidth;
-
-        if (margin) {
-            let style = getComputedStyle(el);
-            width += parseFloat(style.marginLeft) + parseFloat(style.marginRight);
-        }
-
-        return width;
+        return ɵgetOuterWidth(el, margin);
     }
 
     public static getHorizontalPadding(el) {
@@ -416,14 +609,7 @@ export class DomHandler {
     }
 
     public static getOuterHeight(el, margin?) {
-        let height = el.offsetHeight;
-
-        if (margin) {
-            let style = getComputedStyle(el);
-            height += parseFloat(style.marginTop) + parseFloat(style.marginBottom);
-        }
-
-        return height;
+        return ɵgetOuterHeight(el, margin);
     }
 
     public static getHeight(el): number {
@@ -456,12 +642,7 @@ export class DomHandler {
     }
 
     public static getOffset(el) {
-        var rect = el.getBoundingClientRect();
-
-        return {
-            top: rect.top + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0),
-            left: rect.left + (window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0)
-        };
+        return ɵgetOffset(el);
     }
 
     public static replaceElementWith(element: any, replacementElement: any): any {
@@ -511,7 +692,7 @@ export class DomHandler {
     }
 
     public static isTouchDevice() {
-        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        return ɵisTouchDevice();
     }
 
     public static appendChild(element: any, target: any) {
@@ -531,8 +712,8 @@ export class DomHandler {
         else element.remove();
     }
 
-    public static isElement(obj: any) {
-        return typeof HTMLElement === 'object' ? obj instanceof HTMLElement : obj && typeof obj === 'object' && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === 'string';
+    public static isElement(obj: any): any {
+        return ɵisElement(obj);
     }
 
     public static calculateScrollbarWidth(el?: HTMLElement): number {
@@ -571,23 +752,11 @@ export class DomHandler {
     }
 
     public static invokeElementMethod(element: any, methodName: string, args?: any[]): void {
-        (element as any)[methodName].apply(element, args);
+        ɵinvokeElementMethod(element, methodName, args);
     }
 
     public static clearSelection(): void {
-        if (window.getSelection && window.getSelection()) {
-            if (window.getSelection()?.empty) {
-                window.getSelection()?.empty();
-            } else if (window.getSelection()?.removeAllRanges && (window.getSelection()?.rangeCount || 0) > 0 && (window.getSelection()?.getRangeAt(0)?.getClientRects()?.length || 0) > 0) {
-                window.getSelection()?.removeAllRanges();
-            }
-        } else if (document['selection'] && document['selection'].empty) {
-            try {
-                document['selection'].empty();
-            } catch (error) {
-                //ignore IE bug
-            }
-        }
+        ɵclearSelection();
     }
 
     public static getBrowser() {
@@ -634,7 +803,7 @@ export class DomHandler {
     }
 
     public static isVisible(element: HTMLElement) {
-        return element && element.offsetParent != null;
+        return ɵisVisible(element);
     }
 
     public static isExist(element: HTMLElement) {
@@ -642,32 +811,15 @@ export class DomHandler {
     }
 
     public static focus(element: HTMLElement, options?: FocusOptions): void {
-        element && document.activeElement !== element && element.focus(options);
+        ɵfocus(element, options);
     }
 
     public static getFocusableSelectorString(selector = ''): string {
-        return `button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        [href][clientHeight][clientWidth]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        input:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        select:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        textarea:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        [tabIndex]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        [contenteditable]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        .p-inputtext:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-        .p-button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector}`;
+        return ɵgetFocusableSelectorString(selector);
     }
 
     public static getFocusableElements(element, selector = ''): any[] {
-        let focusableElements = this.find(element, this.getFocusableSelectorString(selector));
-
-        let visibleFocusableElements: any[] = [];
-
-        for (let focusableElement of focusableElements) {
-            const computedStyle = getComputedStyle(focusableElement);
-            if (this.isVisible(focusableElement) && computedStyle.display != 'none' && computedStyle.visibility != 'hidden') visibleFocusableElements.push(focusableElement);
-        }
-
-        return visibleFocusableElements;
+        return ɵgetFocusableElements(element, selector);
     }
 
     public static getFocusableElement(element, selector = ''): any | null {
@@ -681,10 +833,8 @@ export class DomHandler {
         return null;
     }
 
-    public static getFirstFocusableElement(element, selector = '') {
-        const focusableElements = this.getFocusableElements(element, selector);
-
-        return focusableElements.length > 0 ? focusableElements[0] : null;
+    public static getFirstFocusableElement(element, selector = ''): any {
+        return ɵgetFirstFocusableElement(element, selector);
     }
 
     public static getLastFocusableElement(element, selector) {
@@ -763,21 +913,7 @@ export class DomHandler {
     }
 
     public static getAttribute(element, name) {
-        if (element) {
-            const value = element.getAttribute(name);
-
-            if (!isNaN(value)) {
-                return +value;
-            }
-
-            if (value === 'true' || value === 'false') {
-                return value === 'true';
-            }
-
-            return value;
-        }
-
-        return undefined;
+        return ɵgetAttribute(element, name);
     }
 
     public static calculateBodyScrollbarWidth() {
@@ -808,9 +944,7 @@ export class DomHandler {
     }
 
     public static setAttribute(element, attribute = '', value) {
-        if (this.isElement(element) && value !== null && value !== undefined) {
-            element.setAttribute(attribute, value);
-        }
+        return ɵsetAttribute(element, attribute, value);
     }
 
     public static setAttributes(element, attributes = {}) {
