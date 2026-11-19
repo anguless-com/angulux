@@ -1,10 +1,42 @@
+/*
+ * The two ObjectUtils methods the library's own overlay code calls, as functions.
+ *
+ * ObjectUtils is a class of static methods, like DomHandler, and for the same reason a module
+ * that calls one of them ships all 27. Overlay calls `merge` and nothing else, so every
+ * component that opens an overlay carried the whole class: 4.5 kB minified in eight entry
+ * points (`npm run measure:size -- --who anguless-angulux-utils.mjs`).
+ *
+ * Each body is the method's body, moved; the static method calls it, so there is one
+ * implementation and ObjectUtils behaves as before. The prefix is Angular's own mark for
+ * "exported so another entry point can import it, not public API".
+ */
+export function ɵisObject(value, empty = true) {
+    return typeof value === 'object' && !Array.isArray(value) && value != null && (empty || Object.keys(value).length !== 0);
+}
+
+type Mergeable = object | string | null | undefined;
+
+// Returns `any` because that is what callers of ObjectUtils.merge have always received: the
+// result is an object, a string or one of the arguments, depending on what came in.
+export function ɵmerge(obj1?: Mergeable, obj2?: Mergeable): any {
+    if (obj1 == undefined && obj2 == undefined) {
+        return undefined;
+    } else if ((obj1 == undefined || typeof obj1 === 'object') && (obj2 == undefined || typeof obj2 === 'object')) {
+        return { ...(obj1 || {}), ...(obj2 || {}) };
+    } else if ((obj1 == undefined || typeof obj1 === 'string') && (obj2 == undefined || typeof obj2 === 'string')) {
+        return [obj1 || '', obj2 || ''].join(' ');
+    }
+
+    return obj2 || obj1;
+}
+
 export class ObjectUtils {
     public static isArray(value, empty = true) {
         return Array.isArray(value) && (empty || value.length !== 0);
     }
 
     public static isObject(value, empty = true) {
-        return typeof value === 'object' && !Array.isArray(value) && value != null && (empty || Object.keys(value).length !== 0);
+        return ɵisObject(value, empty);
     }
 
     public static equals(obj1: any, obj2: any, field?: string): boolean {
@@ -149,7 +181,7 @@ export class ObjectUtils {
         return str;
     }
 
-    public static isDate(input: any) {
+    public static isDate(input: unknown) {
         return Object.prototype.toString.call(input) === '[object Date]';
     }
 
@@ -188,15 +220,7 @@ export class ObjectUtils {
     }
 
     public static merge(obj1?: any, obj2?: any): any {
-        if (obj1 == undefined && obj2 == undefined) {
-            return undefined;
-        } else if ((obj1 == undefined || typeof obj1 === 'object') && (obj2 == undefined || typeof obj2 === 'object')) {
-            return { ...(obj1 || {}), ...(obj2 || {}) };
-        } else if ((obj1 == undefined || typeof obj1 === 'string') && (obj2 == undefined || typeof obj2 === 'string')) {
-            return [obj1 || '', obj2 || ''].join(' ');
-        }
-
-        return obj2 || obj1;
+        return ɵmerge(obj1, obj2);
     }
 
     public static isPrintableCharacter(char = '') {

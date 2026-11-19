@@ -26,7 +26,7 @@ import { ConnectedOverlayScrollHandler } from '@anguless/angulux/dom';
 import { MotionModule } from '@anguless/angulux/motion';
 import { Subscription } from 'rxjs';
 import { VoidListener } from '@anguless/angulux/ts-helpers';
-import { ObjectUtils, ZIndexUtils } from '@anguless/angulux/utils';
+import { ZIndexUtils, ɵmerge } from '@anguless/angulux/utils';
 import { OverlayContentTemplateContext } from '@anguless/angulux/types/overlay';
 import { OverlayStyle } from './style/overlaystyle';
 
@@ -110,7 +110,7 @@ export class Overlay extends BaseComponent {
      * @group Props
      */
     @Input() get style(): { [klass: string]: any } | null | undefined {
-        return ObjectUtils.merge(this._style, this.modal ? this.overlayResponsiveOptions?.style : this.overlayOptions?.style);
+        return ɵmerge(this._style, this.modal ? this.overlayResponsiveOptions?.style : this.overlayOptions?.style);
     }
     set style(value: { [klass: string]: any } | null | undefined) {
         this._style = value;
@@ -121,7 +121,7 @@ export class Overlay extends BaseComponent {
      * @group Props
      */
     @Input() get styleClass(): string {
-        return ObjectUtils.merge(this._styleClass, this.modal ? this.overlayResponsiveOptions?.styleClass : this.overlayOptions?.styleClass);
+        return ɵmerge(this._styleClass, this.modal ? this.overlayResponsiveOptions?.styleClass : this.overlayOptions?.styleClass);
     }
     set styleClass(value: string) {
         this._styleClass = value;
@@ -132,7 +132,7 @@ export class Overlay extends BaseComponent {
      * @group Props
      */
     @Input() get contentStyle(): { [klass: string]: any } | null | undefined {
-        return ObjectUtils.merge(this._contentStyle, this.modal ? this.overlayResponsiveOptions?.contentStyle : this.overlayOptions?.contentStyle);
+        return ɵmerge(this._contentStyle, this.modal ? this.overlayResponsiveOptions?.contentStyle : this.overlayOptions?.contentStyle);
     }
     set contentStyle(value: { [klass: string]: any } | null | undefined) {
         this._contentStyle = value;
@@ -143,7 +143,7 @@ export class Overlay extends BaseComponent {
      * @group Props
      */
     @Input() get contentStyleClass(): string {
-        return ObjectUtils.merge(this._contentStyleClass, this.modal ? this.overlayResponsiveOptions?.contentStyleClass : this.overlayOptions?.contentStyleClass);
+        return ɵmerge(this._contentStyleClass, this.modal ? this.overlayResponsiveOptions?.contentStyleClass : this.overlayOptions?.contentStyleClass);
     }
     set contentStyleClass(value: string) {
         this._contentStyleClass = value;
