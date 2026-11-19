@@ -7,6 +7,8 @@
 //   node tools/measure-size.mjs --json out.json  the same numbers, for a diff
 //   node tools/measure-size.mjs --top 30         how many rows of the table to print
 //   node tools/measure-size.mjs --why button     the files inside one entry point's bundle
+//   node tools/measure-size.mjs --who dom        which entry points pay for a file, and how much
+//   node tools/measure-size.mjs --shared         files ranked by size × the bundles they are in
 //   node tools/measure-size.mjs --check          compare with tools/size-baseline.json (CI)
 //   node tools/measure-size.mjs --prune          lower the baseline to what was measured
 //
@@ -37,6 +39,7 @@ const flag = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : und
 const jsonOut = flag('--json');
 const top = Number(flag('--top') ?? 25);
 const why = flag('--why');
+const who = flag('--who');
 
 if (!existsSync(join(DIST, 'package.json'))) fail(`no build at ${relative(ROOT, DIST)} — build the packages first (see the "Build" job in .github/workflows/ci.yml)`);
 
@@ -208,6 +211,42 @@ if (args.includes('--check') || args.includes('--prune')) {
     if (stale) console.error(`\nmeasure-size: the baseline is stale in ${stale} place(s). Lower it to match: node tools/measure-size.mjs --prune`);
     if (verdict.grew.length || stale) process.exit(1);
     console.log(`measure-size: ${Object.keys(found).length} entry points measured, each within its allowance of the baseline (1 %, at least ${allowance(0)} bytes)`);
+    process.exit(0);
+}
+
+if (args.includes('--shared')) {
+    // Where one fix pays many times: a file's size multiplied by how many component bundles
+    // carry it. The entry point's own file is left out — that is the module, not its baggage.
+    const acc = new Map();
+    for (const row of components) {
+        const own = byKey.get(row.name === '(root)' ? '.' : `./${row.name}`);
+        for (const [path, bytes] of Object.entries(row.inputs)) {
+            if (own && resolve(ROOT, path) === own) continue;
+            const r = acc.get(path) ?? { path, max: 0, sum: 0, bundles: 0 };
+            r.max = Math.max(r.max, bytes);
+            r.sum += bytes;
+            r.bundles += 1;
+            acc.set(path, r);
+        }
+    }
+    console.log(`${'sum'.padStart(7)} ${'max'.padStart(7)} ${'in'.padStart(4)}  file (kB minified, across ${components.length} component bundles)`);
+    for (const r of [...acc.values()].sort((a, b) => b.sum - a.sum).slice(0, top)) console.log(`${kb(r.sum)} ${kb(r.max)} ${String(r.bundles).padStart(4)}  ${r.path}`);
+    process.exit(0);
+}
+
+if (who) {
+    // `--why` read the other way round: one file, and every entry point whose bundle holds
+    // part of it. A file that weighs the same in dozens of bundles is being taken whole.
+    const paid = [];
+    for (const row of rows) {
+        for (const [path, bytes] of Object.entries(row.inputs)) {
+            if (path.includes(who)) paid.push({ entry: row.name, path, bytes });
+        }
+    }
+    if (paid.length === 0) fail(`--who ${who}: no bundle contains a file with that in its path`);
+    paid.sort((a, b) => b.bytes - a.bytes || a.entry.localeCompare(b.entry));
+    for (const p of paid) console.log(`${kb(p.bytes)}  ${p.entry.padEnd(24)} ${p.path}`);
+    console.log(`\n${paid.length} bundle(s) hold part of a file matching "${who}"`);
     process.exit(0);
 }
 

@@ -62,7 +62,7 @@ import {
     MultiSelectSelectAllChangeEvent,
     MultiSelectSelectedItemsTemplateContext
 } from '@anguless/angulux/types/multiselect';
-import { ObjectUtils } from '@anguless/angulux/utils';
+import { ɵisObject } from '@anguless/angulux/utils';
 import { MultiSelectStyle } from './style/multiselectstyle';
 
 const MULTISELECT_INSTANCE = new InjectionToken<MultiSelect>('MULTISELECT_INSTANCE');
@@ -1142,7 +1142,7 @@ export class MultiSelect extends BaseEditableHolder<MultiSelectPassThrough> {
 
     visibleOptions = computed(() => {
         const options = this.getAllVisibleAndNonVisibleOptions();
-        const isArrayOfObjects = isArray(options) && ObjectUtils.isObject(options[0]);
+        const isArrayOfObjects = isArray(options) && ɵisObject(options[0]);
 
         if (this._filterValue()) {
             let filteredOptions;
