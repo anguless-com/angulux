@@ -6,7 +6,7 @@ import { ButtonModule } from '@anguless/angulux/button';
     imports: [ButtonModule],
     template: `
         <div class="card">
-            <button aglButton>
+            <button type="button" aglButton>
                 <i class="pi pi-check" aglButtonIcon></i>
                 <span aglButtonLabel>Save</span>
             </button>

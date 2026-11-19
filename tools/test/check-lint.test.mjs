@@ -93,6 +93,37 @@ test('an external template is linted', async () => {
     assert.ok(found.some((f) => /prefer-control-flow/.test(f)), found.join('\n'));
 });
 
+const withTemplate = (html) => component('', '').replace(`template: ''`, 'template: `' + html + '`');
+
+const A11Y = [
+    ['a click handler on a div', '<div (click)="go()">x</div>', /interactive-supports-focus/],
+    ['a click handler with no key handler', '<div (click)="go()">x</div>', /click-events-have-key-events/],
+    ['a button without a type', '<button>x</button>', /button-has-type/],
+    ['autofocus', '<input type="text" aria-label="n" autofocus />', /no-autofocus/],
+    ['an image without alt', '<img src="a.png" />', /alt-text/],
+    ['a positive tabindex', '<span tabindex="3">x</span>', /no-positive-tabindex/],
+    ['an invalid aria attribute', '<span aria-labeledby="a">x</span>', /valid-aria/],
+    ['a role without its required aria', '<span role="checkbox">x</span>', /role-has-required-aria/]
+];
+
+for (const [name, html, expected] of A11Y) {
+    test(`showcase accessibility fires on: ${name}`, async () => {
+        const found = await rulesFor('apps/showcase/src/probe.ts', withTemplate(html));
+        assert.ok(
+            found.some((f) => expected.test(f)),
+            `expected ${expected} in:\n${found.join('\n') || '(nothing reported)'}`
+        );
+    });
+}
+
+test('a backdrop hidden from assistive technology may close on click', async () => {
+    assert.deepEqual(await rulesFor('apps/showcase/src/probe.ts', withTemplate('<div aria-hidden="true" (click)="go()"></div>')), []);
+});
+
+test('the verification app is a harness: accessibility rules do not apply to its fixtures', async () => {
+    assert.deepEqual(await rulesFor(APP, withTemplate('<input type="text" autofocus /><div (keydown)="go()">x</div>')), []);
+});
+
 test('an eslint-disable comment does not silence a finding', async () => {
     const found = await rulesFor(APP, `// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport const x: any = 1;`);
     assert.ok(found.some((f) => /no-explicit-any/.test(f)), found.join('\n'));

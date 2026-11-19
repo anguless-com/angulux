@@ -17,8 +17,10 @@
  * error. Linting it here would mean freezing a baseline nobody reads.
  *
  * WHAT IS LEFT OFF, and why, so nobody adds it back on a hunch:
- *   - the template accessibility rules: they report on the apps today; each hit has to be
- *     read before it is fixed or frozen, and that is its own change
+ *   - the template accessibility rules on `apps/verify`: that app is a harness of fixtures
+ *     that reproduce defects on purpose (an `autofocus` attribute, a wrapper that listens for
+ *     keys), not an interface anyone uses. They are on for the showcase, which is public.
+ *   - `prefer-ngsrc`: the showcase is prerendered to static files and ships no image loader
  *   - `FormsModule`: the showcase demonstrates template-driven forms on purpose
  *   - skipped and expected-failing tests: the library carries skips inherited from upstream
  *     and e2e carries two documented `test.fail()`; only FOCUSED tests are refused, because a
@@ -89,6 +91,27 @@ export default [
             '@angular-eslint/template/prefer-control-flow': 'error',
             '@angular-eslint/template/prefer-class-binding': 'error',
             '@angular-eslint/template/prefer-style-binding': 'error'
+        }
+    },
+
+    // The public site: static accessibility. What a parser can see without rendering; the
+    // rendered page is the browser gate's business.
+    {
+        files: ['apps/showcase/**/*.html'],
+        rules: {
+            '@angular-eslint/template/alt-text': 'error',
+            '@angular-eslint/template/elements-content': 'error',
+            '@angular-eslint/template/label-has-associated-control': 'error',
+            '@angular-eslint/template/interactive-supports-focus': 'error',
+            '@angular-eslint/template/click-events-have-key-events': 'error',
+            '@angular-eslint/template/mouse-events-have-key-events': 'error',
+            '@angular-eslint/template/role-has-required-aria': 'error',
+            '@angular-eslint/template/valid-aria': 'error',
+            '@angular-eslint/template/table-scope': 'error',
+            '@angular-eslint/template/no-positive-tabindex': 'error',
+            '@angular-eslint/template/no-autofocus': 'error',
+            '@angular-eslint/template/no-distracting-elements': 'error',
+            '@angular-eslint/template/button-has-type': 'error'
         }
     },
 
