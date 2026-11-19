@@ -34,7 +34,8 @@ test('an outward-facing tool carries a bare name, not the @anguless scope', () =
 
 test('every dependency is pinned exactly or through the gated catalog', () => {
     // Constitution P4. A caret here is the drift that one careless update turns into a
-    // different package — and `catalog:` is the form check:catalog can actually see.
+    // different package. check:catalog holds every manifest to the same rule; this test
+    // keeps it next to the package it describes.
     for (const [name, spec] of Object.entries({ ...pkg.dependencies, ...pkg.devDependencies })) {
         assert.match(spec, /^(catalog:|\d+\.\d+\.\d+)/, `${name}: "${spec}" is neither exact nor catalog:`);
     }

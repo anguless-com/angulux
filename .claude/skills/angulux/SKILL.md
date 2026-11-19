@@ -87,8 +87,9 @@ this one, and comments and test fixtures are in scope.
 
 **Dependencies are catalog-pinned.** Versions live in `pnpm-workspace.yaml`, exact for
 installed packages (this is the license risk surface) and ranged for `@angular/*` peers.
-Never add a literal version to a package manifest — `check:catalog` fails, and a version
-nothing gates is a version that drifts.
+Prefer a catalog entry to a literal version in a package manifest. `check:catalog` reads
+every manifest and fails on anything installed that is not exact, a catalog entry or a
+`workspace:` member, and on a ranged `pnpm.overrides` entry; `peerDependencies` stay ranges.
 
 **The public API is frozen until the next Angular major.** `check:api-surface` compares the
 corpus with the last release and fails on a removed, renamed or retyped selector, input,
