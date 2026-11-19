@@ -1,5 +1,5 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { BootstrapContext, bootstrapApplication } from '@angular/platform-browser';
+import { BootstrapContext, bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
@@ -48,6 +48,7 @@ const bootstrap = (context: BootstrapContext) => {
             providers: [
                 provideBrowserGlobalErrorListeners(),
                 provideZonelessChangeDetection(),
+                provideClientHydration(),
                 provideServerRendering(withRoutes(serverRoutes)),
                 provideRouter(routes, withComponentInputBinding()),
                 provideAngulux({ theme: { preset: Aura, options: { darkModeSelector: '.dark' } } })

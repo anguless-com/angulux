@@ -56,6 +56,7 @@ site/
 # app's own prebuild step — committing them would create a second copy that can go stale
 # without anything noticing, which is the exact failure the extraction exists to prevent.
 apps/showcase/public/
+apps/showcase/src/generated/
 
 # Agent-tool settings that belong to a machine, not to the project. `settings.local.json` is
 # an MCP-server enablement list plus a permission allowlist — Claude Code's own convention

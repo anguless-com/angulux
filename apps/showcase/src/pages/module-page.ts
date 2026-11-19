@@ -1,9 +1,9 @@
-import { NgComponentOutlet } from '@angular/common';
 import { Component, PendingTasks, computed, effect, inject, input, signal, Type } from '@angular/core';
 import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
 import { ApiGroup, ApiTable, declarationAnchor } from '../components/api-table';
 import { CodeBlock } from '../components/code-block';
 import { DemoCode } from '../components/demo-code';
+import { DemoHost } from '../components/demo-host';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS, DemoSection } from '../doc/registry';
 
@@ -23,7 +23,7 @@ interface LoadedSection {
  */
 @Component({
     selector: 'agl-module-page',
-    imports: [NgComponentOutlet, ApiTable, CodeBlock, DemoCode, Toc],
+    imports: [ApiTable, CodeBlock, DemoCode, DemoHost, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -58,7 +58,7 @@ interface LoadedSection {
                                 <h2 class="text-xl font-semibold tracking-tight">{{ loaded.section.label }}</h2>
                                 <p class="mb-4 mt-1 text-sm text-muted">{{ loaded.section.description }}</p>
 
-                                <ng-container *ngComponentOutlet="loaded.component" />
+                                <agl-demo-host [component]="loaded.component" />
 
                                 @if (loaded.demo) {
                                     <agl-demo-code [demo]="loaded.demo" [palette]="palette()" />
@@ -141,22 +141,27 @@ export class ModulePage {
             this.sections.set([]);
             this.notFound.set(false);
 
-            // `name` is captured so a slow response for a module the reader has already
-            // navigated away from cannot overwrite the page they are now looking at.
             this.pending.run(() => this.load(name));
         });
     }
 
+    /**
+     * Everything the page shows is gathered first and published in one step.
+     *
+     * It used to arrive in two: the API as soon as its payload was read, the demos a moment
+     * later. The demos sit ABOVE the API, so the second step pushed a table the reader had
+     * already started on off the bottom of the screen — measured as a layout shift of about
+     * 0.35 on 38 of the 68 pages, where 0.25 is already "poor". It also defeated hydration:
+     * a first render without the demos does not match the prerendered page, so Angular threw
+     * the prerendered demos away and built them again.
+     */
     private async load(name: string): Promise<void> {
+        let api: ApiModule;
+        let groups: ApiGroup[];
+
         try {
-            const api = await loadApiModule(name);
-
-            if (this.module() !== name) {
-                return;
-            }
-
-            this.api.set(api);
-            this.groups.set(await this.resolveInheritance(api));
+            api = await loadApiModule(name);
+            groups = await this.resolveInheritance(api);
         } catch {
             if (this.module() === name) {
                 this.notFound.set(true);
@@ -166,20 +171,26 @@ export class ModulePage {
         }
 
         const defined = DEMO_SECTIONS[name] ?? [];
+        let palette: [string, string][] = [];
+        let sections: LoadedSection[] = [];
 
-        if (!defined.length) {
-            return;
+        if (defined.length) {
+            const [payload, components] = await Promise.all([loadDemos(name), Promise.all(defined.map((section) => section.load()))]);
+
+            palette = payload.palette;
+            sections = defined.map((section, index) => ({ section, component: components[index], demo: payload.demos[section.id] }));
         }
 
-        const payload = await loadDemos(name);
-        const components = await Promise.all(defined.map((section) => section.load()));
-
+        // `name` was captured so a slow response for a module the reader has already navigated
+        // away from cannot overwrite the page they are now looking at.
         if (this.module() !== name) {
             return;
         }
 
-        this.palette.set(payload.palette);
-        this.sections.set(defined.map((section, index) => ({ section, component: components[index], demo: payload.demos[section.id] })));
+        this.palette.set(palette);
+        this.groups.set(groups);
+        this.sections.set(sections);
+        this.api.set(api);
     }
 
     /**

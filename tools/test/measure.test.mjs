@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { allowance, attribute, compressed, entryPoints, family, heaviestInputs, judge, owner, pruneBaseline, sharedInputs } from '../lib/size-measure.mjs';
-import { kind, median, routes } from '../measure-load.mjs';
+import { CLS_LIMIT, judgeLoad, kind, median, routes } from '../measure-load.mjs';
 
 test('entryPoints — every export that resolves to JavaScript, and nothing else', () => {
     const found = entryPoints({
@@ -168,4 +168,23 @@ test('pruneBaseline — lowers, adds what is new, drops what is gone, and never 
 
 test('pruneBaseline — keys come out sorted, so the file diffs line by line', () => {
     assert.deepEqual(Object.keys(pruneBaseline({}, { table: 1, api: 2, 'icons/check': 3 })), ['api', 'icons/check', 'table']);
+});
+
+test('judgeLoad — the showcase as it was measured before the fix fails on both counts', () => {
+    // Real numbers from the run that found the problem: /button on `main` at e185f4f.
+    const problems = judgeLoad({ '/button': { cls: 0.346, fonts: ['primeicons-4GST5W3O.woff2', 'primeicons-RSSEDYLY.eot'] } });
+    assert.equal(problems.length, 2);
+    assert.match(problems[0], /\/button: requested primeicons-RSSEDYLY\.eot/);
+    assert.match(problems[1], /\/button: layout shift 0\.346/);
+});
+
+test('judgeLoad — and as measured after it, passes', () => {
+    assert.deepEqual(judgeLoad({ '/button': { cls: 0.006, fonts: ['primeicons-4GST5W3O.woff2'] }, '/theming': { cls: 0, fonts: [] } }), []);
+});
+
+test('judgeLoad — the limit itself is a failure, and each page is judged on its own', () => {
+    const problems = judgeLoad({ '/a': { cls: CLS_LIMIT, fonts: [] }, '/b': { cls: CLS_LIMIT - 0.001, fonts: [] }, '/c': { cls: 0, fonts: ['x.ttf'] } });
+    assert.equal(problems.length, 2);
+    assert.match(problems[0], /^\/a: layout shift/);
+    assert.match(problems[1], /^\/c: requested x\.ttf/);
 });

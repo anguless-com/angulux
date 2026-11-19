@@ -17,7 +17,13 @@
 //     runs this. They move with the load on that machine; compare runs taken on the same
 //     machine in the same sitting, and read a difference of a few per cent as noise.
 //
-// It measures; it does not judge. Exit 2 means it could not measure.
+//   node tools/measure-load.mjs --check --runs 1 --only /,button,table   (CI)
+//
+// Without --check it measures and does not judge. With it, two things fail the run (exit 1),
+// and both are properties of what the page does rather than of how fast the machine is:
+//   • a font file other than woff2 was requested;
+//   • the layout shifted by CLS_LIMIT or more while the page loaded.
+// Timings are never judged. Exit 2 means it could not measure.
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -34,6 +40,24 @@ export const VIEWPORT = { width: 412, height: 823 };
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.eot': 'application/vnd.ms-fontobject', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.txt': 'text/plain; charset=utf-8', '.webp': 'image/webp' };
 const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.txt']);
+
+/**
+ * Cumulative layout shift a page may reach under --check. The pages this was written for sat
+ * at about 0.35 before they were fixed and at about 0.006 after; 0.1 is the line web vitals
+ * calls "good", and it is far from both.
+ */
+export const CLS_LIMIT = 0.1;
+
+/** What --check objects to, per page. `pages` is the report's `{ route: { cls, fonts } }`. */
+export function judgeLoad(pages) {
+    const problems = [];
+    for (const [route, p] of Object.entries(pages)) {
+        const legacy = (p.fonts ?? []).filter((f) => !f.endsWith('.woff2'));
+        if (legacy.length) problems.push(`${route}: requested ${legacy.join(', ')} — only woff2 should ever be fetched`);
+        if (p.cls >= CLS_LIMIT) problems.push(`${route}: layout shift ${p.cls}, limit ${CLS_LIMIT}`);
+    }
+    return problems;
+}
 
 export function kind(path) {
     const ext = extname(path);
@@ -142,6 +166,12 @@ async function visit(browser, origin, route) {
     });
     cdp.on('Network.loadingFailed', (e) => failed.push(requests.get(e.requestId)?.url ?? e.requestId));
 
+    // A page that logs an error — a hydration mismatch, a failed chunk — did not load the way
+    // a reader's would, and its numbers describe something else.
+    const errors = [];
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text().split('\n')[0].slice(0, 200)));
+    page.on('pageerror', (e) => errors.push(String(e.message).split('\n')[0].slice(0, 200)));
+
     await page.goto(origin + route, { waitUntil: 'networkidle', timeout: 120_000 });
     await page.waitForTimeout(1000);
     const m = await page.evaluate(() => window.__load);
@@ -150,15 +180,18 @@ async function visit(browser, origin, route) {
     const bytes = { html: 0, js: 0, css: 0, font: 0, data: 0, other: 0 };
     let count = 0;
     const bad = [];
+    const fonts = [];
     for (const r of requests.values()) {
         if (!r.url.startsWith(origin)) continue;
         if (r.status >= 400) bad.push(`${r.status} ${r.url.slice(origin.length)}`);
-        bytes[kind(new URL(r.url).pathname)] += r.bytes;
+        const path = new URL(r.url).pathname;
+        if (kind(path) === 'font') fonts.push(path.split('/').pop());
+        bytes[kind(path)] += r.bytes;
         count += 1;
     }
     // Total blocking time: the part of every long task past 50 ms, counted from first paint.
     const tbt = m.tasks.filter(([start]) => m.fcp === null || start >= m.fcp).reduce((a, [, d]) => a + Math.max(0, d - 50), 0);
-    return { bytes, total: Object.values(bytes).reduce((a, b) => a + b, 0), requests: count, fcp: m.fcp, lcp: m.lcp, cls: m.cls, tbt, bad, failed };
+    return { bytes, total: Object.values(bytes).reduce((a, b) => a + b, 0), requests: count, fcp: m.fcp, lcp: m.lcp, cls: m.cls, tbt, bad, failed, errors, fonts: fonts.sort() };
 }
 
 async function main() {
@@ -191,10 +224,11 @@ async function main() {
             const samples = [];
             for (let i = 0; i < runs; i += 1) samples.push(await visit(browser, origin, route));
             const first = samples[0];
-            if (first.bad.length || first.failed.length) problems.push(`${route}: ${[...first.bad, ...first.failed.map((f) => `failed ${f}`)].join(', ')}`);
+            if (first.bad.length || first.failed.length || first.errors.length) problems.push(`${route}: ${[...first.bad, ...first.failed.map((f) => `failed ${f}`), ...first.errors.map((e) => `console: ${e}`)].join(', ')}`);
             if (samples.some((s) => s.fcp === null || s.lcp === null)) problems.push(`${route}: no paint was recorded`);
             report.pages[route] = {
                 requests: first.requests,
+                fonts: first.fonts,
                 bytes: first.bytes,
                 total: first.total,
                 fcp: Math.round(median(samples.map((s) => s.fcp))),
@@ -224,6 +258,16 @@ async function main() {
     }
     const all = rows.map(([, p]) => p);
     console.log(`\nmedian page: ${k(median(all.map((p) => p.total)))} kB, FCP ${median(all.map((p) => p.fcp))} ms, LCP ${median(all.map((p) => p.lcp))} ms, TBT ${median(all.map((p) => p.tbt))} ms`);
+
+    if (problems.length === 0 && args.includes('--check')) {
+        const verdict = judgeLoad(report.pages);
+        if (verdict.length) {
+            console.error(`\nmeasure-load: ${verdict.length} problem(s) a reader pays for on every visit:`);
+            for (const v of verdict) console.error(`  ${v}`);
+            process.exit(1);
+        }
+        console.log(`\nmeasure-load: ${rows.length} page(s) checked — no font but woff2, layout shift under ${CLS_LIMIT}`);
+    }
 
     if (problems.length) {
         console.error(`\nmeasure-load: ${problems.length} page(s) did not load cleanly, so their numbers are not a measurement:`);

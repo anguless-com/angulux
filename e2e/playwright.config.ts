@@ -97,7 +97,7 @@ export default defineConfig({
         },
         {
             name: 'showcase',
-            testMatch: /(demo-visibility|showcase-nav|showcase-axe)\.spec\.ts/,
+            testMatch: /(demo-visibility|showcase-nav|showcase-axe|showcase-load)\.spec\.ts/,
             use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4211' }
         }
     ]
