@@ -26,7 +26,6 @@
         "check:names": "node ../../tools/codemod/scan-prime-names.mjs",
         "build:prebuild": "node ../../tools/build/prebuild.mjs",
         "build:postbuild": "node ../../tools/build/postbuild.mjs",
-        "lint": "ng lint",
         "test:unit": "ng test angulux --watch=false --browsers=ChromeHeadless",
         "test:unit:watch": "ng test angulux"
     },
