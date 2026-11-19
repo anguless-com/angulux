@@ -97,9 +97,11 @@ import { ColorSchemeToggle } from './theme';
 
         <div class="mx-auto flex max-w-[100rem]">
             <!-- Backdrop for the slide-over. Only reachable below lg, where the sidebar covers
-                 the page rather than sitting beside it. -->
+                 the page rather than sitting beside it. It is a pointer convenience and is
+                 hidden from assistive technology: the keyboard closes the slide-over with
+                 Escape or with the toggle button, which carries aria-expanded. -->
             @if (navOpen()) {
-                <div class="fixed inset-0 top-14 z-30 bg-ink/20 lg:hidden" (click)="navOpen.set(false)"></div>
+                <div class="fixed inset-0 top-14 z-30 bg-ink/20 lg:hidden" aria-hidden="true" (click)="navOpen.set(false)"></div>
             }
 
             <aside
@@ -245,6 +247,14 @@ export class AppComponent {
      * filter itself and in any text input a demo renders.
      */
     onKeydown(event: KeyboardEvent): void {
+        // Escape closes the slide-over. The backdrop only answers a pointer, so without this
+        // a keyboard user who opened the nav had one way out: tab back to the toggle.
+        if (event.key === 'Escape' && this.navOpen()) {
+            this.navOpen.set(false);
+
+            return;
+        }
+
         if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
             return;
         }
