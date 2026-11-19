@@ -7,7 +7,7 @@ import { DatePickerModule } from '@anguless/angulux/datepicker';
     imports: [FormsModule, DatePickerModule],
     template: `
         <div class="card">
-            <agl-datePicker [(ngModel)]="dates" selectionMode="range" [readonlyInput]="true" />
+            <agl-datePicker [(ngModel)]="dates" selectionMode="range" [readonlyInput]="true" ariaLabel="Date range" />
         </div>
     `
 })

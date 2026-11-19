@@ -8,7 +8,7 @@ import { ButtonModule } from '@anguless/angulux/button';
     template: `
         <div class="card">
             <div style="width: 100%; display: grid; gap: 0.75rem; justify-items: center">
-                <agl-progressBar [value]="value()" />
+                <agl-progressBar [value]="value()" aria-label="Upload progress" />
                 <agl-button label="Advance" (onClick)="advance()" />
             </div>
         </div>

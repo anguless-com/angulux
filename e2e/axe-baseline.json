@@ -14,17 +14,10 @@
         "/card": {
             "color-contrast": 1
         },
-        "/chart": {
-            "role-img-alt": 2
-        },
-        "/checkbox": {
-            "label": 4
-        },
         "/confirmdialog": {
             "color-contrast": 1
         },
         "/datepicker": {
-            "label": 4,
             "label-content-name-mismatch": 2
         },
         "/dialog": {
@@ -43,14 +36,8 @@
         "/getting-started": {
             "color-contrast": 1
         },
-        "/inputnumber": {
-            "label": 7
-        },
         "/menu": {
             "color-contrast": 1
-        },
-        "/multiselect": {
-            "label": 3
         },
         "/overlay": {
             "color-contrast": 1
@@ -59,17 +46,12 @@
             "color-contrast": 1
         },
         "/progressbar": {
-            "aria-progressbar-name": 3,
             "color-contrast": 2
-        },
-        "/radiobutton": {
-            "label": 3
         },
         "/selectbutton": {
             "color-contrast": 3
         },
         "/splitbutton": {
-            "button-name": 8,
             "color-contrast": 6
         },
         "/tabs": {
@@ -83,9 +65,6 @@
         },
         "/togglebutton": {
             "color-contrast": 4
-        },
-        "/toggleswitch": {
-            "label": 4
         },
         "/tooltip": {
             "color-contrast": 5

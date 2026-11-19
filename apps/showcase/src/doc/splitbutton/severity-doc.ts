@@ -7,10 +7,10 @@ import { SplitButtonModule } from '@anguless/angulux/splitbutton';
     imports: [SplitButtonModule],
     template: `
         <div class="card">
-            <agl-splitButton label="Save" [model]="items" />
-            <agl-splitButton label="Success" [model]="items" severity="success" />
-            <agl-splitButton label="Warn" [model]="items" severity="warn" />
-            <agl-splitButton label="Danger" [model]="items" severity="danger" />
+            <agl-splitButton label="Save" [model]="items" expandAriaLabel="More actions" />
+            <agl-splitButton label="Success" [model]="items" expandAriaLabel="More actions" severity="success" />
+            <agl-splitButton label="Warn" [model]="items" expandAriaLabel="More actions" severity="warn" />
+            <agl-splitButton label="Danger" [model]="items" expandAriaLabel="More actions" severity="danger" />
         </div>
     `
 })

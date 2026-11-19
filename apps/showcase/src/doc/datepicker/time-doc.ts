@@ -7,7 +7,7 @@ import { DatePickerModule } from '@anguless/angulux/datepicker';
     imports: [FormsModule, DatePickerModule],
     template: `
         <div class="card">
-            <agl-datePicker [(ngModel)]="date" [showTime]="true" hourFormat="24" />
+            <agl-datePicker [(ngModel)]="date" [showTime]="true" hourFormat="24" ariaLabel="Date and time" />
         </div>
     `
 })

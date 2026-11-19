@@ -7,7 +7,7 @@ import { InputNumberModule } from '@anguless/angulux/inputnumber';
     imports: [FormsModule, InputNumberModule],
     template: `
         <div class="card">
-            <agl-inputNumber [(ngModel)]="value" inputId="qty" />
+            <agl-inputNumber [(ngModel)]="value" inputId="qty" ariaLabel="Quantity" />
         </div>
     `
 })

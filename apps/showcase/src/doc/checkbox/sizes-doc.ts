@@ -7,9 +7,9 @@ import { CheckboxModule } from '@anguless/angulux/checkbox';
     imports: [FormsModule, CheckboxModule],
     template: `
         <div class="card">
-            <agl-checkbox [(ngModel)]="small" size="small" [binary]="true" />
-            <agl-checkbox [(ngModel)]="normal" [binary]="true" />
-            <agl-checkbox [(ngModel)]="large" size="large" [binary]="true" />
+            <agl-checkbox [(ngModel)]="small" size="small" [binary]="true" ariaLabel="Small" />
+            <agl-checkbox [(ngModel)]="normal" [binary]="true" ariaLabel="Normal" />
+            <agl-checkbox [(ngModel)]="large" size="large" [binary]="true" ariaLabel="Large" />
         </div>
     `
 })

@@ -7,7 +7,7 @@ import { ToggleSwitchModule } from '@anguless/angulux/toggleswitch';
     imports: [FormsModule, ToggleSwitchModule],
     template: `
         <div class="card">
-            <agl-toggleSwitch [(ngModel)]="checked" trueValue="on" falseValue="off" />
+            <agl-toggleSwitch [(ngModel)]="checked" trueValue="on" falseValue="off" ariaLabel="Notifications" />
             <span>{{ checked }}</span>
         </div>
     `

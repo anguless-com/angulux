@@ -7,7 +7,7 @@ import { MultiSelectModule } from '@anguless/angulux/multiselect';
     imports: [FormsModule, MultiSelectModule],
     template: `
         <div class="card">
-            <agl-multiSelect [(ngModel)]="selected" [options]="cities" optionLabel="name" placeholder="Select cities" />
+            <agl-multiSelect [(ngModel)]="selected" [options]="cities" optionLabel="name" placeholder="Select cities" ariaLabel="Cities" />
         </div>
     `
 })

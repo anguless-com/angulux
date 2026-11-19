@@ -7,7 +7,7 @@ import { CheckboxModule } from '@anguless/angulux/checkbox';
     imports: [FormsModule, CheckboxModule],
     template: `
         <div class="card">
-            <agl-checkbox [(ngModel)]="checked" [indeterminate]="true" [binary]="true" />
+            <agl-checkbox [(ngModel)]="checked" [indeterminate]="true" [binary]="true" ariaLabel="Select all" />
         </div>
     `
 })

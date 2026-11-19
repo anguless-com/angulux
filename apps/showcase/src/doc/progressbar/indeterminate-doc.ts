@@ -7,7 +7,7 @@ import { ProgressBarModule } from '@anguless/angulux/progressbar';
     template: `
         <div class="card">
             <div style="width: 100%">
-                <agl-progressBar mode="indeterminate" [style]="{ height: '6px' }" />
+                <agl-progressBar mode="indeterminate" aria-label="Loading" [style]="{ height: '6px' }" />
             </div>
         </div>
     `
