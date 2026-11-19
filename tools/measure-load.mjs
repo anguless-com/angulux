@@ -19,7 +19,7 @@
 //
 // It measures; it does not judge. Exit 2 means it could not measure.
 
-import { createReadStream, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -75,19 +75,32 @@ function serve(site) {
     const cache = new Map();
     const server = createServer((req, res) => {
         const url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-        let file = join(site, url);
+        const file = join(site, url);
         if (!file.startsWith(site)) return res.writeHead(403).end();
-        if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
-        if (!existsSync(file)) return res.writeHead(404).end();
-        const ext = extname(file);
-        const headers = { 'content-type': TYPES[ext] ?? 'application/octet-stream', 'cache-control': 'no-store' };
-        if (!COMPRESSIBLE.has(ext)) {
-            res.writeHead(200, { ...headers, 'content-length': statSync(file).size });
-            return createReadStream(file).pipe(res);
+        // Read first and ask afterwards: a file checked and then opened is two moments, and
+        // the answer to the first is not a fact about the second.
+        let path = file;
+        let raw;
+        try {
+            raw = readFileSync(path);
+        } catch (error) {
+            if (error.code !== 'EISDIR') return res.writeHead(404).end();
+            path = join(file, 'index.html');
+            try {
+                raw = readFileSync(path);
+            } catch {
+                return res.writeHead(404).end();
+            }
         }
-        if (!cache.has(file)) cache.set(file, gzipSync(readFileSync(file), { level: 9 }));
-        const body = cache.get(file);
-        res.writeHead(200, { ...headers, 'content-encoding': 'gzip', 'content-length': body.length });
+        const ext = extname(path);
+        const headers = { 'content-type': TYPES[ext] ?? 'application/octet-stream', 'cache-control': 'no-store' };
+        let body = raw;
+        if (COMPRESSIBLE.has(ext)) {
+            if (!cache.has(path)) cache.set(path, gzipSync(raw, { level: 9 }));
+            body = cache.get(path);
+            headers['content-encoding'] = 'gzip';
+        }
+        res.writeHead(200, { ...headers, 'content-length': body.length });
         res.end(body);
     });
     return new Promise((done) => server.listen(0, '127.0.0.1', () => done(server)));
