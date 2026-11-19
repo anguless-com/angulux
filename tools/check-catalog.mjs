@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * check-catalog — enforces version discipline in pnpm-workspace.yaml.
+ * check-catalog — enforces version discipline in pnpm-workspace.yaml, in every workspace
+ * package manifest, and in the root manifest's overrides.
  *
  * Everything that gets INSTALLED (dependencies/devDependencies) must be pinned exactly,
  * because that is the license risk surface: one careless `npm update` is all it takes to
@@ -13,10 +14,11 @@
  * Run: node tools/check-catalog.mjs
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { parseWorkspace } from './workspace-catalog.mjs';
+import { isExact, judgeManifest, judgeOverrides } from './lib/manifest-pins.mjs';
 
 const root = process.cwd();
 const wsPath = join(root, 'pnpm-workspace.yaml');
@@ -30,7 +32,6 @@ if (!existsSync(wsPath)) {
 }
 
 const ws = parseWorkspace(readFileSync(wsPath, 'utf8'));
-const isExact = (v) => /^\d+\.\d+\.\d+(-[\w.]+)?$/.test(v);
 const isRange = (v) => /^[\^~]|\|\||\s-\s|^[<>]/.test(v);
 
 // ---- 1. packages globs ----
@@ -104,7 +105,63 @@ if (!ng) {
   // 3d. @angular/cdk must NOT be present
   if (ng['@angular/cdk']) fail.push('catalogs.angular22 still lists "@angular/cdk" — it was dropped on purpose');
   else ok.push('no @angular/cdk');
+  // 3e. everything else in this catalog is installed tooling → EXACT. Only the framework
+  // packages that have to resolve in lockstep with the peer-bound core range may be ranges.
+  const MAY_RANGE = new Set([...PEER_BOUND, '@angular/animations', '@angular/compiler']);
+  let exactOthers = 0;
+  for (const [p, v] of Object.entries(ng)) {
+    if (MAY_RANGE.has(p) || DEV_EXACT.includes(p)) continue;
+    if (!isExact(v)) fail.push(`catalogs.angular22 "${p}: ${v}" is installed tooling → must be pinned EXACTLY; only the Angular framework packages may be ranges`);
+    else exactOthers++;
+  }
+  ok.push(`${exactOthers} other angular22 entries pinned exactly`);
 }
+
+// ---- 4. every workspace manifest: what gets installed is exact, a catalog entry, or a workspace member ----
+// Sections 2 and 3 judge the catalog. A manifest that never mentions the catalog was outside
+// them, so a literal `^1.2.3` in a package.json passed this gate untouched. See
+// tools/lib/manifest-pins.mjs for the rule and why peerDependencies are exempt.
+const manifests = ['package.json'];
+for (const glob of ws.packages) {
+  const base = glob.replace(/\/\*$/, '');
+  if (base === glob) {
+    fail.push(`packages glob "${glob}" is not of the form "<dir>/*" — this gate cannot enumerate it, so its manifests would go unread`);
+    continue;
+  }
+  const dir = join(root, base);
+  const found = existsSync(dir)
+    ? readdirSync(dir, { withFileTypes: true })
+        .filter((d) => d.isDirectory() && existsSync(join(dir, d.name, 'package.json')))
+        .map((d) => `${base}/${d.name}/package.json`)
+        .sort()
+    : [];
+  if (!found.length) fail.push(`packages glob "${glob}" matches no package manifest — nothing under it was examined`);
+  manifests.push(...found);
+}
+
+let specifiers = 0;
+let clean = 0;
+for (const rel of manifests) {
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(join(root, rel), 'utf8'));
+  } catch (e) {
+    fail.push(`${rel} could not be read as JSON: ${e.message}`);
+    continue;
+  }
+  const { problems, examined } = judgeManifest(rel, manifest, ws);
+  specifiers += examined;
+  if (problems.length) fail.push(...problems);
+  else clean++;
+
+  if (rel === 'package.json') {
+    const forced = judgeOverrides(rel, manifest);
+    if (forced.problems.length) fail.push(...forced.problems);
+    else ok.push(`${forced.examined} forced version(s) in pnpm.overrides / resolutions, all exact`);
+  }
+}
+if (specifiers === 0) fail.push('no installed dependency was found in any workspace manifest — the manifest check examined nothing');
+else ok.push(`${clean} of ${manifests.length} manifests clean: ${specifiers} installed specifiers, each exact, a catalog entry or a workspace member`);
 
 for (const o of ok) console.log(`  ✓ ${o}`);
 if (fail.length) {

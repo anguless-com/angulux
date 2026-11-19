@@ -75,7 +75,7 @@ closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
 |---|---|
-| `check:catalog` | a dependency version drifting off the pinned catalog |
+| `check:catalog` | a dependency version drifting off the pinned catalog, or an installed dependency or override declared as a range in any package manifest |
 | `check:scope` | the transitive closure drifting off the 65 warranted modules |
 | `check:license` | any PrimeTek package from a post-MIT release entering the tree — and, separately, any licence-flagged material sitting in `ref/` that `PROVENANCE.md` does not declare, and either evidence clone in `ref/` being modified or moved off the commit `PROVENANCE.md` records |
 | `check:names` | PrimeNG names surviving in selector, API or **trademark** positions — including inside bare strings, JSDoc links and DOM attributes |
