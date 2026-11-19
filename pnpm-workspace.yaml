@@ -36,6 +36,10 @@ catalog:
     'eslint': 10.14.0
     'angular-eslint': 22.6.0
     'typescript-eslint': 8.72.1
+    # The accessibility engine the browser gate runs over every showcase page. Root
+    # devDependency only. MPL-2.0, like lightningcss already in this tree: used as a tool,
+    # never modified, never shipped.
+    '@axe-core/playwright': 4.14.0
 
 # ---------------------------------------------------------------------------
 # angular22 catalog — two groups, two opposite rules:

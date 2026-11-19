@@ -1,0 +1,94 @@
+{
+    "$comment": [
+        "Frozen axe-core findings on the showcase, per page and per rule (number of elements), as of 2026-11-19.",
+        "It only shrinks. When a fix lowers a count the gate fails until this file is lowered to match: AXE_PRUNE=1 does that and cannot raise or add an entry.",
+        "Raising a number or adding an entry by hand lowers the accessibility bar and needs a maintainer to agree in review."
+    ],
+    "pages": {
+        "/badge": {
+            "color-contrast": 1
+        },
+        "/button": {
+            "color-contrast": 16
+        },
+        "/card": {
+            "color-contrast": 1
+        },
+        "/chart": {
+            "role-img-alt": 2
+        },
+        "/checkbox": {
+            "label": 4
+        },
+        "/confirmdialog": {
+            "color-contrast": 1
+        },
+        "/datepicker": {
+            "label": 4,
+            "label-content-name-mismatch": 2
+        },
+        "/dialog": {
+            "color-contrast": 3
+        },
+        "/drawer": {
+            "color-contrast": 6
+        },
+        "/fileupload": {
+            "color-contrast": 2
+        },
+        "/focustrap": {
+            "aria-hidden-focus": 2,
+            "color-contrast": 1
+        },
+        "/getting-started": {
+            "color-contrast": 1
+        },
+        "/inputnumber": {
+            "label": 7
+        },
+        "/menu": {
+            "color-contrast": 1
+        },
+        "/multiselect": {
+            "label": 3
+        },
+        "/overlay": {
+            "color-contrast": 1
+        },
+        "/popover": {
+            "color-contrast": 1
+        },
+        "/progressbar": {
+            "aria-progressbar-name": 3,
+            "color-contrast": 2
+        },
+        "/radiobutton": {
+            "label": 3
+        },
+        "/selectbutton": {
+            "color-contrast": 3
+        },
+        "/splitbutton": {
+            "button-name": 8,
+            "color-contrast": 6
+        },
+        "/tabs": {
+            "color-contrast": 2
+        },
+        "/tieredmenu": {
+            "color-contrast": 1
+        },
+        "/toast": {
+            "color-contrast": 7
+        },
+        "/togglebutton": {
+            "color-contrast": 4
+        },
+        "/toggleswitch": {
+            "label": 4
+        },
+        "/tooltip": {
+            "color-contrast": 5
+        }
+    }
+}

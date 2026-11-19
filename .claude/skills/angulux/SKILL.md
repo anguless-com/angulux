@@ -68,6 +68,9 @@ Node `>=22`, pnpm 9.6.0 via corepack.
 - `NgOptimizedImage` for static images (it does not work for inline base64).
 - Strict types. Prefer inference; `unknown` over `any`.
 - Accessibility is not optional: AXE-clean, WCAG AA — focus management, contrast, ARIA.
+  The browser gate runs axe-core over every showcase page (`e2e/showcase-axe.spec.ts`)
+  against `e2e/axe-baseline.json`, which only shrinks: a page may not gain a violation.
+  Do not raise a number in that file; a new demo needs labels and names from the start.
 
 ## Repository rules
 
