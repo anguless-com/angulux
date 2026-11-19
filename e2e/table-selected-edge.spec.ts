@@ -24,7 +24,20 @@ import { expect, test, type Page } from '@playwright/test';
  * with each rule, in every preset, both colour schemes and four device pixel ratios. A premise check
  * requires the old rule to change the picture where it applies, so the comparison cannot pass by
  * drawing nothing.
+ *
+ * Why a differing pair is photographed again before it counts. At the fractional ratios the
+ * rasteriser is not perfectly repeatable on the CI runners: twice on 2026-11-19 a scene came back
+ * with one row of pixels off by ONE level in ONE channel (254,254,255 against 254,254,254, in the
+ * anti-aliased row under a border), with every line in the same place in both pictures — once in
+ * `d-gridlines-ends`, a scene where neither rule draws anything at all. That is noise in the
+ * measurement, and it failed two pull requests that had not touched a stylesheet. So a pair that
+ * differs is taken again, up to ATTEMPTS times, and the scene passes when any pair is
+ * byte-identical. The bar itself has not moved: a rule that really draws differently does so
+ * every time, and fails every attempt. Each retake is logged, so the noise stays visible.
  */
+
+/** How many times a scene's old/new pair is photographed before a difference is believed. */
+const ATTEMPTS = 3;
 
 const OLD_RULE = '.p-datatable-tbody > tr:has(+ .p-datatable-row-selected) > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
 const NEW_RULE = '.p-datatable-tbody > tr.p-datatable-row-before-selected > td { border-block-end-color: var(--p-datatable-body-cell-selected-border-color); }';
@@ -161,10 +174,19 @@ for (const dpr of [1, 1.25, 1.5, 2]) {
                         await prepare(page, scene);
                         await setState(page, 'none');
                         const none = await shoot(page, scene);
-                        await setState(page, 'old');
-                        const old = await shoot(page, scene);
-                        await setState(page, 'new');
-                        const fresh = await shoot(page, scene);
+                        let old!: Buffer;
+                        let fresh!: Buffer;
+                        for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+                            await setState(page, 'old');
+                            old = await shoot(page, scene);
+                            await setState(page, 'new');
+                            fresh = await shoot(page, scene);
+                            if (old.equals(fresh)) break;
+                            if (attempt < ATTEMPTS) {
+                                const noise = await differingPixels(page, old, fresh);
+                                console.log(`[edge ${dpr} ${preset} ${scheme}] ${scene}: attempt ${attempt} differed (${noise.count} pixels in ${JSON.stringify(noise.box)}), photographing again`);
+                            }
+                        }
 
                         if (OLD_RULE_VISIBLE.includes(scene)) {
                             expect(old.equals(none), `${scene}: the old rule changes the picture (premise)`).toBe(false);
