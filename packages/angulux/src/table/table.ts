@@ -79,7 +79,7 @@ import {
     TableRowUnSelectEvent,
     TableSelectAllChangeEvent
 } from '@anguless/angulux/types/table';
-import { ObjectUtils, UniqueComponentId, ZIndexUtils } from '@anguless/angulux/utils';
+import { UniqueComponentId, ZIndexUtils, ɵcompare, ɵequals, ɵfindIndexInList, ɵisNotEmpty, ɵreorderArray, ɵresolveFieldData, ɵsort } from '@anguless/angulux/utils';
 import { Subject, Subscription } from 'rxjs';
 import { TableStyle } from './style/tablestyle';
 
@@ -1412,10 +1412,10 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             this.selectionKeys = {};
             if (Array.isArray(this._selection)) {
                 for (let data of this._selection) {
-                    this.selectionKeys[String(ObjectUtils.resolveFieldData(data, this.dataKey))] = 1;
+                    this.selectionKeys[String(ɵresolveFieldData(data, this.dataKey))] = 1;
                 }
             } else {
-                this.selectionKeys[String(ObjectUtils.resolveFieldData(this._selection, this.dataKey))] = 1;
+                this.selectionKeys[String(ɵresolveFieldData(this._selection, this.dataKey))] = 1;
             }
         }
     }
@@ -1541,8 +1541,8 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                     });
                 } else {
                     this.value.sort((data1, data2) => {
-                        let value1 = ObjectUtils.resolveFieldData(data1, field);
-                        let value2 = ObjectUtils.resolveFieldData(data2, field);
+                        let value1 = ɵresolveFieldData(data1, field);
+                        let value2 = ɵresolveFieldData(data2, field);
                         let result: any = null;
 
                         if (value1 == null && value2 != null) result = -1;
@@ -1609,16 +1609,16 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     }
 
     multisortField(data1: any, data2: any, multiSortMeta: SortMeta[], index: number): any {
-        const value1 = ObjectUtils.resolveFieldData(data1, multiSortMeta[index].field);
-        const value2 = ObjectUtils.resolveFieldData(data2, multiSortMeta[index].field);
-        if (ObjectUtils.compare(value1, value2, this.filterLocale) === 0) {
+        const value1 = ɵresolveFieldData(data1, multiSortMeta[index].field);
+        const value2 = ɵresolveFieldData(data2, multiSortMeta[index].field);
+        if (ɵcompare(value1, value2, this.filterLocale) === 0) {
             return multiSortMeta.length - 1 > index ? this.multisortField(data1, data2, multiSortMeta, index + 1) : 0;
         }
         return this.compareValuesOnSort(value1, value2, multiSortMeta[index].order);
     }
 
     compareValuesOnSort(value1: any, value2: any, order: any) {
-        return ObjectUtils.sort(value1, value2, order, this.filterLocale, this.sortOrder);
+        return ɵsort(value1, value2, order, this.filterLocale, this.sortOrder);
     }
 
     getSortMeta(field: string) {
@@ -1679,7 +1679,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 }
 
                 let metaSelection = this.rowTouched ? false : this.metaKeySelection;
-                let dataKeyValue = this.dataKey ? String(ObjectUtils.resolveFieldData(rowData, this.dataKey)) : null;
+                let dataKeyValue = this.dataKey ? String(ɵresolveFieldData(rowData, this.dataKey)) : null;
                 this.anchorRowIndex = rowIndex;
                 this.rangeRowIndex = rowIndex;
 
@@ -1833,7 +1833,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             } else if (this.contextMenuSelectionMode === 'joint') {
                 this.preventSelectionSetterPropagation = true;
                 let selected = this.isSelected(rowData);
-                let dataKeyValue = this.dataKey ? String(ObjectUtils.resolveFieldData(rowData, this.dataKey)) : null;
+                let dataKeyValue = this.dataKey ? String(ɵresolveFieldData(rowData, this.dataKey)) : null;
 
                 if (!selected) {
                     if (!this.isRowSelectable(rowData, rowIndex)) {
@@ -1903,7 +1903,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
                 rangeRowsData.push(rangeRowData);
                 this._selection = [...this.selection, rangeRowData];
-                let dataKeyValue = this.dataKey ? String(ObjectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+                let dataKeyValue = this.dataKey ? String(ɵresolveFieldData(rangeRowData, this.dataKey)) : null;
                 if (dataKeyValue) {
                     this.selectionKeys[dataKeyValue] = 1;
                 }
@@ -1937,7 +1937,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             let rangeRowData = this.value[i];
             let selectionIndex = this.findIndexInSelection(rangeRowData);
             this._selection = this.selection.filter((val: any, i: number) => i != selectionIndex);
-            let dataKeyValue = this.dataKey ? String(ObjectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+            let dataKeyValue = this.dataKey ? String(ɵresolveFieldData(rangeRowData, this.dataKey)) : null;
             if (dataKeyValue) {
                 delete this.selectionKeys[dataKeyValue];
             }
@@ -1952,7 +1952,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     isSelected(rowData: any) {
         if (rowData && this.selection) {
             if (this.dataKey) {
-                return this.selectionKeys[ObjectUtils.resolveFieldData(rowData, this.dataKey)] !== undefined;
+                return this.selectionKeys[ɵresolveFieldData(rowData, this.dataKey)] !== undefined;
             } else {
                 if (Array.isArray(this.selection)) return this.findIndexInSelection(rowData) > -1;
                 else return this.equals(rowData, this.selection);
@@ -2003,7 +2003,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
             if (this.dataKey) {
                 this.selectionKeys = {};
-                this.selectionKeys[String(ObjectUtils.resolveFieldData(rowData, this.dataKey))] = 1;
+                this.selectionKeys[String(ɵresolveFieldData(rowData, this.dataKey))] = 1;
             }
         } else {
             this._selection = null;
@@ -2026,7 +2026,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     toggleRowWithCheckbox(event: { originalEvent: Event; rowIndex: number }, rowData: any) {
         this.selection = this.selection || [];
         let selected = this.isSelected(rowData);
-        let dataKeyValue = this.dataKey ? String(ObjectUtils.resolveFieldData(rowData, this.dataKey)) : null;
+        let dataKeyValue = this.dataKey ? String(ɵresolveFieldData(rowData, this.dataKey)) : null;
         this.preventSelectionSetterPropagation = true;
 
         if (selected) {
@@ -2096,7 +2096,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     }
 
     equals(data1: any, data2: any) {
-        return this.compareSelectionBy === 'equals' ? data1 === data2 : ObjectUtils.equals(data1, data2, this.dataKey);
+        return this.compareSelectionBy === 'equals' ? data1 === data2 : ɵequals(data1, data2, this.dataKey);
     }
 
     /* Legacy Filtering for custom elements */
@@ -2206,7 +2206,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                     if (this.filters['global'] && !globalMatch && globalFilterFieldsArray) {
                         for (let j = 0; j < globalFilterFieldsArray.length; j++) {
                             let globalFilterField = globalFilterFieldsArray[j].field || globalFilterFieldsArray[j];
-                            globalMatch = (<any>this.filterService).filters[(<any>this.filters['global']).matchMode](ObjectUtils.resolveFieldData(this.value[i], globalFilterField), (<FilterMetadata>this.filters['global']).value, this.filterLocale);
+                            globalMatch = (<any>this.filterService).filters[(<any>this.filters['global']).matchMode](ɵresolveFieldData(this.value[i], globalFilterField), (<FilterMetadata>this.filters['global']).value, this.filterLocale);
 
                             if (globalMatch) {
                                 break;
@@ -2261,7 +2261,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     executeLocalFilter(field: string, rowData: any, filterMeta: FilterMetadata): boolean {
         let filterValue = filterMeta.value;
         let filterMatchMode = filterMeta.matchMode || FilterMatchMode.STARTS_WITH;
-        let dataFieldValue = ObjectUtils.resolveFieldData(rowData, field);
+        let dataFieldValue = ɵresolveFieldData(rowData, field);
         let filterConstraint = (<any>this.filterService).filters[filterMatchMode];
 
         return filterConstraint(dataFieldValue, filterValue, this.filterLocale);
@@ -2385,7 +2385,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             .map((record: any) =>
                 exportableColumns
                     .map((column) => {
-                        let cellData = ObjectUtils.resolveFieldData(record, column.field);
+                        let cellData = ɵresolveFieldData(record, column.field);
 
                         if (cellData != null && this.exportFunction) {
                             cellData = this.exportFunction({
@@ -2514,19 +2514,19 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     }
 
     initRowEdit(rowData: any) {
-        let dataKeyValue = String(ObjectUtils.resolveFieldData(rowData, this.dataKey));
+        let dataKeyValue = String(ɵresolveFieldData(rowData, this.dataKey));
         this.editingRowKeys[dataKeyValue] = true;
     }
 
     saveRowEdit(rowData: any, rowElement: HTMLTableRowElement) {
         if (ɵfind(rowElement, '.ng-invalid.ng-dirty').length === 0) {
-            let dataKeyValue = String(ObjectUtils.resolveFieldData(rowData, this.dataKey));
+            let dataKeyValue = String(ɵresolveFieldData(rowData, this.dataKey));
             delete this.editingRowKeys[dataKeyValue];
         }
     }
 
     cancelRowEdit(rowData: any) {
-        let dataKeyValue = String(ObjectUtils.resolveFieldData(rowData, this.dataKey));
+        let dataKeyValue = String(ɵresolveFieldData(rowData, this.dataKey));
         delete this.editingRowKeys[dataKeyValue];
     }
 
@@ -2535,7 +2535,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             throw new Error('dataKey or groupRowsBy must be defined to use row expansion');
         }
 
-        let dataKeyValue = this.groupRowsBy ? String(ObjectUtils.resolveFieldData(rowData, this.groupRowsBy)) : String(ObjectUtils.resolveFieldData(rowData, this.dataKey));
+        let dataKeyValue = this.groupRowsBy ? String(ɵresolveFieldData(rowData, this.groupRowsBy)) : String(ɵresolveFieldData(rowData, this.dataKey));
 
         if (this.expandedRowKeys[dataKeyValue] != null) {
             delete this.expandedRowKeys[dataKeyValue];
@@ -2565,11 +2565,11 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     }
 
     isRowExpanded(rowData: any): boolean {
-        return this.groupRowsBy ? this.expandedRowKeys[String(ObjectUtils.resolveFieldData(rowData, this.groupRowsBy))] === true : this.expandedRowKeys[String(ObjectUtils.resolveFieldData(rowData, this.dataKey))] === true;
+        return this.groupRowsBy ? this.expandedRowKeys[String(ɵresolveFieldData(rowData, this.groupRowsBy))] === true : this.expandedRowKeys[String(ɵresolveFieldData(rowData, this.dataKey))] === true;
     }
 
     isRowEditing(rowData: any): boolean {
-        return this.editingRowKeys[String(ObjectUtils.resolveFieldData(rowData, this.dataKey))] === true;
+        return this.editingRowKeys[String(ɵresolveFieldData(rowData, this.dataKey))] === true;
     }
 
     isSingleSelectionMode() {
@@ -2717,7 +2717,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
             }
 
             if (allowDrop) {
-                ObjectUtils.reorderArray(<any[]>this.columns, dragIndex, dropIndex);
+                ɵreorderArray(<any[]>this.columns, dragIndex, dropIndex);
 
                 this.onColReorder.emit({
                     dragIndex: dragIndex,
@@ -2736,7 +2736,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
 
             if (this.resizableColumns && this.resizeColumnElement) {
                 let width = this.columnResizeMode === 'expand' ? this._initialColWidths : this._totalTableWidth();
-                ObjectUtils.reorderArray(width, dragIndex + 1, dropIndex + 1);
+                ɵreorderArray(width, dragIndex + 1, dropIndex + 1);
                 this.updateStyleElement(width, dragIndex, 0, 0);
             }
 
@@ -2821,7 +2821,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     onRowDrop(event: Event, rowElement: any) {
         if (this.droppedRowIndex != null) {
             let dropIndex = <number>this.draggedRowIndex > this.droppedRowIndex ? this.droppedRowIndex : this.droppedRowIndex === 0 ? 0 : this.droppedRowIndex - 1;
-            ObjectUtils.reorderArray(this.value, <number>this.draggedRowIndex, dropIndex);
+            ɵreorderArray(this.value, <number>this.draggedRowIndex, dropIndex);
 
             if (this.virtualScroll) {
                 // TODO: Check
@@ -3015,7 +3015,7 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 this.setResizeTableWidth(this.tableWidthState + 'px');
             }
 
-            if (ObjectUtils.isNotEmpty(widths)) {
+            if (ɵisNotEmpty(widths)) {
                 this.createStyleElement();
 
                 let innerHTML = '';
@@ -3418,10 +3418,10 @@ export class TableBody extends BaseComponent {
     }
 
     shouldRenderRowGroupHeader(value: any, rowData: any, i: number) {
-        let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, this.dataTable?.groupRowsBy || '');
+        let currentRowFieldData = ɵresolveFieldData(rowData, this.dataTable?.groupRowsBy || '');
         let prevRowData = value[i - (this.dataTable?._first || 0) - 1];
         if (prevRowData) {
-            let previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, this.dataTable?.groupRowsBy || '');
+            let previousRowFieldData = ɵresolveFieldData(prevRowData, this.dataTable?.groupRowsBy || '');
             return currentRowFieldData !== previousRowFieldData;
         } else {
             return true;
@@ -3429,10 +3429,10 @@ export class TableBody extends BaseComponent {
     }
 
     shouldRenderRowGroupFooter(value: any, rowData: any, i: number) {
-        let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, this.dataTable?.groupRowsBy || '');
+        let currentRowFieldData = ɵresolveFieldData(rowData, this.dataTable?.groupRowsBy || '');
         let nextRowData = value[i - (this.dataTable?._first || 0) + 1];
         if (nextRowData) {
-            let nextRowFieldData = ObjectUtils.resolveFieldData(nextRowData, this.dataTable?.groupRowsBy || '');
+            let nextRowFieldData = ɵresolveFieldData(nextRowData, this.dataTable?.groupRowsBy || '');
             return currentRowFieldData !== nextRowFieldData;
         } else {
             return true;
@@ -3440,10 +3440,10 @@ export class TableBody extends BaseComponent {
     }
 
     shouldRenderRowspan(value: any, rowData: any, i: number) {
-        let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, this.dataTable?.groupRowsBy!);
+        let currentRowFieldData = ɵresolveFieldData(rowData, this.dataTable?.groupRowsBy!);
         let prevRowData = value[i - 1];
         if (prevRowData) {
-            let previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, this.dataTable?.groupRowsBy || '');
+            let previousRowFieldData = ɵresolveFieldData(prevRowData, this.dataTable?.groupRowsBy || '');
             return currentRowFieldData !== previousRowFieldData;
         } else {
             return true;
@@ -3451,7 +3451,7 @@ export class TableBody extends BaseComponent {
     }
 
     calculateRowGroupSize(value: any, rowData: any, index: number) {
-        let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, this.dataTable?.groupRowsBy!);
+        let currentRowFieldData = ɵresolveFieldData(rowData, this.dataTable?.groupRowsBy!);
         let nextRowFieldData = currentRowFieldData;
         let groupRowSpan = 0;
 
@@ -3459,7 +3459,7 @@ export class TableBody extends BaseComponent {
             groupRowSpan++;
             let nextRowData = value[++index];
             if (nextRowData) {
-                nextRowFieldData = ObjectUtils.resolveFieldData(nextRowData, this.dataTable?.groupRowsBy || '');
+                nextRowFieldData = ɵresolveFieldData(nextRowData, this.dataTable?.groupRowsBy || '');
             } else {
                 break;
             }
@@ -4014,14 +4014,14 @@ export class SelectableRow extends BaseComponent {
                 const data = this.dataTable.dataToRender(this.dataTable.rows);
                 let index;
 
-                if (ObjectUtils.isNotEmpty(this.dataTable.selection) && this.dataTable.selection.length > 0) {
+                if (ɵisNotEmpty(this.dataTable.selection) && this.dataTable.selection.length > 0) {
                     let firstSelectedRowIndex, lastSelectedRowIndex;
-                    firstSelectedRowIndex = ObjectUtils.findIndexInList(this.dataTable.selection[0], data);
-                    lastSelectedRowIndex = ObjectUtils.findIndexInList(this.dataTable.selection[this.dataTable.selection.length - 1], data);
+                    firstSelectedRowIndex = ɵfindIndexInList(this.dataTable.selection[0], data);
+                    lastSelectedRowIndex = ɵfindIndexInList(this.dataTable.selection[this.dataTable.selection.length - 1], data);
 
                     index = (this.index || 0) <= firstSelectedRowIndex ? lastSelectedRowIndex : firstSelectedRowIndex;
                 } else {
-                    index = ObjectUtils.findIndexInList(this.dataTable.selection, data);
+                    index = ɵfindIndexInList(this.dataTable.selection, data);
                 }
 
                 this.dataTable.anchorRowIndex = index || 0;
@@ -5153,7 +5153,7 @@ export class TableHeaderCheckbox extends BaseComponent {
             const val = this.dataTable.frozenValue ? [...this.dataTable.frozenValue, ...data] : data;
             const selectableVal = this.dataTable.rowSelectable ? val.filter((data: any, index: number) => this.dataTable.rowSelectable({ data, index })) : val;
 
-            return ObjectUtils.isNotEmpty(selectableVal) && ObjectUtils.isNotEmpty(this.dataTable.selection) && selectableVal.every((v: any) => this.dataTable.selection.some((s: any) => this.dataTable.equals(v, s)));
+            return ɵisNotEmpty(selectableVal) && ɵisNotEmpty(this.dataTable.selection) && selectableVal.every((v: any) => this.dataTable.selection.some((s: any) => this.dataTable.equals(v, s)));
         }
     }
 }
