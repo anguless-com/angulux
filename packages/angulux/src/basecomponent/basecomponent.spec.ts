@@ -4,9 +4,12 @@ import { By } from '@angular/platform-browser';
 import { Theme } from '@anguless/angulux-styled';
 import { cn, getKeyValue } from '@anguless/angulux-utils';
 import { AnguluxConfig, provideAngulux } from '@anguless/angulux/config';
+import { BaseStyle } from '@anguless/angulux/base';
 import { Button } from '../button/button';
 import { Checkbox } from '../checkbox/checkbox';
 import { Tag } from '../tag/tag';
+import { BaseComponent } from './basecomponent';
+import { BaseComponentStyle } from './style/basecomponentstyle';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -24,6 +27,33 @@ class ManyComponents {
 
     grow(n: number) {
         this.items.set(Array.from({ length: n }, (_, i) => i));
+    }
+}
+
+@Component({
+    imports: [Checkbox],
+    template: `<agl-checkbox [binary]="true" [pt]="pt()" />`
+})
+class NestedCheckbox {
+    pt = signal<object | undefined>(undefined);
+}
+
+/** A parent as the library writes them: the child's pass-through is asked for on every check. */
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Checkbox],
+    providers: [BaseComponentStyle, BaseStyle],
+    template: `{{ tick() }}<agl-checkbox [binary]="true" [pt]="childPT()" />`
+})
+class ParentOfCheckbox extends BaseComponent {
+    tick = signal(0);
+
+    asked = 0;
+
+    childPT() {
+        this.asked += 1;
+
+        return this.ptm('pcOptionCheckbox', { context: { selected: false } });
     }
 }
 
@@ -193,5 +223,88 @@ describe('BaseComponent shortcuts', () => {
         fixture.detectChanges();
 
         expect(calls.length).toBeGreaterThan(0);
+    });
+
+    /*
+     * A component inside another one is handed `[pt]="ptm('pcChild')"` by its parent. With no
+     * pass-through configured anywhere that is `{ 'data-pc-section': 'pcchild' }`: a name for the
+     * child's root, and nothing to merge. Until 2026-11-20 it still sent every nested component
+     * down the full resolution on every check (a multiselect with a thousand options has a thousand
+     * nested checkboxes), and it was a new object each time, so the child's input changed on every
+     * check and an OnPush child was checked again each time.
+     */
+    describe('a pass-through that is only the parent section name', () => {
+        const nested = (pt: object) => {
+            TestBed.configureTestingModule({ imports: [NestedCheckbox], providers: [provideZonelessChangeDetection()] });
+            const fixture = TestBed.createComponent(NestedCheckbox);
+            fixture.componentInstance.pt.set(pt);
+            fixture.detectChanges();
+            return { fixture, checkbox: fixture.debugElement.query(By.directive(Checkbox)).componentInstance as Internals };
+        };
+
+        it('ptm() returns what the full resolution returns, and the root carries the parent name', () => {
+            const { fixture, checkbox } = nested({ 'data-pc-section': 'pcoptioncheckbox' });
+
+            for (const key of ['root', 'host', 'input', 'box', 'icon', 'a.b', 'transition', '']) {
+                expect(checkbox.ptm(key)).withContext(key).toEqual(checkbox._getPTValue(checkbox.$pt(), key, { ...checkbox.$params }));
+            }
+
+            const root = fixture.debugElement.query(By.directive(Checkbox)).nativeElement as HTMLElement;
+
+            expect(root.getAttribute('data-pc-name')).toBe('pcoptioncheckbox');
+            expect(root.getAttribute('data-pc-extend')).toBe('checkbox');
+
+            // The root follows the name when the parent changes it.
+            fixture.componentInstance.pt.set({ 'data-pc-section': 'pcheadercheckbox' });
+            fixture.detectChanges();
+
+            expect(checkbox.ptm('root')).toEqual(checkbox._getPTValue(checkbox.$pt(), 'root', { ...checkbox.$params }));
+            expect(root.getAttribute('data-pc-name')).toBe('pcheadercheckbox');
+
+            fixture.componentInstance.pt.set(undefined);
+            fixture.detectChanges();
+
+            expect(root.getAttribute('data-pc-name')).toBe('checkbox');
+            expect(checkbox.ptm('root')['data-pc-extend']).toBeUndefined();
+        });
+
+        it('a pass-through with anything else in it is still resolved in full', () => {
+            const calls: string[] = [];
+            const { fixture, checkbox } = nested({ 'data-pc-section': 'pcoptioncheckbox', box: { 'data-probe': 'own' }, hooks: { onAfterViewChecked: () => void calls.push('checked') } });
+
+            expect(checkbox.ptm('box')['data-probe']).toBe('own');
+            expect((fixture.nativeElement as HTMLElement).querySelector('[data-probe="own"]')).not.toBeNull();
+            expect(calls.length).toBeGreaterThan(0);
+        });
+
+        it('ptm() hands out one frozen object per section, the same for every component', () => {
+            const { instances } = create();
+            const [button, tag] = instances;
+
+            expect(button.ptm('label')).toBe(button.ptm('label'));
+            expect(button.ptm('label')).toBe(tag.ptm('label'));
+            expect(Object.isFrozen(button.ptm('label'))).toBe(true);
+            expect(button.ptm('root')).not.toBe(tag.ptm('root'));
+            expect(button.ptm('root')['data-pc-name']).toBe('button');
+            expect(tag.ptm('root')['data-pc-name']).toBe('tag');
+        });
+
+        it('a parent checked again does not change the pass-through it hands its child', () => {
+            TestBed.configureTestingModule({ imports: [ParentOfCheckbox], providers: [provideZonelessChangeDetection()] });
+            const fixture = TestBed.createComponent(ParentOfCheckbox);
+            fixture.detectChanges();
+            const checkbox = fixture.debugElement.query(By.directive(Checkbox)).componentInstance as Internals & { onChanges: (changes: object) => void };
+            const seen: string[][] = [];
+            const original = checkbox.onChanges.bind(checkbox);
+
+            checkbox.onChanges = (changes: object) => (seen.push(Object.keys(changes)), original(changes));
+            fixture.componentInstance.tick.update((n) => n + 1);
+            fixture.detectChanges();
+            fixture.componentInstance.tick.update((n) => n + 1);
+            fixture.detectChanges();
+
+            expect(fixture.componentInstance.asked).toBeGreaterThan(2);
+            expect(seen.flat()).not.toContain('pt');
+        });
     });
 });

@@ -74,17 +74,33 @@ function optionValue(source: unknown, key: string, params: object) {
 function styleValue(instance: BaseComponent, key: 'classes' | 'inlineStyles' | 'name') {
     const own = instance['_componentStyle'];
 
-    return own && Object.prototype.propertyIsEnumerable.call(own, key) ? own[key] : instance.$style[key];
+    return own && {}.propertyIsEnumerable.call(own, key) ? own[key] : instance.$style[key];
 }
+
+const SECTION = 'data-pc-section';
 
 /**
  * Whether any pass-through can apply to a component: its own `pt`, or the application's. With
  * neither, `ptm()` has only the `data-pc-*` attributes to return and no hook exists, and that is
  * the state of nearly every component in nearly every application.
+ *
+ * A component nested in another one is handed `[pt]="ptm('pcChild')"` by its parent, which is
+ * never null: with nothing configured it is the parent's section name alone. That names the
+ * child's root and holds no pass-through, so it counts as none.
  */
 function hasPT(instance: BaseComponent) {
-    return instance.$pt() != null || instance.config?.pt() != null;
+    // Nothing is iterated when the component has no pass-through of its own.
+    for (const key in instance.$pt() as object) if (key !== SECTION) return true;
+
+    return instance.config?.pt() != null;
 }
+
+/**
+ * The attributes of each section other than the root: they depend on the key alone, so one frozen
+ * object per key serves every component. A stable object also lets a parent hand `ptm('pcChild')`
+ * to a child input without that input changing on every check.
+ */
+const sectionDatasets: Record<string, Readonly<Record<string, string>>> = {};
 
 @Directive({
     standalone: true,
@@ -527,20 +543,16 @@ export class BaseComponent<PT = any> implements Lifecycle {
     private _getPTDatasets(key = '') {
         if (key === 'transition') return false;
 
-        const datasetPrefix = 'data-pc-';
-        const datasets: Record<string, string> = {};
-
-        if (key === 'root') {
-            const extendedSection = this.$pt()?.['data-pc-section'];
-            const isExtended = isNotEmpty(extendedSection);
-
-            datasets[`${datasetPrefix}name`] = toFlatCase(isExtended ? extendedSection : this.$name);
-            if (isExtended) datasets[`${datasetPrefix}extend`] = toFlatCase(this.$name);
-            datasets[this.$attrSelector] = ''; // @todo - use `data-pc-id: this.$attrSelector` instead.
-        }
-
         // The last segment of a dotted key.
-        datasets[`${datasetPrefix}section`] = toFlatCase(key.slice(key.lastIndexOf('.') + 1));
+        if (key !== 'root') return (sectionDatasets[key] ??= Object.freeze({ [SECTION]: toFlatCase(key.split('.').pop() as string) }));
+
+        const extendedSection = this.$pt()?.[SECTION];
+        const isExtended = isNotEmpty(extendedSection);
+        const datasets: Record<string, string> = { 'data-pc-name': toFlatCase(isExtended ? extendedSection : this.$name) };
+
+        if (isExtended) datasets['data-pc-extend'] = toFlatCase(this.$name);
+        datasets[this.$attrSelector] = ''; // @todo - use `data-pc-id: this.$attrSelector` instead.
+        datasets[SECTION] = key;
 
         return datasets;
     }
@@ -605,10 +617,7 @@ export class BaseComponent<PT = any> implements Lifecycle {
     }
 
     public ptms(keys: string[], params = {}) {
-        return keys.reduce((acc, arg) => {
-            acc = mergeProps(acc, this.ptm(arg, params)) || {};
-            return acc;
-        }, {});
+        return keys.reduce((acc, arg) => mergeProps(acc, this.ptm(arg, params)) || {}, {});
     }
 
     public ptmo(obj = {}, key = '', params = {}) {
