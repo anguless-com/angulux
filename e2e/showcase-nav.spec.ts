@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { hydrated } from './hydrated';
 
 /**
  * The showcase's slide-over navigation, below the `lg` breakpoint, from the keyboard.
@@ -12,6 +13,7 @@ test.use({ viewport: { width: 700, height: 900 } });
 
 test('showcase nav — Escape closes the slide-over and the toggle reports it', async ({ page }) => {
     await page.goto('/');
+    await hydrated(page);
 
     const toggle = page.getByRole('button', { name: 'Toggle navigation' });
     const nav = page.locator('#agl-nav');
@@ -28,6 +30,7 @@ test('showcase nav — Escape closes the slide-over and the toggle reports it', 
 
 test('showcase nav — the backdrop is not offered to assistive technology', async ({ page }) => {
     await page.goto('/');
+    await hydrated(page);
     await page.getByRole('button', { name: 'Toggle navigation' }).click();
 
     await expect(page.locator('div[aria-hidden="true"].fixed.inset-0')).toHaveCount(1);
