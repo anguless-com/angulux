@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { hydrated } from './hydrated';
 
 /**
  * axe-core over every page of the showcase, against a baseline that only shrinks.
@@ -56,6 +57,7 @@ test('the sweep covers the whole site, and every baseline entry is a page that e
 test('axe can fail: an image with no alternative text is reported', async ({ page }) => {
     await page.goto('/button');
     await page.waitForLoadState('networkidle');
+    await hydrated(page);
     await page.evaluate(() => {
         const img = document.createElement('img');
         img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
@@ -71,6 +73,7 @@ for (const path of PAGES) {
     test(`${path} — no accessibility violation beyond the frozen baseline`, async ({ page }) => {
         await page.goto(path);
         await page.waitForLoadState('networkidle');
+        await hydrated(page);
 
         const result = await new AxeBuilder({ page }).withTags(TAGS).analyze();
 
