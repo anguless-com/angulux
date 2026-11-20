@@ -173,6 +173,17 @@ async function openModule(page: Page, module: string, sectionIds: string[]): Pro
     for (const id of sectionIds) {
         await expect(page.locator(`#${id}`)).toBeVisible({ timeout: PAGE_READY_MS });
     }
+
+    // The showcase is rendered on the server, so every section is visible before the browser's
+    // own application has started. Until it has, no component stylesheet is in the document:
+    // the hue handle measured 0 by 0 for about 0.3 s on every load, and on a busy machine a
+    // geometry read lands inside that window (23 of 60 parallel loads did). The same test went
+    // red in a release run on a commit that had passed it three times.
+    //
+    // Angular removes each `ngh` marker as it takes a server-rendered view over, so none left
+    // means the page a reader would use is the page being measured. A page that never finishes
+    // fails here by name.
+    await expect(page.locator('[ngh]')).toHaveCount(0, { timeout: PAGE_READY_MS });
 }
 
 /**
