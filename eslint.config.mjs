@@ -93,7 +93,10 @@ const TS_RULES = {
 const TEMPLATE_RULES = {
     '@angular-eslint/template/prefer-control-flow': 'error',
     '@angular-eslint/template/prefer-class-binding': 'error',
-    '@angular-eslint/template/prefer-style-binding': 'error'
+    '@angular-eslint/template/prefer-style-binding': 'error',
+    // The same attribute or binding written twice on one element: the second is noise at
+    // best. A static `class` beside a `[class]` binding is not a repeat; Angular merges them.
+    '@angular-eslint/template/no-duplicate-attributes': ['error', { allowStylePrecedenceDuplicates: true }]
 };
 
 /** Static accessibility: what a parser can see without rendering. */

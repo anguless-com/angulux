@@ -502,7 +502,6 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [ngClass]="todayButtonStyleClass"
                             severity="secondary"
                             variant="text"
-                            size="small"
                             [pt]="ptm('pcTodayButton')"
                             [attr.data-pc-group-section]="'button'"
                         />
@@ -515,7 +514,6 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                             [ngClass]="clearButtonStyleClass"
                             severity="secondary"
                             variant="text"
-                            size="small"
                             [pt]="ptm('pcClearButton')"
                             [attr.data-pc-group-section]="'button'"
                         />
