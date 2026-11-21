@@ -1,6 +1,7 @@
 {
     "$comment": [
         "Frozen findings of check:lint in the forked code, per file and per rule, as of 2026-11-19.",
+        "2026-11-21: two rules were switched on (`no-restricted-imports` for CommonModule, `prefer-service-decorator`) and their 72 findings frozen; no existing entry changed.",
         "It only shrinks: `node tools/check-lint.mjs --prune` lowers or removes entries and cannot raise or add one.",
         "Raising a number or adding a file by hand is a loosening of the quality bar and needs a maintainer to agree in review."
     ],
@@ -111,6 +112,7 @@
             "@typescript-eslint/no-explicit-any": 1
         },
         "packages/angulux/src/api/filterservice.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 58
         },
         "packages/angulux/src/api/lazyloadevent.ts": {
@@ -126,6 +128,7 @@
             "@typescript-eslint/no-explicit-any": 5
         },
         "packages/angulux/src/api/overlayservice.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 2
         },
         "packages/angulux/src/api/passthrough.ts": {
@@ -179,12 +182,14 @@
             "@angular-eslint/template/alt-text": 1,
             "@angular-eslint/template/prefer-class-binding": 2,
             "@angular-eslint/template/prefer-control-flow": 3,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/avatargroup/avatargroup.ts": {
             "@angular-eslint/prefer-host-metadata-property": 1,
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -196,15 +201,20 @@
         },
         "packages/angulux/src/badge/badge.ts": {
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 2
         },
         "packages/angulux/src/base/style/basestyle.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 5
         },
         "packages/angulux/src/basecomponent/basecomponent.ts": {
             "@typescript-eslint/no-explicit-any": 29,
             "no-restricted-syntax/redundant-standalone": 1
+        },
+        "packages/angulux/src/basecomponent/style/basecomponentstyle.ts": {
+            "@angular-eslint/prefer-service-decorator": 1
         },
         "packages/angulux/src/baseeditableholder/baseeditableholder.ts": {
             "@typescript-eslint/no-explicit-any": 4,
@@ -237,6 +247,7 @@
             "@angular-eslint/template/prefer-style-binding": 1,
             "@typescript-eslint/ban-ts-comment": 1,
             "@typescript-eslint/no-explicit-any": 7,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 4
         },
@@ -249,12 +260,14 @@
         "packages/angulux/src/card/card.ts": {
             "@angular-eslint/template/prefer-control-flow": 6,
             "@typescript-eslint/no-explicit-any": 2,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/chart/chart.ts": {
             "@angular-eslint/prefer-inject": 2,
             "@typescript-eslint/no-explicit-any": 10,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -268,6 +281,7 @@
             "@angular-eslint/template/prefer-class-binding": 2,
             "@angular-eslint/template/prefer-control-flow": 5,
             "@typescript-eslint/no-explicit-any": 9,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -281,6 +295,7 @@
             "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 8,
             "@typescript-eslint/ban-ts-comment": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -293,16 +308,19 @@
             "@angular-eslint/prefer-inject": 1,
             "@angular-eslint/template/prefer-control-flow": 1,
             "@typescript-eslint/no-explicit-any": 18,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/config/anguluxconfig.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 5
         },
         "packages/angulux/src/config/anguluxconfig.types.ts": {
             "@typescript-eslint/no-explicit-any": 6
         },
         "packages/angulux/src/config/themeprovider.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 2
         },
         "packages/angulux/src/confirmdialog/confirmdialog.spec.ts": {
@@ -316,13 +334,15 @@
             "@angular-eslint/template/prefer-class-binding": 2,
             "@angular-eslint/template/prefer-control-flow": 5,
             "@typescript-eslint/no-explicit-any": 10,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/datepicker/datepicker.spec.ts": {
             "@angular-eslint/prefer-standalone": 5,
             "@angular-eslint/template/prefer-control-flow": 4,
-            "@typescript-eslint/no-explicit-any": 26
+            "@typescript-eslint/no-explicit-any": 26,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/datepicker/datepicker.ts": {
             "@angular-eslint/prefer-inject": 2,
@@ -333,6 +353,7 @@
             "@angular-eslint/template/prefer-style-binding": 4,
             "@typescript-eslint/ban-ts-comment": 1,
             "@typescript-eslint/no-explicit-any": 118,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -346,6 +367,7 @@
             "@angular-eslint/template/prefer-control-flow": 17,
             "@angular-eslint/template/prefer-style-binding": 3,
             "@typescript-eslint/no-explicit-any": 19,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -354,6 +376,7 @@
             "@typescript-eslint/no-explicit-any": 5
         },
         "packages/angulux/src/divider/divider.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -372,6 +395,7 @@
             "@angular-eslint/template/prefer-class-binding": 5,
             "@angular-eslint/template/prefer-control-flow": 4,
             "@typescript-eslint/no-explicit-any": 10,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -387,6 +411,7 @@
             "@angular-eslint/template/prefer-style-binding": 2,
             "@angular-eslint/template/valid-aria": 3,
             "@typescript-eslint/no-explicit-any": 16,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 2,
             "no-restricted-syntax/redundant-standalone": 2
         },
@@ -399,6 +424,7 @@
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/fluid/fluid.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -417,6 +443,7 @@
         },
         "packages/angulux/src/iconfield/iconfield.ts": {
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -487,6 +514,9 @@
         "packages/angulux/src/icons/baseicon/baseicon.ts": {
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
+        },
+        "packages/angulux/src/icons/baseicon/style/baseiconstyle.ts": {
+            "@angular-eslint/prefer-service-decorator": 1
         },
         "packages/angulux/src/icons/blank/blank.ts": {
             "no-restricted-syntax/redundant-onpush": 1,
@@ -645,6 +675,7 @@
             "no-restricted-syntax/redundant-standalone": 2
         },
         "packages/angulux/src/iftalabel/iftalabel.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -654,12 +685,14 @@
         },
         "packages/angulux/src/inputicon/inputicon.ts": {
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/inputnumber/inputnumber.spec.ts": {
             "@angular-eslint/prefer-standalone": 14,
-            "@typescript-eslint/no-explicit-any": 32
+            "@typescript-eslint/no-explicit-any": 32,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/inputnumber/inputnumber.ts": {
             "@angular-eslint/prefer-inject": 1,
@@ -669,6 +702,7 @@
             "@angular-eslint/template/prefer-control-flow": 18,
             "@angular-eslint/template/prefer-style-binding": 1,
             "@typescript-eslint/no-explicit-any": 31,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -696,23 +730,27 @@
             "@angular-eslint/template/prefer-style-binding": 12,
             "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 27,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 3
         },
         "packages/angulux/src/message/message.spec.ts": {
             "@angular-eslint/prefer-standalone": 9,
             "@angular-eslint/template/button-has-type": 3,
-            "@typescript-eslint/no-explicit-any": 25
+            "@typescript-eslint/no-explicit-any": 25,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/message/message.ts": {
             "@angular-eslint/template/prefer-class-binding": 6,
             "@angular-eslint/template/prefer-control-flow": 3,
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/motion/motion.component.ts": {
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/motion/motion.directive.ts": {
@@ -723,7 +761,8 @@
             "@angular-eslint/template/click-events-have-key-events": 1,
             "@angular-eslint/template/interactive-supports-focus": 1,
             "@angular-eslint/template/prefer-control-flow": 2,
-            "@typescript-eslint/no-explicit-any": 41
+            "@typescript-eslint/no-explicit-any": 41,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/multiselect/multiselect.ts": {
             "@angular-eslint/prefer-inject": 3,
@@ -732,6 +771,7 @@
             "@angular-eslint/template/prefer-style-binding": 6,
             "@angular-eslint/template/role-has-required-aria": 3,
             "@typescript-eslint/no-explicit-any": 32,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 2
         },
@@ -745,6 +785,7 @@
             "@angular-eslint/template/interactive-supports-focus": 2,
             "@angular-eslint/template/prefer-control-flow": 1,
             "@typescript-eslint/no-explicit-any": 28,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -753,18 +794,21 @@
         },
         "packages/angulux/src/paginator/paginator.spec.ts": {
             "@angular-eslint/prefer-standalone": 5,
-            "@typescript-eslint/no-explicit-any": 12
+            "@typescript-eslint/no-explicit-any": 12,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/paginator/paginator.ts": {
             "@angular-eslint/prefer-host-metadata-property": 1,
             "@angular-eslint/template/prefer-control-flow": 22,
             "@typescript-eslint/no-explicit-any": 6,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/password/password.spec.ts": {
             "@angular-eslint/prefer-standalone": 7,
-            "@typescript-eslint/no-explicit-any": 21
+            "@typescript-eslint/no-explicit-any": 21,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/password/password.ts": {
             "@angular-eslint/prefer-host-metadata-property": 4,
@@ -775,6 +819,7 @@
             "@angular-eslint/template/prefer-style-binding": 2,
             "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 9,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 3
         },
@@ -782,7 +827,8 @@
             "@angular-eslint/prefer-standalone": 4,
             "@angular-eslint/template/button-has-type": 7,
             "@angular-eslint/template/no-autofocus": 1,
-            "@typescript-eslint/no-explicit-any": 11
+            "@typescript-eslint/no-explicit-any": 11,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/popover/popover.ts": {
             "@angular-eslint/prefer-host-metadata-property": 1,
@@ -791,6 +837,7 @@
             "@angular-eslint/template/prefer-style-binding": 1,
             "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 18,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -801,6 +848,7 @@
         },
         "packages/angulux/src/progressbar/progressbar.ts": {
             "@angular-eslint/template/prefer-control-flow": 3,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -810,6 +858,7 @@
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/progressspinner/progressspinner.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -819,7 +868,9 @@
             "no-restricted-syntax/redundant-standalone": 5
         },
         "packages/angulux/src/radiobutton/radiobutton.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 6,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -835,6 +886,7 @@
             "@angular-eslint/prefer-standalone": 18,
             "@angular-eslint/template/prefer-control-flow": 14,
             "@typescript-eslint/no-explicit-any": 55,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 5
         },
         "packages/angulux/src/scroller/scroller.ts": {
@@ -844,12 +896,14 @@
             "@angular-eslint/template/prefer-style-binding": 3,
             "@typescript-eslint/ban-ts-comment": 1,
             "@typescript-eslint/no-explicit-any": 45,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/select/select.spec.ts": {
             "@angular-eslint/prefer-inject": 1,
             "@angular-eslint/prefer-standalone": 10,
             "@typescript-eslint/no-explicit-any": 119,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/select/select.ts": {
@@ -860,16 +914,19 @@
             "@angular-eslint/template/prefer-style-binding": 7,
             "@angular-eslint/template/role-has-required-aria": 3,
             "@typescript-eslint/no-explicit-any": 40,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 2
         },
         "packages/angulux/src/selectbutton/selectbutton.spec.ts": {
             "@angular-eslint/prefer-standalone": 2,
             "@typescript-eslint/no-explicit-any": 11,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 5
         },
         "packages/angulux/src/selectbutton/selectbutton.ts": {
             "@typescript-eslint/no-explicit-any": 11,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -882,6 +939,7 @@
             "@typescript-eslint/no-explicit-any": 19
         },
         "packages/angulux/src/skeleton/skeleton.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -895,12 +953,14 @@
         "packages/angulux/src/splitbutton/splitbutton.ts": {
             "@angular-eslint/template/prefer-control-flow": 4,
             "@typescript-eslint/no-explicit-any": 7,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/table/table.spec.ts": {
             "@angular-eslint/prefer-standalone": 10,
-            "@typescript-eslint/no-explicit-any": 8
+            "@typescript-eslint/no-explicit-any": 8,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/table/table.ts": {
             "@angular-eslint/prefer-host-metadata-property": 25,
@@ -911,15 +971,18 @@
             "@angular-eslint/template/prefer-control-flow": 70,
             "@angular-eslint/template/prefer-style-binding": 4,
             "@typescript-eslint/no-explicit-any": 209,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 4
         },
         "packages/angulux/src/tabs/tab.ts": {
             "@angular-eslint/prefer-host-metadata-property": 3,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/tabs/tablist.ts": {
             "@typescript-eslint/no-explicit-any": 4,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -928,6 +991,7 @@
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/tabs/tabpanels.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -936,6 +1000,7 @@
             "@typescript-eslint/no-explicit-any": 2
         },
         "packages/angulux/src/tabs/tabs.ts": {
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -947,6 +1012,7 @@
         "packages/angulux/src/tag/tag.ts": {
             "@angular-eslint/template/prefer-class-binding": 2,
             "@angular-eslint/template/prefer-control-flow": 3,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -973,29 +1039,34 @@
             "@angular-eslint/template/prefer-style-binding": 17,
             "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 66,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 2
         },
         "packages/angulux/src/timeline/timeline.spec.ts": {
             "@angular-eslint/prefer-standalone": 5,
-            "@typescript-eslint/no-explicit-any": 3
+            "@typescript-eslint/no-explicit-any": 3,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/timeline/timeline.ts": {
             "@angular-eslint/template/prefer-control-flow": 3,
             "@typescript-eslint/no-explicit-any": 1,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/toast/toast.spec.ts": {
             "@angular-eslint/prefer-standalone": 17,
             "@angular-eslint/template/button-has-type": 2,
-            "@typescript-eslint/no-explicit-any": 58
+            "@typescript-eslint/no-explicit-any": 58,
+            "no-restricted-imports": 1
         },
         "packages/angulux/src/toast/toast.ts": {
             "@angular-eslint/prefer-inject": 1,
             "@angular-eslint/template/prefer-class-binding": 3,
             "@angular-eslint/template/prefer-control-flow": 3,
             "@typescript-eslint/no-explicit-any": 4,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 2,
             "no-restricted-syntax/redundant-standalone": 2
         },
@@ -1003,22 +1074,26 @@
             "@angular-eslint/prefer-standalone": 6,
             "@angular-eslint/template/prefer-class-binding": 2,
             "@typescript-eslint/no-explicit-any": 15,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 11
         },
         "packages/angulux/src/togglebutton/togglebutton.ts": {
             "@angular-eslint/prefer-host-metadata-property": 2,
             "@typescript-eslint/no-explicit-any": 3,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/toggleswitch/toggleswitch.spec.ts": {
             "@angular-eslint/prefer-standalone": 6,
             "@typescript-eslint/no-explicit-any": 11,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-standalone": 11
         },
         "packages/angulux/src/toggleswitch/toggleswitch.ts": {
             "@angular-eslint/prefer-host-metadata-property": 1,
             "@typescript-eslint/no-explicit-any": 5,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
             "no-restricted-syntax/redundant-standalone": 1
         },
@@ -1047,6 +1122,7 @@
             "@angular-eslint/template/prefer-style-binding": 8,
             "@typescript-eslint/ban-ts-comment": 2,
             "@typescript-eslint/no-explicit-any": 113,
+            "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 3
         },
         "packages/angulux/src/types/autocomplete/autocomplete.types.ts": {
@@ -1134,6 +1210,7 @@
             "@typescript-eslint/no-explicit-any": 15
         },
         "packages/angulux/src/usestyle/usestyle.ts": {
+            "@angular-eslint/prefer-service-decorator": 1,
             "@typescript-eslint/no-explicit-any": 1
         },
         "packages/angulux/src/utils/getcursoroffset.spec.ts": {

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { JsonPipe } from '@angular/common';
 import { ColorPickerModule } from '@anguless/angulux/colorpicker';
 
 @Component({
     selector: 'agl-colorpicker-format-doc',
-    imports: [FormsModule, CommonModule, ColorPickerModule],
+    imports: [FormsModule, JsonPipe, ColorPickerModule],
     template: `
         <div class="card">
             <agl-colorPicker [(ngModel)]="colour" format="rgb" />

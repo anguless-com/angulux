@@ -45,6 +45,8 @@ const cases = [
     ['EventEmitter output', `import { Output, EventEmitter } from '@angular/core';` + component('@Output() done = new EventEmitter<void>();'), /prefer-output-emitter-ref/],
     ['input + output pair instead of model', `import { input, output } from '@angular/core';` + component('value = input(0); valueChange = output<number>();'), /prefer-signal-model/],
     ['constructor injection', `import { ElementRef } from '@angular/core';` + component('constructor(private el: ElementRef) {}'), /prefer-inject/],
+    ['CommonModule import', `import { CommonModule } from '@angular/common';` + component('', 'imports: [CommonModule]'), /no-restricted-imports/],
+    ['@Injectable root singleton', `import { Injectable } from '@angular/core';\n@Injectable({ providedIn: 'root' })\nexport class Store {}`, /prefer-service-decorator/],
     ['@HostBinding', `import { HostBinding } from '@angular/core';` + component('@HostBinding("class.on") on = true;'), /prefer-host-metadata-property/],
     ['@HostListener', `import { HostListener } from '@angular/core';` + component('@HostListener("click") go() {}'), /prefer-host-metadata-property/],
     ['*ngIf in an inline template', component('', '').replace(`template: ''`, `template: '<p *ngIf="on">x</p>'`), /prefer-control-flow/],
@@ -82,6 +84,20 @@ export class Probe {
     ref = viewChild<ElementRef>('a');
     go() { this.done.emit(); }
 }
+`;
+    assert.deepEqual(await rulesFor(APP, code), []);
+});
+
+test('a single pipe from @angular/common and a @Service singleton are clean', async () => {
+    const code = `
+import { JsonPipe } from '@angular/common';
+import { Component, Injectable, Service } from '@angular/core';
+@Service()
+export class Store {}
+@Injectable()
+export class Scoped {}
+@Component({ selector: 'x-probe', imports: [JsonPipe], template: '{{ 1 | json }}' })
+export class Probe {}
 `;
     assert.deepEqual(await rulesFor(APP, code), []);
 });

@@ -81,7 +81,12 @@ const TS_RULES = {
     '@angular-eslint/prefer-signal-model': 'error',
     '@angular-eslint/prefer-output-emitter-ref': 'error',
     '@angular-eslint/prefer-inject': 'error',
-    '@angular-eslint/prefer-host-metadata-property': 'error'
+    '@angular-eslint/prefer-host-metadata-property': 'error',
+    // A root singleton is written `@Service()`. The rule leaves alone what `@Service` cannot
+    // express (`providedIn` other than 'root', `useFactory`, constructor parameters).
+    '@angular-eslint/prefer-service-decorator': 'error',
+    // `CommonModule` pulls every common directive and pipe into a component that uses one.
+    'no-restricted-imports': ['error', { paths: [{ name: '@angular/common', importNames: ['CommonModule'], message: 'Import only what the template uses (`JsonPipe`, `NgTemplateOutlet`, …); `@if`/`@for` need no import at all.' }] }]
 };
 
 /** The Angular 22 shape, in templates. */
