@@ -2369,7 +2369,6 @@ export class TTBody extends BaseComponent {
                     [aglBind]="ptm('tbody')"
                     role="rowgroup"
                     [class]="cx('tbody')"
-                    [aglBind]="ptm('tbody')"
                     [aglTreeTableBody]="columns"
                     [unstyled]="unstyled()"
                     [aglTreeTableBodyTemplate]="frozen ? tt._frozenBodyTemplate() || tt._bodyTemplate() : tt._bodyTemplate()"

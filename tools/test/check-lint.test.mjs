@@ -51,6 +51,7 @@ const cases = [
     ['@HostListener', `import { HostListener } from '@angular/core';` + component('@HostListener("click") go() {}'), /prefer-host-metadata-property/],
     ['*ngIf in an inline template', component('', '').replace(`template: ''`, `template: '<p *ngIf="on">x</p>'`), /prefer-control-flow/],
     ['ngClass in an inline template', component('', '').replace(`template: ''`, `template: '<p [ngClass]="c">x</p>'`), /prefer-class-binding/],
+    ['an attribute written twice', component('', '').replace(`template: ''`, `template: '<input size="1" size="1" />'`), /no-duplicate-attributes/],
     ['ngStyle in an inline template', component('', '').replace(`template: ''`, `template: '<p [ngStyle]="s">x</p>'`), /prefer-style-binding/],
     ['fit', `fit('a', () => {});`, /Focused test/],
     ['fdescribe', `fdescribe('a', () => {});`, /Focused test/],
@@ -96,8 +97,8 @@ import { Component, Injectable, Service } from '@angular/core';
 export class Store {}
 @Injectable()
 export class Scoped {}
-@Component({ selector: 'x-probe', imports: [JsonPipe], template: '{{ 1 | json }}' })
-export class Probe {}
+@Component({ selector: 'x-probe', imports: [JsonPipe], template: '<p class="a" [class]="b">{{ 1 | json }}</p>' })
+export class Probe { b = 'b'; }
 `;
     assert.deepEqual(await rulesFor(APP, code), []);
 });
