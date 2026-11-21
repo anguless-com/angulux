@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { PLATFORM_ID, Service, inject, signal } from '@angular/core';
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -18,7 +18,7 @@ export const SCHEME_KEY = 'agl-scheme';
  * `document` does not exist; reaching for it unguarded is the exact defect that was fixed in
  * `BadgeDirective`, and it would take this whole site down rather than one component.
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ColorSchemeToggle {
     private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 

@@ -62,6 +62,8 @@ Node `>=22`, pnpm 9.6.0 via corepack.
   `@Injectable({ providedIn: 'root' })` for new singletons.
 - Native control flow `@if` / `@for` / `@switch` — not `*ngIf` / `*ngFor` / `*ngSwitch`.
 - `class` and `style` bindings — not `ngClass` / `ngStyle`.
+- No `CommonModule` import: import the one directive or pipe the template uses (`JsonPipe`,
+  `NgTemplateOutlet`). `check:lint` fails on it, and on `@Injectable({ providedIn: 'root' })`.
 - Host bindings go in the `host` object of the decorator. No `@HostBinding` / `@HostListener`.
 - Signal Forms (`@angular/forms/signals`) for new forms; reactive forms otherwise; never
   template-driven.
