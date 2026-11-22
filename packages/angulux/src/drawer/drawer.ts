@@ -18,7 +18,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 import { MotionEvent, MotionOptions } from '@anguless/angulux-motion';
-import { addClass, appendChild, removeClass, setAttribute } from '@anguless/angulux-utils';
+import { addClass, appendChild, getFocusableElements, removeClass, setAttribute, uuid } from '@anguless/angulux-utils';
 import { SharedModule } from '@anguless/angulux/api';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind } from '@anguless/angulux/bind';
@@ -55,11 +55,13 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                 [aglMotionLeaveActiveClass]="$leaveAnimation()"
                 [aglMotionOptions]="computedMotionOptions()"
                 (aglMotionOnBeforeEnter)="onBeforeEnter($event)"
+                (aglMotionOnAfterEnter)="onAfterEnter()"
                 (aglMotionOnAfterLeave)="onAfterLeave($event)"
                 [class]="cn(cx('root'), styleClass)"
                 [style]="style"
-                role="complementary"
-                (keydown)="onKeyDown($event)"
+                [attr.role]="modal ? 'dialog' : 'complementary'"
+                [attr.aria-modal]="modal ? 'true' : null"
+                [attr.aria-labelledby]="labelledBy"
                 aglFocusTrap
                 [attr.data-p]="dataP"
                 [attr.data-p-open]="visible"
@@ -69,7 +71,7 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                 } @else {
                     <div [aglBind]="ptm('header')" [ngClass]="cx('header')" [attr.data-pc-section]="'header'">
                         <ng-container *ngTemplateOutlet="headerTemplate()"></ng-container>
-                        <div *ngIf="header" [aglBind]="ptm('title')" [class]="cx('title')">{{ header }}</div>
+                        <div *ngIf="header" [attr.id]="titleId" [aglBind]="ptm('title')" [class]="cx('title')">{{ header }}</div>
                         <agl-button
                             *ngIf="showCloseIcon && closable"
                             [pt]="ptm('pcCloseButton')"
@@ -77,7 +79,7 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                             (onClick)="close($event)"
                             (keydown.enter)="close($event)"
                             [buttonProps]="closeButtonProps"
-                            [ariaLabel]="ariaCloseLabel"
+                            [ariaLabel]="ariaCloseLabel || closeButtonProps?.ariaLabel || closeLabel"
                             [attr.data-pc-group-section]="'iconcontainer'"
                             [unstyled]="unstyled()"
                         >
@@ -287,6 +289,30 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
 
     _componentStyle = inject(DrawerStyle);
 
+    /** The id of the title element, which names the drawer. */
+    protected readonly titleId: string = uuid('pn_id_') + '_header';
+
+    /**
+     * The drawer is named by its header text. A name the app already gives through `pt` stays in
+     * charge: `aria-labelledby` would otherwise win over its `aria-label`.
+     */
+    protected get labelledBy(): string | null {
+        if (!this.header || this.headlessTemplate()) {
+            return null;
+        }
+        const root = this.ptm('root') as Record<string, unknown> | undefined;
+        return root?.['aria-label'] || root?.['aria-labelledby'] ? null : this.titleId;
+    }
+
+    /**
+     * The close button's accessible name when the app gives none: the `aria.close` translation,
+     * as in Dialog. Without it the button was announced as "button". The key is written out:
+     * importing TranslationKeys for it would put the whole class in every drawer bundle.
+     */
+    protected get closeLabel(): string | undefined {
+        return this.config.getTranslation('aria')?.close;
+    }
+
     onAfterViewInit() {
         this.initialized = true;
     }
@@ -318,9 +344,46 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
 
     $appendTo = computed(() => this.appendTo() || this.config.overlayAppendTo());
 
+    /**
+     * No longer bound in the template: the document listener closes the drawer on Escape, and
+     * closing takes the mask away. Bound to the panel, this took the mask away on every Escape
+     * that reached it, with `closeOnEscape` off and when the key was meant for a dialog or a
+     * panel open inside the drawer (#257). Kept, with the same guard as the listener, for code
+     * that calls it.
+     */
     onKeyDown(event: KeyboardEvent) {
-        if (event.code === 'Escape') {
+        if (event.code === 'Escape' && this.closeOnEscape && this.isTopmost()) {
             this.hide(false);
+        }
+    }
+
+    /**
+     * Whether nothing is layered above the drawer. The z-index it was given is compared with the
+     * highest one in use, as Dialog does. With `autoZIndex` off it has no layer of its own to
+     * compare, so it answers yes.
+     */
+    private isTopmost(): boolean {
+        return !this.autoZIndex || ZIndexUtils.get(this.container) === ZIndexUtils.getCurrent();
+    }
+
+    /**
+     * Moves focus into a modal drawer once it has entered: the element marked `autofocus`, else
+     * the first control outside the header, else the first control, else the drawer itself.
+     * Focus the app has already moved inside (from `onShow`) is left where it is.
+     */
+    private focusIn(): void {
+        const container = this.container;
+        if (!container || container.contains(this.document.activeElement)) {
+            return;
+        }
+        const controls = getFocusableElements(container, ':not(.p-hidden-focusable)') as HTMLElement[];
+        const header = container.querySelector(':scope > [data-pc-section="header"]');
+        const target = container.querySelector<HTMLElement>('[autofocus]') ?? controls.find((el) => !header?.contains(el)) ?? controls[0];
+        if (target) {
+            target.focus();
+        } else {
+            container.setAttribute('tabindex', '-1');
+            container.focus();
         }
     }
 
@@ -431,6 +494,12 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
         }
     }
 
+    onAfterEnter() {
+        if (this.modal) {
+            this.focusIn();
+        }
+    }
+
     onAfterLeave() {
         this.hide(false);
         ZIndexUtils.clear(this.container);
@@ -454,7 +523,9 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
 
         this.documentEscapeListener = this.renderer.listen(documentTarget, 'keydown', (event) => {
             if (event.which == 27) {
-                if (parseInt((this.container as HTMLDivElement)?.style.zIndex) === ZIndexUtils.get(this.container)) {
+                // Both sides of this test used to read the drawer's own z-index, so it was always
+                // true and Escape closed the drawer under whatever was open above it (#257).
+                if (this.isTopmost()) {
                     this.close(event);
                 }
             }

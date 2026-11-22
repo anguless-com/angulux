@@ -55,6 +55,7 @@ export const CHECKBOX_VALUE_ACCESSOR: any = {
             [attr.value]="value"
             [attr.name]="name()"
             [checked]="checked"
+            [indeterminate]="_indeterminate()"
             [attr.tabindex]="tabindex"
             [attr.required]="$required() ? '' : undefined"
             [attr.readonly]="readonly ? '' : undefined"
@@ -279,6 +280,10 @@ export class Checkbox extends BaseEditableHolder<CheckboxPassThrough> {
     handleChange(event) {
         if (!this.readonly) {
             this.updateModel(event);
+        } else {
+            // The click has cleared the input's mixed state. A read-only box keeps showing the
+            // minus, so the input is put back to say the same (#258).
+            event.target.indeterminate = this._indeterminate();
         }
     }
 

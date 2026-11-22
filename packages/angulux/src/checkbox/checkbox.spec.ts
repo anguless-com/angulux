@@ -360,10 +360,13 @@ describe('Checkbox', () => {
             expect(checkboxInstance.checked).toBe(false);
 
             const inputElement = testFixture.debugElement.query(By.css('input[type="checkbox"]'));
+            // The input reports the mixed state itself, so assistive technology hears it (#258).
+            expect(inputElement.nativeElement.indeterminate).toBe(true);
             inputElement.nativeElement.click();
             await testFixture.whenStable();
 
             expect(checkboxInstance._indeterminate()).toBe(false);
+            expect(inputElement.nativeElement.indeterminate).toBe(false);
             expect(testComponent.value).toBe(true);
         });
     });
