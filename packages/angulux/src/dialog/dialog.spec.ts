@@ -769,6 +769,16 @@ describe('Dialog', () => {
                 expect(document.activeElement).toBe(first);
             });
 
+            it('a link before the fields is the first focusable element', async () => {
+                const link = document.createElement('a');
+                link.href = '#help';
+                link.textContent = 'Help';
+                first.before(link);
+                dialogInstance.focus();
+                await settle();
+                expect(document.activeElement).toBe(link);
+            });
+
             it('an element marked autofocus wins over the first field', async () => {
                 second.setAttribute('autofocus', '');
                 dialogInstance.focus();
