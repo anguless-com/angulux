@@ -208,8 +208,7 @@ export function ɵfocus(element: HTMLElement | null, options?: FocusOptions): vo
 
 export function ɵgetFocusableSelectorString(selector = ''): string {
     return `button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-    a[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-    area[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+    :is(a, area)[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
     input:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
     select:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
     textarea:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
@@ -993,8 +992,7 @@ export class DomHandler {
     public static isFocusableElement(element, selector = '') {
         return this.isElement(element)
             ? element.matches(`button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-                a[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
-                area[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
+                :is(a, area)[href]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
                 input:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
                 select:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
                 textarea:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])${selector},
