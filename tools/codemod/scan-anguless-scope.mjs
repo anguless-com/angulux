@@ -84,7 +84,9 @@ const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // prove the line above a selected row is drawn from `p-datatable-row-before-selected`, right where
 // the sibling :has() rule stood, and that no sibling :has() is left (#168: it made rendering grow
 // with the square of the rows).
-const P_CLASS_BASELINE = 530;
+// 530 → 531 on 2026-11-23: one in `drawer.ts`. `.p-drawer-header` keeps the close button from
+// being the first thing focused when a modal drawer opens.
+const P_CLASS_BASELINE = 531;
 
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.angular', 'attic', 'ref', '.git']);
 const SRC_DIRS = ['packages', 'apps/verify'];
