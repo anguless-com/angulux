@@ -68,6 +68,8 @@ test('fewer than the allowance is stale, and prune can only give allowance back'
 test('the real tree is clean against the committed baseline, and the attic is not in it', () => {
     assert.equal(main([]), 0);
     const { files } = JSON.parse(readFileSync(join(repoRoot, 'tools/spec-waits-baseline.json'), 'utf8'));
-    assert.ok(Object.keys(files).length > 0);
+    // The baseline reached zero on 2026-11-23 (issue #124), so it may be empty. What keeps the gate
+    // from passing on nothing is that it refuses a tree with no spec files, not this file's size.
+    assert.equal(typeof files, 'object');
     assert.equal(Object.keys(files).filter((f) => /(^|\/)attic\//.test(f)).length, 0);
 });

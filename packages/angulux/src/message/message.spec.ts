@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SharedModule } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
+import { waitUntil } from '../spec-helpers';
 import { Message } from './message';
 
 @Component({
@@ -304,8 +305,7 @@ describe('Message', () => {
 
             expect(messageInstance.visible()).toBe(true);
 
-            // Wait for the life duration timeout
-            await new Promise((resolve) => setTimeout(resolve, 1100));
+            await waitUntil(() => !messageInstance.visible(), fixture, 5000);
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();

@@ -6,7 +6,7 @@ import { By } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
-import { forceNonTouchDevice, forceTouchDevice } from '../spec-helpers';
+import { forceNonTouchDevice, forceTouchDevice, waitUntil } from '../spec-helpers';
 import { MapperPipe, Password, PasswordDirective, PasswordModule } from './password';
 
 // Test Components
@@ -783,7 +783,7 @@ describe('Password', () => {
                 formTestFixture.detectChanges();
             });
 
-            await new Promise((resolve) => setTimeout(resolve, 150));
+            await asyncPassword$;
             await formTestFixture.whenStable();
 
             expect(formTestComponent.form.value.password).toBe('AsyncGeneratedPassword123!');
@@ -1262,8 +1262,7 @@ describe('Password', () => {
                 }, index * 10);
             });
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            await waitUntil(() => results.length === 4, fixture);
 
             expect(results.length).toBe(4);
             // Ensure first password is weaker than or equal to last

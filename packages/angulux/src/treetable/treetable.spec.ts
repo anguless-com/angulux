@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { TreeNode } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { of } from 'rxjs';
+import { waitUntil } from '../spec-helpers';
 import { TreeTable, TreeTableModule } from './treetable';
 
 describe('TreeTable', () => {
@@ -502,20 +503,18 @@ describe('TreeTable', () => {
         it('should apply global filter', async () => {
             treetable.filterGlobal('File', 'contains');
 
-            await new Promise((resolve) => setTimeout(resolve, treetable.filterDelay + 10));
-            await fixture.whenStable();
+            await waitUntil(() => !!treetable.filteredNodes, fixture);
 
-            expect(treetable.filteredNodes).toBeDefined();
+            expect(treetable.filteredNodes).toBeTruthy();
         });
 
         it('should clear global filter', async () => {
             treetable.filterGlobal('File', 'contains');
-            await new Promise((resolve) => setTimeout(resolve, treetable.filterDelay + 10));
-            await fixture.whenStable();
+            await waitUntil(() => !!treetable.filteredNodes, fixture);
+            expect(treetable.filteredNodes).toBeTruthy();
 
             treetable.filterGlobal('', 'contains');
-            await new Promise((resolve) => setTimeout(resolve, treetable.filterDelay + 10));
-            await fixture.whenStable();
+            await waitUntil(() => treetable.filteredNodes === null, fixture);
 
             expect(treetable.filteredNodes).toBeNull();
         });
@@ -525,8 +524,7 @@ describe('TreeTable', () => {
 
             treetable.filterGlobal('File', 'contains');
 
-            await new Promise((resolve) => setTimeout(resolve, treetable.filterDelay + 10));
-            await fixture.whenStable();
+            await waitUntil(() => (treetable.onFilter.emit as jasmine.Spy).calls.any(), fixture);
 
             expect(treetable.onFilter.emit).toHaveBeenCalled();
         });
@@ -2160,13 +2158,16 @@ describe('TreeTable', () => {
                 expect(loadingIndicator).toBeTruthy();
 
                 // Stop loading after delay
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updateLoading(false);
                     dynamicFixture.changeDetectorRef.markForCheck();
                     dynamicFixture.detectChanges();
                 }, 1000);
 
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                jasmine.clock().tick(1000);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.loading).toBe(false);
@@ -2185,13 +2186,16 @@ describe('TreeTable', () => {
                 expect(dynamicTreetable.rows).toBe(5);
 
                 // Change page after delay
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updateFirst(5);
                     dynamicFixture.changeDetectorRef.markForCheck();
                     dynamicFixture.detectChanges();
                 }, 500);
 
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                jasmine.clock().tick(500);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.first).toBe(5);
@@ -2208,13 +2212,16 @@ describe('TreeTable', () => {
                 expect(dynamicTreetable.sortMode).toBe('multiple');
 
                 // Change back to single sort after delay
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updateSortMode('single');
                     dynamicFixture.changeDetectorRef.markForCheck();
                     dynamicFixture.detectChanges();
                 }, 300);
 
-                await new Promise((resolve) => setTimeout(resolve, 300));
+                jasmine.clock().tick(300);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.sortMode).toBe('single');
@@ -2233,13 +2240,16 @@ describe('TreeTable', () => {
                 expect(dynamicTreetable.virtualScroll).toBe(true);
 
                 // Disable after delay
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updateVirtualScroll(false);
                     dynamicFixture.changeDetectorRef.markForCheck();
                     dynamicFixture.detectChanges();
                 }, 200);
 
-                await new Promise((resolve) => setTimeout(resolve, 200));
+                jasmine.clock().tick(200);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.virtualScroll).toBe(false);
@@ -2794,6 +2804,8 @@ describe('TreeTable', () => {
             it('should handle delayed property updates with observables', async () => {
                 if (dynamicTreetable) {
                     // Simulate delayed updates from server
+                    // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                    jasmine.clock().install();
                     setTimeout(() => {
                         dynamicComponent.updateLoading(true);
                         dynamicComponent.updateRows(100);
@@ -2801,12 +2813,12 @@ describe('TreeTable', () => {
                         dynamicFixture.detectChanges();
                     }, 1000);
 
-                    await new Promise((resolve) => setTimeout(resolve, 500));
-                    await dynamicFixture.whenStable();
+                    jasmine.clock().tick(999);
                     // Properties shouldn't have changed yet
                     expect(dynamicTreetable.loading).toBeFalsy();
 
-                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    jasmine.clock().tick(1);
+                    jasmine.clock().uninstall();
                     await dynamicFixture.whenStable();
                     // Now properties should be updated
                     expect(dynamicTreetable.loading).toBe(true);
@@ -2877,6 +2889,8 @@ describe('TreeTable', () => {
                 expect(dynamicTreetable.loading).toBe(true);
 
                 // Change all back
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updatePaginator(false);
                     dynamicComponent.updateSelectionMode('single');
@@ -2886,7 +2900,8 @@ describe('TreeTable', () => {
                     dynamicFixture.detectChanges();
                 }, 1000);
 
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                jasmine.clock().tick(1000);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.paginator).toBe(false);
@@ -2922,13 +2937,16 @@ describe('TreeTable', () => {
                 expect(dynamicTreetable.value).toEqual(newData);
 
                 // Finish loading
+                // The test's own timer, run on a mock clock: exact, and no real time is spent.
+                jasmine.clock().install();
                 setTimeout(() => {
                     dynamicComponent.updateLoading(false);
                     dynamicFixture.changeDetectorRef.markForCheck();
                     dynamicFixture.detectChanges();
                 }, 2000);
 
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+                jasmine.clock().tick(2000);
+                jasmine.clock().uninstall();
                 await dynamicFixture.whenStable();
 
                 expect(dynamicTreetable.loading).toBe(false);

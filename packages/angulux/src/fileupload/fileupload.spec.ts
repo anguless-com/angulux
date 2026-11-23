@@ -2441,6 +2441,9 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
         });
 
         it('should handle delayed observable values', async () => {
+            // rxjs keeps its delay with a timer, so the mock clock runs it: exact, and no real time.
+            jasmine.clock().install();
+            jasmine.clock().mockDate();
             const delayedUrl$ = of('https://delayed.com/upload').pipe(delay(1000));
 
             delayedUrl$.subscribe((url) => {
@@ -2450,7 +2453,10 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
 
             expect(component.url).toBeUndefined();
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            jasmine.clock().tick(999);
+            expect(component.url).toBeUndefined();
+            jasmine.clock().tick(1);
+            jasmine.clock().uninstall();
             await fixture.whenStable();
             expect(component.url).toBe('https://delayed.com/upload');
         });
@@ -2511,6 +2517,9 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
         });
 
         it('should handle timer-based boolean changes', async () => {
+            // rxjs keeps its delay with a timer, so the mock clock runs it: exact, and no real time.
+            jasmine.clock().install();
+            jasmine.clock().mockDate();
             let autoUpload = false;
 
             timer(500).subscribe(() => {
@@ -2521,7 +2530,10 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
 
             expect(component.auto).toBeUndefined();
 
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            jasmine.clock().tick(499);
+            expect(component.auto).toBeUndefined();
+            jasmine.clock().tick(1);
+            jasmine.clock().uninstall();
             expect(component.auto).toBe(true);
         });
     });
@@ -2566,6 +2578,9 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
         });
 
         it('should handle delayed number value changes', async () => {
+            // rxjs keeps its delay with a timer, so the mock clock runs it: exact, and no real time.
+            jasmine.clock().install();
+            jasmine.clock().mockDate();
             const delayedWidth$ = of(100).pipe(delay(2000));
 
             delayedWidth$.subscribe((width) => {
@@ -2575,7 +2590,10 @@ describe('FileUpload Input Properties - Observable/Async Values', () => {
 
             expect(component.previewWidth).toBe(50); // default value
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            jasmine.clock().tick(1999);
+            expect(component.previewWidth).toBe(50);
+            jasmine.clock().tick(1);
+            jasmine.clock().uninstall();
             expect(component.previewWidth).toBe(100);
         });
     });

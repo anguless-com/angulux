@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { OverlayService } from '@anguless/angulux/api';
-import { forceNonTouchDevice, forceTouchDevice } from '../spec-helpers';
+import { forceNonTouchDevice, forceTouchDevice, waitUntil } from '../spec-helpers';
 import { Popover } from './popover';
 
 // function createMockAnimationEvent(toState: string, fromState: string = 'void'): AnimationEvent {
@@ -474,7 +474,7 @@ describe('Popover', () => {
 
             spyOn(focusableInput, 'focus');
             popoverInstance.focus();
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await waitUntil(() => (focusableInput.focus as jasmine.Spy).calls.any(), fixture);
             await fixture.whenStable();
 
             expect(focusableInput.focus).toHaveBeenCalled();
@@ -492,7 +492,7 @@ describe('Popover', () => {
             spyOn(link, 'focus');
             spyOn(button, 'focus');
             popoverInstance.focus();
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await waitUntil(() => (link.focus as jasmine.Spy).calls.any(), fixture);
 
             expect(link.focus).toHaveBeenCalled();
             expect(button.focus).not.toHaveBeenCalled();
@@ -513,7 +513,7 @@ describe('Popover', () => {
             spyOn(marked, 'focus');
             spyOn(named, 'focus');
             popoverInstance.focus();
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await waitUntil(() => (named.focus as jasmine.Spy).calls.any(), fixture);
 
             expect(named.focus).toHaveBeenCalled();
             expect(marked.focus).not.toHaveBeenCalled();
@@ -533,7 +533,7 @@ describe('Popover', () => {
             spyOn(button, 'focus');
             spyOn(marked, 'focus');
             popoverInstance.focus();
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await waitUntil(() => (marked.focus as jasmine.Spy).calls.any(), fixture);
 
             expect(marked.focus).toHaveBeenCalled();
             expect(button.focus).not.toHaveBeenCalled();

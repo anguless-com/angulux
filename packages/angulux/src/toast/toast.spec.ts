@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { MessageService, SharedModule, ToastMessageOptions } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Toast, ToastItem } from './toast';
+import { waitUntil } from '../spec-helpers';
 import { ToastStyle } from './style/toaststyle';
 
 // Test Components for different scenarios
@@ -1481,8 +1482,7 @@ describe('ToastItem', () => {
 
             component.initTimeout();
 
-            await new Promise((resolve) => setTimeout(resolve, 1100));
-            await fixture.whenStable();
+            await waitUntil(() => !component.visible(), fixture, 5000);
 
             // After timeout, visible should be set to false (onClose emits after animation ends)
             expect(component.visible()).toBe(false);

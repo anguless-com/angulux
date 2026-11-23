@@ -569,8 +569,12 @@ test('upstream 22.1.4 · Table — the virtual scroller keeps the rows that stay
         const tbody = document.querySelector('#sec-table-virtual tbody')!;
         const scroller = document.querySelector('#sec-table-virtual .p-virtualscroller')!;
         const before = new Map([...tbody.querySelectorAll('tr')].map((tr) => [tr.getAttribute('data-id'), tr]));
+        // The scroller redraws in answer to the scroll event: wait for that event and then for
+        // two frames in which to draw, not for a length of time that hopes it has happened.
+        const scrolled = new Promise((r) => scroller.addEventListener('scroll', r, { once: true }));
         scroller.scrollTop += 200;
-        await new Promise((r) => setTimeout(r, 300));
+        await scrolled;
+        for (let frame = 0; frame < 2; frame++) await new Promise((r) => requestAnimationFrame(r));
         const after = [...tbody.querySelectorAll('tr')];
         const stayed = after.filter((tr) => before.has(tr.getAttribute('data-id')));
         return { stayed: stayed.length, sameNode: stayed.filter((tr) => before.get(tr.getAttribute('data-id')) === tr).length, rendered: after.length };

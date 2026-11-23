@@ -4,7 +4,7 @@ import { By } from '@angular/platform-browser';
 
 import { ButtonModule } from '@anguless/angulux/button';
 import { FocusTrap } from '@anguless/angulux/focustrap';
-import { settled, waitUntil } from '../spec-helpers';
+import { settled, timersDue, waitUntil } from '../spec-helpers';
 import { Dialog } from './dialog';
 
 // Basic Dialog Test Component
@@ -739,7 +739,14 @@ describe('Dialog', () => {
         });
 
         describe('which element gets focus on open (#187)', () => {
-            const settle = () => new Promise((resolve) => setTimeout(resolve, 60));
+            // Focus comes from a short timer and then a retry per frame, so the wait is for the
+            // element to hold focus, and "not yet" is a few frames in which it could have.
+            const focusOn = (element: Element) => waitUntil(() => document.activeElement === element, fixture);
+            const frames = async (count: number) => {
+                for (let i = 0; i < count; i++) {
+                    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+                }
+            };
             let root: HTMLElement;
             let first: HTMLInputElement;
             let second: HTMLInputElement;
@@ -762,7 +769,7 @@ describe('Dialog', () => {
 
             it('without a mark, the first focusable element (unchanged)', async () => {
                 dialogInstance.focus();
-                await settle();
+                await focusOn(first);
                 expect(document.activeElement).toBe(first);
             });
 
@@ -772,14 +779,14 @@ describe('Dialog', () => {
                 link.textContent = 'Help';
                 first.before(link);
                 dialogInstance.focus();
-                await settle();
+                await focusOn(link);
                 expect(document.activeElement).toBe(link);
             });
 
             it('an element marked autofocus wins over the first field', async () => {
                 second.setAttribute('autofocus', '');
                 dialogInstance.focus();
-                await settle();
+                await focusOn(second);
                 expect(document.activeElement).toBe(second);
             });
 
@@ -787,14 +794,14 @@ describe('Dialog', () => {
                 first.setAttribute('autofocus', '');
                 dialogInstance.initialFocus = '.the-field';
                 dialogInstance.focus();
-                await settle();
+                await focusOn(second);
                 expect(document.activeElement).toBe(second);
             });
 
             it('an initialFocus selector that matches nothing, or is invalid, falls back without throwing', async () => {
                 dialogInstance.initialFocus = '[[[';
                 expect(() => dialogInstance.focus()).not.toThrow();
-                await settle();
+                await focusOn(first);
                 expect(document.activeElement).toBe(first);
             });
 
@@ -802,10 +809,11 @@ describe('Dialog', () => {
                 second.setAttribute('autofocus', '');
                 root.style.display = 'none';
                 dialogInstance.focus();
-                await settle();
+                await timersDue();
+                await frames(5);
                 expect(document.activeElement).not.toBe(second);
                 root.style.display = '';
-                await settle();
+                await focusOn(second);
                 expect(document.activeElement).toBe(second);
             });
         });
