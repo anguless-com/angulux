@@ -3,21 +3,15 @@
     "files": {
         "e2e/upstream-repro-22-1.spec.ts": 1,
         "packages/angulux/src/autofocus/autofocus.spec.ts": 38,
-        "packages/angulux/src/checkbox/checkbox.spec.ts": 2,
-        "packages/angulux/src/colorpicker/colorpicker.spec.ts": 2,
-        "packages/angulux/src/dialog/dialog.spec.ts": 9,
-        "packages/angulux/src/fileupload/fileupload.spec.ts": 5,
+        "packages/angulux/src/dialog/dialog.spec.ts": 1,
+        "packages/angulux/src/fileupload/fileupload.spec.ts": 3,
         "packages/angulux/src/message/message.spec.ts": 1,
         "packages/angulux/src/multiselect/multiselect.spec.ts": 4,
         "packages/angulux/src/paginator/paginator.spec.ts": 2,
-        "packages/angulux/src/password/password.spec.ts": 4,
-        "packages/angulux/src/popover/popover.spec.ts": 5,
-        "packages/angulux/src/radiobutton/radiobutton.spec.ts": 1,
-        "packages/angulux/src/selectbutton/selectbutton.spec.ts": 1,
-        "packages/angulux/src/table/table.spec.ts": 2,
-        "packages/angulux/src/toast/toast.spec.ts": 2,
-        "packages/angulux/src/toggleswitch/toggleswitch.spec.ts": 1,
+        "packages/angulux/src/password/password.spec.ts": 2,
+        "packages/angulux/src/popover/popover.spec.ts": 4,
+        "packages/angulux/src/toast/toast.spec.ts": 1,
         "packages/angulux/src/tooltip/tooltip.spec.ts": 1,
-        "packages/angulux/src/treetable/treetable.spec.ts": 13
+        "packages/angulux/src/treetable/treetable.spec.ts": 12
     }
 }

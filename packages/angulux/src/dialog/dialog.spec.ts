@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 
 import { ButtonModule } from '@anguless/angulux/button';
 import { FocusTrap } from '@anguless/angulux/focustrap';
+import { settled, waitUntil } from '../spec-helpers';
 import { Dialog } from './dialog';
 
 // Basic Dialog Test Component
@@ -456,8 +457,8 @@ describe('Dialog', () => {
             component.visible = true;
             fixture.changeDetectorRef.markForCheck();
 
-            // Wait for animation to complete and onAfterEnter to be called
-            await new Promise((resolve) => setTimeout(resolve, 600));
+            // onShow is emitted once the enter motion has finished: wait for the event, not for 600 ms
+            await waitUntil(() => !!component.showEvent, fixture, 5000);
 
             expect(component.showEvent).toBeTruthy();
         });
@@ -466,8 +467,7 @@ describe('Dialog', () => {
             // First show the dialog
             component.visible = true;
             fixture.changeDetectorRef.markForCheck();
-            await fixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            await settled(fixture, 5000);
 
             // Reset the hideEvent property
             component.hideEvent = null;
@@ -477,8 +477,8 @@ describe('Dialog', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
-            // Wait for animation to complete and onAfterLeave to be called
-            await new Promise((resolve) => setTimeout(resolve, 400));
+            // onHide is emitted once the leave motion has finished: wait for the event, not for 400 ms
+            await waitUntil(() => !!component.hideEvent, fixture, 5000);
 
             expect(component.hideEvent).toBeTruthy();
         });
@@ -569,12 +569,10 @@ describe('Dialog', () => {
             expect(dialogInstance.visible).toBe(true);
 
             // Wait for wrapper to be created
-            await new Promise((resolve) => setTimeout(resolve, 200));
 
             // Test enableModality which should set up mask click listener
             if (dialogInstance.enableModality && dialogInstance.wrapper) {
                 dialogInstance.enableModality();
-                await new Promise((resolve) => setTimeout(resolve, 50));
 
                 spyOn(dialogInstance.visibleChange, 'emit');
 
@@ -586,7 +584,6 @@ describe('Dialog', () => {
                 });
 
                 dialogInstance.wrapper.dispatchEvent(mouseDownEvent);
-                await new Promise((resolve) => setTimeout(resolve, 50));
                 fixture.changeDetectorRef.markForCheck();
                 await fixture.whenStable();
 
@@ -853,7 +850,6 @@ describe('Dialog', () => {
             await fixture.whenStable();
 
             // Wait for animation to complete and escape listener to be bound
-            await new Promise((resolve) => setTimeout(resolve, 300));
 
             expect(dialogInstance.visible).toBe(true);
 
@@ -1415,7 +1411,6 @@ describe('Dialog', () => {
             host.componentInstance.mode = mode;
             host.changeDetectorRef.markForCheck();
             await host.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 50));
             return host;
         }
 

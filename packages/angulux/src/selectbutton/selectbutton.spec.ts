@@ -309,7 +309,6 @@ describe('SelectButton', () => {
             for (let i = 0; i < 5; i++) {
                 const optionIndex = i % 2;
                 component.onOptionSelect(new Event('click'), component.options![optionIndex], optionIndex);
-                await new Promise((resolve) => setTimeout(resolve, 10));
                 await fixture.whenStable();
             }
 

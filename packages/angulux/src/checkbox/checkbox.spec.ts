@@ -777,7 +777,6 @@ describe('Checkbox', () => {
             // Rapid clicks
             for (let i = 0; i < 5; i++) {
                 inputElement.nativeElement.click();
-                await new Promise((resolve) => setTimeout(resolve, 10));
             }
 
             expect(changeCount).toBe(5);
@@ -919,7 +918,6 @@ describe('Checkbox', () => {
             for (let i = 0; i < 3; i++) {
                 const mockEvent = { target: { checked: i % 2 === 0 } };
                 checkboxInstance.updateModel(mockEvent);
-                await new Promise((resolve) => setTimeout(resolve, 10));
             }
 
             expect(changeCount).toBe(3);

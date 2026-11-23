@@ -765,7 +765,6 @@ describe('Password', () => {
                 const pwd = `password${i}`;
                 formTestComponent.form.patchValue({ password: pwd });
                 formTestFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 10));
                 await formTestFixture.whenStable();
             }
 
@@ -1171,7 +1170,6 @@ describe('Password', () => {
 
             for (const pwd of passwords) {
                 component.updateUI(pwd);
-                await new Promise((resolve) => setTimeout(resolve, 1));
                 await fixture.whenStable();
             }
 
