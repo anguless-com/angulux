@@ -541,7 +541,6 @@ describe('Drawer', () => {
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
 
-            const drawerContainer = testFixture.debugElement.query(By.css('[role="dialog"]'));
             // Call onKeyDown method directly
             const escapeEvent = new KeyboardEvent('keydown', { code: 'Escape' });
             drawerComponent.onKeyDown(escapeEvent);
