@@ -30,12 +30,12 @@ catalog:
     # is a version that drifts.
     '@modelcontextprotocol/sdk': 1.32.2
     # Benchmark harness only (devDependency of angulux-mcp, which is private and unpublished).
-    '@anthropic-ai/sdk': 1.8.0
+    '@anthropic-ai/sdk': 1.11.0
     # The lint gate (`check:lint`). Root devDependencies only: nothing published depends on
     # them and none of them reaches a built package. `angular-eslint` peers on the other two.
-    'eslint': 10.14.0
-    'angular-eslint': 22.6.0
-    'typescript-eslint': 8.72.1
+    'eslint': 10.15.0
+    'angular-eslint': 22.8.0
+    'typescript-eslint': 8.73.0
     # The accessibility engine the browser gate runs over every showcase page. Root
     # devDependency only. MPL-2.0, like lightningcss already in this tree: used as a tool,
     # never modified, never shipped.
