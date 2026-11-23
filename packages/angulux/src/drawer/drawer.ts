@@ -60,7 +60,7 @@ const DRAWER_INSTANCE = new InjectionToken<Drawer>('DRAWER_INSTANCE');
                 [class]="cn(cx('root'), styleClass)"
                 [style]="style"
                 [attr.role]="modal ? 'dialog' : 'complementary'"
-                [attr.aria-modal]="modal ? 'true' : null"
+                [attr.aria-modal]="modal || null"
                 [attr.aria-labelledby]="labelledBy"
                 aglFocusTrap
                 [attr.data-p]="dataP"
@@ -290,7 +290,7 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
     _componentStyle = inject(DrawerStyle);
 
     /** The id of the title element, which names the drawer. */
-    protected readonly titleId: string = uuid('pn_id_') + '_header';
+    protected readonly titleId: string = uuid('pn_id_');
 
     /**
      * The drawer is named by its header text. A name the app already gives through `pt` stays in
@@ -358,12 +358,15 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
     }
 
     /**
-     * Whether nothing is layered above the drawer. The z-index it was given is compared with the
-     * highest one in use, as Dialog does. With `autoZIndex` off it has no layer of its own to
-     * compare, so it answers yes.
+     * Whether no dialog or other drawer is layered above this one. Only those two are asked,
+     * because they answer Escape themselves: a toast or a tooltip also holds a higher z-index,
+     * and neither is a reason for the drawer to stay. One that is already leaving does not count:
+     * it keeps its z-index until its animation ends, and the second of two quick Escapes would be
+     * lost on it. With `autoZIndex` off the drawer has no
+     * layer of its own to compare, so it answers yes.
      */
     private isTopmost(): boolean {
-        return !this.autoZIndex || ZIndexUtils.get(this.container) === ZIndexUtils.getCurrent();
+        return !this.autoZIndex || ![...this.document.querySelectorAll(':is(.p-dialog,.p-drawer):not([data-phase=leave])')].some((layer) => ZIndexUtils.get(layer) > ZIndexUtils.get(this.container));
     }
 
     /**
@@ -377,14 +380,11 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
             return;
         }
         const controls = getFocusableElements(container, ':not(.p-hidden-focusable)') as HTMLElement[];
-        const header = container.querySelector(':scope > [data-pc-section="header"]');
-        const target = container.querySelector<HTMLElement>('[autofocus]') ?? controls.find((el) => !header?.contains(el)) ?? controls[0];
-        if (target) {
-            target.focus();
-        } else {
-            container.setAttribute('tabindex', '-1');
-            container.focus();
+        const target = container.querySelector<HTMLElement>('[autofocus]') ?? controls.find((el) => !el.closest('.p-drawer-header')) ?? controls[0];
+        if (!target) {
+            container.tabIndex = -1;
         }
+        (target ?? container).focus();
     }
 
     show() {

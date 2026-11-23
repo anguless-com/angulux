@@ -307,3 +307,69 @@ test('drawer, control — a drawer that is not modal stays a complementary regio
     await page.keyboard.press('Escape');
     await expect(side).toBeHidden();
 });
+
+// ─── Drawer, Escape under a toast or a tooltip (found on 22.6.14) ────────────────────────────────
+// 22.6.14 let Escape close a drawer only when nothing at all held a higher z-index. A toast or a
+// tooltip holds one, so a drawer under either stopped answering Escape. A dialog that is on its
+// way out holds one as well until its leave animation ends, so the second of two quick Escapes
+// was lost. MEASURED 2026-11-23 on 22.6.14: the three tests below were red.
+
+test('drawer — a toast shown over the drawer does not keep Escape from closing it', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'drawer-layers');
+    const drawer = await openDrawer(page, '#dl-open', 'dl-drawer');
+
+    await page.locator('#dl-toast').click();
+    await expect(page.locator('.p-toast-message')).toBeVisible();
+
+    await page.locator('#dl-toast').focus();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(drawerMask(page)).toHaveCount(0);
+    await expect(page.locator('.p-toast-message')).toBeVisible();
+    expect(errors).toEqual([]);
+});
+
+test('drawer — a dialog beside the drawer closes first, and with a tooltip showing the next Escape still closes the drawer', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'drawer-layers');
+    const drawer = await openDrawer(page, '#dl-open', 'dl-drawer');
+
+    // The pointer stays on the button, so its tooltip is showing again once the dialog has gone.
+    await page.locator('#dl-open-dialog').click();
+    const dialog = page.locator('#dl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(800);
+    await expect(drawer).toBeVisible();
+
+    await page.locator('#dl-open-dialog').hover();
+    await expect(page.locator('.p-tooltip')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(drawerMask(page)).toHaveCount(0);
+    expect(errors).toEqual([]);
+});
+
+test('drawer — two Escapes in a row close the dialog and then the drawer, without waiting for the dialog to finish leaving', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'drawer-layers');
+    const drawer = await openDrawer(page, '#dl-open', 'dl-drawer');
+
+    await page.locator('#dl-open-dialog').click();
+    const dialog = page.locator('#dl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).not.toHaveAttribute('data-phase', /.*/);
+
+    await page.keyboard.press('Escape');
+    // The dialog is still animating out here: that is the moment being measured.
+    await expect(dialog).toHaveAttribute('data-phase', 'leave');
+    await page.keyboard.press('Escape');
+
+    await expect(dialog).toBeHidden();
+    await expect(drawer).toBeHidden();
+    await expect(drawerMask(page)).toHaveCount(0);
+    expect(errors).toEqual([]);
+});

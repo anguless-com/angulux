@@ -1,9 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from '@anguless/angulux/checkbox';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { DrawerModule } from '@anguless/angulux/drawer';
+import { MessageService } from '@anguless/angulux/api';
 import { SelectModule } from '@anguless/angulux/select';
+import { ToastModule } from '@anguless/angulux/toast';
+import { TooltipModule } from '@anguless/angulux/tooltip';
 
 /**
  * Scenes for defects reported against a published version, one per `?case=`.
@@ -15,12 +18,15 @@ import { SelectModule } from '@anguless/angulux/select';
  * - `drawer-sheet` (#257): a modal bottom drawer holding a dialog, a modal drawer that does not
  *   close on Escape, a drawer without a header, one the app names through `pt`, one with
  *   `autoZIndex` off, one with nothing to focus, and a drawer that is not modal.
+ * - `drawer-layers` (22.6.14): a modal drawer on a page that also shows a toast and a tooltip,
+ *   with a dialog beside it and not inside it. None of the three is a layer Escape should stop at.
  */
 const CASE = new URLSearchParams(location.search).get('case') ?? '';
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, CheckboxModule, DialogModule, DrawerModule, SelectModule],
+    imports: [FormsModule, CheckboxModule, DialogModule, DrawerModule, SelectModule, ToastModule, TooltipModule],
+    providers: [MessageService],
     template: `
         <h1>angulux — reported defects</h1>
         @switch (kase) {
@@ -84,6 +90,21 @@ const CASE = new URLSearchParams(location.search).get('case') ?? '';
                     </agl-drawer>
                 </section>
             }
+            @case ('drawer-layers') {
+                <section id="sec-drawer-layers">
+                    <button id="dl-open" type="button" (click)="layered.set(true)">open the drawer</button>
+                    <agl-toast />
+
+                    <agl-drawer id="dl-drawer" header="Details" position="right" [visible]="layered()" (visibleChange)="layered.set($event)">
+                        <button id="dl-toast" type="button" (click)="toast()">show a toast that stays</button>
+                        <button id="dl-open-dialog" type="button" aglTooltip="View full size" (click)="lightbox.set(true)">open the dialog beside the drawer</button>
+                    </agl-drawer>
+
+                    <agl-dialog id="dl-dialog" header="Preview" [modal]="true" [visible]="lightbox()" (visibleChange)="lightbox.set($event)">
+                        <p>Preview.</p>
+                    </agl-dialog>
+                </section>
+            }
         }
     `
 })
@@ -109,4 +130,12 @@ export class Reported {
     readonly flat = signal(false);
     readonly empty = signal(false);
     readonly side = signal(false);
+
+    readonly layered = signal(false);
+    readonly lightbox = signal(false);
+    private readonly messages = inject(MessageService);
+
+    toast(): void {
+        this.messages.add({ severity: 'info', summary: 'Saved', detail: 'This one stays until it is closed.', sticky: true });
+    }
 }
