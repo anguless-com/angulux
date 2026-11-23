@@ -328,7 +328,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -347,7 +346,6 @@ describe('Toast', () => {
             outside.focus();
 
             messageService.add({ severity: 'info', summary: 'Saved', detail: 'Done', key: 'test' });
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -366,7 +364,6 @@ describe('Toast', () => {
             ];
 
             messageService.addAll(messages);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -386,7 +383,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -396,7 +392,6 @@ describe('Toast', () => {
 
             spyOn(toastInstance, 'clearAll').and.callThrough();
             messageService.clear('test');
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -412,7 +407,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -422,7 +416,6 @@ describe('Toast', () => {
 
             spyOn(toastInstance, 'clearAll').and.callThrough();
             messageService.clear();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -449,7 +442,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -519,7 +511,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -553,7 +544,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -573,7 +563,6 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -585,7 +574,6 @@ describe('Toast', () => {
             expect(closeButton).toBeTruthy();
 
             closeButton.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
@@ -629,11 +617,9 @@ describe('Toast', () => {
             };
 
             messageService.add(message);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -790,7 +776,6 @@ describe('Toast', () => {
             };
 
             messageService.add(longMessage);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -1131,7 +1116,6 @@ describe('Toast', () => {
 
             const toastElement = fixture.debugElement.query(By.css('agl-toast'));
             toastElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(clicked).toBe(true);
@@ -1153,7 +1137,6 @@ describe('Toast', () => {
 
             const toastElement = fixture.debugElement.query(By.css('agl-toast'));
             toastElement.nativeElement.dispatchEvent(new MouseEvent('mouseenter'));
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(mouseEntered).toBe(true);
@@ -2072,7 +2055,6 @@ describe('ToastItem', () => {
 
             const messageElement = fixture.debugElement.query(By.css('[role="alert"]'));
             messageElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(clicked).toBe(true);
@@ -2094,7 +2076,6 @@ describe('ToastItem', () => {
 
             const messageElement = fixture.debugElement.query(By.css('[role="alert"]'));
             messageElement.nativeElement.dispatchEvent(new MouseEvent('mouseenter'));
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(mouseEntered).toBe(true);

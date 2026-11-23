@@ -244,7 +244,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(tooltipDirective.container).toBeFalsy();
@@ -257,7 +256,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(tooltipDirective.container).toBeFalsy();
@@ -393,14 +391,18 @@ describe('Tooltip', () => {
 
             spyOn(tooltipDirective, 'show');
 
-            tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 300));
-            await fixture.whenStable();
-            expect(tooltipDirective.show).not.toHaveBeenCalled();
+            // A mock clock, so "not yet at 499 ms, shown at 500 ms" is exact on any machine.
+            jasmine.clock().install();
+            try {
+                tooltipDirective.activate();
+                jasmine.clock().tick(499);
+                expect(tooltipDirective.show).not.toHaveBeenCalled();
 
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            await fixture.whenStable();
-            expect(tooltipDirective.show).toHaveBeenCalled();
+                jasmine.clock().tick(1);
+                expect(tooltipDirective.show).toHaveBeenCalled();
+            } finally {
+                jasmine.clock().uninstall();
+            }
         });
 
         it('should hide tooltip after hide delay', async () => {
@@ -412,15 +414,18 @@ describe('Tooltip', () => {
             tooltipDirective.activate();
 
             spyOn(tooltipDirective, 'hide');
-            tooltipDirective.deactivate();
 
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            await fixture.whenStable();
-            expect(tooltipDirective.hide).not.toHaveBeenCalled();
+            jasmine.clock().install();
+            try {
+                tooltipDirective.deactivate();
+                jasmine.clock().tick(299);
+                expect(tooltipDirective.hide).not.toHaveBeenCalled();
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
-            expect(tooltipDirective.hide).toHaveBeenCalled();
+                jasmine.clock().tick(1);
+                expect(tooltipDirective.hide).toHaveBeenCalled();
+            } finally {
+                jasmine.clock().uninstall();
+            }
         });
 
         it('should clear timeouts correctly', () => {
@@ -732,7 +737,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip');
@@ -752,7 +756,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip');
@@ -781,7 +784,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip') as HTMLElement;
@@ -811,7 +813,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip') as HTMLElement;
@@ -839,7 +840,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip');
@@ -866,7 +866,6 @@ describe('Tooltip', () => {
             fixture.detectChanges();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const tooltipContainer = document.querySelector('.p-tooltip') as HTMLElement;
@@ -886,11 +885,9 @@ describe('Tooltip', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             tooltipDirective.activate();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const container = document.querySelector('.p-tooltip');
@@ -915,7 +912,6 @@ describe('Tooltip', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(container?.hasAttribute('data-test')).toBeFalsy();

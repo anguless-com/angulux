@@ -703,19 +703,16 @@ describe('Skeleton', () => {
             skeleton.shape = 'rectangle';
             skeleton.cd.markForCheck();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             skeleton.shape = 'circle';
             skeleton.cd.markForCheck();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             skeleton.shape = 'square';
             skeleton.cd.markForCheck();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(skeleton.shape).toBe('square');
@@ -766,7 +763,6 @@ describe('Skeleton', () => {
             expect(() => {
                 fixture.detectChanges();
             }).not.toThrow();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             const skeletons = fixture.debugElement.queryAll(By.directive(Skeleton));
@@ -876,7 +872,6 @@ describe('Skeleton', () => {
             component.showSkeletons = false;
             fixture.changeDetectorRef.markForCheck();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             skeletons = fixture.debugElement.queryAll(By.directive(Skeleton));
@@ -886,7 +881,6 @@ describe('Skeleton', () => {
             component.showSkeletons = true;
             fixture.changeDetectorRef.markForCheck();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             skeletons = fixture.debugElement.queryAll(By.directive(Skeleton));
@@ -1209,7 +1203,6 @@ describe('Skeleton', () => {
 
             const skeletonElement = fixture.debugElement.query(By.directive(Skeleton));
             skeletonElement.nativeElement.click();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(clicked).toBe(true);
@@ -1230,7 +1223,6 @@ describe('Skeleton', () => {
 
             const skeletonElement = fixture.debugElement.query(By.directive(Skeleton));
             skeletonElement.nativeElement.dispatchEvent(new MouseEvent('mouseenter'));
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(mouseEntered).toBe(true);

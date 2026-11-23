@@ -865,7 +865,6 @@ describe('Dialog', () => {
             document.dispatchEvent(escapeEvent);
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
-            await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Dialog should be closed after escape key
             expect(dialogInstance.visible).toBe(false);

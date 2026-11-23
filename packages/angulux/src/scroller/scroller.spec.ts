@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { provideAngulux } from '@anguless/angulux/config';
 import type { ScrollerLazyLoadEvent, ScrollerScrollEvent, ScrollerScrollIndexChangeEvent } from '@anguless/angulux/types/scroller';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { waitUntil } from '../spec-helpers';
 import { Scroller } from './scroller';
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -1064,7 +1065,6 @@ describe('Scroller', () => {
 
             // Trigger lazy load by calling calculateOptions
             scroller.calculateOptions();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.onLazyLoad).toHaveBeenCalled();
@@ -1096,7 +1096,6 @@ describe('Scroller', () => {
 
             const mockEvent = new Event('scroll');
             scroller.onScrollChange(mockEvent);
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(component.onScrollIndexChange).toHaveBeenCalled();
@@ -1116,8 +1115,8 @@ describe('Scroller', () => {
             scroller.onContainerScroll(mockEvent);
             expect(scroller.onScrollChange).not.toHaveBeenCalled();
 
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            await fixture.whenStable();
+            // The component's own 100 ms timer has to expire; wait for what it does, not for 100 ms.
+            await waitUntil(() => (scroller.onScrollChange as jasmine.Spy).calls.any(), fixture);
             expect(scroller.onScrollChange).toHaveBeenCalled();
         });
 
@@ -1274,7 +1273,6 @@ describe('Scroller', () => {
 
             // Trigger initial lazy load
             scroller.calculateOptions();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
             fixture.detectChanges();
 
@@ -1448,7 +1446,6 @@ describe('Scroller', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(scroller._items).toEqual(newItems);
@@ -1475,7 +1472,6 @@ describe('Scroller', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(scroller._orientation).toBe('horizontal');
@@ -1682,7 +1678,6 @@ describe('Scroller', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             component.itemSize = 75;
@@ -1692,7 +1687,6 @@ describe('Scroller', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             component.itemSize = 100;
@@ -1702,7 +1696,6 @@ describe('Scroller', () => {
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             expect(scroller._itemSize).toBe(100);
@@ -1734,11 +1727,9 @@ describe('Scroller', () => {
 
             // Trigger window resize
             scroller.onWindowResize();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             // Should not throw and may call init if conditions are met
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
         });
 
@@ -4003,7 +3994,6 @@ describe('Scroller', () => {
 
                 fixture.componentRef.setInput('pt', { loader: 'CUSTOM_LOADER_CLASS' });
                 fixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
                 fixture.detectChanges();
 
@@ -4018,7 +4008,6 @@ describe('Scroller', () => {
 
                 fixture.componentRef.setInput('pt', { loadingIcon: 'CUSTOM_LOADING_ICON_CLASS' });
                 fixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
                 fixture.detectChanges();
 
@@ -4112,7 +4101,6 @@ describe('Scroller', () => {
                     })
                 });
                 fixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const root = fixture.debugElement.query(By.css('.p-virtualscroller'));
@@ -4275,7 +4263,6 @@ describe('Scroller', () => {
                     }
                 });
                 hookFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await hookFixture.whenStable();
 
                 expect(hookCalled).toBeTruthy();
@@ -4292,7 +4279,6 @@ describe('Scroller', () => {
                     }
                 });
                 hookFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await hookFixture.whenStable();
 
                 expect(checkCount).toBeGreaterThan(0);
@@ -4311,7 +4297,6 @@ describe('Scroller', () => {
                     loadingIcon: { class: 'PT_LOADING_ICON' }
                 });
                 fixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const root = fixture.debugElement.query(By.css('.p-virtualscroller'));
