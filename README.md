@@ -70,7 +70,7 @@ The interesting part is not the fork. It is that the boundary is enforced by mac
 
 ### 1. Every release is machine-proven MIT
 
-Twenty gates run on every commit and every pull request. They do not check style — each one
+21 gates run on every commit and every pull request. They do not check style — each one
 closes a class of failure that has already happened in this repository.
 
 | Gate | What it refuses to let through |
@@ -90,6 +90,7 @@ closes a class of failure that has already happened in this repository.
 | `check:corpus` | `corpus/corpus.json` drifting off the source it is generated from — a generated artifact nobody regenerates is a lie with a timestamp, and nothing else breaks when it goes stale |
 | `check:api-surface` | a selector, input, output or template slot that the last release shipped being removed, renamed or retyped — the API freeze in [GOVERNANCE.md](GOVERNANCE.md) was a promise nothing checked; the corpus is compared with the one committed at the most recent release tag, and an approved break has to be written down with its reason |
 | `check:lint` | code drifting off the Angular 22 conventions this repository documents — a decorator input, constructor injection, `*ngIf`, `any`, `@ts-ignore`, a `CommonModule` import, a root `@Injectable` where `@Service` is meant, a skipped test — and markup on the public site that a keyboard or a screen reader cannot use. The showcase, the verification app and the browser tests are held at zero. The forked library code is held to a frozen baseline (`tools/lint-baseline.json`) that only shrinks: no file may gain a finding, and a fix has to give its allowance back. A focused test (`fit`, `.only`) fails everywhere; an `eslint-disable` comment has no effect |
+| `check:spec-waits` | a test that sleeps for a fixed time and then asserts (`await new Promise((r) => setTimeout(r, 100))`). It passes on an idle machine and fails on a loaded one, in code that is fine. A spec file may not gain one; the ones inherited are frozen per file in `tools/spec-waits-baseline.json`, which can only shrink |
 | `check:demo-code` | the documentation site claiming something the library does not do — a demo whose shown code stopped matching the demo that ran, a page entry pointing at a different file than it names, or a module documented on the public web that no release contains |
 | `check:peer-licence` | angulux's own manifest telling a **consumer's** package manager to install a commercially-licensed PrimeTek package — `check:license` proves the tree installed *here* is clean, which is a different question from what the published version ranges admit |
 | `check:install-scripts` | a dependency running arbitrary code during `pnpm install` without anyone deciding it should — the release job installs while holding `id-token: write`, so one compromised transitive package could mint an npm credential and publish as this project with a valid attestation |
@@ -97,7 +98,7 @@ closes a class of failure that has already happened in this repository.
 | `check:gate-count` | this list going stale — the count and the gate names are re-derived from `package.json` and checked against every place they are written down |
 
 ```bash
-npm run check     # all twenty, no build needed
+npm run check     # all 21, no build needed
 ```
 
 Four further checks run after the build rather than inside that suite, because none has
@@ -152,7 +153,7 @@ Evidence measured at `22.2.3`, reproducible from a clean checkout:
      `17/17` IS gated, by check:gate-count. -->
 
 ```
-20/20 gates          exit 0
+21/21 gates          exit 0
 library build        exit 0 · 211 entrypoints
 inherited spec suite 3809 SUCCESS
 browser gate         70 tests · 14 behaviour + 56 visibility
@@ -213,7 +214,7 @@ so locking them to Angular's major would be a lie about their compatibility.
 
 ```bash
 corepack pnpm install
-npm run check                                   # the 20 gates
+npm run check                                   # the 21 gates
 
 # the four forked packages build BEFORE the library — dependency order matters
 for p in utils styled motion styles; do

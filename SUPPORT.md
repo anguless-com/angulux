@@ -53,7 +53,7 @@ PrimeNG.
 ## Answering your own question fastest
 
 ```bash
-npm run check     # 20 gates, no build needed — is the repository itself sane?
+npm run check     # 21 gates, no build needed — is the repository itself sane?
 ```
 
 Most "is this a licensing problem?" and "did a dependency drift?" questions are answered by
