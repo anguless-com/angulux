@@ -1066,12 +1066,24 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
                 if (!container) {
                     return;
                 }
-                const currentZIndex = ZIndexUtils.getCurrent();
-                if (parseInt(container.style.zIndex) == currentZIndex || this.zIndexForLayering == currentZIndex) {
+                if (this.isTopmost(container)) {
                     this.close(event);
                 }
             }
         });
+    }
+
+    /**
+     * Whether nothing that answers Escape itself is layered above this dialog. A toast and a
+     * tooltip take a z-index too and answer no key, and a layer that is already leaving has had
+     * its Escape: counting any of them left the dialog deaf to the key. With `autoZIndex` off the
+     * dialog has no z-index of its own on an element, so the newest layer is asked, as before.
+     */
+    private isTopmost(container: HTMLElement): boolean {
+        if (!this.autoZIndex) {
+            return this.zIndexForLayering == ZIndexUtils.getCurrent();
+        }
+        return ![...this.document.querySelectorAll<HTMLElement>('[style*=z-index]:not(agl-toast,.p-tooltip,[data-phase=leave])')].some((layer) => ZIndexUtils.get(layer) > ZIndexUtils.get(container));
     }
 
     unbindDocumentEscapeListener() {

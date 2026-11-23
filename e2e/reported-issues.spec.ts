@@ -373,3 +373,74 @@ test('drawer — two Escapes in a row close the dialog and then the drawer, with
     await expect(drawerMask(page)).toHaveCount(0);
     expect(errors).toEqual([]);
 });
+
+test('dialog — Escape closes a dialog while a toast is on screen', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open').click();
+    const dialog = page.locator('#gl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    await page.locator('#gl-toast').click();
+    await expect(page.locator('.p-toast-message')).toBeVisible();
+
+    await page.locator('#gl-toast').focus();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page.locator('.p-toast-message')).toBeVisible();
+    expect(errors).toEqual([]);
+});
+
+test('dialog — Escape closes a dialog while a tooltip is showing', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open').click();
+    const dialog = page.locator('#gl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    await page.locator('#gl-toast').hover();
+    await expect(page.locator('.p-tooltip')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    expect(errors).toEqual([]);
+});
+
+test('dialog — Escape with a list open over the dialog closes the list and leaves the dialog', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open').click();
+    const dialog = page.locator('#gl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    // The dialog takes focus once it has entered; a click before that loses it again.
+    await expect(page.locator('#gl-toast')).toBeFocused();
+    await page.locator('#gl-dialog .p-select').click();
+    const list = page.locator('.p-select-overlay');
+    await expect(list).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(list).toBeHidden();
+    await page.waitForTimeout(500);
+    await expect(dialog).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    expect(errors).toEqual([]);
+});
+
+test('drawer — Escape with a list open over the drawer closes the list and leaves the drawer', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'drawer-layers');
+    const drawer = await openDrawer(page, '#dl-open', 'dl-drawer');
+
+    await page.locator('#dl-drawer .p-select').click();
+    const list = page.locator('.p-select-overlay');
+    await expect(list).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(list).toBeHidden();
+    await page.waitForTimeout(500);
+    await expect(drawer).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    expect(errors).toEqual([]);
+});
