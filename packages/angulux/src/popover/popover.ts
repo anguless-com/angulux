@@ -340,7 +340,8 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
             this.container.style.setProperty(arrow, '0px');
             const inset = parseFloat(this.document.defaultView?.getComputedStyle(this.container, '::before').left ?? '') || 0;
             // Where the panel was just put, not where it is drawn: it is scaled while it enters.
-            const placed = parseFloat(this.container.style.insetInlineStart);
+            // On a right-to-left page it is placed from its inline end, which is the same left edge.
+            const placed = parseFloat(this.container.style.insetInlineStart || this.container.style.insetInlineEnd);
             const arrowLeft = targetOffset.left - (Number.isNaN(placed) ? containerOffset.left : placed) - this.container.clientLeft + Math.min(this.target.getBoundingClientRect().width / 2, inset) - inset;
             this.container.style.setProperty(arrow, `${arrowLeft}px`);
 

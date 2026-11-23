@@ -533,3 +533,13 @@ test('popover — under a wide trigger the arrow keeps its inset from the trigge
     expect(Math.abs(edge.tip - edge.left - inset), 'the same inset at the right edge').toBeLessThanOrEqual(1);
     expect(errors).toEqual([]);
 });
+
+test('popover — on a right-to-left page the arrow points at the middle of a narrow trigger at the right edge', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'popover-arrow');
+    await page.evaluate(() => (document.documentElement.dir = 'rtl'));
+
+    const edge = await arrowAndTrigger(page, '#pa-edge');
+    expect(Math.abs(edge.tip - edge.centre), 'px from the middle of the trigger').toBeLessThanOrEqual(1);
+    expect(errors).toEqual([]);
+});
