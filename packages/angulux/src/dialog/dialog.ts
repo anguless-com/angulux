@@ -687,7 +687,7 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
             let _focusableElements = ɵgetFocusableElements(focusParentElement);
             if (_focusableElements && _focusableElements.length > 0) {
                 this.zone.runOutsideAngular(() => {
-                    setTimeout(() => _focusableElements[0].focus(), timeoutDuration || 5);
+                    setTimeout(() => !this.focusIsInside() && _focusableElements[0].focus(), timeoutDuration || 5);
                 });
                 return true;
             }
@@ -724,6 +724,9 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
         this.zone.runOutsideAngular(() => {
             let tries = 0;
             const attempt = () => {
+                if (this.focusIsInside()) {
+                    return;
+                }
                 target.focus();
                 if (doc.activeElement !== target && ++tries < 60 && target.isConnected) {
                     requestAnimationFrame(attempt);
@@ -732,6 +735,15 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
             setTimeout(attempt, delay);
         });
         return true;
+    }
+
+    /**
+     * Whether focus is already in the dialog when its opening focus comes due. That is a moment
+     * after the dialog has finished entering, long enough to click a control in it: the dialog then
+     * took focus away from the control the user had just chosen.
+     */
+    private focusIsInside(): boolean {
+        return !!this.container()?.contains(this.document.activeElement);
     }
 
     focus(focusParentElement: HTMLElement = this.contentViewChild?.nativeElement) {
@@ -1077,13 +1089,11 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
      * Whether nothing that answers Escape itself is layered above this dialog. A toast and a
      * tooltip take a z-index too and answer no key, and a layer that is already leaving has had
      * its Escape: counting any of them left the dialog deaf to the key. With `autoZIndex` off the
-     * dialog has no z-index of its own on an element, so the newest layer is asked, as before.
+     * dialog has no z-index on an element, and the layering number it took when it opened stands in.
      */
     private isTopmost(container: HTMLElement): boolean {
-        if (!this.autoZIndex) {
-            return this.zIndexForLayering == ZIndexUtils.getCurrent();
-        }
-        return ![...this.document.querySelectorAll<HTMLElement>('[style*=z-index]:not(agl-toast,.p-tooltip,[data-phase=leave])')].some((layer) => ZIndexUtils.get(layer) > ZIndexUtils.get(container));
+        const own = this.autoZIndex ? ZIndexUtils.get(container) : (this.zIndexForLayering ?? 0);
+        return ![...this.document.querySelectorAll<HTMLElement>('[style*=z-index]:not(agl-toast,.p-tooltip,[data-phase=leave])')].some((layer) => ZIndexUtils.get(layer) > own);
     }
 
     unbindDocumentEscapeListener() {

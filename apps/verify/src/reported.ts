@@ -24,7 +24,7 @@ import { TooltipModule } from '@anguless/angulux/tooltip';
  * - `popover-arrow`: one popover opened from a wide and a narrow trigger, and from the same two at
  *   the right edge, where the panel has to slide left and the arrow has to follow the trigger.
  * - `dialog-layers`: a modal dialog on a page that also shows a toast and a tooltip. Neither is a
- *   layer Escape should stop at.
+ *   layer Escape should stop at. A second dialog has `autoZIndex` off.
  */
 const CASE = new URLSearchParams(location.search).get('case') ?? '';
 
@@ -130,6 +130,12 @@ const CASE = new URLSearchParams(location.search).get('case') ?? '';
                     <agl-dialog id="gl-dialog" header="Preview" [modal]="true" [visible]="lightbox()" (visibleChange)="lightbox.set($event)">
                         <button id="gl-toast" type="button" aglTooltip="Stays on screen" (click)="toast()">show a toast that stays</button>
                         <agl-select inputId="gl-select" [options]="words" appendTo="body" placeholder="a list over the dialog" [(ngModel)]="plainValue" />
+                    </agl-dialog>
+
+                    <button id="gl-open-flat" type="button" (click)="flat.set(true)">open the dialog that takes no z-index</button>
+                    <agl-dialog id="gl-flat" header="Flat" [autoZIndex]="false" [modal]="true" [visible]="flat()" (visibleChange)="flat.set($event)">
+                        <button id="gl-flat-toast" type="button" aglTooltip="Stays on screen" (click)="toast()">show a toast that stays</button>
+                        <agl-select inputId="gl-flat-select" [options]="words" appendTo="body" placeholder="a list over the dialog" [(ngModel)]="plainValue" />
                     </agl-dialog>
                 </section>
             }

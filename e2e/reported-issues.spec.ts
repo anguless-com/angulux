@@ -445,6 +445,46 @@ test('drawer — Escape with a list open over the drawer closes the list and lea
     expect(errors).toEqual([]);
 });
 
+test('dialog — Escape closes a dialog that takes no z-index while a toast is on screen', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open-flat').click();
+    const dialog = page.locator('#gl-flat .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    await page.locator('#gl-flat-toast').click();
+    await expect(page.locator('.p-toast-message')).toBeVisible();
+
+    await page.locator('#gl-flat-toast').focus();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    expect(errors).toEqual([]);
+});
+
+test('dialog — a control clicked as soon as the dialog has opened keeps focus', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open').click();
+    const dialog = page.locator('#gl-dialog .p-dialog');
+    await expect(dialog).toBeVisible();
+
+    // No wait for the dialog's own focus here: that is the moment being measured.
+    await page.locator('#gl-dialog .p-select').click();
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => !!document.activeElement?.closest('#gl-dialog .p-select')), 'focus is still in the list that was clicked').toBe(true);
+    await expect(page.locator('.p-select-overlay')).toBeVisible();
+    expect(errors).toEqual([]);
+});
+
+test('dialog — left alone, a dialog still opens with focus on its first control', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'dialog-layers');
+    await page.locator('#gl-open').click();
+    await expect(page.locator('#gl-dialog .p-dialog')).toBeVisible();
+    await expect(page.locator('#gl-toast')).toBeFocused();
+    expect(errors).toEqual([]);
+});
+
 // ─── Popover arrow ───────────────────────────────────────────────────────────────────────────
 
 /**
