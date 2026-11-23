@@ -444,3 +444,52 @@ test('drawer — Escape with a list open over the drawer closes the list and lea
     await expect(drawer).toBeHidden();
     expect(errors).toEqual([]);
 });
+
+// ─── Popover arrow ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * Where the arrow's tip is, and where the trigger is. The arrow is two pseudo-elements with a
+ * zero box and borders, so the tip sits at the pseudo-element's `left` inside the panel's border.
+ */
+async function arrowAndTrigger(page: Page, trigger: string): Promise<{ tip: number; left: number; centre: number }> {
+    await page.locator(trigger).click();
+    await expect(page.locator('#pa-panel')).toBeVisible();
+    // The panel scales in; its box is only where it will stay once that has ended.
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('#pa-panel')!.closest('.p-popover')!).transform)).toBe('none');
+    const measured = await page.evaluate((trigger) => {
+        const panel = document.querySelector('#pa-panel')!.closest('.p-popover') as HTMLElement;
+        const box = panel.getBoundingClientRect();
+        const target = document.querySelector(trigger)!.getBoundingClientRect();
+        const tip = box.left + panel.clientLeft + parseFloat(getComputedStyle(panel, '::before').left);
+        return { tip, left: target.left, centre: target.left + target.width / 2 };
+    }, trigger);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#pa-panel')).toBeHidden();
+    return measured;
+}
+
+test('popover — the arrow points at the middle of a trigger narrower than the arrow is inset, at the left edge of the panel or slid away from it', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'popover-arrow');
+
+    const narrow = await arrowAndTrigger(page, '#pa-narrow');
+    expect(Math.abs(narrow.tip - narrow.centre), 'narrow trigger').toBeLessThanOrEqual(1);
+
+    const edge = await arrowAndTrigger(page, '#pa-edge');
+    expect(Math.abs(edge.tip - edge.centre), 'trigger at the right edge').toBeLessThanOrEqual(1);
+    expect(errors).toEqual([]);
+});
+
+test('popover — under a wide trigger the arrow keeps its inset from the trigger\'s left edge, and keeps the same one when the panel slides left', async ({ page }) => {
+    const errors = watchErrors(page);
+    await open(page, 'popover-arrow');
+
+    const wide = await arrowAndTrigger(page, '#pa-wide');
+    const inset = wide.tip - wide.left;
+    expect(inset, 'inset under a wide trigger').toBeGreaterThan(8);
+    expect(inset).toBeLessThan(100);
+
+    const edge = await arrowAndTrigger(page, '#pa-edge-wide');
+    expect(Math.abs(edge.tip - edge.left - inset), 'the same inset at the right edge').toBeLessThanOrEqual(1);
+    expect(errors).toEqual([]);
+});
