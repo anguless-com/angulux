@@ -1272,8 +1272,11 @@ describe('Paginator', () => {
         it('should handle observable values from services', async () => {
             await dynamicFixture.whenStable();
             // Simulate data from a service observable
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             dynamicComponent.loadDataFromService();
-            await new Promise((resolve) => setTimeout(resolve, 150)); // Wait for setTimeout in loadDataFromService
+            jasmine.clock().tick(150);
+            jasmine.clock().uninstall();
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
 
@@ -1284,8 +1287,11 @@ describe('Paginator', () => {
         it('should handle async property updates with delays', async () => {
             await dynamicFixture.whenStable();
             // Simulate delayed updates
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             dynamicComponent.updateWithDelay(300, 30);
-            await new Promise((resolve) => setTimeout(resolve, 550)); // Wait for setTimeout in updateWithDelay
+            jasmine.clock().tick(550);
+            jasmine.clock().uninstall();
             dynamicFixture.changeDetectorRef.markForCheck();
             await dynamicFixture.whenStable();
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, TemplateRef, ViewChild,
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
+import { waitUntil } from '../spec-helpers';
 import { TooltipOptions } from '@anguless/angulux/api';
 import { Tooltip } from './tooltip';
 
@@ -190,7 +191,7 @@ describe('Tooltip', () => {
             const root = host.firstElementChild as HTMLElement; // the template's component root
 
             tooltip.activate();
-            await new Promise((resolve) => setTimeout(resolve, 50));
+            await waitUntil(() => !!tooltip.container, fixture);
             fixture.detectChanges();
 
             const container = tooltip.container as HTMLElement;

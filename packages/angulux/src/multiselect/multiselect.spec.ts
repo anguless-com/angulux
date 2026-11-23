@@ -2677,10 +2677,11 @@ describe('MultiSelect Dynamic Data Sources', () => {
         });
 
         it('should populate late-loaded data after timeout', async () => {
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             component.simulateLateLoad();
-
-            // Wait for the setTimeout to complete and trigger change detection
-            await new Promise((resolve) => setTimeout(resolve, 150));
+            jasmine.clock().tick(100);
+            jasmine.clock().uninstall();
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
@@ -3107,10 +3108,11 @@ describe('MultiSelect Complex Edge Cases', () => {
         });
 
         it('should handle rapid selection updates', async () => {
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             component.rapidSelectionUpdates();
-
-            // Wait for the setInterval (100 iterations * 10ms = 1000ms) to complete
-            await new Promise((resolve) => setTimeout(resolve, 1100));
+            jasmine.clock().tick(1100);
+            jasmine.clock().uninstall();
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
@@ -3121,10 +3123,11 @@ describe('MultiSelect Complex Edge Cases', () => {
         it('should handle memory leak prevention', async () => {
             const initialOptionsLength = component.memoryTestOptions.length;
 
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             component.memoryLeakTest();
-
-            // Wait for all setTimeout calls (100 iterations * 10ms = 1000ms) to complete
-            await new Promise((resolve) => setTimeout(resolve, 1100));
+            jasmine.clock().tick(1100);
+            jasmine.clock().uninstall();
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 
@@ -3299,10 +3302,11 @@ describe('MultiSelect Complex Edge Cases', () => {
         it('should handle lazy loading correctly', async () => {
             const initialLength = component.memoryTestOptions.length;
 
+            // The host's own timers, run on a mock clock: exact, and no real time is spent.
+            jasmine.clock().install();
             component.handleLazyLoad({ first: 50, rows: 25 });
-
-            // Wait for the setTimeout (100ms) in handleLazyLoad to complete
-            await new Promise((resolve) => setTimeout(resolve, 150));
+            jasmine.clock().tick(100);
+            jasmine.clock().uninstall();
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
 

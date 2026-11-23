@@ -44,6 +44,20 @@ export async function waitUntil(predicate: () => boolean, fixture: ComponentFixt
 }
 
 /**
+ * Let every timer that is already due run.
+ *
+ * Use this when the code under test defers its work with a zero-delay `setTimeout`, as the
+ * AutoFocus directive defers its `focus()`. A zero-delay timer queued now runs after every
+ * zero-delay timer queued before it, so this is an ordering and not a duration: it cannot be too
+ * short on a slow machine, which the `setTimeout(resolve, 10)` it replaces could only hope not
+ * to be. It is also the honest wait for "nothing happened": a test that expects no focus call
+ * has to give the deferred call its turn before saying so.
+ */
+export function timersDue(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+/**
  * Wait for the overlay to stop moving.
  *
  * `data-phase` is the mechanism rather than a proxy for it: angulux-motion sets the attribute
