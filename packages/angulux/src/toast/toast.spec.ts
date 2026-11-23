@@ -1731,7 +1731,6 @@ describe('ToastItem', () => {
             component.initTimeout();
             component.initTimeout();
 
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             await fixture.whenStable();
 
             // Should call clearTimeout when reinitializing

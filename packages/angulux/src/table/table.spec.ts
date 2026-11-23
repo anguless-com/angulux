@@ -495,7 +495,6 @@ describe('Table', () => {
             const tableInstance = ecommerceFixture.debugElement.query(By.css('agl-table')).componentInstance;
 
             tableInstance.filter('INSTOCK', 'inventoryStatus', 'equals');
-            await new Promise((resolve) => setTimeout(resolve, 350));
             await ecommerceFixture.whenStable();
 
             const inStockProducts = tableInstance.filteredValue || tableInstance.value;
@@ -517,7 +516,6 @@ describe('Table', () => {
             const tableInstance = ecommerceFixture.debugElement.query(By.css('agl-table')).componentInstance;
 
             tableInstance.filter(100, 'price', 'lt');
-            await new Promise((resolve) => setTimeout(resolve, 350));
             await ecommerceFixture.whenStable();
 
             const filteredData = tableInstance.filteredValue || tableInstance.value;

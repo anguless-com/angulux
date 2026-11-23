@@ -655,7 +655,6 @@ describe('FileUpload', () => {
                     target: { files: [new File([`test${i}`], `test${i}.txt`, { type: 'text/plain' })] }
                 };
                 component.onFileSelect(event);
-                await new Promise((resolve) => setTimeout(resolve, 10));
             }
 
             expect(selectCount).toBe(3);
@@ -1609,7 +1608,6 @@ describe('FileUpload Performance and Edge Cases', () => {
 
         for (const op of operations) {
             expect(() => op()).not.toThrow();
-            await new Promise((resolve) => setTimeout(resolve, 10));
         }
     });
 

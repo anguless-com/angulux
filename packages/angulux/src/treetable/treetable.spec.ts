@@ -539,7 +539,6 @@ describe('TreeTable', () => {
 
             treetable.filter('File', 'type', 'contains');
 
-            await new Promise((resolve) => setTimeout(resolve, treetable.filterDelay + 10));
             await fixture.whenStable();
 
             expect(treetable.filters['type']).toEqual(

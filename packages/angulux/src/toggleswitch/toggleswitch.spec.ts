@@ -507,7 +507,6 @@ describe('ToggleSwitch', () => {
 
             for (let i = 0; i < 5; i++) {
                 component.onClick(mockEvent);
-                await new Promise((resolve) => setTimeout(resolve, 10));
                 await fixture.whenStable();
             }
 

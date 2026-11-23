@@ -253,7 +253,6 @@ describe('Popover', () => {
 
             // First toggle to start animation
             popoverInstance.toggle(mockEvent, target);
-            await new Promise((resolve) => setTimeout(resolve, 10));
 
             // Second toggle should work in zoneless (no animation blocking)
             popoverInstance.toggle(mockEvent, target);

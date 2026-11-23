@@ -697,7 +697,6 @@ describe('RadioButton', () => {
             for (let i = 0; i < 100; i++) {
                 const inputIndex = i % 3;
                 inputs[inputIndex].nativeElement.click();
-                await new Promise((resolve) => setTimeout(resolve, 1));
                 await fixture.whenStable();
             }
 

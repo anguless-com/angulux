@@ -584,7 +584,6 @@ describe('ColorPicker', () => {
             for (let i = 0; i < 5; i++) {
                 input.nativeElement.click();
                 testFixture.changeDetectorRef.markForCheck();
-                await new Promise((resolve) => setTimeout(resolve, 10));
             }
 
             // Should not throw errors
@@ -736,7 +735,6 @@ describe('ColorPicker', () => {
                     value: color
                 });
                 testFixture.changeDetectorRef.markForCheck();
-                await new Promise((resolve) => setTimeout(resolve, 10));
             }
 
             expect(changeCount).toBe(3);
