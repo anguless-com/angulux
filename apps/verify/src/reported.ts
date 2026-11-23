@@ -20,6 +20,8 @@ import { TooltipModule } from '@anguless/angulux/tooltip';
  *   `autoZIndex` off, one with nothing to focus, and a drawer that is not modal.
  * - `drawer-layers` (22.6.14): a modal drawer on a page that also shows a toast and a tooltip,
  *   with a dialog beside it and not inside it. None of the three is a layer Escape should stop at.
+ * - `dialog-layers`: a modal dialog on a page that also shows a toast and a tooltip. Neither is a
+ *   layer Escape should stop at.
  */
 const CASE = new URLSearchParams(location.search).get('case') ?? '';
 
@@ -98,10 +100,22 @@ const CASE = new URLSearchParams(location.search).get('case') ?? '';
                     <agl-drawer id="dl-drawer" header="Details" position="right" [visible]="layered()" (visibleChange)="layered.set($event)">
                         <button id="dl-toast" type="button" (click)="toast()">show a toast that stays</button>
                         <button id="dl-open-dialog" type="button" aglTooltip="View full size" (click)="lightbox.set(true)">open the dialog beside the drawer</button>
+                        <agl-select inputId="dl-select" [options]="words" appendTo="body" placeholder="a list over the drawer" [(ngModel)]="plainValue" />
                     </agl-drawer>
 
                     <agl-dialog id="dl-dialog" header="Preview" [modal]="true" [visible]="lightbox()" (visibleChange)="lightbox.set($event)">
                         <p>Preview.</p>
+                    </agl-dialog>
+                </section>
+            }
+            @case ('dialog-layers') {
+                <section id="sec-dialog-layers">
+                    <button id="gl-open" type="button" (click)="lightbox.set(true)">open the dialog</button>
+                    <agl-toast />
+
+                    <agl-dialog id="gl-dialog" header="Preview" [modal]="true" [visible]="lightbox()" (visibleChange)="lightbox.set($event)">
+                        <button id="gl-toast" type="button" aglTooltip="Stays on screen" (click)="toast()">show a toast that stays</button>
+                        <agl-select inputId="gl-select" [options]="words" appendTo="body" placeholder="a list over the dialog" [(ngModel)]="plainValue" />
                     </agl-dialog>
                 </section>
             }
