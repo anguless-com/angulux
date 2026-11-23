@@ -927,6 +927,9 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
 
     searchValue: Nullable<string>;
 
+    /** Keys pressed on the trigger while the filter box was not focused yet; written into it when it is. */
+    private pendingFilterText = '';
+
     searchIndex: Nullable<number>;
 
     searchTimeout: any;
@@ -1431,6 +1434,7 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
 
             if (this.autofocusFilter && !this.editable) {
                 this.filterViewChild.nativeElement.focus();
+                this.flushPendingFilterText();
             }
         }
         this.onShow.emit(event);
@@ -1456,6 +1460,7 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
         this.focusedOptionIndex.set(-1);
         this.clicked.set(false);
         this.searchValue = '';
+        this.pendingFilterText = '';
 
         if (this.overlayOptions?.mode === 'modal') {
             unblockBodyScroll();
@@ -1576,14 +1581,47 @@ export class Select extends BaseInput<SelectPassThrough> implements AfterViewIni
 
             default:
                 if (!event.metaKey && isPrintableCharacter(event.key)) {
-                    !this.overlayVisible && this.show();
-                    !this.editable && this.searchOptions(event, event.key);
+                    if (this.keyGoesToFilter(event)) {
+                        // The filter box takes focus only once the panel has entered. A key
+                        // pressed before that is on its way there: it was spent on type-ahead and
+                        // never reached the box, so "abc" typed right after a click left "bc" (#256).
+                        this.pendingFilterText += event.key;
+                        event.preventDefault();
+                        this.flushPendingFilterText();
+                    } else {
+                        !this.overlayVisible && this.show();
+                        !this.editable && this.searchOptions(event, event.key);
+                    }
                 }
 
                 break;
         }
 
         this.clicked.set(false);
+    }
+
+    /**
+     * Whether a printable key pressed on the trigger belongs in the filter box: the panel is
+     * opening and its built-in filter is about to take focus. A key on a closed Select still opens
+     * it by type-ahead, and so do the keys that follow while that type-ahead is running. A shortcut
+     * (Ctrl+A) is not text.
+     */
+    private keyGoesToFilter(event: KeyboardEvent): boolean {
+        return !!this.overlayVisible && !this.searchValue && !!this.filter && this.autofocusFilter && !this.editable && !this.filterTemplate() && !(event.ctrlKey && !event.altKey);
+    }
+
+    /** Writes the keys the trigger took for the filter box into it, as if they had been typed there. */
+    private flushPendingFilterText(): void {
+        const input = this.filterViewChild?.nativeElement as HTMLInputElement | undefined;
+        if (!input || !this.pendingFilterText) {
+            return;
+        }
+        const text = this.pendingFilterText;
+        this.pendingFilterText = '';
+        input.focus();
+        input.value = (input.value ?? '') + text;
+        // The same path as a keystroke in the box: the filter value, onFilter and the alignment.
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     onFilterKeyDown(event) {

@@ -80,6 +80,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/reported')) {
+    /* Defects reported against a published version (reported.ts, e2e/reported-issues.spec.ts), one per `?case=`. */
+    import('./reported')
+        .then(({ Reported }) =>
+            bootstrapApplication(Reported, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/speed')) {
     /* The scenes tools/measure-speed.mjs times (speed.ts), one per `?scene=`. */
     import('./speed')

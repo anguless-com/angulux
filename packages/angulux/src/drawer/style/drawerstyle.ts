@@ -2,12 +2,18 @@ import { Injectable } from '@angular/core';
 import { style as drawer_style } from '@anguless/angulux-styles/drawer';
 import { BaseStyle } from '@anguless/angulux/base';
 
+// `transform: none` on .p-drawer below: no transform at rest. The base rule sets
+// translate3d(0, 0, 0), and any transform makes the element the containing block of its
+// position: fixed descendants, so a dialog opened inside the drawer was laid out in the drawer's
+// box, mask included (#257). The enter and leave keyframes still animate transform, from and to
+// none. The note is out here because a comment inside the string ships in every bundle.
 const style = /*css*/ `
 ${drawer_style}
 
 /** For AnguluxConfig **/
 .p-drawer {
     position: fixed;
+    transform: none;
 }
 
 .p-drawer-left {

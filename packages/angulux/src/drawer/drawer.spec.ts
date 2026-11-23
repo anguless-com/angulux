@@ -277,7 +277,7 @@ describe('Drawer', () => {
         });
 
         it('should not be visible initially', () => {
-            const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
+            const drawerContainer = testFixture.debugElement.query(By.css('[role="dialog"]'));
             expect(drawerContainer).toBeFalsy();
         });
 
@@ -286,7 +286,7 @@ describe('Drawer', () => {
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
 
-            const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
+            const drawerContainer = testFixture.debugElement.query(By.css('[role="dialog"]'));
             expect(drawerContainer).toBeTruthy();
         });
     });
@@ -541,7 +541,6 @@ describe('Drawer', () => {
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
 
-            const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             // Call onKeyDown method directly
             const escapeEvent = new KeyboardEvent('keydown', { code: 'Escape' });
             drawerComponent.onKeyDown(escapeEvent);
@@ -810,8 +809,21 @@ describe('Drawer', () => {
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
 
+            // Modal by default: a dialog that says so (#257). It was a complementary region.
+            const drawerContainer = testFixture.debugElement.query(By.css('[role="dialog"]'));
+            expect(drawerContainer).toBeTruthy();
+            expect(drawerContainer.nativeElement.getAttribute('aria-modal')).toBe('true');
+        });
+
+        it('should stay a complementary region when it is not modal', async () => {
+            testFixture.debugElement.query(By.directive(Drawer)).componentInstance.modal = false;
+            testComponent.visible = true;
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+
             const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
             expect(drawerContainer).toBeTruthy();
+            expect(drawerContainer.nativeElement.hasAttribute('aria-modal')).toBe(false);
         });
 
         it('should have correct data attributes', async () => {
@@ -868,7 +880,7 @@ describe('Drawer', () => {
             testFixture.changeDetectorRef.markForCheck();
             await testFixture.whenStable();
 
-            const drawerContainer = testFixture.debugElement.query(By.css('[role="complementary"]'));
+            const drawerContainer = testFixture.debugElement.query(By.css('[role="dialog"]'));
             expect(drawerContainer).toBeTruthy();
             expect(drawerContainer.nativeElement.tabIndex).toBeDefined();
         });
