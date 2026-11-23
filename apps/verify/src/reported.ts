@@ -4,6 +4,7 @@ import { CheckboxModule } from '@anguless/angulux/checkbox';
 import { DialogModule } from '@anguless/angulux/dialog';
 import { DrawerModule } from '@anguless/angulux/drawer';
 import { MessageService } from '@anguless/angulux/api';
+import { PopoverModule } from '@anguless/angulux/popover';
 import { SelectModule } from '@anguless/angulux/select';
 import { ToastModule } from '@anguless/angulux/toast';
 import { TooltipModule } from '@anguless/angulux/tooltip';
@@ -20,6 +21,8 @@ import { TooltipModule } from '@anguless/angulux/tooltip';
  *   `autoZIndex` off, one with nothing to focus, and a drawer that is not modal.
  * - `drawer-layers` (22.6.14): a modal drawer on a page that also shows a toast and a tooltip,
  *   with a dialog beside it and not inside it. None of the three is a layer Escape should stop at.
+ * - `popover-arrow`: one popover opened from a wide and a narrow trigger, and from the same two at
+ *   the right edge, where the panel has to slide left and the arrow has to follow the trigger.
  * - `dialog-layers`: a modal dialog on a page that also shows a toast and a tooltip. Neither is a
  *   layer Escape should stop at.
  */
@@ -27,7 +30,7 @@ const CASE = new URLSearchParams(location.search).get('case') ?? '';
 
 @Component({
     selector: 'agl-verify-root',
-    imports: [FormsModule, CheckboxModule, DialogModule, DrawerModule, SelectModule, ToastModule, TooltipModule],
+    imports: [FormsModule, CheckboxModule, DialogModule, DrawerModule, PopoverModule, SelectModule, ToastModule, TooltipModule],
     providers: [MessageService],
     template: `
         <h1>angulux — reported defects</h1>
@@ -106,6 +109,17 @@ const CASE = new URLSearchParams(location.search).get('case') ?? '';
                     <agl-dialog id="dl-dialog" header="Preview" [modal]="true" [visible]="lightbox()" (visibleChange)="lightbox.set($event)">
                         <p>Preview.</p>
                     </agl-dialog>
+                </section>
+            }
+            @case ('popover-arrow') {
+                <section id="sec-popover-arrow">
+                    <button id="pa-wide" type="button" style="width: 200px; height: 40px" (click)="pop.toggle($event)">a wide trigger</button>
+                    <button id="pa-narrow" type="button" style="width: 28px; height: 28px; padding: 0" aria-label="a narrow trigger" (click)="pop.toggle($event)">n</button>
+                    <button id="pa-edge" type="button" style="position: fixed; top: 80px; right: 16px; width: 40px; height: 40px; padding: 0" aria-label="a trigger at the right edge" (click)="pop.toggle($event)">e</button>
+                    <button id="pa-edge-wide" type="button" style="position: fixed; top: 200px; right: 16px; width: 200px; height: 40px" (click)="pop.toggle($event)">a wide trigger at the right edge</button>
+                    <agl-popover #pop>
+                        <div id="pa-panel" style="width: 320px">A panel wider than any of its triggers.</div>
+                    </agl-popover>
                 </section>
             }
             @case ('dialog-layers') {

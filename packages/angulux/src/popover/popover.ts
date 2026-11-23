@@ -332,13 +332,17 @@ export class Popover extends BaseComponent<PopoverPassThrough> {
 
             const containerOffset = <any>getOffset(this.container);
             const targetOffset = <any>getOffset(this.target);
-            const borderRadius = this.document.defaultView?.getComputedStyle(this.container).getPropertyValue('border-radius');
-            let arrowLeft = 0;
-
-            if (containerOffset.left < targetOffset.left) {
-                arrowLeft = targetOffset.left - containerOffset.left - parseFloat(borderRadius!) * 2;
-            }
-            this.container.style.setProperty($dt('popover.arrow.left').name, `${arrowLeft}px`);
+            // The arrow sits `inset` from the panel's left edge, which is the target's left edge
+            // until the panel has to slide left to stay on screen. It follows the target then, and
+            // under a target narrower than twice the inset it points at the middle. The old sum
+            // took two corner radii off and put the tip to the left of a target at the right edge.
+            const arrow = $dt('popover.arrow.left').name;
+            this.container.style.setProperty(arrow, '0px');
+            const inset = parseFloat(this.document.defaultView?.getComputedStyle(this.container, '::before').left ?? '') || 0;
+            // Where the panel was just put, not where it is drawn: it is scaled while it enters.
+            const placed = parseFloat(this.container.style.insetInlineStart);
+            const arrowLeft = targetOffset.left - (Number.isNaN(placed) ? containerOffset.left : placed) - this.container.clientLeft + Math.min(this.target.getBoundingClientRect().width / 2, inset) - inset;
+            this.container.style.setProperty(arrow, `${arrowLeft}px`);
 
             if (containerOffset.top < targetOffset.top) {
                 this.container.setAttribute('data-p-popover-flipped', 'true');
