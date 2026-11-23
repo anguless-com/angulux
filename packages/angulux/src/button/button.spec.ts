@@ -710,7 +710,6 @@ describe('Button', () => {
             it('should resolve the content slot and render the button', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -724,7 +723,6 @@ describe('Button', () => {
             it('should resolve the content slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -735,7 +733,6 @@ describe('Button', () => {
             it('should resolve the icon slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -754,7 +751,6 @@ describe('Button', () => {
                 templateFixture.changeDetectorRef.markForCheck();
                 await templateFixture.whenStable();
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -811,7 +807,6 @@ describe('Button', () => {
             it('should handle #content template processing', async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -830,7 +825,6 @@ describe('Button', () => {
             it("should resolve the content slot into its signal query", async () => {
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -861,7 +855,6 @@ describe('Button', () => {
 
                 const pTemplateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 pTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const pTemplateButton = pTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -870,7 +863,6 @@ describe('Button', () => {
                 // Test #content template rendering
                 const contentTemplateFixture = TestBed.createComponent(TestContentTemplateButtonComponent);
                 contentTemplateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const contentTemplateButton = contentTemplateFixture.debugElement.query(By.directive(Button)).componentInstance;
@@ -889,7 +881,6 @@ describe('Button', () => {
             it('should resolve every declared slot into its signal query', async () => {
                 const templateFixture = TestBed.createComponent(TestTemplatePButtonComponent);
                 templateFixture.detectChanges();
-                await new Promise((resolve) => setTimeout(resolve, 100));
                 await fixture.whenStable();
 
                 const buttonInstance = templateFixture.debugElement.query(By.directive(Button)).componentInstance;

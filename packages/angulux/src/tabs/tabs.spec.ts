@@ -1025,7 +1025,6 @@ describe('Tabs', () => {
         it('should handle template processing without errors', async () => {
             const scrollableFixture = TestBed.createComponent(TestScrollableTabsComponent);
             scrollableFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await scrollableFixture.whenStable();
 
             const tabListComponent = scrollableFixture.debugElement.query(By.directive(TabList)).componentInstance;
@@ -1063,7 +1062,6 @@ describe('Tabs', () => {
                 host: 'HOST_CLASS'
             };
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 
@@ -1084,7 +1082,6 @@ describe('Tabs', () => {
                 }
             };
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 
@@ -1104,7 +1101,6 @@ describe('Tabs', () => {
                 host: 'PT_HOST_CLASS'
             };
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 
@@ -1125,7 +1121,6 @@ describe('Tabs', () => {
                 }
             };
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 
@@ -1146,7 +1141,6 @@ describe('Tabs', () => {
                 }
             };
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 
@@ -1159,7 +1153,6 @@ describe('Tabs', () => {
         it('should apply PT options using setInput', async () => {
             ptFixture.componentRef.setInput('pt', { root: 'SETINPUT_ROOT_CLASS' });
             ptFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await ptFixture.whenStable();
             ptFixture.detectChanges();
 

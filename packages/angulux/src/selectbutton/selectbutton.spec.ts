@@ -219,7 +219,6 @@ describe('SelectButton', () => {
         it('should work with reactive forms', async () => {
             formTestComponent.form.patchValue({ selectedValue: 'option2' });
             formTestFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await formTestFixture.whenStable();
 
             expect(formTestComponent.form.value.selectedValue).toBe('option2' as any);
@@ -230,7 +229,6 @@ describe('SelectButton', () => {
 
             formTestComponent.form.patchValue({ selectedValue: 'option1' });
             formTestFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await formTestFixture.whenStable();
 
             expect(formTestComponent.form.valid).toBe(true);
@@ -239,12 +237,10 @@ describe('SelectButton', () => {
         it('should handle form reset', async () => {
             formTestComponent.form.patchValue({ selectedValue: 'option1' });
             formTestFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await formTestFixture.whenStable();
 
             formTestComponent.form.reset();
             formTestFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await formTestFixture.whenStable();
 
             expect(formTestComponent.form.pristine).toBe(true);
@@ -544,7 +540,6 @@ describe('SelectButton aglTemplate Tests', () => {
         // Test with different selected values
         component.selectedValue = 'opt1';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         expect(selectButtonInstance.value).toBe('opt1');
@@ -558,7 +553,6 @@ describe('SelectButton aglTemplate Tests', () => {
         // Select option
         component.selectedValue = 'opt2';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         expect(selectButtonInstance.value).toBe('opt2');
@@ -567,7 +561,6 @@ describe('SelectButton aglTemplate Tests', () => {
     it('should apply context to templates correctly', async () => {
         component.selectedValue = 'opt3';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         // Verify that the select button component works correctly
@@ -579,7 +572,6 @@ describe('SelectButton aglTemplate Tests', () => {
         if (selectButtonInstance.ngAfterContentInit) {
             selectButtonInstance.ngAfterContentInit();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             // Verify that ngAfterContentInit is called correctly
@@ -623,7 +615,6 @@ describe('SelectButton #template Reference Tests', () => {
         // Test with different selected values
         component.selectedValue = 'item1';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         expect(selectButtonInstance.value).toBe('item1');
@@ -637,7 +628,6 @@ describe('SelectButton #template Reference Tests', () => {
         // Select option
         component.selectedValue = 'item2';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         expect(selectButtonInstance.value).toBe('item2');
@@ -646,7 +636,6 @@ describe('SelectButton #template Reference Tests', () => {
     it('should apply context to templates correctly', async () => {
         component.selectedValue = 'item3';
         fixture.detectChanges();
-        await new Promise((resolve) => setTimeout(resolve, 100));
         await fixture.whenStable();
 
         // Verify that the select button component works correctly
@@ -658,7 +647,6 @@ describe('SelectButton #template Reference Tests', () => {
         if (selectButtonInstance.ngAfterContentInit) {
             selectButtonInstance.ngAfterContentInit();
             fixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await fixture.whenStable();
 
             // Verify that ngAfterContentInit is called correctly

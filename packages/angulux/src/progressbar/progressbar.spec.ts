@@ -295,7 +295,6 @@ describe('ProgressBar', () => {
         it('should handle aglTemplate content processing', async () => {
             const templateFixture = TestBed.createComponent(TestPTemplateProgressBarComponent);
             templateFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await templateFixture.whenStable();
 
             const templateProgressBar = templateFixture.debugElement.query(By.directive(ProgressBar)).componentInstance;
@@ -311,7 +310,6 @@ describe('ProgressBar', () => {
         it('should handle #content template processing', async () => {
             const contentTemplateFixture = TestBed.createComponent(TestContentTemplateProgressBarComponent);
             contentTemplateFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await contentTemplateFixture.whenStable();
 
             const contentProgressBar = contentTemplateFixture.debugElement.query(By.directive(ProgressBar)).componentInstance;
@@ -327,7 +325,6 @@ describe('ProgressBar', () => {
         it('should render aglTemplate content correctly', async () => {
             const templateFixture = TestBed.createComponent(TestPTemplateProgressBarComponent);
             templateFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await templateFixture.whenStable();
 
             const customContent = templateFixture.debugElement.query(By.css('.custom-template-content'));
@@ -343,7 +340,6 @@ describe('ProgressBar', () => {
         it('should render #content template correctly', async () => {
             const contentTemplateFixture = TestBed.createComponent(TestContentTemplateProgressBarComponent);
             contentTemplateFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await contentTemplateFixture.whenStable();
 
             const customContent = contentTemplateFixture.debugElement.query(By.css('.custom-content-template'));
@@ -375,7 +371,6 @@ describe('ProgressBar', () => {
             const templateFixture = TestBed.createComponent(TestContentTemplateProgressBarComponent);
             const templateComponent = templateFixture.componentInstance;
             templateFixture.detectChanges();
-            await new Promise((resolve) => setTimeout(resolve, 100));
             await templateFixture.whenStable();
 
             templateComponent.value = 85;
