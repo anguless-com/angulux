@@ -1,7 +1,7 @@
 import type { CheckboxDesignTokens, CheckboxTokenSections } from '@anguless/angulux-themes/types/checkbox';
 
 export const root: CheckboxTokenSections.Root = {
-    borderRadius: '{border.radius.sm}',
+    borderRadius: '5px',
     width: '1.25rem',
     height: '1.25rem',
     background: '{form.field.background}',

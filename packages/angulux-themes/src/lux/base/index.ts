@@ -36,7 +36,7 @@ export const primitive: LuxBaseTokenSections.Primitive = {
 export const semantic: LuxBaseTokenSections.Semantic = {
     transitionDuration: '0.2s',
     focusRing: {
-        width: '1px',
+        width: '2px',
         style: 'solid',
         color: '{primary.color}',
         offset: '2px',
@@ -71,7 +71,7 @@ export const semantic: LuxBaseTokenSections.Semantic = {
             paddingX: '0.875rem',
             paddingY: '0.625rem'
         },
-        borderRadius: '{border.radius.md}',
+        borderRadius: '{border.radius.lg}',
         focusRing: {
             width: '0',
             style: 'none',
@@ -89,7 +89,7 @@ export const semantic: LuxBaseTokenSections.Semantic = {
         },
         option: {
             padding: '0.5rem 0.75rem',
-            borderRadius: '{border.radius.sm}'
+            borderRadius: '{border.radius.md}'
         },
         optionGroup: {
             padding: '0.5rem 0.75rem',
@@ -97,7 +97,7 @@ export const semantic: LuxBaseTokenSections.Semantic = {
         }
     },
     content: {
-        borderRadius: '{border.radius.md}'
+        borderRadius: '{border.radius.lg}'
     },
     mask: {
         transitionDuration: '0.3s'
@@ -109,7 +109,7 @@ export const semantic: LuxBaseTokenSections.Semantic = {
         },
         item: {
             padding: '0.5rem 0.75rem',
-            borderRadius: '{border.radius.sm}',
+            borderRadius: '{border.radius.md}',
             gap: '0.5rem'
         },
         submenuLabel: {
@@ -122,21 +122,21 @@ export const semantic: LuxBaseTokenSections.Semantic = {
     },
     overlay: {
         select: {
-            borderRadius: '{border.radius.md}',
-            shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+            borderRadius: '{border.radius.lg}',
+            shadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.08)'
         },
         popover: {
-            borderRadius: '{border.radius.md}',
+            borderRadius: '{border.radius.lg}',
             padding: '0.75rem',
-            shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+            shadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.08)'
         },
         modal: {
-            borderRadius: '{border.radius.xl}',
+            borderRadius: '1rem',
             padding: '1.25rem',
-            shadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+            shadow: '0 2px 4px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(0, 0, 0, 0.14)'
         },
         navigation: {
-            shadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+            shadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.08)'
         }
     },
     colorScheme: {
