@@ -6,10 +6,14 @@ import { CONTRAST_ROWS } from '../apps/showcase/src/pages/contrast-rows';
  * Text contrast of the severity colours (WCAG 1.4.3), in the stock preset and in the override the
  * Theming guide prints.
  *
- * The colours are not angulux's: they come from the preset package, and the library ships no preset
- * of its own (#143). What is ours is the page that tells a reader how to correct them, so this test
- * holds that page to its word. The override it measures (apps/verify/src/contrast-preset.ts) is the
- * very text the guide prints: apps/showcase/scripts/guide-snippets.mjs cuts it out of that file.
+ * The stock colours are not angulux's: they come from the upstream preset package. What is ours is
+ * the page that tells a reader how to correct them, so this test holds that page to its word. The
+ * override it measures (apps/verify/src/contrast-preset.ts) is the very text the guide prints:
+ * apps/showcase/scripts/guide-snippets.mjs cuts it out of that file.
+ *
+ * Lux (packages/angulux-themes) is the preset angulux ships, and it is that override written into
+ * the tokens instead of layered on top. The tests at the end hold it to the same numbers, so the
+ * preset and the override cannot come apart without this file saying so.
  *
  * Measured 2026-11-18. The guide used to print a shorter override, made on the primitive palette.
  * A primitive has no colour scheme, and the dark scheme uses the same palette steps as text on a
@@ -24,7 +28,7 @@ import { CONTRAST_ROWS } from '../apps/showcase/src/pages/contrast-rows';
  * The page is apps/verify/src/contrast.ts.
  */
 
-type Preset = 'aura' | 'accessible' | 'primitive-shift';
+type Preset = 'aura' | 'accessible' | 'primitive-shift' | 'lux';
 type Under = 'content' | 'ground';
 type Scheme = 'light' | 'dark';
 
@@ -196,4 +200,24 @@ test('an override made on the primitive palette fixes the light fills and breaks
     expect(find(shifted, 'p-message-text', 'success message').ratio).toBe(3.05);
     expect(find(stock, 'p-message-text', 'error message').ratio).toBe(3.98);
     expect(find(shifted, 'p-message-text', 'error message').ratio).toBe(3.26);
+});
+
+for (const scheme of ['light', 'dark'] as const) {
+    for (const under of ['content', 'ground'] as const) {
+        test(`Lux leaves no text below its ratio: ${scheme}, over the ${under}`, async ({ page }, testInfo) => {
+            const lux = await sweep(page, 'lux', under, scheme, testInfo);
+            expect(describe(failing(lux))).toBe('');
+        });
+    }
+}
+
+test('Lux measures exactly what the override the guide prints measures', async ({ page }, testInfo) => {
+    for (const scheme of ['light', 'dark'] as const) {
+        for (const under of ['content', 'ground'] as const) {
+            const fixed = await sweep(page, 'accessible', under, scheme, testInfo);
+            const lux = await sweep(page, 'lux', under, scheme, testInfo);
+            // Every text node, not only the rows of the table: a token Lux changed and the override did not would show here.
+            expect(lux.readings, `${scheme}, over the ${under}`).toEqual(fixed.readings);
+        }
+    }
 });

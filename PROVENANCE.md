@@ -2,7 +2,7 @@
 
 > The record of where this code came from. **This is a legal document.** Every change to it
 > needs a stated reason.
-> Last updated: 2026-11-17
+> Last updated: 2026-11-24
 
 ## 1. Summary
 
@@ -194,6 +194,24 @@ to reconstruct it later.
 | `packages/angulux-styled/**` | `@primeuix/styled` |
 | `packages/angulux-styles/**` | `@primeuix/styles` |
 | `packages/angulux-motion/**` | `@primeuix/motion` |
+| `packages/angulux-themes/**` | `@primeuix/themes` — the Aura preset and the token types only |
+
+**`angulux-themes` is a partial fork, and a modified one (added 2026-11-24).** The four packages
+above it cover their upstream release completely. This one takes three things from
+`ref/primeuix/packages/themes` at the commit in section 2: `src/presets/aura` (now
+`src/lux`), `src/index.ts`, and `types/`. The Lara, Nora and Material presets, the UMD builds
+and the generated token catalogue were not copied. Three kinds of change were made to what was:
+
+- import specifiers renamed to the `@anguless/*` names, and `Aura` to `Lux` in identifiers;
+- the JSDoc block linking to PrimeTek's sites and UI kits removed from every declaration file,
+  because JSDoc reaches a consumer's IntelliSense and a trademark has no place there;
+- token values changed in `base`, `button`, `badge`, `message`, `toast` and `togglebutton`, to
+  the palette steps `apps/verify/src/contrast-preset.ts` names. `e2e/contrast.spec.ts` requires
+  the preset and that override to measure the same.
+
+It is recorded here because the preset is the first inherited file set whose **values** differ
+from upstream by design, and the copyright notice for the inherited portion still applies to
+all of it.
 
 The inherited code has been through the following mechanical transformations:
 `p-*` -> `agl-*` and `primeng/*` -> `angulux/*` · an explicit change-detection strategy

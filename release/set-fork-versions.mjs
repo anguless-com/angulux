@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * set-fork-versions — stamp one version across the four forked primeuix packages.
+ * set-fork-versions — stamp one version across the five forked primeuix packages.
  *
- * WHY THIS EXISTS: the four packages release as a single train on a shared 1.x line, so
+ * WHY THIS EXISTS: the five packages release as a single train on a shared 1.x line, so
  * @semantic-release/npm's single `pkgRoot` cannot express it. This writes the version that
- * semantic-release computed into all four package.json files during the `prepare` step,
+ * semantic-release computed into all five package.json files during the `prepare` step,
  * before @semantic-release/git commits them and before the workflow publishes.
  *
  * It edits ONLY the `version` field, textually, preserving formatting — a JSON round-trip
- * would reformat four hand-maintained files and bury the one line that actually changed in
+ * would reformat five hand-maintained files and bury the one line that actually changed in
  * a diff nobody can review.
  *
  * Usage: node release/set-fork-versions.mjs 1.2.0
@@ -18,7 +18,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PACKAGES = ['angulux-styled', 'angulux-utils', 'angulux-styles', 'angulux-motion'];
+const PACKAGES = ['angulux-styled', 'angulux-utils', 'angulux-styles', 'angulux-motion', 'angulux-themes'];
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const version = process.argv[2];
@@ -28,7 +28,7 @@ if (!version) {
     process.exit(1);
 }
 
-// Guard against a malformed value reaching four package.json files at once. semantic-release
+// Guard against a malformed value reaching five package.json files at once. semantic-release
 // should never pass a bad version, but this script also gets run by hand during a recovery,
 // and that is exactly when a typo is expensive.
 if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(version)) {

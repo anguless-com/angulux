@@ -24,6 +24,7 @@ paths:
     - packages/angulux-motion/src
     - packages/angulux-styled/src
     - packages/angulux-styles/src
+    - packages/angulux-themes/src
     - packages/angulux-utils/src
     - apps/verify/src
     - tools

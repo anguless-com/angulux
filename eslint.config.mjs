@@ -117,7 +117,7 @@ const A11Y_RULES = {
 };
 
 /** The forked code that is held to the baseline. Kept in step with tools/check-lint.mjs. */
-const FORKED = ['packages/angulux/src', 'packages/angulux-utils/src', 'packages/angulux-styled/src', 'packages/angulux-styles/src', 'packages/angulux-motion/src'];
+const FORKED = ['packages/angulux/src', 'packages/angulux-utils/src', 'packages/angulux-styled/src', 'packages/angulux-styles/src', 'packages/angulux-motion/src', 'packages/angulux-themes/src'];
 
 export default [
     { ignores: ['**/node_modules/**', '**/dist/**', '**/.angular/**', '**/attic/**', 'ref/**', '**/generated/**', '**/*.generated.ts'] },

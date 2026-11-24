@@ -5,7 +5,7 @@
  * WHY THIS EXISTS, precisely:
  *
  * `postbuild` resolves `workspace:` ranges for the main package, because that one is
- * published from `dist/`, a directory the build writes. The four forked packages are
+ * published from `dist/`, a directory the build writes. The five forked packages are
  * published from their own source directory, and nothing resolved theirs. So
  * `angulux-styled@1.0.0` would have gone to the registry declaring
  * `"@anguless/angulux-utils": "workspace:^"`, and every consumer's install would have died with
@@ -52,6 +52,7 @@ const PUBLISHABLE = [
     { name: '@anguless/angulux-utils', dir: 'packages/angulux-utils' },
     { name: '@anguless/angulux-styles', dir: 'packages/angulux-styles' },
     { name: '@anguless/angulux-motion', dir: 'packages/angulux-motion' },
+    { name: '@anguless/angulux-themes', dir: 'packages/angulux-themes' },
     // Unscoped on purpose: its audience is PrimeNG/PrimeVue/PrimeReact users who have never
     // heard of the anguless org. `zeroDeps` is a product claim, so it is checked on the
     // tarball rather than trusted from the source manifest.

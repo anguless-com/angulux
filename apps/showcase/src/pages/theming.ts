@@ -9,9 +9,10 @@ import { CONTRAST_ROWS } from './contrast-rows';
  * How the components get their looks, and where the licence line is.
  *
  * The second half is the reason this page exists as much as the first. angulux is MIT and says
- * so loudly; the preset package belongs to a third party and its MIT line is closed. A reader
- * evaluating this library will find that out in ten minutes, so the only useful thing to do is
- * say it here, in full, with the mitigation next to it.
+ * so loudly, and its own preset is MIT too. The preset package it was derived from belongs to a
+ * third party and its MIT line is closed, which matters to a reader who wants one of the presets
+ * angulux does not ship. So the page says where that line is, in full, with the mitigation next
+ * to it.
  *
  * The brand names that statement needs live in the template, inside declared
  * `prime-names:attribution` regions. They may NOT appear in this comment: JSDoc leaks into
@@ -26,8 +27,8 @@ import { CONTRAST_ROWS } from './contrast-rows';
                 <div class="font-mono text-xs text-faint">guide</div>
                 <h1 class="mt-1 text-3xl font-semibold tracking-tight">Theming</h1>
                 <p class="mt-2 text-[15px] text-muted">
-                    Components are styled at runtime from a preset, not from a stylesheet you import. That makes theming a matter of configuration — and it puts the preset on the
-                    other side of a licence boundary worth understanding.
+                    Components are styled at runtime from a preset, not from a stylesheet you import. That makes theming a matter of configuration. angulux ships one preset,
+                    Lux, and accepts the presets of the package Lux was derived from — which sit on the other side of a licence boundary worth understanding.
                 </p>
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="where">Where the styling comes from</h2>
@@ -36,9 +37,14 @@ import { CONTRAST_ROWS } from './contrast-rows';
                      ends. A reader deciding whether to adopt this library is owed that in the place they
                      are reading. check:names allows brand PROSE inside this region and nothing else. -->
                 <p class="mt-3 text-[15px] text-muted">
-                    angulux ships no theme presets of its own. <code class="code-chip">provideAngulux({{ '{' }} theme: {{ '{' }} preset {{ '}' }} {{ '}' }})</code> takes a preset
-                    from <code class="code-chip">&#64;primeuix/themes</code> — PrimeTek's package, not ours — and injects the resulting CSS at runtime. Nothing is compiled into
-                    your bundle at build time, which is why changing a preset is a configuration change rather than a rebuild of your styles.
+                    <code class="code-chip">provideAngulux({{ '{' }} theme: {{ '{' }} preset {{ '}' }} {{ '}' }})</code> takes a preset and injects the resulting CSS at runtime.
+                    Nothing is compiled into your bundle at build time, which is why changing a preset is a configuration change rather than a rebuild of your styles.
+                </p>
+                <p class="mt-3 text-[15px] text-muted">
+                    The preset this site runs under is <strong class="font-medium text-ink">Lux</strong>, from
+                    <code class="code-chip">&#64;anguless/angulux-themes</code>. It is derived from the Aura preset of <code class="code-chip">&#64;primeuix/themes</code> 2.0.3 —
+                    PrimeTek's package, MIT at that version — and keeps every token name, so an override written for Aura applies to Lux unchanged. What it changes is the
+                    colours that carry text, which the Contrast section below lists.
                 </p>
                 <!-- prime-names:end -->
                 <p class="mt-3 text-[15px] text-muted">
@@ -55,14 +61,14 @@ import { CONTRAST_ROWS } from './contrast-rows';
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="contrast">Contrast</h2>
                 <p class="mt-3 text-[15px] text-muted">
-                    The default light preset does not meet WCAG AA on solid-coloured components. A sweep of this site — every text node inside a demo, measured against the
-                    background actually painted behind it — found <strong class="font-medium text-ink">76 failing nodes across 20 of the 51 modules</strong> that have demos. The
-                    same sweep in dark mode finds none on this site, whose demos sit on the page background. Put the same components on a card and two dark colours fall short as
-                    well: they are the last two rows below.
+                    <strong class="font-medium text-ink">Lux meets WCAG AA for the text of every severity colour, in both schemes.</strong> That is the reason it exists. The
+                    preset it was derived from does not: while this site still ran under that preset, in November 2026, a sweep of every text node inside a demo, measured against
+                    the background actually painted behind it, found 76 failing nodes across 20 of the 51 modules that had demos. Put the same components on a card in dark mode
+                    and two more colours fall short: they are the last two rows below.
                 </p>
                 <p class="mt-3 text-[15px] text-muted">
-                    This is worth stating plainly rather than quietly fixing on the site: these colours are not angulux's, and the demos here are styled exactly the way your
-                    application will be. Special-casing them would hide the problem instead of showing it to you.
+                    The table is what Lux changes. The left column is the upstream value, the right column is the value Lux carries. If you use Lux, you have the right column
+                    already, and the override further down is not for you.
                 </p>
                 <div class="thin-scroll mt-4 overflow-x-auto rounded-xl border border-line">
                     <table class="w-full border-collapse text-[13px]">
@@ -70,8 +76,8 @@ import { CONTRAST_ROWS } from './contrast-rows';
                             <tr class="bg-surface">
                                 <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">What fails</th>
                                 <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Scheme</th>
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Default</th>
-                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">With the override</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Aura</th>
+                                <th class="whitespace-nowrap border-b border-line px-3 py-2 text-left font-semibold">Lux</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,8 +102,9 @@ import { CONTRAST_ROWS } from './contrast-rows';
                     3.30 and sky 4.10. Only danger and help clear AA there.
                 </p>
                 <p class="mb-4 mt-3 text-sm text-muted">
-                    <code class="code-chip">definePreset</code> reaches all of these without forking anything. The override below is the one the right-hand column was measured
-                    with, in a browser, on every build of this library: the code is cut out of the file that test runs, not typed onto this page.
+                    <strong class="font-medium text-ink">If you stay on Aura</strong>, <code class="code-chip">definePreset</code> reaches all of these without forking anything.
+                    The override below produces the right-hand column on top of Aura. It is measured in a browser on every build of this library, next to Lux, and the two are
+                    required to give the same ratio for every text node: the code is cut out of the file that test runs, not typed onto this page.
                 </p>
                 <agl-code-block [lines]="snippet('contrast')" [palette]="palette()" label="app.config.ts" />
                 <p class="mt-4 text-sm text-muted">
@@ -108,10 +115,10 @@ import { CONTRAST_ROWS } from './contrast-rows';
                     it, replace it with the one above.
                 </p>
                 <p class="mt-3 text-sm text-muted">
-                    What the override costs you, and what it does not cover. The primary colour in light mode is now two steps darker everywhere it is read, focus rings and
-                    checked boxes included. It names palette steps, not ratios: if you also swap the primary palette for a brand colour, step 700 of your palette is a different
-                    colour and has to be measured again. Anything that extends the stock preset rather than this one starts from the stock colours. And the measurement reads
-                    resting text only — hover, focus and disabled states are not in it, nor are icons.
+                    What this costs you, in Lux and in the override alike, and what it does not cover. The primary colour in light mode is two steps darker than Aura's
+                    everywhere it is read, focus rings and checked boxes included. The tokens name palette steps, not ratios: if you swap the primary palette for a brand
+                    colour, step 700 of your palette is a different colour and has to be measured again. Anything that extends Aura rather than Lux starts from Aura's colours.
+                    And the measurement reads resting text only — hover, focus and disabled states are not in it, nor are icons.
                 </p>
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="dark">Dark mode</h2>
@@ -134,9 +141,9 @@ import { CONTRAST_ROWS } from './contrast-rows';
                     <code class="code-chip">.dark</code> class for exactly that reason — the button in the header is the proof.
                 </p>
 
-                <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="unstyled">Running without the preset package</h2>
+                <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="unstyled">Running without a preset</h2>
                 <p class="mb-4 mt-1 text-sm text-muted">
-                    Supported, and not a degraded mode by accident — it is what makes the dependency genuinely optional. Structure, behaviour, accessibility and the
+                    Supported, and not a degraded mode by accident — it is what makes a preset package genuinely optional. Structure, behaviour, accessibility and the
                     <code class="code-chip">p-*</code> class names are all still there; the colours are not.
                 </p>
                 <agl-code-block [lines]="snippet('unstyled')" [palette]="palette()" label="app.config.ts" />
@@ -145,6 +152,10 @@ import { CONTRAST_ROWS } from './contrast-rows';
                 <!-- prime-names:attribution — the factual statement of where the preset package's MIT
                      grant ends. Saying less than this would be the dishonest option: a reader can check
                      the registry in one command. check:names allows brand PROSE here and nothing else. -->
+                <p class="mt-3 text-[15px] text-muted">
+                    Lux is MIT and is published by this project, so an application that uses it has no PrimeTek package to pin. This section is for the other case: you want
+                    Lara, Nora or Material, which angulux does not ship, or you are already on Aura and are staying there.
+                </p>
                 <p class="mt-3 text-[15px] text-muted">
                     <code class="code-chip">&#64;primeuix/themes</code> is MIT through <code class="code-chip">2.0.3</code>, and
                     <code class="code-chip">3.0.0</code> is the first commercial release. That release exists and is what the registry serves as
@@ -162,8 +173,8 @@ import { CONTRAST_ROWS } from './contrast-rows';
                     <agl-code-block [lines]="snippet('pin')" [palette]="palette()" label="terminal" />
                 </div>
                 <p class="mt-4 text-sm text-muted">
-                    What this means in practice: the preset package will not receive new MIT releases, so you are choosing to sit on a version that is finished rather than one
-                    that is maintained. That is a real cost and it is the honest reason to read
+                    What this means in practice: that package will not receive new MIT releases, so with one of its presets you are choosing to sit on a version that is finished
+                    rather than one that is maintained. Lux is maintained here, and it is one preset, not four. That is a real cost either way, and it is the honest reason to read
                     <a class="text-brand hover:underline" href="primeng-21-to-angular-22">the migration page</a> before adopting anything here — it names the alternatives,
                     including the ones that are not angulux.
                 </p>
@@ -190,7 +201,7 @@ export class ThemingPage {
         { id: 'customise', label: 'Customising a preset' },
         { id: 'contrast', label: 'Contrast' },
         { id: 'dark', label: 'Dark mode' },
-        { id: 'unstyled', label: 'Without the preset' },
+        { id: 'unstyled', label: 'Without a preset' },
         { id: 'licence', label: 'The licence boundary' }
     ];
 

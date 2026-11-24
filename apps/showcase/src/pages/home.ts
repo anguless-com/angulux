@@ -95,21 +95,22 @@ import { DEMO_SECTIONS } from '../doc/registry';
                      place they are reading, not only in the repository. check:names allows brand PROSE
                      inside this region and nothing else. -->
                 <p class="mt-3 text-[15px] text-muted">
-                    angulux ships no theme presets of its own, so the preset comes from
-                    <code class="code-chip">&#64;primeuix/themes</code> — PrimeTek's package, not ours. It is MIT through
-                    <code class="code-chip">2.0.3</code>, and
-                    <code class="code-chip">3.0.0</code> is the first commercial release. That release already exists and is
-                    what the registry serves as <code class="code-chip">latest</code>, so the MIT line is closed rather than
-                    merely paused.
+                    The components and their looks are separate packages. <code class="code-chip">&#64;anguless/angulux-themes</code> carries
+                    the preset, Lux: MIT, published by this project, and derived from the Aura preset of
+                    <code class="code-chip">&#64;primeuix/themes</code> 2.0.3 with the severity colours moved to steps that meet WCAG AA for text.
+                    Installing both pulls in zero PrimeTek packages. Drop the second one and
+                    <code class="code-chip">provideAngulux()</code> runs unstyled but works.
                 </p>
                 <p class="mt-3 text-[15px] text-muted">
-                    What that means in practice: angulux declares it as an <strong class="font-medium text-ink">optional</strong> peer ranged
-                    <code class="code-chip">^2.0.0</code>, and installing angulux alone pulls in zero PrimeTek packages. Drop
-                    the second package and <code class="code-chip">provideAngulux()</code> runs unstyled but works. Be clear
-                    about what the range buys you, though — it is a <em>warning</em>, not a lock.
+                    The upstream presets still work, and that is where the licence line is.
+                    <code class="code-chip">&#64;primeuix/themes</code> — PrimeTek's package, not ours — is MIT through
+                    <code class="code-chip">2.0.3</code>, and <code class="code-chip">3.0.0</code> is the first commercial release. That release
+                    already exists and is what the registry serves as <code class="code-chip">latest</code>, so the MIT line is closed rather than
+                    merely paused. angulux declares it as an <strong class="font-medium text-ink">optional</strong> peer ranged
+                    <code class="code-chip">^2.0.0</code>, and that range is a <em>warning</em>, not a lock:
                     <code class="code-chip">npm install &#64;primeuix/themes&#64;3</code> still succeeds; it only prints a
-                    resolution warning naming the range it broke. If that boundary matters to your legal review, pin the version exactly and run a licence check in your own
-                    build.
+                    resolution warning naming the range it broke. If you use one of its presets and that boundary matters to your legal review, pin the version exactly and
+                    run a licence check in your own build.
                 </p>
                 <!-- prime-names:end -->
 

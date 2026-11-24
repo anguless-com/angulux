@@ -27,7 +27,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="install">1 · Install</h2>
                 <p class="mb-4 mt-1 text-sm text-muted">
-                    <code class="code-chip">&#64;primeuix/themes</code> supplies the theme preset and <code class="code-chip">primeicons</code> the icon font. Both are
+                    <code class="code-chip">&#64;anguless/angulux-themes</code> supplies the theme preset and <code class="code-chip">primeicons</code> the icon font. Both are
                     optional — see <a class="text-brand hover:underline" routerLink="/theming">Theming</a> for what you lose by dropping them.
                 </p>
                 <agl-code-block [lines]="snippet('install')" [palette]="palette()" label="terminal" />

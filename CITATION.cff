@@ -49,7 +49,7 @@ references:
       license: MIT
       notes: >-
           Upstream style, utility, animation and theming packages by PrimeTek, forked here
-          as angulux-styled, angulux-utils, angulux-styles and angulux-motion.
+          as angulux-styled, angulux-utils, angulux-styles, angulux-motion and angulux-themes.
       repository-code: 'https://github.com/primefaces/primeuix'
       authors:
           - name: PrimeTek

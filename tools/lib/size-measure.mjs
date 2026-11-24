@@ -53,7 +53,7 @@ export function family(name) {
 export function owner(inputPath, ownFile) {
     const p = inputPath.replaceAll('\\', '/');
     if (ownFile && p.endsWith(ownFile.replace(/^\.\//, ''))) return 'own';
-    const forked = p.match(/packages\/angulux-(utils|styled|styles|motion)\//);
+    const forked = p.match(/packages\/angulux-(utils|styled|styles|motion|themes)\//);
     if (forked) return forked[1];
     if (/packages\/angulux\/dist\//.test(p)) return 'library';
     return 'other';

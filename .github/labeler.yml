@@ -59,6 +59,7 @@ forked-packages:
                 - packages/angulux-utils/**
                 - packages/angulux-styles/**
                 - packages/angulux-motion/**
+                - packages/angulux-themes/**
 
 browser-gate:
     - changed-files:

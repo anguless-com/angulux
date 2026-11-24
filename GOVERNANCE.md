@@ -71,8 +71,8 @@ the window rather than during it.
 
 - `angulux` majors track Angular majors. `angulux@22.x` supports Angular `^22.0.0` and
   nothing else.
-- The four forked packages (`angulux-styled`, `angulux-utils`, `angulux-styles`,
-  `angulux-motion`) version **independently on `1.x`**. They do not depend on Angular, so
+- The five forked packages (`angulux-styled`, `angulux-utils`, `angulux-styles`,
+  `angulux-motion`, `angulux-themes`) version **independently on `1.x`**. They do not depend on Angular, so
   binding them to Angular's major would state a compatibility constraint that does not
   exist.
 - Releases are generated from [Conventional Commits](https://www.conventionalcommits.org/)

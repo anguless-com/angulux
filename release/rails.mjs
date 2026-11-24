@@ -34,7 +34,7 @@ import { execFileSync } from 'node:child_process';
  */
 export const RAILS = {
     angulux: ['packages/angulux/'],
-    forks: ['packages/angulux-styled/', 'packages/angulux-utils/', 'packages/angulux-styles/', 'packages/angulux-motion/'],
+    forks: ['packages/angulux-styled/', 'packages/angulux-utils/', 'packages/angulux-styles/', 'packages/angulux-motion/', 'packages/angulux-themes/'],
     tools: ['packages/angulux-license-guard/', 'packages/angulux-migrate/']
 };
 
