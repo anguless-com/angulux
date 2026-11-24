@@ -2,7 +2,7 @@
 /**
  * check-tsup-usage — the guard for the class of bug BL-27 was.
  *
- * WHY THIS EXISTS: the four forked packages MUST build with `NODE_ENV=production`. Their own
+ * WHY THIS EXISTS: the five forked packages MUST build with `NODE_ENV=production`. Their own
  * `build` script sets it (`cross-env NODE_ENV=production tsup`). The bug was a DIFFERENT
  * caller invoking tsup another way — `pnpm exec tsup`, a workflow step running tsup directly,
  * a root script bypassing the package's own `build` — which quietly skipped production mode
@@ -26,7 +26,7 @@ import { resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const FORKS = ['utils', 'styled', 'styles', 'motion'].map((n) => `packages/angulux-${n}`);
+const FORKS = ['utils', 'styled', 'styles', 'motion', 'themes'].map((n) => `packages/angulux-${n}`);
 const ALLOWED_SCRIPTS = new Set(['build', 'build:dev']);
 
 const tracked = execFileSync('git', ['ls-files'], { cwd: repoRoot, encoding: 'utf8' })
@@ -94,7 +94,7 @@ for (const file of tracked) {
     }
 }
 
-// The invariant also requires that all four forks' build scripts ARE present and accounted
+// The invariant also requires that all five forks' build scripts ARE present and accounted
 // for — a fork whose build stopped calling tsup would silently emit nothing.
 for (const f of FORKS) {
     if (!allowed.some((a) => a.startsWith(`${f}/package.json → scripts.build`))) {
@@ -117,4 +117,4 @@ if (problems.length) {
     process.exit(1);
 }
 
-console.log(`✓ check-tsup-usage: tsup is invoked only by the 4 forks' own build scripts (${allowed.length} allowed sites).`);
+console.log(`✓ check-tsup-usage: tsup is invoked only by the ${FORKS.length} forks' own build scripts (${allowed.length} allowed sites).`);

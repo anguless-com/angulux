@@ -6,12 +6,12 @@ each is computed from the commits, recorded as a git tag, and never written back
 | Train | Packages | Line | Git tag | Config |
 |---|---|---|---|---|
 | **angulux** | `angulux` | `22.x` — major locked to Angular's major | `angulux-v*` | [`angulux.releaserc.json`](angulux.releaserc.json) |
-| **forks** | `angulux-styled`, `angulux-utils`, `angulux-styles`, `angulux-motion` | `1.x` — independent | `angulux-forks-v*` | [`forks.releaserc.json`](forks.releaserc.json) |
+| **forks** | `angulux-styled`, `angulux-utils`, `angulux-styles`, `angulux-motion`, `angulux-themes` | `1.x` — independent | `angulux-forks-v*` | [`forks.releaserc.json`](forks.releaserc.json) |
 | **tools** | `angulux-license-guard`, `angulux-migrate` | `1.x` — independent | `angulux-tools-v*` | [`tools.releaserc.json`](tools.releaserc.json) |
 
 The fork family versions independently because it does not depend on Angular. Locking those
-four to Angular's major would state a compatibility constraint that does not exist, and
-would force four meaningless majors a year. The tools version independently for the same
+five to Angular's major would state a compatibility constraint that does not exist, and
+would force five meaningless majors a year. The tools version independently for the same
 reason, and they carry BARE npm names rather than the `@anguless/` scope because they are
 aimed outward — `angulux-migrate` is run by people who do not have angulux installed yet.
 
@@ -32,7 +32,7 @@ commit. Then `check:publishable` packs every package and reads `package.json` ba
 the tarball**, because publishing cannot be undone.
 
 That last gate exists because of a specific near-miss. `postbuild` resolves the
-`workspace:` protocol for the main package, which publishes from `dist/`. The four forked
+`workspace:` protocol for the main package, which publishes from `dist/`. The forked
 packages publish from their own directory, and nothing resolved theirs — so
 `angulux-styled@1.0.0` would have reached the registry declaring
 `"angulux-utils": "workspace:^"`, and every consumer install would have failed with
@@ -47,8 +47,9 @@ Hence two rules the workflow now follows:
 - **Publish the tarball, not the directory**, so the artifact that ships is the same one the
   gate inspected rather than a second build of it.
 
-The fork train runs **before** the angulux train: `angulux` depends on all four, so the
-dependency has to be on the registry before the dependent is.
+The fork train runs **before** the angulux train: `angulux` depends on four of the five (not
+on `angulux-themes`, which an application installs for itself), so the dependency has to be
+on the registry before the dependent is.
 
 ## Why a release does not commit anything
 
@@ -78,7 +79,7 @@ Two things make removing the plugin safe rather than merely convenient:
 - **Nothing downstream reads the committed version.** semantic-release derives the next
   version from tags, not from a manifest. Both trains detect "a release happened" by comparing
   the on-disk version before and after, which `@semantic-release/npm` (root `package.json`) and
-  `@semantic-release/exec` (the four fork manifests) write during `prepare` — inside the same
+  `@semantic-release/exec` (the five fork manifests) write during `prepare` — inside the same
   run, with or without a commit.
 
 **Consequence to know:** the versions in the committed manifests are not the released versions
@@ -103,7 +104,7 @@ earlier release.
 
 semantic-release on its own computes a bump from every commit since its own last tag. With
 two trains in one repository that means a change to the component library would bump the
-forked primeuix packages too, releasing four packages in which nothing changed.
+forked primeuix packages too, releasing five packages in which nothing changed.
 
 So the workflow computes, per train, whether any file under that train's packages changed
 since its last tag. If not, the train is skipped entirely. This is a coarse gate and
@@ -187,7 +188,7 @@ as a 404 is one nobody debugs as an auth failure.
 
 A trusted publisher is configured **on an existing package** on npmjs.com. A package that
 has never been published has no settings page to configure, so the first version of each of
-the five packages must be published another way.
+the packages must be published another way.
 
 That is [BL-11](../PROVENANCE.md) territory and it is deliberately not automated here — the
 first publish is the single most irreversible step in this project. A version, once used, is
@@ -205,6 +206,36 @@ One-time sequence:
    - environment: *(leave empty)*
 3. Delete the token used in step 1.
 4. Every subsequent release runs through this workflow with no credential at all.
+
+### `angulux-themes` joined the fork train on 2026-11-24 and still needs that first publish
+
+The four other forks were bootstrapped by the sequence above. `angulux-themes` was added to the
+train afterwards, so it has no package page and no trusted publisher yet, and the train cannot
+create either.
+
+Until that is done, a fork-train release fails at its last step. The publish loop takes
+`angulux-themes` last on purpose, so the four packages `angulux` depends on are already on the
+registry when it stops. What is left behind is a tag and a GitHub release that claim five
+packages while the registry has four.
+
+Do this once, before the next fork-train run:
+
+1. Stamp the newest fork version, build, and publish that one package by hand:
+
+   ```bash
+   tag=$(git tag --list 'angulux-forks-v*' --sort=-v:refname | head -n 1)
+   node release/set-fork-versions.mjs "${tag#angulux-forks-v}"
+   for p in utils styled themes; do (cd "packages/angulux-$p" && corepack pnpm run build); done
+   cd packages/angulux-themes
+   tarball=$(corepack pnpm pack | tail -n 1)
+   npm publish --access public "$tarball"
+   git checkout -- ../*/package.json
+   ```
+
+   Publishing at the newest existing fork version is what keeps the five in step: the next
+   train run computes a higher version and stamps it into all five.
+2. Configure the trusted publisher for `@anguless/angulux-themes` as in step 2 above.
+3. Delete the token.
 
 ## Seeding the tags — done 2026-07-30, and the version it fixed
 

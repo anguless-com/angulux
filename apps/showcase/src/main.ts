@@ -1,7 +1,7 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import Aura from '@primeuix/themes/aura';
+import Lux from '@anguless/angulux-themes/lux';
 import { provideAngulux } from '@anguless/angulux/config';
 import { AppComponent } from './app';
 import { routes } from './app.routes';
@@ -19,6 +19,6 @@ bootstrapApplication(AppComponent, {
         /* `.dark`, not the default `system`. The header has a toggle, and on the default the
            components would keep following the operating system while the chrome followed the
            button — so a reader who switched would get half a dark page. */
-        provideAngulux({ theme: { preset: Aura, options: { darkModeSelector: '.dark' } } })
+        provideAngulux({ theme: { preset: Lux, options: { darkModeSelector: '.dark' } } })
     ]
 }).catch((err) => console.error(err));

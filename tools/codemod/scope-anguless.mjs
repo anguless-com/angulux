@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * scope-anguless — scopes the five published package names under the org `@anguless/*`.
+ * scope-anguless — scopes the six published package names under the org `@anguless/*`.
  *
  *   angulux              -> @anguless/angulux
  *   angulux/<subpath>    -> @anguless/angulux/<subpath>
@@ -20,7 +20,7 @@
  *   - directory paths `packages/angulux/dist`
  *   - the GitHub URL `github.com/anguless-com/angulux`
  * All four are left untouched because the substitution fires ONLY on a QUOTED token whose
- * name is EXACTLY one of the five published names (an explicit allowlist of fork suffixes),
+ * name is EXACTLY one of the six published names (an explicit allowlist of fork suffixes),
  * immediately followed by `/subpath` or the closing quote. `angulux-workspace`,
  * `angulux-controls`, `packages/angulux/…` and the URL all fail that anchor. (--selftest
  * proves it.)
@@ -49,14 +49,14 @@ const VERIFY = process.argv.includes('--verify');
 const SELFTEST = process.argv.includes('--selftest');
 const root = process.cwd();
 
-// A QUOTED token whose name is EXACTLY one of the five published names, then `/subpath` or
+// A QUOTED token whose name is EXACTLY one of the six published names, then `/subpath` or
 // the closing quote. The exact fork-suffix allowlist is what keeps `angulux-workspace` and
 // `angulux-controls` out.
-const SCOPE = /(['"])(angulux(?:-(?:utils|styled|styles|motion))?)((?:\/[^'"]*)?)\1/g;
+const SCOPE = /(['"])(angulux(?:-(?:utils|styled|styles|motion|themes))?)((?:\/[^'"]*)?)\1/g;
 const forward = (text) => text.replace(SCOPE, (_, q, name, rest) => `${q}@anguless/${name}${rest}${q}`);
 
 // Exact inverse — only reverses tokens we produced, so the diff can be proven a pure rename.
-const UNSCOPE = /(['"])@anguless\/(angulux(?:-(?:utils|styled|styles|motion))?)((?:\/[^'"]*)?)\1/g;
+const UNSCOPE = /(['"])@anguless\/(angulux(?:-(?:utils|styled|styles|motion|themes))?)((?:\/[^'"]*)?)\1/g;
 const backward = (text) => text.replace(UNSCOPE, (_, q, name, rest) => `${q}${name}${rest}${q}`);
 
 // ── target set: source .ts (walked) + an EXPLICIT config-file list (never walk *.json blindly:

@@ -1,7 +1,7 @@
 # Release: three independent trains, one repository.
 #
 #   angulux        22.x  — major locked to Angular's major, tag `angulux-v*`
-#   the fork family 1.x  — angulux-{styled,utils,styles,motion}, tag `angulux-forks-v*`
+#   the fork family 1.x  — angulux-{styled,utils,styles,motion,themes}, tag `angulux-forks-v*`
 #   the tools      1.x  — angulux-{license-guard,migrate}, tag `angulux-tools-v*`
 #
 # The trains are separate because binding the forked primeuix packages to Angular's major
@@ -124,7 +124,7 @@ jobs:
             - name: Build the forked packages
               run: |
                   set -euo pipefail
-                  for p in utils styled motion styles; do
+                  for p in utils styled motion styles themes; do
                       (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
 
@@ -277,11 +277,11 @@ jobs:
             - name: Build
               run: |
                   set -euo pipefail
-                  for p in utils styled motion styles; do
+                  for p in utils styled motion styles themes; do
                       (cd "packages/angulux-$p" && corepack pnpm run build)
                   done
 
-            # Computes the version, stamps it into all four package.json files (via
+            # Computes the version, stamps it into all five package.json files (via
             # release/set-fork-versions.mjs), tags, and creates the GitHub release. It does
             # NOT commit — see release/README.md, "Why a release does not commit anything" —
             # and it does NOT publish; the publish step below runs under OIDC.
@@ -314,16 +314,16 @@ jobs:
                       echo "Released ${{ steps.before.outputs.version }} → $version"
                   fi
 
-            # All four move together on one version. A mismatch means set-fork-versions.mjs
+            # All five move together on one version. A mismatch means set-fork-versions.mjs
             # did not stamp every package — publishing a partial set would leave `angulux`
             # depending on a version of a sibling that does not exist.
-            - name: All four packages carry the released version
+            - name: All five packages carry the released version
               if: steps.after.outputs.released == 'true'
               run: |
                   set -euo pipefail
                   expected="${{ steps.after.outputs.version }}"
                   bad=0
-                  for p in styled utils styles motion; do
+                  for p in styled utils styles motion themes; do
                       actual=$(node -p "require('./packages/angulux-$p/package.json').version")
                       if [ "$actual" != "$expected" ]; then
                           echo "::error::angulux-$p is at $actual, expected $expected"
@@ -331,7 +331,7 @@ jobs:
                       fi
                   done
                   [ "$bad" -eq 0 ] || exit 1
-                  echo "all four at $expected"
+                  echo "all five at $expected"
 
             # The failure this guards against is silent by construction: a credential npm
             # cannot resolve is not refused locally, it is sent, and the registry answers 404 —
@@ -362,7 +362,7 @@ jobs:
                   version="${{ steps.after.outputs.version }}"
                   staging=$(mktemp -d)
 
-                  for p in styled utils styles motion; do
+                  for p in styled utils styles motion themes; do
                       dir="packages/angulux-$p"
                       name=$(node -p "require('./$dir/package.json').name")
 

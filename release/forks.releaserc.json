@@ -11,7 +11,7 @@
         "without this plugin nothing in a release touches `main` at all. The git tag and the",
         "GitHub release (which carries the same generated notes) are the record.",
         "",
-        "@semantic-release/exec still stamps the version into the four package.json files during",
+        "@semantic-release/exec still stamps the version into the five package.json files during",
         "prepare. That is what the workflow reads to decide whether a release happened, and what",
         "the publish step packs — none of it needs a commit.",
         "",

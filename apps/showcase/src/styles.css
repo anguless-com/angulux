@@ -1,4 +1,4 @@
-/* Chrome only. Component styling arrives at runtime from @primeuix/themes through
+/* Chrome only. Component styling arrives at runtime from the theme preset through
    `provideAngulux`, exactly as it does in a consumer app — so nothing here restyles a
    component, and a component that looks wrong on this site looks wrong in production too.
 
@@ -10,7 +10,7 @@
    what the chrome actually needs; the reset is replaced by the handful of rules below.
 
    Layer order is the other half of that guarantee. Everything here is layered; the styles
-   @primeuix/themes injects at runtime are not, and unlayered CSS beats layered CSS whatever
+   the preset injects at runtime are not, and unlayered CSS beats layered CSS whatever
    the specificity. So a utility class cannot override a component even by accident. */
 
 @layer theme, base, components, utilities;
@@ -39,7 +39,7 @@
     --color-muted: #475569;
     --color-faint: #5b6878;
 
-    /* Emerald, because the Aura preset the demos run under is emerald. A blue chrome around
+    /* Emerald, because the Lux preset the demos run under is emerald. A blue chrome around
        green components reads as two products stapled together.
        Darkened from #059669, which was 3.77:1 on white — below AA for links, for the active
        nav item, AND for the white label on the primary button, which is the same pair.
@@ -120,7 +120,7 @@
        should keep its padding.
 
        This is safe for the library because of the layer order declared at the top of this
-       file. Everything here is inside `@layer base`; the rules @primeuix/themes injects at
+       file. Everything here is inside `@layer base`; the rules the preset injects at
        runtime are unlayered, and unlayered CSS wins over any layer regardless of specificity.
        So `agl-button` keeps every one of these properties. The button demo page is the proof
        and it is checked, not assumed. */

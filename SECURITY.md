@@ -116,6 +116,7 @@ zero.
 | `angulux-styled` | `angulux-utils` |
 | `angulux-styles` | `angulux-styled` |
 | `angulux-motion` | `angulux-utils` |
+| `angulux-themes` | `angulux-styled` |
 | `angulux-utils` | *(none)* |
 
 That is the entire tree. Outside the first-party packages, the only third-party runtime

@@ -52,7 +52,7 @@ const root = process.cwd();
 // Same allowlist/anchor as the codemod: a quoted token whose name is EXACTLY one of the five
 // published names, then `/subpath` or the closing quote. After scoping, `'@anguless/angulux…'`
 // starts with `@`, so this matches ONLY bare (un-scoped) leftovers.
-const BARE = /(['"])(angulux(?:-(?:utils|styled|styles|motion))?)((?:\/[^'"]*)?)\1/g;
+const BARE = /(['"])(angulux(?:-(?:utils|styled|styles|motion|themes))?)((?:\/[^'"]*)?)\1/g;
 const P_CLASS = /(['"])\.p-[a-zA-Z0-9_-]+/g;
 // Measured over the scan scope at rename time (BL-29 F2). It went 513 → 515 on 2026-08-25:
 // two `.p-badge` assertions in `badge.spec.ts`, added with the SSR guard to prove the badge
@@ -126,7 +126,8 @@ for (const f of files) {
 
 // Coupling checks — the three bare-name string-match sites the codemod cannot reach.
 const couplingFails = [];
-for (const n of ['utils', 'styled', 'styles', 'motion']) {
+const TSUP_FORKS = ['utils', 'styled', 'styles', 'motion', 'themes'];
+for (const n of TSUP_FORKS) {
     const p = `packages/angulux-${n}/tsup.config.ts`;
     if (fs.existsSync(p) && /\/\^angulux-/.test(fs.readFileSync(p, 'utf8'))) {
         couplingFails.push(`${p}: tsup external still matches the BARE prefix /^angulux-/ (must be /^@anguless\\/angulux-/)`);
@@ -156,7 +157,7 @@ const NPM_INVOCATION = new RegExp(String.raw`\bnpm\s+(?:-{1,2}\S+\s+)*(?:${REGIS
 // A bare first-party package name: not already scoped (`@anguless/…`), not a longer name that
 // merely starts with it (`angulux-migrate` and `angulux-license-guard` ARE published bare — they
 // are the outward-facing tools and must not be flagged).
-const BARE_REGISTRY_ID = new RegExp(String.raw`(?<![@\w./-])(angulux(?:-(?:utils|styled|styles|motion))?)(?=@|["'\s]|$)`);
+const BARE_REGISTRY_ID = new RegExp(String.raw`(?<![@\w./-])(angulux(?:-(?:utils|styled|styles|motion|themes))?)(?=@|["'\s]|$)`);
 
 const REGISTRY_ID_SCOPE = [
     ...walkYml('.github/workflows'),
@@ -171,9 +172,9 @@ const REGISTRY_ID_SCOPE = [
 //
 // Found 2026-08-02 on README.md line 7, pointing at bare `angulux`. It had been wrong since the
 // scope rename in #67 and stayed invisible for nine days, because the README only reached
-// npmjs.com with the 22.1.0 publish. The five names below are scope-only; `angulux-migrate` and
+// npmjs.com with the 22.1.0 publish. The six names below are scope-only; `angulux-migrate` and
 // `angulux-license-guard` ARE published bare and must not be flagged.
-const SCOPED_ONLY = new Set(['angulux', 'angulux-utils', 'angulux-styled', 'angulux-styles', 'angulux-motion']);
+const SCOPED_ONLY = new Set(['angulux', 'angulux-utils', 'angulux-styled', 'angulux-styles', 'angulux-motion', 'angulux-themes']);
 const REGISTRY_URL = /(?:npmjs\.com\/package\/|shields\.io\/npm\/[a-z]+\/)([@\w./-]+)/g;
 
 const registryIdFails = [];
@@ -249,7 +250,7 @@ if (couplingFails.length) {
     console.error('\n✗ couplings: a bare-name string-match site was not updated:');
     for (const c of couplingFails) console.error(`      · ${c}`);
 } else {
-    console.log('✓ couplings: 4 tsup external regexes + the gen-closure regex reference the scoped name.');
+    console.log(`✓ couplings: ${TSUP_FORKS.length} tsup external regexes + the gen-closure regex reference the scoped name.`);
 }
 
 if (registryIdFails.length) {

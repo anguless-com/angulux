@@ -1,0 +1,66 @@
+{
+    "name": "@anguless/angulux-themes",
+    "version": "1.0.0",
+    "author": "Anguless",
+    "description": "Theme presets for angulux. Lux is the default: its severity colours meet WCAG AA contrast for text.",
+    "keywords": [
+        "angulux",
+        "angular",
+        "theme",
+        "preset",
+        "design tokens",
+        "accessibility"
+    ],
+    "license": "MIT",
+    "homepage": "https://angulux.anguless.com/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/anguless-com/angulux.git",
+        "directory": "packages/angulux-themes"
+    },
+    "bugs": {
+        "url": "https://github.com/anguless-com/angulux/issues"
+    },
+    "main": "./dist/index.mjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs",
+            "default": "./dist/index.mjs"
+        },
+        "./types": {
+            "types": "./types/index.d.ts"
+        },
+        "./types/*": {
+            "types": "./types/*/index.d.ts"
+        },
+        "./*": {
+            "types": "./dist/*/index.d.ts",
+            "import": "./dist/*/index.mjs",
+            "default": "./dist/*/index.mjs"
+        }
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "sideEffects": false,
+    "files": [
+        "dist",
+        "types",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "cross-env NODE_ENV=production tsup && node scripts/copy-declarations.mjs",
+        "build:dev": "tsup --watch"
+    },
+    "dependencies": {
+        "@anguless/angulux-styled": "workspace:^"
+    },
+    "devDependencies": {
+        "terser": "5.51.4"
+    },
+    "private": false
+}

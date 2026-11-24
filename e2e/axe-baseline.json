@@ -5,69 +5,14 @@
         "Raising a number or adding an entry by hand lowers the accessibility bar and needs a maintainer to agree in review."
     ],
     "pages": {
-        "/badge": {
-            "color-contrast": 1
-        },
-        "/button": {
-            "color-contrast": 16
-        },
-        "/card": {
-            "color-contrast": 1
-        },
-        "/confirmdialog": {
-            "color-contrast": 1
-        },
         "/datepicker": {
             "label-content-name-mismatch": 2
         },
-        "/dialog": {
-            "color-contrast": 3
-        },
-        "/drawer": {
-            "color-contrast": 6
-        },
-        "/fileupload": {
-            "color-contrast": 2
-        },
         "/focustrap": {
-            "aria-hidden-focus": 2,
-            "color-contrast": 1
+            "aria-hidden-focus": 2
         },
         "/getting-started": {
             "color-contrast": 1
-        },
-        "/menu": {
-            "color-contrast": 1
-        },
-        "/overlay": {
-            "color-contrast": 1
-        },
-        "/popover": {
-            "color-contrast": 1
-        },
-        "/progressbar": {
-            "color-contrast": 2
-        },
-        "/selectbutton": {
-            "color-contrast": 3
-        },
-        "/splitbutton": {
-            "color-contrast": 6
-        },
-        "/tabs": {
-            "color-contrast": 2
-        },
-        "/tieredmenu": {
-            "color-contrast": 1
-        },
-        "/toast": {
-            "color-contrast": 7
-        },
-        "/togglebutton": {
-            "color-contrast": 4
-        },
-        "/tooltip": {
-            "color-contrast": 5
         }
     }
 }

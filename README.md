@@ -8,24 +8,27 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/anguless-com/angulux/badge)](https://scorecard.dev/viewer/?uri=github.com/anguless-com/angulux)
 
 ```bash
-npm install @anguless/angulux @primeuix/themes
+npm install @anguless/angulux @anguless/angulux-themes
 ```
 
 ```ts
 import { provideAngulux } from '@anguless/angulux/config';
-import Aura from '@primeuix/themes/aura';
+import Lux from '@anguless/angulux-themes/lux';
 
 bootstrapApplication(App, {
-    providers: [provideAngulux({ theme: { preset: Aura } })]
+    providers: [provideAngulux({ theme: { preset: Lux } })]
 });
 ```
 
-**Why the second package.** angulux ships no theme presets of its own, so the preset comes
-from `@primeuix/themes` — PrimeTek's, and MIT through `2.0.3`. angulux itself still installs
-with **zero PrimeTek packages** in its dependency tree; drop the second package and
+**Why the second package.** The components and their looks ship separately. Lux is angulux's
+own preset: MIT, derived from the Aura preset of `@primeuix/themes` 2.0.3, with the severity
+colours moved to palette steps that meet WCAG AA for text. Both packages together install
+with **zero PrimeTek packages** in the dependency tree; drop the second one and
 `provideAngulux()` runs unstyled but works.
 
-It is declared as an **optional** peer ranged `^2.0.0`, and the ceiling is deliberate:
+**The upstream presets still work.** `@primeuix/themes` — PrimeTek's, and MIT through `2.0.3`
+— carries Aura, Lara, Nora and Material, and angulux accepts any of them. It is declared as
+an **optional** peer ranged `^2.0.0`, and the ceiling is deliberate:
 `3.0.0` is the first commercial release. Be clear about what that buys you — a peer range is
 a *warning*, not a lock. `npm install @primeuix/themes@3` still succeeds; it just prints an
 `ERESOLVE` warning naming the range it broke. That is enough for the case that actually
@@ -83,7 +86,7 @@ closes a class of failure that has already happened in this repository.
 | `check:language` | non-English text reaching a public repository |
 | `check:public-tree` | internal-only paths sitting in the git index (`.gitignore` does **not** untrack) |
 | `check:scope-names` | a bare `angulux`/`angulux-*` package reference surviving where the scoped `@anguless/*` name belongs |
-| `check:tsup` | the bundler leaking outside the four forks' own build scripts |
+| `check:tsup` | the bundler leaking outside the forks' own build scripts |
 | `check:action-inputs` | a workflow passing a `with:` key that its action does not declare — YAML nobody validates until it silently does nothing |
 | `check:release-plugins` | a release train listing the same plugin twice, or naming the wrong rail — the first published `22.2.1` with every changelog entry printed twice, and nothing else noticed because the version and the package were both correct |
 | `check:facet-single-route` | a template slot growing a second route, after the whole library was collapsed onto one `<ng-template #x>` mechanism |
@@ -206,8 +209,9 @@ not published, kept in the open as a roadmap. Promoting one is a well-defined co
 | [`angulux-utils`](packages/angulux-utils) | `1.x` | DOM/object utilities, forked from `@primeuix/utils` |
 | [`angulux-styles`](packages/angulux-styles) | `1.x` | base style definitions |
 | [`angulux-motion`](packages/angulux-motion) | `1.x` | animation primitives |
+| [`angulux-themes`](packages/angulux-themes) | `1.x` | the Lux preset, derived from Aura in `@primeuix/themes` |
 
-The four forked packages version **independently on `1.x`** — they do not depend on Angular,
+The five forked packages version **independently on `1.x`** — they do not depend on Angular,
 so locking them to Angular's major would be a lie about their compatibility.
 
 ## Development
@@ -216,8 +220,9 @@ so locking them to Angular's major would be a lie about their compatibility.
 corepack pnpm install
 npm run check                                   # the 21 gates
 
-# the four forked packages build BEFORE the library — dependency order matters
-for p in utils styled motion styles; do
+# the forked packages build BEFORE the library — dependency order matters
+# (the library imports the first four; the apps also need themes)
+for p in utils styled motion styles themes; do
   (cd packages/angulux-$p && corepack pnpm run build)
 done
 

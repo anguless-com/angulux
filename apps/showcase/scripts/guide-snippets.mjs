@@ -42,20 +42,20 @@ function cut(file, name) {
 export const SNIPPETS = {
     install: {
         lang: 'shell',
-        code: `pnpm add @anguless/angulux @primeuix/themes primeicons`
+        code: `pnpm add @anguless/angulux @anguless/angulux-themes primeicons`
     },
 
     provide: {
         lang: 'source',
         code: `import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideAngulux } from '@anguless/angulux/config';
-import Aura from '@primeuix/themes/aura';
+import Lux from '@anguless/angulux-themes/lux';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
         provideAngulux({
-            theme: { preset: Aura }
+            theme: { preset: Lux }
         })
     ]
 };`
@@ -100,7 +100,7 @@ export class Order {
 
     unstyled: {
         lang: 'source',
-        code: `// Drop @primeuix/themes entirely. provideAngulux() still works;
+        code: `// No preset package at all. provideAngulux() still works;
 // components render with structure and behaviour but no preset colours.
 provideAngulux()`
     },
@@ -109,7 +109,7 @@ provideAngulux()`
         lang: 'source',
         code: `provideAngulux({
     theme: {
-        preset: Aura,
+        preset: Lux,
         options: {
             // Default is 'system' — the operating system decides and nothing you
             // write can override it. Name a selector to drive it yourself.
@@ -137,10 +137,10 @@ provideAngulux()`
 
     preset: {
         lang: 'source',
-        code: `import { definePreset } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+        code: `import { definePreset } from '@anguless/angulux-themes';
+import Lux from '@anguless/angulux-themes/lux';
 
-const Brand = definePreset(Aura, {
+const Brand = definePreset(Lux, {
     semantic: {
         primary: {
             50: '{indigo.50}',
@@ -162,7 +162,8 @@ provideAngulux({ theme: { preset: Accessible } });`
 
     pin: {
         lang: 'shell',
-        code: `# The range angulux declares is a WARNING, not a lock: installing 3.x
+        code: `# Only if you use a preset from the upstream package instead of Lux.
+# The range angulux declares is a WARNING, not a lock: installing 3.x
 # still succeeds and only prints a resolution warning. If the licence
 # boundary matters to your review, pin it and check it in your own build.
 pnpm add @primeuix/themes@2.0.3 --save-exact`

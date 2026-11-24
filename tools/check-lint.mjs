@@ -43,7 +43,7 @@ const baselinePath = join(root, 'tools/lint-baseline.json');
 const wantPrune = process.argv.includes('--prune');
 
 /** The forked code that is held to the baseline. Kept in step with eslint.config.mjs. */
-const FORKED = ['packages/angulux/src', 'packages/angulux-utils/src', 'packages/angulux-styled/src', 'packages/angulux-styles/src', 'packages/angulux-motion/src'];
+const FORKED = ['packages/angulux/src', 'packages/angulux-utils/src', 'packages/angulux-styled/src', 'packages/angulux-styles/src', 'packages/angulux-motion/src', 'packages/angulux-themes/src'];
 const isForked = (file) => FORKED.some((dir) => file.startsWith(`${dir}/`));
 
 /** Each tree the gate promises to look at. */
