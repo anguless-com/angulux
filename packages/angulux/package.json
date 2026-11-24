@@ -1,7 +1,7 @@
 {
     "name": "@anguless/angulux",
     "version": "22.0.0-rc.0",
-    "description": "Angular 22 UI component library — a curated community fork of the last MIT release of PrimeNG.",
+    "description": "MIT UI components for Angular 22, with a theme of their own that meets WCAG AA and an API reference generated from the source.",
     "license": "MIT",
     "private": false,
     "keywords": [

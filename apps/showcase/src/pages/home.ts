@@ -22,15 +22,16 @@ import { HomePreview } from './home-preview';
                     <span class="rounded-full border border-brand/40 bg-brand-soft px-2.5 py-0.5 font-medium text-brand">MIT</span>
                     <span class="rounded-full border border-line px-2.5 py-0.5 text-muted">Angular 22</span>
                     <span class="rounded-full border border-line px-2.5 py-0.5 text-muted">Zoneless · standalone</span>
+                    <span class="rounded-full border border-line px-2.5 py-0.5 text-muted">WCAG AA theme</span>
                 </div>
 
                 <h1 class="mt-5 text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-                    The PrimeNG components you already write, on Angular 22 and still MIT.
+                    Components for Angular&nbsp;22 that stay MIT.
                 </h1>
 
                 <p class="mt-5 max-w-2xl text-pretty text-lg text-muted">
-                    angulux is a fork of PrimeNG 21.1.9 — the last MIT release — maintained for Angular 22. {{ moduleCount() }} modules ship in the library, and every one of
-                    them has an API reference here, generated from the same corpus that produces <a class="text-brand hover:underline" href="llms.txt">llms.txt</a>.
+                    {{ moduleCount() }} modules, two presets of our own whose text meets WCAG AA, and an API reference for every module, generated from the source code
+                    by the same build that writes <a class="text-brand hover:underline" href="llms.txt">llms.txt</a>.
                 </p>
 
                 <!-- Get started first, browse second. A stranger who lands here needs a path
@@ -70,6 +71,27 @@ import { HomePreview } from './home-preview';
                     <div class="mt-3 min-h-[70rem] rounded-xl border border-line sm:min-h-[51rem]" aria-hidden="true"></div>
                 }
 
+                <!-- ── what sets it apart, each with the place it is proven ───────────── -->
+                <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="why">Why angulux</h2>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                    <a class="rounded-xl border border-line px-4 py-3 no-underline hover:border-brand hover:bg-surface" href="https://github.com/anguless-com/angulux/tree/main/packages/angulux-license-guard">
+                        <div class="text-sm font-medium text-ink">MIT, checked on every build</div>
+                        <div class="mt-1 text-sm text-muted">The build fails if a dependency under a commercial licence enters the tree. The check is published on its own, as angulux-license-guard.</div>
+                    </a>
+                    <a class="rounded-xl border border-line px-4 py-3 no-underline hover:border-brand hover:bg-surface" routerLink="/theming" fragment="contrast">
+                        <div class="text-sm font-medium text-ink">Accessibility that is measured</div>
+                        <div class="mt-1 text-sm text-muted">The text contrast of every severity colour, in both schemes, and an axe sweep of every page on this site run in a browser on every build.</div>
+                    </a>
+                    <a class="rounded-xl border border-line px-4 py-3 no-underline hover:border-brand hover:bg-surface" routerLink="/getting-started">
+                        <div class="text-sm font-medium text-ink">Written for Angular 22</div>
+                        <div class="mt-1 text-sm text-muted">Zoneless and standalone, and tested that way. Every form control compiles with Signal Forms' formField, checked against the built package in CI.</div>
+                    </a>
+                    <a class="rounded-xl border border-line px-4 py-3 no-underline hover:border-brand hover:bg-surface" href="llms.txt">
+                        <div class="text-sm font-medium text-ink">Readable by assistants</div>
+                        <div class="mt-1 text-sm text-muted">llms.txt, the whole API in one file, and a Markdown page per module, all generated from the same source as these pages.</div>
+                    </a>
+                </div>
+
                 <!-- ── the numbers, all computed ──────────────────────────────────────── -->
                 <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
                     <div class="bg-canvas px-4 py-3">
@@ -93,7 +115,7 @@ import { HomePreview } from './home-preview';
                 <!-- ── install ───────────────────────────────────────────────────────── -->
                 <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="install">Install</h2>
                 <p class="mb-4 mt-1 text-sm text-muted">
-                    Only the first package is required — the next section explains why, and
+                    Only the first package is required — the section after this one explains why, and
                     <a class="text-brand hover:underline" routerLink="/getting-started">Getting started</a> has the three steps after this one.
                 </p>
                 <!-- The same snippet Getting started shows, from the same generated payload. Two
@@ -102,34 +124,19 @@ import { HomePreview } from './home-preview';
                 <agl-code-block [lines]="install()" [palette]="palette()" label="terminal" />
 
                 <!-- ── licence boundary ──────────────────────────────────────────────── -->
-                <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="two-packages">Why there are two packages</h2>
-                <!-- prime-names:attribution — nominative use, the same grant NOTICE relies on: naming a
-                     third party in order to state factually where a dependency comes from and where its
-                     MIT line ends. A reader deciding whether to adopt this library is owed that in the
-                     place they are reading, not only in the repository. check:names allows brand PROSE
-                     inside this region and nothing else. -->
+                <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="two-packages">Components and themes</h2>
                 <p class="mt-3 text-[15px] text-muted">
-                    The components and their looks are separate packages. <code class="code-chip">&#64;anguless/angulux-themes</code> carries
-                    the preset, Lux: MIT, published by this project, and derived from the Aura preset of
-                    <code class="code-chip">&#64;primeuix/themes</code> 2.0.3 with the severity colours moved to steps that meet WCAG AA for text.
-                    Installing both pulls in zero PrimeTek packages. Drop the second one and
-                    <code class="code-chip">provideAngulux()</code> runs unstyled but works.
+                    <code class="code-chip">&#64;anguless/angulux</code> is the components and <code class="code-chip">&#64;anguless/angulux-themes</code> is how they look.
+                    Both are MIT and published by this project. Leave the second one out and <code class="code-chip">provideAngulux()</code> still works; the components render
+                    unstyled.
                 </p>
                 <p class="mt-3 text-[15px] text-muted">
-                    The upstream presets still work, and that is where the licence line is.
-                    <code class="code-chip">&#64;primeuix/themes</code> — PrimeTek's package, not ours — is MIT through
-                    <code class="code-chip">2.0.3</code>, and <code class="code-chip">3.0.0</code> is the first commercial release. That release
-                    already exists and is what the registry serves as <code class="code-chip">latest</code>, so the MIT line is closed rather than
-                    merely paused. angulux declares it as an <strong class="font-medium text-ink">optional</strong> peer ranged
-                    <code class="code-chip">^2.0.0</code>, and that range is a <em>warning</em>, not a lock:
-                    <code class="code-chip">npm install &#64;primeuix/themes&#64;3</code> still succeeds; it only prints a
-                    resolution warning naming the range it broke. If you use one of its presets and that boundary matters to your legal review, pin the version exactly and
-                    run a licence check in your own build.
+                    Lux is the default preset and Lux Compact the denser one. <a class="text-brand hover:underline" routerLink="/theming">Theming</a> shows both, how to
+                    make one in your brand's colours, and what to check before you use a preset from another package.
                 </p>
-                <!-- prime-names:end -->
 
                 <!-- ── migration honesty ─────────────────────────────────────────────── -->
-                <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="migrating">Coming from PrimeNG 21?</h2>
+                <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="migrating">Migrating from PrimeNG 21</h2>
                 <p class="mt-3 text-[15px] text-muted">
                     There is a page for that, and it is honest about the options — most of which are not angulux:
                     <a class="text-brand hover:underline" href="primeng-21-to-angular-22">PrimeNG 21 to Angular 22</a>.
@@ -218,9 +225,10 @@ export class HomePage {
 
     readonly toc: TocEntry[] = [
         { id: 'preview', label: 'See it' },
+        { id: 'why', label: 'Why angulux' },
         { id: 'install', label: 'Install' },
-        { id: 'two-packages', label: 'Why two packages' },
-        { id: 'migrating', label: 'Coming from PrimeNG 21' },
+        { id: 'two-packages', label: 'Components and themes' },
+        { id: 'migrating', label: 'Migrating from PrimeNG 21' },
         { id: 'assistants', label: 'For assistants' },
         { id: 'modules', label: 'Modules with demos' },
         { id: 'attribution', label: 'Attribution' }
