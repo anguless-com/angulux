@@ -92,7 +92,7 @@ export default defineConfig({
             /* The harness self-test runs on data: URLs and needs no app at all, so it sits with
                the verification app rather than earning a project of its own. */
             name: 'verify',
-            testMatch: /(harness|risk-modules|upstream-repro(-22-1|-22-1-5|-select)?|forms-state|autofocus|table-selected-edge|narrow-reflow|overlay-race|menu-links|contrast|lux-shape|reported-issues)\.spec\.ts/,
+            testMatch: /(harness|risk-modules|upstream-repro(-22-1|-22-1-5|-select)?|forms-state|autofocus|table-selected-edge|narrow-reflow|overlay-race|menu-links|contrast|lux-shape|lux-layers|reported-issues)\.spec\.ts/,
             use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4210' }
         },
         {

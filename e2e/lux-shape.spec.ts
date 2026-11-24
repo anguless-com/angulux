@@ -21,9 +21,9 @@ import { expect, test, type Page } from '@playwright/test';
  * compare two presets on the same page in the same browser. Radii and the focus ring are tokens
  * with no font in them, and those are stated in pixels.
  *
- * NOT COVERED: anything that floats (a dialog, the list of a select, a menu) is not on this page,
- * so their radius and shadow are not measured here. Nor is the dark scheme, whose shape tokens are
- * the same ones.
+ * NOT COVERED HERE: anything that floats (a dialog, the list of a select, a menu) is not on this
+ * page. e2e/lux-layers.spec.ts opens those one at a time. Nor is the dark scheme, whose shape tokens
+ * are the same ones.
  *
  * The page is apps/verify/src/lux-shape.ts.
  */

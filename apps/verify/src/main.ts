@@ -1,4 +1,4 @@
-import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, provideZoneChangeDetection } from '@angular/core';
+import { Type, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, provideZoneChangeDetection } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import Aura from '@primeuix/themes/aura';
 import { provideAngulux } from '@anguless/angulux/config';
@@ -65,9 +65,11 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
-} else if (path.startsWith('/lux-shape')) {
-    /* The shape of a preset, measured (lux-shape.ts, e2e/lux-shape.spec.ts), in the preset `?preset=`
-       names: the upstream one Lux was derived from, Lux, or Lux Compact. */
+} else if (path.startsWith('/lux-shape') || path.startsWith('/lux-layers')) {
+    /* The shape of a preset, measured, in the preset `?preset=` names: the upstream one Lux was
+       derived from, Lux, or Lux Compact. /lux-shape is a page of ordinary UI (lux-shape.ts,
+       e2e/lux-shape.spec.ts); /lux-layers is one floating layer at a time (lux-layers.ts,
+       e2e/lux-layers.spec.ts). */
     const loadPreset = (): Promise<unknown> => {
         switch (new URLSearchParams(location.search).get('preset')) {
             case 'aura':
@@ -78,9 +80,10 @@ if (path.startsWith('/upstream-zone')) {
                 return import('@anguless/angulux-themes/lux').then((m) => m.default);
         }
     };
-    Promise.all([loadPreset(), import('./lux-shape')])
-        .then(([preset, { LuxShape }]) =>
-            bootstrapApplication(LuxShape, {
+    const loadScene = (): Promise<Type<unknown>> => (path.startsWith('/lux-layers') ? import('./lux-layers').then((m) => m.LuxLayers) : import('./lux-shape').then((m) => m.LuxShape));
+    Promise.all([loadPreset(), loadScene()])
+        .then(([preset, scene]) =>
+            bootstrapApplication(scene, {
                 providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset } })]
             })
         )

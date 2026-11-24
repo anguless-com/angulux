@@ -45,9 +45,10 @@ applies to Lux unchanged. It differs in two things.
 Heights do not change: a field, a button, a select and a table row are exactly as tall in
 Lux as in Aura, so an application that moves from one to the other keeps its layout.
 
-The contrast of each severity and the numbers in the table above for everything that does not
-float are measured in a browser on every build of this repository (`e2e/contrast.spec.ts`,
-`e2e/lux-shape.spec.ts`). The floating layers are not measured there.
+The contrast of each severity and every number in the table above are measured in a browser
+on every build of this repository (`e2e/contrast.spec.ts`, `e2e/lux-shape.spec.ts`,
+`e2e/lux-layers.spec.ts`). A tooltip, a toast and the panel of a date picker take the same
+8px corners; a drawer stays flush with the edge of the screen.
 
 ## Lux Compact
 

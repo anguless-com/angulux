@@ -209,7 +209,7 @@ and the generated token catalogue were not copied. Three kinds of change were ma
   the palette steps `apps/verify/src/contrast-preset.ts` names. `e2e/contrast.spec.ts` requires
   the preset and that override to measure the same;
 - since 2026-11-24, token values changed in `base`, `card` and `checkbox` for shape: corner radii,
-  the width of the focus ring, and shadows. `e2e/lux-shape.spec.ts` measures them. `src/lux-compact`
+  the width of the focus ring, and shadows. `e2e/lux-shape.spec.ts` and `e2e/lux-layers.spec.ts` measure them. `src/lux-compact`
   is original: it holds overrides written here and no upstream file.
 
 It is recorded here because the preset is the first inherited file set whose **values** differ
