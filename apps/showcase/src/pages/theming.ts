@@ -49,8 +49,8 @@ import { CONTRAST_ROWS } from './contrast-rows';
                 </p>
                 <p class="mt-3 text-[15px] text-muted">
                     <strong class="font-medium text-ink">Lux Compact</strong>, from <code class="code-chip">&#64;anguless/angulux-themes/lux-compact</code>, is Lux with less
-                    padding: a field is 32px tall instead of 36px and a table row 42px instead of 50px. It is meant for screens that are mostly tables and forms, and it is
-                    not the default because a 32px control is small under a finger.
+                    padding: a field is 4px shorter and a table row 8px shorter. It is meant for screens that are mostly tables and forms, and it is not the default because
+                    a control that short is small under a finger.
                 </p>
                 <!-- prime-names:end -->
                 <p class="mt-3 text-[15px] text-muted">

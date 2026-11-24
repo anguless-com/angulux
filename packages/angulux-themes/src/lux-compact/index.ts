@@ -6,9 +6,10 @@ import type { Preset } from '@anguless/angulux-themes/types';
  * Lux with less padding, for screens that are mostly tables and forms.
  *
  * It is Lux plus the overrides below and nothing else: every colour, radius and shadow is Lux's.
- * A field, a button and a select are 32px tall instead of 36px, and a table row 42px instead of
- * 50px (e2e/lux-shape.spec.ts measures both). The font size does not change: it is the root font
- * size of the application, not a token.
+ * A field, a button and a select are 4px shorter than in Lux and a table row 8px shorter
+ * (e2e/lux-shape.spec.ts measures both). With the system font of macOS that is 32px instead of
+ * 36px and 42px instead of 50px; another font has another line height and so other totals. The
+ * font size does not change: it is the root font size of the application, not a token.
  *
  * Not the default, on purpose. A 32px control and a 28px menu item are comfortable with a mouse and
  * small under a finger, so an application chooses this for the screens where it fits.

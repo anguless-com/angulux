@@ -42,8 +42,8 @@ applies to Lux unchanged. It differs in two things.
 | Card | two drop shadows | a 1px line, no shadow |
 | Shadow under a floating layer | close and dark | wide and faint |
 
-Heights do not change: a field, a button and a select are 36px tall in both, and a table row
-50px, so an application that moves from Aura to Lux keeps its layout.
+Heights do not change: a field, a button, a select and a table row are exactly as tall in
+Lux as in Aura, so an application that moves from one to the other keeps its layout.
 
 The contrast of each severity and the numbers in the table above for everything that does not
 float are measured in a browser on every build of this repository (`e2e/contrast.spec.ts`,
@@ -58,11 +58,13 @@ provideAngulux({ theme: { preset: LuxCompact } });
 ```
 
 Lux with less padding, for screens that are mostly tables and forms. A field, a button and a
-select are 32px tall instead of 36px, a table row 42px instead of 50px. Colours, corners and
-shadows are Lux's. The font size is not a token: it is the root font size of your application.
+select are 4px shorter than in Lux, and a table row 8px shorter. With the system font of macOS
+that is 32px instead of 36px, and 42px instead of 50px; the totals depend on the line height
+of your font, the differences do not. Colours, corners and shadows are Lux's. The font size is
+not a token: it is the root font size of your application.
 
-It is not the default, on purpose. A 32px control is comfortable with a mouse and small under
-a finger, so choose it for the screens where it fits.
+It is not the default, on purpose. A control that short is comfortable with a mouse and small
+under a finger, so choose it for the screens where it fits.
 
 The overrides are exported on their own, to layer on a preset you defined:
 

@@ -14,6 +14,13 @@ import { expect, test, type Page } from '@playwright/test';
  * described as differing from. Without it, "Lux is rounder" would pass on a page where nothing
  * rendered the way the reader's application does.
  *
+ * HEIGHTS ARE COMPARED, NEVER STATED. The first version of this file required a field to be 36px
+ * tall and passed on macOS. On the Linux runner the same field is 37px and a table row 49px
+ * instead of 50px: a control's height is its padding plus one line of text, and the height of a
+ * line is the font's, which is the platform's. What a preset decides is the padding, so the tests
+ * compare two presets on the same page in the same browser. Radii and the focus ring are tokens
+ * with no font in them, and those are stated in pixels.
+ *
  * NOT COVERED: anything that floats (a dialog, the list of a select, a menu) is not on this page,
  * so their radius and shadow are not measured here. Nor is the dark scheme, whose shape tokens are
  * the same ones.
@@ -85,10 +92,15 @@ test('premise: the upstream preset has 6px fields, a 1px focus ring and a card t
     expect(aura.focusRing).toBe('1px');
     // Two offset shadows. Lux replaces them with one that has no offset and no blur, i.e. a border.
     expect(aura.cardShadow.split('rgba').length - 1).toBe(2);
-    expect([aura.button, aura.input, aura.select, aura.row]).toEqual([36, 36, 36, 50]);
+    // A control is one line of text and its padding: taller than the 16px line, well short of two.
+    for (const height of [aura.button, aura.input, aura.select]) {
+        expect(height).toBeGreaterThan(30);
+        expect(height).toBeLessThan(44);
+    }
 });
 
 test('Lux is rounder and has a 2px focus ring, and is exactly as tall as the preset it came from', async ({ page }) => {
+    const aura = await measure(page, 'aura');
     const lux = await measure(page, 'lux');
 
     expect(lux.fieldRadius).toBe('8px');
@@ -100,15 +112,19 @@ test('Lux is rounder and has a 2px focus ring, and is exactly as tall as the pre
     // A 1px line all round, drawn as a shadow: no offset, no blur, 1px of spread.
     expect(lux.cardShadow).toMatch(/0px 0px 0px 1px$/);
     // Density is unchanged: an application that moves to Lux keeps its layout.
-    expect([lux.button, lux.input, lux.select, lux.row]).toEqual([36, 36, 36, 50]);
+    expect([lux.button, lux.input, lux.select, lux.row]).toEqual([aura.button, aura.input, aura.select, aura.row]);
     expect(lux.fontSize).toBe('16px');
 });
 
-test('Lux Compact is Lux with 32px controls and 42px table rows, and nothing else differs', async ({ page }) => {
+test('Lux Compact makes a control 4px shorter and a table row 8px shorter than Lux, and nothing else differs', async ({ page }) => {
     const lux = await measure(page, 'lux');
     const compact = await measure(page, 'compact');
 
-    expect([compact.button, compact.input, compact.select, compact.row]).toEqual([32, 32, 32, 42]);
+    // 2px less padding above and below a field, 4px less above and below a table cell.
+    expect(lux.button - compact.button).toBeCloseTo(4, 1);
+    expect(lux.input - compact.input).toBeCloseTo(4, 1);
+    expect(lux.select - compact.select).toBeCloseTo(4, 1);
+    expect(lux.row - compact.row).toBeCloseTo(8, 1);
 
     // Everything that is not a height is Lux's, read off the same page.
     const withoutHeights = (shape: Shape): Shape => ({ ...shape, button: 0, input: 0, select: 0, row: 0 });
