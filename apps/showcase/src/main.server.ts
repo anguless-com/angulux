@@ -1,5 +1,5 @@
 import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { BootstrapContext, bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
+import { BootstrapContext, bootstrapApplication, provideClientHydration, withIncrementalHydration } from '@angular/platform-browser';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import Lux from '@anguless/angulux-themes/lux';
@@ -48,7 +48,7 @@ const bootstrap = (context: BootstrapContext) => {
             providers: [
                 provideBrowserGlobalErrorListeners(),
                 provideZonelessChangeDetection(),
-                provideClientHydration(),
+                provideClientHydration(withIncrementalHydration()),
                 provideServerRendering(withRoutes(serverRoutes)),
                 provideRouter(routes, withComponentInputBinding()),
                 provideAngulux({ theme: { preset: Lux, options: { darkModeSelector: '.dark' } } })
