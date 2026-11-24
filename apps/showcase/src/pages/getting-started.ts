@@ -79,7 +79,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
                     </div>
                     <div class="rounded-xl border border-caution/40 bg-caution-soft px-4 py-3">
                         <div class="text-sm font-medium text-caution">Server-side rendering: do not assume it works</div>
-                        <p class="mt-1 text-sm text-caution/90">
+                        <p class="mt-1 text-sm text-caution">
                             This site is prerendered, so the library does render inside Node — but statically, with nobody clicking anything. The interactive paths have never been
                             exercised on a server, and a defect of exactly that kind was found and fixed only when prerendering was switched on. If you need SSR with hydration,
                             test your own screens before committing to it.
