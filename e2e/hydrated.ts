@@ -12,7 +12,21 @@ import { expect, type Page } from '@playwright/test';
  * Angular removes each `ngh` marker as it takes a server-rendered view over, so none left
  * means the page a reader would use is the page under test. A page that never finishes fails
  * here by name. `e2e/showcase-load.spec.ts` proves this wait can fail.
+ *
+ * One exception: a subtree marked `data-hydrates-later` is server markup on purpose until a reader
+ * reaches it (the preview on the home page, `apps/showcase/src/pages/home-preview.ts`), and its
+ * markers stay until then. Waiting for them would wait for a hover that no test makes.
+ * `e2e/home-preview.spec.ts` covers that subtree, and `hydratedLater` below waits for it.
  */
+const LATER = '[data-hydrates-later]';
+
 export async function hydrated(page: Page, timeout = 30_000): Promise<void> {
-    await expect(page.locator('[ngh]'), 'the browser never took the server-rendered page over').toHaveCount(0, { timeout });
+    await expect(page.locator(`[ngh]:not(${LATER}[ngh], ${LATER} [ngh])`), 'the browser never took the server-rendered page over').toHaveCount(0, {
+        timeout
+    });
+}
+
+/** Waits until every `data-hydrates-later` subtree on the page has been taken over too. */
+export async function hydratedLater(page: Page, timeout = 30_000): Promise<void> {
+    await expect(page.locator(`${LATER}[ngh], ${LATER} [ngh]`), 'a subtree marked data-hydrates-later was never taken over').toHaveCount(0, { timeout });
 }

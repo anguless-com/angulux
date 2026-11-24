@@ -59,7 +59,16 @@ import { HomePreview } from './home-preview';
 
                 <!-- ── the components, before anything is said about them ─────────────── -->
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="preview">See it</h2>
-                <agl-home-preview class="mt-3" />
+                <!-- The preview starts inside the first screen of a phone, so a viewport trigger would
+                     load its code at once. Instead it is server-rendered in full and stays as that
+                     markup until a pointer or focus reaches it: hover covers mouseover and focusin,
+                     and a tap produces a mouseover too. The placeholder is only for arriving here
+                     from another page of the site, which renders on the client. -->
+                @defer (on viewport; hydrate on hover) {
+                    <agl-home-preview class="mt-3" />
+                } @placeholder {
+                    <div class="mt-3 min-h-[70rem] rounded-xl border border-line sm:min-h-[51rem]" aria-hidden="true"></div>
+                }
 
                 <!-- ── the numbers, all computed ──────────────────────────────────────── -->
                 <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">

@@ -33,14 +33,25 @@ const SEVERITY: Record<Order['status'], 'success' | 'warn' | 'danger'> = { Paid:
  * swaps that preset for the whole site (PresetChoice). Nothing is styled to look better than it
  * will in a reader's application; the layout around the components is the only hand-written CSS.
  *
- * Not hydrated, for the reason demo-host.ts gives: several components finish building their DOM
- * in lifecycle hooks that hydration does not replay. The prerendered markup is the first paint and
- * is replaced in place, at the same size, when the bundle arrives.
+ * Hydrated, unlike the demos, and late. home.ts wraps it in `@defer (hydrate on hover)`: the
+ * server renders it in full, and its code loads only when a pointer or focus reaches it, so the
+ * first screen of a phone does not pay for it. A click or key press made before the code arrives
+ * is replayed once it has, and that replay is why this is hydrated: a component rendered afresh
+ * instead (`ngSkipHydration`, as demo-host.ts does) replaces the element the reader clicked, and
+ * the click is lost.
+ *
+ * Hydration is safe here only because every component on this screen survives it, which is not
+ * true of the library at large (demo-host.ts names the DatePicker). e2e/home-preview.spec.ts
+ * compares this screen hydrated with the same screen rendered by the client alone, element by
+ * element. A component added here has to pass that.
+ *
+ * `data-hydrates-later` tells the browser tests that this subtree is meant to stay server markup
+ * until it is reached (e2e/hydrated.ts).
  */
 @Component({
     selector: 'agl-home-preview',
     imports: [FormField, AvatarModule, ButtonModule, CardModule, CheckboxModule, InputTextModule, ProgressBarModule, SelectModule, SelectButtonModule, TableModule, TagModule, ToggleSwitchModule],
-    host: { ngSkipHydration: 'true', class: 'block' },
+    host: { class: 'block', 'data-hydrates-later': '' },
     template: `
         <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-sm text-muted">Live components, in the preset this site uses.</p>
