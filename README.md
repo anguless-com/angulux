@@ -1,6 +1,8 @@
 # angulux
 
-**A curated Angular 22 UI component library, forked from the last MIT release of PrimeNG (21.1.9), with the MIT provenance proven by machine rather than asserted in prose.**
+**Components for Angular 22 that stay MIT** — with a theme of their own whose text meets WCAG AA, an API reference generated from the source, and a licence that a machine checks on every commit.
+
+The code started from PrimeNG 21.1.9, the last MIT release of that project. [Why angulux exists](#why-angulux-exists) and [what it is not](#what-angulux-is-not) are below.
 
 [![CI](https://github.com/anguless-com/angulux/actions/workflows/ci.yml/badge.svg)](https://github.com/anguless-com/angulux/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -20,13 +22,15 @@ bootstrapApplication(App, {
 });
 ```
 
-**Why the second package.** The components and their looks ship separately. Lux is angulux's
-own preset: MIT, derived from the Aura preset of `@primeuix/themes` 2.0.3, with the severity
-colours moved to palette steps that meet WCAG AA for text. Both packages together install
-with **zero PrimeTek packages** in the dependency tree; drop the second one and
-`provideAngulux()` runs unstyled but works.
+**Why the second package.** `@anguless/angulux` is the components and
+`@anguless/angulux-themes` is how they look: Lux, the default, and Lux Compact, the denser
+one. Both packages are MIT and published by this project, and together they install with
+**zero PrimeTek packages** in the dependency tree. Lux is derived from the Aura preset of
+`@primeuix/themes` 2.0.3, with the severity colours moved to palette steps that meet WCAG AA
+for text. Drop the second package and `provideAngulux()` still works; the components render
+unstyled.
 
-**The upstream presets still work.** `@primeuix/themes` — PrimeTek's, and MIT through `2.0.3`
+**Presets from another package still work.** `@primeuix/themes` — PrimeTek's, and MIT through `2.0.3`
 — carries Aura, Lara, Nora and Material, and angulux accepts any of them. It is declared as
 an **optional** peer ranged `^2.0.0`, and the ceiling is deliberate:
 `3.0.0` is the first commercial release. Be clear about what that buys you — a peer range is
