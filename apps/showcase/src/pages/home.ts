@@ -4,6 +4,7 @@ import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
+import { HomePreview } from './home-preview';
 
 /**
  * Every count on this page is computed from the corpus index, never typed in. The scope of
@@ -12,7 +13,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
  */
 @Component({
     selector: 'agl-home-page',
-    imports: [RouterLink, CodeBlock, Toc],
+    imports: [RouterLink, CodeBlock, Toc, HomePreview],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -55,6 +56,10 @@ import { DEMO_SECTIONS } from '../doc/registry';
                         GitHub
                     </a>
                 </div>
+
+                <!-- ── the components, before anything is said about them ─────────────── -->
+                <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="preview">See it</h2>
+                <agl-home-preview class="mt-3" />
 
                 <!-- ── the numbers, all computed ──────────────────────────────────────── -->
                 <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
@@ -203,6 +208,7 @@ export class HomePage {
     readonly firstDocumented = computed(() => this.documented()[0]?.name ?? '');
 
     readonly toc: TocEntry[] = [
+        { id: 'preview', label: 'See it' },
         { id: 'install', label: 'Install' },
         { id: 'two-packages', label: 'Why two packages' },
         { id: 'migrating', label: 'Coming from PrimeNG 21' },
