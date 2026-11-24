@@ -57,18 +57,30 @@ env:
     NODE_VERSION: '22'
 
 jobs:
-    deploy:
-        name: Build and deploy
+    # Two jobs, and the split is the fix for a deployment that failed about half the time.
+    #
+    # Build and deploy used to be one job, with `deploy-pages` as the step straight after
+    # `upload-pages-artifact`. `deploy-pages` starts by LISTING the run's artifacts, and on
+    # 2026-11-24 it answered "Found 0 artifact(s)" twice (runs 45377484279 and 45377815706)
+    # while the artifact it was looking for sat in that very run, 2.0 MB, uploaded one step
+    # earlier. Four of the eight deployments before this change failed at that step. Nothing
+    # was wrong with the site, and GitHub's status page reported no incident.
+    #
+    # Believed, not proven: the listing is not yet consistent in the second after an upload,
+    # and a job boundary gives it the time. This is also the layout GitHub's own Pages
+    # workflows use. The first deployments after this change are the test.
+    #
+    # Re-running a failed run does not help and never did: the build runs again and uploads
+    # a second `github-pages` artifact, and `deploy-pages` refuses a run that has two. Start
+    # a new run with workflow_dispatch instead.
+    build:
+        name: Build
         runs-on: ubuntu-latest
 
+        # The build gets no write permission at all. It runs install scripts and a full
+        # build of the workspace; only the job below can publish.
         permissions:
             contents: read
-            pages: write
-            id-token: write
-
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
 
         steps:
             # Full history and tags, because the site states which version it documents and
@@ -123,5 +135,19 @@ jobs:
               with:
                   path: site
 
+    deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+        needs: build
+
+        permissions:
+            pages: write
+            id-token: write
+
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        steps:
             - id: deployment
               uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
