@@ -65,6 +65,26 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/lux-shape')) {
+    /* The shape of a preset, measured (lux-shape.ts, e2e/lux-shape.spec.ts), in the preset `?preset=`
+       names: the upstream one Lux was derived from, Lux, or Lux Compact. */
+    const loadPreset = (): Promise<unknown> => {
+        switch (new URLSearchParams(location.search).get('preset')) {
+            case 'aura':
+                return Promise.resolve(Aura);
+            case 'compact':
+                return import('@anguless/angulux-themes/lux-compact').then((m) => m.default);
+            default:
+                return import('@anguless/angulux-themes/lux').then((m) => m.default);
+        }
+    };
+    Promise.all([loadPreset(), import('./lux-shape')])
+        .then(([preset, { LuxShape }]) =>
+            bootstrapApplication(LuxShape, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/overlay-race')) {
     /* Panels closed again before their enter motion starts (overlay-race.ts, e2e/overlay-race.spec.ts). */
     import('./overlay-race')

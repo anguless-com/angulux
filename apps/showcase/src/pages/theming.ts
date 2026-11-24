@@ -43,8 +43,14 @@ import { CONTRAST_ROWS } from './contrast-rows';
                 <p class="mt-3 text-[15px] text-muted">
                     The preset this site runs under is <strong class="font-medium text-ink">Lux</strong>, from
                     <code class="code-chip">&#64;anguless/angulux-themes</code>. It is derived from the Aura preset of <code class="code-chip">&#64;primeuix/themes</code> 2.0.3 —
-                    PrimeTek's package, MIT at that version — and keeps every token name, so an override written for Aura applies to Lux unchanged. What it changes is the
-                    colours that carry text, which the Contrast section below lists.
+                    PrimeTek's package, MIT at that version — and keeps every token name, so an override written for Aura applies to Lux unchanged. It changes two things:
+                    the colours that carry text, which the Contrast section below lists, and the shape. Corners are rounder (8px on a field or a button, where Aura has 6px),
+                    the focus ring is 2px wide instead of 1px, and a card is outlined instead of casting a shadow. Heights are the same as Aura's.
+                </p>
+                <p class="mt-3 text-[15px] text-muted">
+                    <strong class="font-medium text-ink">Lux Compact</strong>, from <code class="code-chip">&#64;anguless/angulux-themes/lux-compact</code>, is Lux with less
+                    padding: a field is 32px tall instead of 36px and a table row 42px instead of 50px. It is meant for screens that are mostly tables and forms, and it is
+                    not the default because a 32px control is small under a finger.
                 </p>
                 <!-- prime-names:end -->
                 <p class="mt-3 text-[15px] text-muted">
