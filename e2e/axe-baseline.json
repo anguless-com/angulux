@@ -10,9 +10,6 @@
         },
         "/focustrap": {
             "aria-hidden-focus": 2
-        },
-        "/getting-started": {
-            "color-contrast": 1
         }
     }
 }
