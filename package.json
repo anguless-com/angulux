@@ -82,7 +82,7 @@
         "@angular/platform-browser": "catalog:angular22",
         "@angular/router": "catalog:angular22",
         "@axe-core/playwright": "catalog:",
-        "@playwright/test": "1.65.0",
+        "@playwright/test": "1.65.1",
         "@types/jasmine": "7.0.0",
         "@types/node": "26.6.6",
         "angular-eslint": "catalog:",

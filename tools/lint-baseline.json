@@ -180,7 +180,7 @@
         },
         "packages/angulux/src/avatar/avatar.ts": {
             "@angular-eslint/template/alt-text": 1,
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 3,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -278,7 +278,7 @@
             "@typescript-eslint/no-explicit-any": 19
         },
         "packages/angulux/src/checkbox/checkbox.ts": {
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 5,
             "@typescript-eslint/no-explicit-any": 9,
             "no-restricted-imports": 1,
@@ -292,7 +292,7 @@
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/chip/chip.ts": {
-            "@angular-eslint/template/prefer-class-binding": 4,
+            "@angular-eslint/template/prefer-class-binding": 2,
             "@angular-eslint/template/prefer-control-flow": 8,
             "@typescript-eslint/ban-ts-comment": 1,
             "no-restricted-imports": 1,
@@ -331,7 +331,7 @@
         },
         "packages/angulux/src/confirmdialog/confirmdialog.ts": {
             "@angular-eslint/prefer-inject": 2,
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 5,
             "@typescript-eslint/no-explicit-any": 10,
             "no-restricted-imports": 1,
@@ -348,7 +348,7 @@
             "@angular-eslint/prefer-inject": 2,
             "@angular-eslint/template/click-events-have-key-events": 4,
             "@angular-eslint/template/interactive-supports-focus": 7,
-            "@angular-eslint/template/prefer-class-binding": 5,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 54,
             "@angular-eslint/template/prefer-style-binding": 4,
             "@typescript-eslint/ban-ts-comment": 1,
@@ -363,7 +363,7 @@
             "@typescript-eslint/no-explicit-any": 36
         },
         "packages/angulux/src/dialog/dialog.ts": {
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 17,
             "@angular-eslint/template/prefer-style-binding": 3,
             "@typescript-eslint/no-explicit-any": 19,
@@ -392,7 +392,7 @@
             "no-restricted-syntax/skipped-test": 4
         },
         "packages/angulux/src/drawer/drawer.ts": {
-            "@angular-eslint/template/prefer-class-binding": 5,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 4,
             "@typescript-eslint/no-explicit-any": 10,
             "no-restricted-imports": 1,
@@ -406,9 +406,9 @@
             "@typescript-eslint/no-explicit-any": 13
         },
         "packages/angulux/src/fileupload/fileupload.ts": {
-            "@angular-eslint/template/prefer-class-binding": 8,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 27,
-            "@angular-eslint/template/prefer-style-binding": 2,
+            "@angular-eslint/template/prefer-style-binding": 1,
             "@angular-eslint/template/valid-aria": 3,
             "@typescript-eslint/no-explicit-any": 16,
             "no-restricted-imports": 1,
@@ -698,7 +698,7 @@
             "@angular-eslint/prefer-inject": 1,
             "@angular-eslint/template/click-events-have-key-events": 2,
             "@angular-eslint/template/interactive-supports-focus": 2,
-            "@angular-eslint/template/prefer-class-binding": 8,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 18,
             "@angular-eslint/template/prefer-style-binding": 1,
             "@typescript-eslint/no-explicit-any": 31,
@@ -727,8 +727,7 @@
             "@angular-eslint/template/click-events-have-key-events": 2,
             "@angular-eslint/template/interactive-supports-focus": 2,
             "@angular-eslint/template/prefer-control-flow": 22,
-            "@angular-eslint/template/prefer-style-binding": 12,
-            "@angular-eslint/template/valid-aria": 1,
+            "@angular-eslint/template/prefer-style-binding": 7,
             "@typescript-eslint/no-explicit-any": 27,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -741,7 +740,7 @@
             "no-restricted-imports": 1
         },
         "packages/angulux/src/message/message.ts": {
-            "@angular-eslint/template/prefer-class-binding": 6,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 3,
             "@typescript-eslint/no-explicit-any": 1,
             "no-restricted-imports": 1,
@@ -766,9 +765,9 @@
         },
         "packages/angulux/src/multiselect/multiselect.ts": {
             "@angular-eslint/prefer-inject": 3,
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 42,
-            "@angular-eslint/template/prefer-style-binding": 6,
+            "@angular-eslint/template/prefer-style-binding": 4,
             "@angular-eslint/template/role-has-required-aria": 3,
             "@typescript-eslint/no-explicit-any": 32,
             "no-restricted-imports": 1,
@@ -817,7 +816,6 @@
             "@angular-eslint/template/interactive-supports-focus": 7,
             "@angular-eslint/template/prefer-control-flow": 10,
             "@angular-eslint/template/prefer-style-binding": 2,
-            "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 9,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -835,7 +833,6 @@
             "@angular-eslint/template/click-events-have-key-events": 2,
             "@angular-eslint/template/interactive-supports-focus": 1,
             "@angular-eslint/template/prefer-style-binding": 1,
-            "@angular-eslint/template/valid-aria": 1,
             "@typescript-eslint/no-explicit-any": 18,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -893,7 +890,7 @@
             "@angular-eslint/prefer-host-metadata-property": 1,
             "@angular-eslint/prefer-inject": 1,
             "@angular-eslint/template/prefer-control-flow": 9,
-            "@angular-eslint/template/prefer-style-binding": 3,
+            "@angular-eslint/template/prefer-style-binding": 2,
             "@typescript-eslint/ban-ts-comment": 1,
             "@typescript-eslint/no-explicit-any": 45,
             "no-restricted-imports": 1,
@@ -911,7 +908,7 @@
             "@angular-eslint/template/click-events-have-key-events": 3,
             "@angular-eslint/template/interactive-supports-focus": 4,
             "@angular-eslint/template/prefer-control-flow": 35,
-            "@angular-eslint/template/prefer-style-binding": 7,
+            "@angular-eslint/template/prefer-style-binding": 5,
             "@angular-eslint/template/role-has-required-aria": 3,
             "@typescript-eslint/no-explicit-any": 40,
             "no-restricted-imports": 1,
@@ -967,9 +964,9 @@
             "@angular-eslint/prefer-inject": 40,
             "@angular-eslint/prefer-standalone": 25,
             "@angular-eslint/template/interactive-supports-focus": 1,
-            "@angular-eslint/template/prefer-class-binding": 12,
+            "@angular-eslint/template/prefer-class-binding": 6,
             "@angular-eslint/template/prefer-control-flow": 70,
-            "@angular-eslint/template/prefer-style-binding": 4,
+            "@angular-eslint/template/prefer-style-binding": 3,
             "@typescript-eslint/no-explicit-any": 209,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 4
@@ -1010,7 +1007,7 @@
             "no-restricted-syntax/redundant-standalone": 1
         },
         "packages/angulux/src/tag/tag.ts": {
-            "@angular-eslint/template/prefer-class-binding": 2,
+            "@angular-eslint/template/prefer-class-binding": 1,
             "@angular-eslint/template/prefer-control-flow": 3,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -1036,8 +1033,7 @@
             "@angular-eslint/template/click-events-have-key-events": 2,
             "@angular-eslint/template/interactive-supports-focus": 2,
             "@angular-eslint/template/prefer-control-flow": 18,
-            "@angular-eslint/template/prefer-style-binding": 17,
-            "@angular-eslint/template/valid-aria": 1,
+            "@angular-eslint/template/prefer-style-binding": 10,
             "@typescript-eslint/no-explicit-any": 66,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 1,
@@ -1117,9 +1113,9 @@
             "@angular-eslint/prefer-host-metadata-property": 11,
             "@angular-eslint/prefer-inject": 30,
             "@angular-eslint/prefer-standalone": 16,
-            "@angular-eslint/template/prefer-class-binding": 5,
+            "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 46,
-            "@angular-eslint/template/prefer-style-binding": 8,
+            "@angular-eslint/template/prefer-style-binding": 7,
             "@typescript-eslint/ban-ts-comment": 2,
             "@typescript-eslint/no-explicit-any": 113,
             "no-restricted-imports": 1,
