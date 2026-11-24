@@ -66,8 +66,9 @@ import { DEMO_SECTIONS } from '../doc/registry';
                     <div class="rounded-xl border border-line px-4 py-3">
                         <div class="text-sm font-medium text-ink">MIT, and the fork exists so it stays that way</div>
                         <p class="mt-1 text-sm text-muted">
-                            angulux is a fork of PrimeNG 21.1.9 — the last MIT release — maintained for Angular 22. The theme package is a separate question and it has a real
-                            edge: <a class="text-brand hover:underline" routerLink="/theming">Theming</a> is honest about it.
+                            angulux is a fork of PrimeNG 21.1.9 — the last MIT release — maintained for Angular 22. Its preset, Lux, is MIT too and published by this
+                            project. The presets of the upstream theme package are a separate question and they have a real edge:
+                            <a class="text-brand hover:underline" routerLink="/theming">Theming</a> is honest about it.
                         </p>
                     </div>
                     <div class="rounded-xl border border-line px-4 py-3">
