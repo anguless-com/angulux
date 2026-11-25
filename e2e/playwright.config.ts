@@ -97,7 +97,7 @@ export default defineConfig({
         },
         {
             name: 'showcase',
-            testMatch: /(demo-visibility|showcase-nav|showcase-sidebar|showcase-markdown|showcase-install|showcase-pager|showcase-counts|showcase-search|showcase-api-table|showcase-axe|showcase-open-overlays|showcase-load|home-preview)\.spec\.ts/,
+            testMatch: /(demo-visibility|showcase-nav|showcase-sidebar|showcase-markdown|showcase-install|showcase-pager|showcase-counts|showcase-search|showcase-api-table|showcase-axe|showcase-open-overlays|showcase-button-names|showcase-load|home-preview)\.spec\.ts/,
             use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:4211' }
         }
     ]

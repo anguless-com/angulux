@@ -602,7 +602,9 @@ export class ButtonDirective extends BaseComponent {
                 <ng-template [ngIf]="loadingIconTemplate()" *ngTemplateOutlet="loadingIconTemplate(); context: { class: cx('loadingIcon'), pt: ptm('loadingIcon') }"></ng-template>
             </ng-container>
             <ng-container *ngIf="!(loading || buttonProps?.loading)">
-                <span *ngIf="(icon || buttonProps?.icon) && !iconTemplate()" [class]="cn(cx('icon'), icon || buttonProps?.icon)" [aglBind]="ptm('icon')" [attr.data-p]="dataIconP"></span>
+                <!-- Hidden from assistive technology: an icon font's glyph is generated content and
+                     would otherwise enter the button's name ("<glyph> Save" instead of "Save"). -->
+                <span *ngIf="(icon || buttonProps?.icon) && !iconTemplate()" [class]="cn(cx('icon'), icon || buttonProps?.icon)" [aglBind]="ptm('icon')" [attr.data-p]="dataIconP" [attr.aria-hidden]="true"></span>
                 <ng-template [ngIf]="!icon && (iconTemplate())" *ngTemplateOutlet="iconTemplate(); context: { class: cx('icon'), pt: ptm('icon') }"></ng-template>
             </ng-container>
             <span
