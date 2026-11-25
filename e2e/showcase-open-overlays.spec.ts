@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
+import { glyphNames } from './glyph-names';
 import { hydrated } from './hydrated';
 
 /**
@@ -7,7 +8,8 @@ import { hydrated } from './hydrated';
  *
  * The site-wide sweep (showcase-axe.spec.ts) scans each page as it loads, with every overlay
  * closed, so what an overlay renders only once it is open is never scanned there. Each case here
- * opens one the way a reader would and runs the same WCAG rules on it, in light and in dark.
+ * opens one the way a reader would and runs the same WCAG rules on it, in light and in dark. It
+ * also checks that no name inside the overlay carries an icon glyph, which axe does not report.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -225,6 +227,8 @@ for (const c of CASES) {
             // pass either, and the failure should name the violation rather than the empty pass list.
             expect(result.violations.flatMap((v) => v.nodes.map((n) => `${v.id} (${v.impact}): ${n.target.join(' ')} — ${v.help}`))).toEqual([]);
             expect(result.passes.length, 'axe ran no rule on the overlay').toBeGreaterThan(0);
+            // axe does not report an icon glyph in a name; see glyph-names.ts.
+            expect(glyphNames(await panel.ariaSnapshot()), 'a name inside the overlay carries an icon glyph').toEqual([]);
         });
     }
 }
