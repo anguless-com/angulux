@@ -124,6 +124,15 @@ if (path.startsWith('/upstream-zone')) {
             })
         )
         .catch((err) => console.error(err));
+} else if (path.startsWith('/focus-trap')) {
+    /* A focus trap between two buttons, driven with the real Tab key (focus-trap.ts, e2e/focus-trap.spec.ts). */
+    import('./focus-trap')
+        .then(({ FocusTrapPage }) =>
+            bootstrapApplication(FocusTrapPage, {
+                providers: [provideBrowserGlobalErrorListeners(), provideZonelessChangeDetection(), provideAngulux({ theme: { preset: Aura } })]
+            })
+        )
+        .catch((err) => console.error(err));
 } else if (path.startsWith('/narrow')) {
     /* Components at phone widths (narrow.ts, e2e/narrow-reflow.spec.ts). */
     import('./narrow')
