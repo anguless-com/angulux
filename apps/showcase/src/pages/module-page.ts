@@ -40,9 +40,9 @@ interface LoadedSection {
                             <p class="mt-2 text-[15px] text-muted">{{ api.description }}</p>
                         }
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
-                            <span class="rounded-full border border-line px-2 py-0.5">{{ api.declarations.length }} declarations</span>
+                            <span class="rounded-full border border-line px-2 py-0.5">{{ counted(api.declarations.length, 'declaration') }}</span>
                             @if (sections().length) {
-                                <span class="rounded-full bg-brand-soft px-2 py-0.5 text-brand">{{ sections().length }} demos</span>
+                                <span class="rounded-full bg-brand-soft px-2 py-0.5 text-brand">{{ counted(sections().length, 'demo') }}</span>
                             }
 
                             <!-- The module's Markdown page: the API reference as an assistant reads it,
@@ -157,6 +157,15 @@ export class ModulePage {
 
         return entries;
     });
+
+    /**
+     * "1 declaration", "0 declarations", "5 demos". The two nouns this page counts take a plain
+     * -s, and a count of one is common here: most modules declare a single component, and
+     * several have a single demo.
+     */
+    counted(count: number, noun: 'declaration' | 'demo'): string {
+        return `${count} ${noun}${count === 1 ? '' : 's'}`;
+    }
 
     /** What the Copy as Markdown button last did, shown for two seconds. */
     readonly markdown = signal<'idle' | 'copied' | 'failed'>('idle');
