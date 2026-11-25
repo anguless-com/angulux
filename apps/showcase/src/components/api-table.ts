@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { ApiDeclaration } from '../data';
+import { ScrollRegion } from './scroll-region';
 
 /** A declaration to render, and the class it was inherited from when it is not the module's own. */
 export interface ApiGroup {
@@ -37,6 +38,7 @@ export function declarationAnchor(group: ApiGroup): string {
  */
 @Component({
     selector: 'agl-api-table',
+    imports: [ScrollRegion],
     template: `
         @for (group of groups(); track group.declaration.name) {
             <section class="mt-10 scroll-mt-20" [id]="anchor(group)">
@@ -60,12 +62,18 @@ export function declarationAnchor(group: ApiGroup): string {
                 }
 
                 @if (group.declaration.inputs.length) {
-                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line">
-                        <table class="w-full table-fixed border-collapse text-[13px]">
+                    <!-- Default is a fixed 7rem, enough for "documented" on a line of its own; as a
+                         share of the table it was about 76px of text at 1440 wide and broke the word
+                         into "documente / d". From a desktop down to a tablet the table fits its box.
+                         Below sm it keeps 36rem and scrolls inside the box, which then joins the tab
+                         order (aglScrollRegion): four columns in a phone's 370px do not fit in every
+                         system font, and squeezed they broke every name inside the word. -->
+                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line" [aglScrollRegion]="'Inputs of ' + group.declaration.name">
+                        <table class="w-full table-fixed border-collapse text-[13px] max-sm:min-w-[36rem]">
                             <colgroup>
                                 <col class="w-[22%]" />
                                 <col class="w-[24%]" />
-                                <col class="w-[13%]" />
+                                <col class="w-28" />
                                 <col />
                             </colgroup>
                             <thead>
@@ -97,10 +105,13 @@ export function declarationAnchor(group: ApiGroup): string {
                                                 <!-- "Nobody wrote a default down" — said, rather than left as a blank cell
                                                      that reads as "there is no default". Only 127 of 1205 inputs declare
                                                      one, so this is the common case and it has to stay visible. -->
-                                                <span class="font-sans italic text-faint">not documented</span>
+                                                <span class="font-sans italic text-faint break-normal">not documented</span>
                                             }
                                         </td>
-                                        <td class="px-3 py-2 align-top text-muted">{{ member.description }}</td>
+                                        <!-- break-words: a description can carry one long name, such as
+                                             DomSanitizer.bypassSecurityTrustHtml in pt's, and in a fixed table
+                                             an unbreakable one overflows its cell and makes the box scroll. -->
+                                        <td class="px-3 py-2 align-top text-muted break-words">{{ member.description }}</td>
                                     </tr>
                                 }
                             </tbody>
@@ -109,7 +120,7 @@ export function declarationAnchor(group: ApiGroup): string {
                 }
 
                 @if (group.declaration.outputs.length) {
-                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line">
+                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line" [aglScrollRegion]="'Outputs of ' + group.declaration.name">
                         <table class="w-full table-fixed border-collapse text-[13px]">
                             <colgroup>
                                 <col class="w-[22%]" />
@@ -133,7 +144,7 @@ export function declarationAnchor(group: ApiGroup): string {
                                             }
                                         </td>
                                         <td class="px-3 py-2 align-top font-mono text-muted break-words">{{ member.type }}</td>
-                                        <td class="px-3 py-2 align-top text-muted">{{ member.description }}</td>
+                                        <td class="px-3 py-2 align-top text-muted break-words">{{ member.description }}</td>
                                     </tr>
                                 }
                             </tbody>
@@ -142,7 +153,7 @@ export function declarationAnchor(group: ApiGroup): string {
                 }
 
                 @if (group.declaration.slots.length) {
-                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line">
+                    <div class="thin-scroll mt-3 overflow-x-auto rounded-xl border border-line" [aglScrollRegion]="'Template slots of ' + group.declaration.name">
                         <table class="w-full table-fixed border-collapse text-[13px]">
                             <colgroup>
                                 <col class="w-[30%]" />
