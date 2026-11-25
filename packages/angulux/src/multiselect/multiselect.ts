@@ -349,6 +349,11 @@ export class MultiSelectItem extends BaseComponent {
                             </agl-checkbox>
 
                             <agl-iconfield *ngIf="filter" [pt]="ptm('pcFilterContainer')" [class]="cx('pcFilterContainer')" [unstyled]="unstyled()">
+                                <!-- The search box needs a name of its own (axe label, WCAG 4.1.2). In order:
+                                     ariaFilterLabel; else the filter placeholder, which browsers already use
+                                     as a name; else what names the MultiSelect itself, ariaLabelledBy or
+                                     ariaLabel. Written here rather than in a method so the class gains no
+                                     public member while the API is frozen. -->
                                 <input
                                     #filterInput
                                     aglInputText
@@ -367,7 +372,8 @@ export class MultiSelectItem extends BaseComponent {
                                     [class]="cx('pcFilter')"
                                     [attr.disabled]="$disabled() ? '' : undefined"
                                     [attr.placeholder]="filterPlaceHolder"
-                                    [attr.aria-label]="ariaFilterLabel"
+                                    [attr.aria-label]="ariaFilterLabel || (filterPlaceHolder || ariaLabelledBy ? undefined : ariaLabel)"
+                                    [attr.aria-labelledby]="ariaFilterLabel || filterPlaceHolder ? undefined : ariaLabelledBy"
                                     [unstyled]="unstyled()"
                                 />
                                 <agl-inputicon [pt]="ptm('pcFilterIconContainer')" [unstyled]="unstyled()">

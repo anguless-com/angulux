@@ -61,6 +61,9 @@ interface Country {
             [dropdownIcon]="dropdownIcon"
             [chipIcon]="chipIcon"
             [filterPlaceHolder]="filterPlaceHolder"
+            [ariaLabel]="ariaLabel"
+            [ariaLabelledBy]="ariaLabelledBy"
+            [ariaFilterLabel]="ariaFilterLabel"
             [emptyMessage]="emptyMessage"
             [emptyFilterMessage]="emptyFilterMessage"
             [tooltip]="tooltip"
@@ -123,6 +126,9 @@ class TestBasicMultiSelectComponent {
     dropdownIcon: string | undefined;
     chipIcon: string | undefined;
     filterPlaceHolder: string | undefined;
+    ariaLabel: string | undefined;
+    ariaLabelledBy: string | undefined;
+    ariaFilterLabel: string | undefined;
     emptyMessage = '';
     emptyFilterMessage = '';
     tooltip = '';
@@ -883,6 +889,54 @@ describe('MultiSelect', () => {
             await fixture.whenStable();
 
             expect(hiddenInput.nativeElement.tabIndex).toBe(-1);
+        });
+    });
+
+    // The search box in the overlay is a field of its own and needs a name (axe label, WCAG
+    // 4.1.2). It had one only when the app set ariaFilterLabel, and MultiSelect shows it by
+    // default; axe reported it on every MultiSelect on the showcase.
+    describe('The filter box is named', () => {
+        async function filterBox(): Promise<HTMLInputElement> {
+            component.filter = true;
+            fixture.detectChanges();
+            multiSelect.show();
+            await fixture.whenStable();
+            fixture.detectChanges();
+            const box = (fixture.nativeElement.querySelector('input[role="searchbox"]') ?? document.querySelector('input[role="searchbox"]')) as HTMLInputElement | null;
+            expect(box).not.toBeNull();
+            return box!;
+        }
+
+        it('takes ariaFilterLabel when it is given', async () => {
+            component.ariaFilterLabel = 'Search cities';
+            component.ariaLabel = 'Cities';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-label')).toBe('Search cities');
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
+        });
+
+        it('leaves the name to the filter placeholder when there is one', async () => {
+            component.filterPlaceHolder = 'Search';
+            component.ariaLabel = 'Cities';
+            const box = await filterBox();
+            expect(box.getAttribute('placeholder')).toBe('Search');
+            expect(box.hasAttribute('aria-label')).toBe(false);
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
+        });
+
+        it('otherwise takes what labels the MultiSelect: aria-labelledby first', async () => {
+            component.ariaLabelledBy = 'label-id';
+            component.ariaLabel = 'Cities';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-labelledby')).toBe('label-id');
+            expect(box.hasAttribute('aria-label')).toBe(false);
+        });
+
+        it('otherwise takes the MultiSelect ariaLabel', async () => {
+            component.ariaLabel = 'Cities';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-label')).toBe('Cities');
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
         });
     });
 

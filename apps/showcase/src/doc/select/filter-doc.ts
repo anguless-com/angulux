@@ -12,7 +12,7 @@ interface City {
     imports: [FormsModule, SelectModule],
     template: `
         <div class="card">
-            <agl-select [(ngModel)]="selected" [options]="cities" [filter]="true" filterBy="name" optionLabel="name" placeholder="Select a city" />
+            <agl-select [(ngModel)]="selected" [options]="cities" [filter]="true" filterBy="name" optionLabel="name" placeholder="Select a city" ariaFilterLabel="Search cities" />
         </div>
     `
 })
