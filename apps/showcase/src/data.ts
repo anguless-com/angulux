@@ -168,3 +168,18 @@ export interface GuidePayload {
 }
 
 export const loadGuide = () => loadJson<GuidePayload>('guide.json');
+
+/**
+ * What search reads, written by `build-search.mjs`: names only, by position (that script says
+ * why). Fetched when search first opens, never by a page.
+ */
+export interface SearchIndex {
+    /** [name, declares] */
+    modules: [string, string[]][];
+    /** [moduleIndex, name, 'c' for a component or 'd' for a directive, selector] */
+    declarations: [number, string, 'c' | 'd', string][];
+    /** [declarationIndex, 'i' for an input, 'o' for an output, 's' for a slot, name] */
+    members: [number, 'i' | 'o' | 's', string][];
+}
+
+export const loadSearchIndex = () => loadJson<SearchIndex>('search.json');

@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { ApiIndexEntry, LibraryVersion, loadApiIndex, loadVersion } from './data';
 import { DEMO_SECTIONS } from './doc/registry';
 import { GUIDE_PAGES, moduleTitle, navSections } from './nav';
+import { SearchDialog } from './search/search-dialog';
 import { ColorSchemeToggle } from './theme';
 
 /**
@@ -19,7 +20,7 @@ import { ColorSchemeToggle } from './theme';
  */
 @Component({
     selector: 'agl-showcase-root',
-    imports: [RouterLink, RouterLinkActive, RouterOutlet],
+    imports: [RouterLink, RouterLinkActive, RouterOutlet, SearchDialog],
     host: {
         '(document:keydown)': 'onKeydown($event)'
     },
@@ -70,6 +71,20 @@ import { ColorSchemeToggle } from './theme';
                 }
 
                 <div class="ml-auto flex items-center gap-1">
+                    <!-- Opens search. The dialog and its index load on the first open, not with the
+                         page (the defer block below). The shortcut is printed as the Mac key; the
+                         handler takes Ctrl+K as well. -->
+                    <button
+                        type="button"
+                        class="mr-1 flex h-9 items-center gap-2 rounded-lg border border-line bg-surface px-2.5 text-sm text-muted hover:text-ink"
+                        aria-haspopup="dialog"
+                        aria-keyshortcuts="Meta+K Control+K"
+                        (click)="openSearch()"
+                    >
+                        <i class="pi pi-search text-xs" aria-hidden="true"></i>
+                        <span class="sr-only sm:not-sr-only">Search</span>
+                        <kbd class="hidden rounded border border-line px-1 font-mono text-[11px] text-faint sm:inline" aria-hidden="true">⌘K</kbd>
+                    </button>
                     <a href="llms.txt" class="hidden rounded-lg px-2.5 py-1.5 text-sm text-muted no-underline hover:bg-surface hover:text-ink md:block">llms.txt</a>
                     <a
                         href="https://www.npmjs.com/package/&#64;anguless/angulux"
@@ -188,6 +203,12 @@ import { ColorSchemeToggle } from './theme';
                 <router-outlet />
             </main>
         </div>
+
+        <!-- Search loads on first use and then stays, so opening it again is instant. Nothing of
+             it is in the prerendered page or the first download. -->
+        @defer (when searchRequested()) {
+            <agl-search-dialog [open]="searchOpen()" (closed)="searchOpen.set(false)" />
+        }
     `
 })
 export class AppComponent {
@@ -208,6 +229,11 @@ export class AppComponent {
     readonly version = signal<LibraryVersion | null>(null);
 
     readonly navOpen = signal(false);
+
+    /** Set on the first open and never cleared: it is what loads the search dialog. */
+    readonly searchRequested = signal(false);
+
+    readonly searchOpen = signal(false);
 
     readonly query = signal('');
 
@@ -269,6 +295,12 @@ export class AppComponent {
         return DEMO_SECTIONS[name]?.length ?? 0;
     }
 
+    openSearch(): void {
+        this.navOpen.set(false);
+        this.searchRequested.set(true);
+        this.searchOpen.set(true);
+    }
+
     /**
      * `/` focuses the filter — the convention on every documentation site that has one, and
      * the reason the key is printed in the box.
@@ -281,6 +313,14 @@ export class AppComponent {
         // a keyboard user who opened the nav had one way out: tab back to the toggle.
         if (event.key === 'Escape' && this.navOpen()) {
             this.navOpen.set(false);
+
+            return;
+        }
+
+        // ⌘K or Ctrl+K opens search from anywhere, a text field included: it types nothing there.
+        if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            this.openSearch();
 
             return;
         }

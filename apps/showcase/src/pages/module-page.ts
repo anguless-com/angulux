@@ -1,4 +1,5 @@
-import { Component, PendingTasks, computed, effect, inject, input, signal, Type } from '@angular/core';
+import { Component, Injector, PendingTasks, Type, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ApiModule, Demo, loadApiIndex, loadApiModule, loadDemos } from '../data';
 import { ApiGroup, ApiTable, declarationAnchor } from '../components/api-table';
 import { CodeBlock } from '../components/code-block';
@@ -207,6 +208,10 @@ export class ModulePage {
     /** Captured here: an effect body is not an injection context. */
     private readonly pending = inject(PendingTasks);
 
+    private readonly route = inject(ActivatedRoute);
+
+    private readonly injector = inject(Injector);
+
     constructor() {
         effect(() => {
             const name = this.module();
@@ -265,6 +270,19 @@ export class ModulePage {
         this.groups.set(groups);
         this.sections.set(sections);
         this.api.set(api);
+
+        // A link to a heading on this page (#api-DatePicker, which is where search sends an
+        // input) arrives before the heading exists: the router looks for it when navigation
+        // ends, and the page is still loading then. So the page scrolls to it itself, once it
+        // has rendered. scrollIntoView honours the heading's scroll margin under the header.
+        afterNextRender(
+            () => {
+                const fragment = this.route.snapshot.fragment;
+
+                if (fragment && this.module() === name) document.getElementById(fragment)?.scrollIntoView();
+            },
+            { injector: this.injector }
+        );
     }
 
     /**
