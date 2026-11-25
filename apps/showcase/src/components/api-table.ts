@@ -6,6 +6,12 @@ import { ScrollRegion } from './scroll-region';
 export interface ApiGroup {
     declaration: ApiDeclaration;
     inherited: boolean;
+    /**
+     * For an inherited group, the declaration of this module it is shown under. Several can
+     * extend the same base (on /table most of them extend BaseComponent), so the base's name
+     * alone names more than one group on the page.
+     */
+    owner?: string;
 }
 
 /**
@@ -14,7 +20,7 @@ export interface ApiGroup {
  * with a different id is a dead link that nothing would report.
  */
 export function declarationAnchor(group: ApiGroup): string {
-    return `api-${group.inherited ? 'inherited-' : ''}${group.declaration.name}`;
+    return group.inherited ? `api-${group.owner}-inherited-${group.declaration.name}` : `api-${group.declaration.name}`;
 }
 
 /**
@@ -40,7 +46,7 @@ export function declarationAnchor(group: ApiGroup): string {
     selector: 'agl-api-table',
     imports: [ScrollRegion],
     template: `
-        @for (group of groups(); track group.declaration.name) {
+        @for (group of groups(); track anchor(group)) {
             <section class="mt-10 scroll-mt-20" [id]="anchor(group)">
                 @if (group.inherited) {
                     <div class="flex flex-wrap items-baseline gap-2.5">
