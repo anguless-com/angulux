@@ -107,7 +107,10 @@ export class ButtonLabel extends BaseComponent {
     providers: [ButtonStyle, { provide: BUTTON_ICON_INSTANCE, useExisting: ButtonIcon }, { provide: PARENT_INSTANCE, useExisting: ButtonIcon }],
     standalone: true,
     host: {
-        '[class.p-button-icon]': '!$unstyled() && true'
+        '[class.p-button-icon]': '!$unstyled() && true',
+        // Hidden from assistive technology, as agl-button's icon is: an icon font's glyph is
+        // generated content and would otherwise enter the button's name.
+        '[attr.aria-hidden]': 'true'
     },
     hostDirectives: [Bind]
 })

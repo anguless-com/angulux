@@ -1546,6 +1546,19 @@ describe('ButtonDirective', () => {
             expect(iconNativeElement.classList.contains('p-button-icon')).toBe(true);
             expect(labelNativeElement.classList.contains('p-button-label')).toBe(true);
         });
+
+        // As on agl-button: an icon font's glyph would otherwise enter the button's name.
+        it('should hide the aglButtonIcon element from assistive technology, not the label', async () => {
+            const iconLabelFixture = TestBed.createComponent(TestButtonWithIconLabelDirectiveComponent);
+            iconLabelFixture.detectChanges();
+            await iconLabelFixture.whenStable();
+
+            const icon: HTMLElement = iconLabelFixture.debugElement.query(By.directive(ButtonIcon)).nativeElement;
+            const label: HTMLElement = iconLabelFixture.debugElement.query(By.directive(ButtonLabel)).nativeElement;
+
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+            expect(label.getAttribute('aria-hidden')).not.toBe('true');
+        });
     });
 
     describe('Public Methods', () => {
