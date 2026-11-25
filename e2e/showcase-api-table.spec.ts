@@ -73,6 +73,81 @@ for (const [label, viewport, phone] of [
     });
 }
 
+/**
+ * Member names in the Input and Output columns. They break only where two words of a name meet
+ * (the table puts a `<wbr>` there), never inside a word, unless one word alone is wider than the
+ * column. Each word of a name is found in the text the same way the table cuts it, and measured
+ * with a Range: a word that lays out as more than one box is a word split in two. Measuring
+ * words rather than text nodes is what makes this fail without the `<wbr>`s, when the whole name
+ * is one node. A word's natural width is measured on a copy that may not wrap.
+ */
+async function namesSplitInsideAWord(page: Page): Promise<{ split: string[]; spaced: string[]; names: number }> {
+    return page.evaluate(() => {
+        const split: string[] = [];
+        const spaced: string[] = [];
+        const spans = [...document.querySelectorAll('agl-api-table td:first-child > span.text-ink')];
+
+        for (const span of spans) {
+            const name = span.textContent ?? '';
+
+            if (/\s/.test(name)) spaced.push(name);
+
+            const cell = span.closest('td')!;
+            const style = getComputedStyle(cell);
+            const room = cell.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+
+            for (const node of span.childNodes) {
+                if (!(node instanceof Text) || !node.data) continue;
+
+                let at = 0;
+
+                for (const word of node.data.split(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/)) {
+                    const range = document.createRange();
+
+                    range.setStart(node, at);
+                    range.setEnd(node, at + word.length);
+                    at += word.length;
+
+                    if (range.getClientRects().length < 2) continue;
+
+                    const probe = document.createElement('span');
+
+                    probe.style.whiteSpace = 'nowrap';
+                    probe.textContent = word;
+                    span.appendChild(probe);
+                    const natural = probe.getBoundingClientRect().width;
+                    probe.remove();
+
+                    if (natural <= room) split.push(`${name} (in "${word}")`);
+                }
+            }
+        }
+
+        return { split, spaced, names: spans.length };
+    });
+}
+
+for (const [label, viewport] of [
+    ['desktop 1440', { width: 1440, height: 900 }],
+    ['laptop 1024', { width: 1024, height: 768 }],
+    ['phone 412', { width: 412, height: 823 }]
+] as const) {
+    test(`${label}: a member name breaks only where its words meet, and reads as one word`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+
+        for (const path of ['/datepicker', '/table']) {
+            await page.goto(path);
+            await hydrated(page);
+
+            const { split, spaced, names } = await namesSplitInsideAWord(page);
+
+            expect(names, `${path} has member names`).toBeGreaterThan(20);
+            expect(spaced, `${path}: names with a space in them`).toEqual([]);
+            expect(split, `${path}: names broken inside a word that fits the column`).toEqual([]);
+        }
+    });
+}
+
 test('on a desktop the table boxes add no tab stops', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/datepicker');
