@@ -1,7 +1,7 @@
 import { Component, PendingTasks, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
-import { CodeBlock } from '../components/code-block';
+import { InstallCommand } from '../components/install-command';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
 import { moduleTitle } from '../nav';
@@ -14,7 +14,7 @@ import { HomePreview } from './home-preview';
  */
 @Component({
     selector: 'agl-home-page',
-    imports: [RouterLink, CodeBlock, Toc, HomePreview],
+    imports: [RouterLink, InstallCommand, Toc, HomePreview],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -122,7 +122,7 @@ import { HomePreview } from './home-preview';
                 <!-- The same snippet Getting started shows, from the same generated payload. Two
                      copies of an install command is how a site ends up telling a reader to install
                      one set of packages on one page and a different set on another. -->
-                <agl-code-block [lines]="install()" [palette]="palette()" label="terminal" />
+                <agl-install-command [guide]="guide()" />
 
                 <!-- ── licence boundary ──────────────────────────────────────────────── -->
                 <h2 class="mt-14 scroll-mt-20 text-xl font-semibold tracking-tight" id="two-packages">Components and themes</h2>
@@ -204,11 +204,7 @@ import { HomePreview } from './home-preview';
 export class HomePage {
     private readonly modules = signal<ApiIndexEntry[]>([]);
 
-    private readonly guide = signal<GuidePayload | null>(null);
-
-    readonly palette = computed(() => this.guide()?.palette ?? []);
-
-    readonly install = computed(() => this.guide()?.snippets['install'] ?? []);
+    readonly guide = signal<GuidePayload | null>(null);
 
     readonly moduleCount = computed(() => this.modules().length);
 

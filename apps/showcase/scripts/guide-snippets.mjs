@@ -39,11 +39,17 @@ function cut(file, name) {
     return `${imports}\n\n${source.slice(from + start.length, to).trimEnd()}`;
 }
 
+/**
+ * The packages to install, written once. The four install commands below are the same list
+ * behind each package manager's own verb, so they cannot disagree about what to install.
+ */
+const PACKAGES = '@anguless/angulux @anguless/angulux-themes primeicons';
+
 export const SNIPPETS = {
-    install: {
-        lang: 'shell',
-        code: `pnpm add @anguless/angulux @anguless/angulux-themes primeicons`
-    },
+    'install-pnpm': { lang: 'shell', code: `pnpm add ${PACKAGES}` },
+    'install-npm': { lang: 'shell', code: `npm install ${PACKAGES}` },
+    'install-yarn': { lang: 'shell', code: `yarn add ${PACKAGES}` },
+    'install-bun': { lang: 'shell', code: `bun add ${PACKAGES}` },
 
     provide: {
         lang: 'source',

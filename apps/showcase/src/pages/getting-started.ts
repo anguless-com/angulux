@@ -2,6 +2,7 @@ import { Component, PendingTasks, computed, inject, signal } from '@angular/core
 import { RouterLink } from '@angular/router';
 import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
+import { InstallCommand } from '../components/install-command';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
 
@@ -15,7 +16,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
  */
 @Component({
     selector: 'agl-getting-started-page',
-    imports: [RouterLink, CodeBlock, Toc],
+    imports: [RouterLink, CodeBlock, InstallCommand, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -30,7 +31,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
                     <code class="code-chip">&#64;anguless/angulux-themes</code> supplies the theme preset and <code class="code-chip">primeicons</code> the icon font. Both are
                     optional — see <a class="text-brand hover:underline" routerLink="/theming">Theming</a> for what you lose by dropping them.
                 </p>
-                <agl-code-block [lines]="snippet('install')" [palette]="palette()" label="terminal" />
+                <agl-install-command [guide]="guide()" />
 
                 <h2 class="mt-12 scroll-mt-20 text-xl font-semibold tracking-tight" id="provide">2 · Provide it</h2>
                 <p class="mb-4 mt-1 text-sm text-muted">
@@ -120,7 +121,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
 export class GettingStartedPage {
     private readonly modules = signal<ApiIndexEntry[]>([]);
 
-    private readonly guide = signal<GuidePayload | null>(null);
+    readonly guide = signal<GuidePayload | null>(null);
 
     readonly moduleCount = computed(() => this.modules().length);
 
