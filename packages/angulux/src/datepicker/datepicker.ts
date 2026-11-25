@@ -182,6 +182,12 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                     </ng-template>
                                 </agl-button>
                                 <div [class]="cx('title')" [aglBind]="ptm('title')">
+                                    <!-- Each button is named by what it shows, then by what pressing it does:
+                                         "March, Choose Month". The name used to be the translation alone, so a
+                                         button reading "March" was called "Choose Month", which fails WCAG 2.5.3
+                                         (Label in Name): a voice user saying "click March" reached nothing. Same
+                                         translation keys as before; written here rather than in a method so the
+                                         class gains no public member while the API is frozen. -->
                                     <button
                                         *ngIf="currentView === 'date'"
                                         type="button"
@@ -189,7 +195,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                         (keydown)="onContainerButtonKeydown($event)"
                                         [class]="cx('selectMonth')"
                                         [attr.disabled]="switchViewButtonDisabled() ? '' : undefined"
-                                        [attr.aria-label]="this.getTranslation('chooseMonth')"
+                                        [attr.aria-label]="getMonthName(month.month) + ', ' + getTranslation('chooseMonth')"
                                         aglRipple
                                         [aglBind]="ptm('selectMonth')"
                                         [attr.data-pc-group-section]="'navigator'"
@@ -203,7 +209,7 @@ const DATEPICKER_INSTANCE = new InjectionToken<DatePicker>('DATEPICKER_INSTANCE'
                                         (keydown)="onContainerButtonKeydown($event)"
                                         [class]="cx('selectYear')"
                                         [attr.disabled]="switchViewButtonDisabled() ? '' : undefined"
-                                        [attr.aria-label]="getTranslation('chooseYear')"
+                                        [attr.aria-label]="getYear(month) + ', ' + getTranslation('chooseYear')"
                                         aglRipple
                                         [aglBind]="ptm('selectYear')"
                                         [attr.data-pc-group-section]="'navigator'"
@@ -2106,7 +2112,6 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
     getYear(month: any) {
         return this.currentView === 'month' ? this.currentYear : month.year;
     }
-
     switchViewButtonDisabled() {
         return this.numberOfMonths > 1 || this.$disabled();
     }

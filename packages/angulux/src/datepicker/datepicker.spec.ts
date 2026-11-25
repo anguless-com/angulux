@@ -2046,4 +2046,47 @@ describe('DatePicker', () => {
             expect(days.every((d) => d.getAttribute('aria-disabled') === 'true')).toBe(true);
         });
     });
+
+    // WCAG 2.5.3, Label in Name: a control's accessible name contains the text it shows. The
+    // month and year buttons in the header were named "Choose Month" and "Choose Year" while
+    // showing "March" and "2026", which axe reported on the showcase's DatePicker page.
+    describe('Month and year buttons are named by what they show', () => {
+        async function inlineMarch(): Promise<HTMLElement> {
+            testComponent.inline = true;
+            testComponent.selectedDate = new Date(2026, 2, 18);
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+            return testFixture.nativeElement as HTMLElement;
+        }
+
+        const button = (root: HTMLElement, part: 'month' | 'year') => root.querySelector(`.p-datepicker-select-${part}`) as HTMLButtonElement;
+
+        it('names the month button by the month it shows, then by what it does', async () => {
+            const root = await inlineMarch();
+            const month = button(root, 'month');
+            expect(month.textContent!.trim()).toBe('March');
+            expect(month.getAttribute('aria-label')).toBe('March, Choose Month');
+        });
+
+        it('names the year button by the year it shows, then by what it does', async () => {
+            const root = await inlineMarch();
+            const year = button(root, 'year');
+            expect(year.textContent!.trim()).toBe('2026');
+            expect(year.getAttribute('aria-label')).toBe('2026, Choose Year');
+        });
+
+        it('keeps the visible text inside the name as the shown month changes', async () => {
+            const root = await inlineMarch();
+            // Found by its name, as a person finds it.
+            (root.querySelector('button[aria-label="Next Month"]') as HTMLElement).click();
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+
+            for (const part of ['month', 'year'] as const) {
+                const shown = button(root, part).textContent!.trim();
+                expect(button(root, part).getAttribute('aria-label')!.startsWith(`${shown}, `)).toBe(true);
+            }
+            expect(button(root, 'month').textContent!.trim()).toBe('April');
+        });
+    });
 });
