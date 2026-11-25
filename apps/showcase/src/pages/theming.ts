@@ -2,6 +2,7 @@ import { Component, PendingTasks, computed, inject, signal } from '@angular/core
 import { RouterLink } from '@angular/router';
 import { GuidePayload, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
+import { Pager } from '../components/pager';
 import { Toc, TocEntry } from '../components/toc';
 import { CONTRAST_ROWS } from './contrast-rows';
 
@@ -20,7 +21,7 @@ import { CONTRAST_ROWS } from './contrast-rows';
  */
 @Component({
     selector: 'agl-theming-page',
-    imports: [RouterLink, CodeBlock, Toc],
+    imports: [RouterLink, CodeBlock, Pager, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -189,6 +190,8 @@ import { CONTRAST_ROWS } from './contrast-rows';
                     Next: <a class="text-brand hover:underline" routerLink="/getting-started">Getting started</a> if you have not installed it yet, or
                     <a class="text-brand hover:underline" routerLink="/">the module list</a> if you have.
                 </div>
+
+                <agl-pager path="/theming" />
             </article>
 
             <aside class="hidden w-52 shrink-0 xl:block">

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
 import { InstallCommand } from '../components/install-command';
+import { Pager } from '../components/pager';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
 
@@ -16,7 +17,7 @@ import { DEMO_SECTIONS } from '../doc/registry';
  */
 @Component({
     selector: 'agl-getting-started-page',
-    imports: [RouterLink, CodeBlock, InstallCommand, Toc],
+    imports: [RouterLink, CodeBlock, InstallCommand, Pager, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -110,6 +111,8 @@ import { DEMO_SECTIONS } from '../doc/registry';
                         <div class="mt-0.5 text-xs text-muted">The whole API, machine-readable.</div>
                     </a>
                 </div>
+
+                <agl-pager path="/getting-started" />
             </article>
 
             <aside class="hidden w-52 shrink-0 xl:block">

@@ -4,6 +4,7 @@ import { ApiGroup, ApiTable, declarationAnchor } from '../components/api-table';
 import { CodeBlock } from '../components/code-block';
 import { DemoCode } from '../components/demo-code';
 import { DemoHost } from '../components/demo-host';
+import { Pager } from '../components/pager';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS, DemoSection } from '../doc/registry';
 import { moduleTitle } from '../nav';
@@ -24,7 +25,7 @@ interface LoadedSection {
  */
 @Component({
     selector: 'agl-module-page',
-    imports: [ApiTable, CodeBlock, DemoCode, DemoHost, Toc],
+    imports: [ApiTable, CodeBlock, DemoCode, DemoHost, Pager, Toc],
     template: `
         <div class="mx-auto flex w-full max-w-6xl gap-10 px-5 py-10 sm:px-8 lg:px-10">
             <article class="min-w-0 max-w-3xl flex-1">
@@ -98,6 +99,8 @@ interface LoadedSection {
                         <p class="mt-1 text-sm text-muted">Generated from the committed corpus, which <code class="code-chip">check:corpus</code> holds to the built library.</p>
                     </section>
                     <agl-api-table [groups]="groups()" />
+
+                    <agl-pager [path]="'/' + api.name" />
                 }
             </article>
 

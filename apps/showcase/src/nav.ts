@@ -17,6 +17,12 @@ import { ApiIndexEntry, loadApiIndex } from './data';
  * fails until it is given a group, so a promotion out of the attic cannot leave it there.
  */
 
+/** The written pages, first in the sidebar and first in the reading order. Hand-kept: no generated source knows about them. */
+export const GUIDE_PAGES: readonly { path: string; label: string }[] = [
+    { path: '/getting-started', label: 'Getting started' },
+    { path: '/theming', label: 'Theming' }
+];
+
 export interface NavGroup {
     label: string;
     modules: readonly string[];
@@ -90,6 +96,14 @@ export function navSections(entries: readonly ApiIndexEntry[]): NavSection[] {
     sections.push(section(UNGROUPED, entries.filter((entry) => !placed.has(entry.name))));
 
     return sections.filter((s) => s.items.length);
+}
+
+/**
+ * Every page in the order the sidebar lists it: the guide, then each group's modules. The
+ * previous and next links at the foot of a page walk this list.
+ */
+export function readingOrder(entries: readonly ApiIndexEntry[]): { path: string; label: string }[] {
+    return [...GUIDE_PAGES, ...navSections(entries).flatMap((section) => section.items.map((item) => ({ path: `/${item.entry.name}`, label: item.label })))];
 }
 
 /**

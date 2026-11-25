@@ -3,7 +3,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs/operators';
 import { ApiIndexEntry, LibraryVersion, loadApiIndex, loadVersion } from './data';
 import { DEMO_SECTIONS } from './doc/registry';
-import { moduleTitle, navSections } from './nav';
+import { GUIDE_PAGES, moduleTitle, navSections } from './nav';
 import { ColorSchemeToggle } from './theme';
 
 /**
@@ -191,11 +191,8 @@ import { ColorSchemeToggle } from './theme';
     `
 })
 export class AppComponent {
-    /** Hand-kept, unlike the module list — there is no generated source that knows about these. */
-    readonly GUIDE = [
-        { path: '/getting-started', label: 'Getting started' },
-        { path: '/theming', label: 'Theming' }
-    ];
+    /** Hand-kept, unlike the module list (nav.ts says why). */
+    readonly GUIDE = GUIDE_PAGES;
 
     private readonly modulesAll = signal<ApiIndexEntry[]>([]);
 
