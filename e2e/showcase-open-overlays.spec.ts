@@ -27,6 +27,12 @@ type Case = {
     rules?: string[];
 };
 
+/**
+ * Clicks the button with this name inside one demo. Not an exact match: a button with a PrimeIcons
+ * icon also carries the icon's glyph in its accessible name.
+ */
+const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name }).click();
+
 const CASES: Case[] = [
     {
         // Icon-only buttons: they had no name, since it was bound to the agl-button host.
@@ -69,6 +75,120 @@ const CASES: Case[] = [
         panel: '.p-multiselect-overlay',
         holds: { selector: 'input[role="searchbox"]', count: 1 },
         rules: ['label']
+    },
+
+    // The overlays below broke no rule when they were added. Each case keeps its overlay that way.
+    {
+        name: 'Select',
+        path: '/select',
+        open: (page) => page.locator('agl-select-basic-doc agl-select').click(),
+        panel: '.p-select-overlay',
+        holds: { selector: '[role="option"]', count: 4 }
+    },
+    {
+        name: 'DatePicker',
+        path: '/datepicker',
+        open: (page) => page.locator('agl-datepicker-basic-doc input').click(),
+        panel: '.p-datepicker-panel[role="dialog"]',
+        holds: { selector: 'table[role="grid"]', count: 1 }
+    },
+    {
+        name: 'Dialog',
+        path: '/dialog',
+        open: press('agl-dialog-basic-doc', 'Show'),
+        panel: '.p-dialog',
+        // The close button.
+        holds: { selector: 'button', count: 1 }
+    },
+    {
+        name: 'Modal Dialog',
+        path: '/dialog',
+        open: press('agl-dialog-modal-doc', 'Show modal'),
+        panel: '.p-dialog',
+        // Close, Cancel and Confirm.
+        holds: { selector: 'button', count: 3 }
+    },
+    {
+        name: 'Drawer',
+        path: '/drawer',
+        open: press('agl-drawer-basic-doc', 'Open'),
+        panel: '.p-drawer',
+        // The close button.
+        holds: { selector: 'button', count: 1 }
+    },
+    {
+        name: 'ConfirmDialog',
+        path: '/confirmdialog',
+        open: press('agl-confirmdialog-basic-doc', 'Delete'),
+        panel: '.p-confirmdialog',
+        // Close, reject and accept.
+        holds: { selector: 'button', count: 3 }
+    },
+    {
+        name: 'Popover',
+        path: '/popover',
+        open: press('agl-popover-basic-doc', 'Show'),
+        panel: '.p-popover',
+        holds: { selector: 'p', count: 1 }
+    },
+    {
+        name: 'Popup Menu',
+        path: '/menu',
+        open: press('agl-menu-popup-doc', 'Show'),
+        panel: '.p-menu-overlay',
+        holds: { selector: '[role="menuitem"]', count: 4 }
+    },
+    {
+        // The two root items; their submenus stay closed.
+        name: 'Popup TieredMenu',
+        path: '/tieredmenu',
+        open: press('agl-tieredmenu-popup-doc', 'Show'),
+        panel: '.p-tieredmenu-overlay',
+        holds: { selector: '[role="menuitem"]:visible', count: 2 }
+    },
+    {
+        name: 'SplitButton menu',
+        path: '/splitbutton',
+        open: press('agl-splitbutton-basic-doc', 'More actions'),
+        panel: '.p-tieredmenu-overlay',
+        holds: { selector: '[role="menuitem"]', count: 2 }
+    },
+    {
+        // Another demo on the page shows the same message, so the case keeps to this one. The pointer
+        // rests on the message, which stops its timer: it stays until the scan is done.
+        name: 'Toast',
+        path: '/toast',
+        open: async (page) => {
+            await press('agl-toast-basic-doc', 'Show')(page);
+            await page.locator('agl-toast-basic-doc .p-toast-message').hover();
+        },
+        panel: 'agl-toast-basic-doc .p-toast-message',
+        // The close button.
+        holds: { selector: 'button', count: 1 }
+    },
+    {
+        name: 'Tooltip',
+        path: '/tooltip',
+        open: (page) => page.locator('agl-tooltip-basic-doc input').hover(),
+        panel: '.p-tooltip',
+        holds: { selector: '.p-tooltip-text', count: 1 }
+    },
+    {
+        name: 'Password strength meter',
+        path: '/password',
+        open: (page) => page.locator('agl-password-meter-doc input').fill('abc12'),
+        panel: '.p-password-overlay',
+        holds: { selector: '.p-password-meter', count: 1 }
+    },
+    // ColorPicker is not here. Its open panel holds no text and no element with a role, so axe has
+    // no rule to run on it, and the check that axe ran one would fail the case. Its colour area and
+    // hue bar take the pointer only, which no axe rule looks for.
+    {
+        name: 'Overlay',
+        path: '/overlay',
+        open: press('agl-overlay-basic-doc', 'Toggle'),
+        panel: '.p-overlay',
+        holds: { selector: 'p', count: 1 }
     }
 ];
 
@@ -85,11 +205,20 @@ for (const c of CASES) {
 
             await expect(panel).toBeVisible();
             await expect(panel.locator(c.holds.selector)).toHaveCount(c.holds.count);
-            // Scanned once the enter motion has finished, not halfway through a fade.
+            // Scanned once the enter motion has finished, not halfway through a fade. The motion can
+            // run on the panel, inside it, or on a wrapper around it (an overlay's, as with Password);
+            // a fade written frame by frame into style.opacity (Tooltip's) is in no animation list,
+            // so the opacity of the panel and of every element around it has to reach 1 as well.
             await page.waitForFunction((selector) => {
                 const open = document.querySelector(selector)!;
+                const chain: Element[] = [];
 
-                return open.getAnimations({ subtree: true }).every((a) => a.playState !== 'running');
+                for (let el: Element | null = open; el; el = el.parentElement) chain.push(el);
+
+                const moving = [...open.getAnimations({ subtree: true }), ...chain.flatMap((el) => el.getAnimations())].some((a) => a.playState === 'running');
+                const opacity = chain.reduce((product, el) => product * Number(getComputedStyle(el).opacity), 1);
+
+                return !moving && opacity === 1;
             }, c.panel);
 
             const axe = new AxeBuilder({ page }).include(c.panel);
