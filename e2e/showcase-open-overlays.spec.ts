@@ -27,11 +27,8 @@ type Case = {
     rules?: string[];
 };
 
-/**
- * Clicks the button with this name inside one demo. Not an exact match: a button with a PrimeIcons
- * icon also carries the icon's glyph in its accessible name.
- */
-const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name }).click();
+/** Clicks the button with this name inside one demo. */
+const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name, exact: true }).click();
 
 const CASES: Case[] = [
     {

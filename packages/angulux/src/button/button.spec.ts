@@ -903,20 +903,30 @@ describe('Button', () => {
             expect(buttonElement.tagName.toLowerCase()).toBe('button');
         });
 
-        it('should handle aria-hidden for icons', async () => {
+        // An icon font draws its glyph in ::before, and that private-use character enters the
+        // button's accessible name unless the icon is hidden: "<glyph> Click Me" instead of "Click Me".
+        it('should hide the icon from assistive technology beside a label', async () => {
             component.icon = 'pi pi-search';
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
 
-            component.label = undefined as any; // Icon only
+            const icon = buttonElement.querySelector('.pi-search')!;
+            const label = [...buttonElement.querySelectorAll('span')].find((span) => span.textContent?.trim() === 'Click Me')!;
+
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+            expect(label.getAttribute('aria-hidden')).not.toBe('true');
+        });
+
+        it('should hide the icon from assistive technology on an icon-only button', async () => {
+            component.icon = 'pi pi-search';
+            component.label = undefined;
             fixture.changeDetectorRef.markForCheck();
             await fixture.whenStable();
             fixture.detectChanges();
 
-            // Check that icon property is set correctly
-            expect(buttonInstance.icon).toBe('pi pi-search');
             expect(buttonInstance.label).toBeUndefined();
+            expect(buttonElement.querySelector('.pi-search')!.getAttribute('aria-hidden')).toBe('true');
         });
 
         it('should handle tabindex correctly', async () => {
@@ -1340,9 +1350,9 @@ describe('Button', () => {
             await fixture.whenStable();
             fixture.detectChanges();
 
-            // Check initial accessibility
+            // The icon is hidden from assistive technology, as the loading icon is below.
             const iconElement = buttonElement.querySelector('.p-button-icon');
-            expect(iconElement?.getAttribute('aria-hidden')).toBeNull(); // Icon elements don't always have aria-hidden in this implementation
+            expect(iconElement?.getAttribute('aria-hidden')).toBe('true');
 
             // Switch to loading
             component.loading = true;

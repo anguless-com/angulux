@@ -240,7 +240,7 @@
         "packages/angulux/src/button/button.spec.ts": {
             "@angular-eslint/prefer-standalone": 12,
             "@angular-eslint/template/button-has-type": 2,
-            "@typescript-eslint/no-explicit-any": 14
+            "@typescript-eslint/no-explicit-any": 13
         },
         "packages/angulux/src/button/button.ts": {
             "@angular-eslint/template/prefer-control-flow": 10,
