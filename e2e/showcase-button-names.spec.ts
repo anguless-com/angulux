@@ -23,3 +23,11 @@ test('the icon beside a label stays out of the button name, in every icon positi
         await expect(buttons.nth(i), `button ${i + 1}`).toHaveAccessibleName(name);
     }
 });
+
+test('the icon an app marks with aglButtonIcon stays out of the button name', async ({ page }) => {
+    await page.goto('/button');
+    await hydrated(page);
+
+    // <button aglButton><i class="pi pi-check" aglButtonIcon></i><span aglButtonLabel>Save</span></button>
+    await expect(page.locator('agl-button-directive-doc').getByRole('button')).toHaveAccessibleName('Save');
+});
