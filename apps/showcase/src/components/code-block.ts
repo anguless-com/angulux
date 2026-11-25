@@ -30,7 +30,7 @@ import { CodeLines } from './code-lines';
             <div class="flex items-center gap-2 border-b border-line px-3 py-1.5">
                 <span class="truncate font-mono text-[11px] uppercase tracking-wider text-faint">{{ label() }}</span>
                 <button type="button" class="ml-auto flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted hover:text-ink" (click)="copy()">
-                    <i class="pi text-[11px]" [class.pi-copy]="!copied()" [class.pi-check]="copied()"></i>
+                    <i class="pi text-[11px]" [class.pi-copy]="!copied()" [class.pi-check]="copied()" aria-hidden="true"></i>
                     {{ copied() ? 'Copied' : 'Copy' }}
                 </button>
             </div>

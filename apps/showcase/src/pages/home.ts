@@ -40,7 +40,7 @@ import { HomePreview } from './home-preview';
                 <div class="mt-7 flex flex-wrap items-center gap-3">
                     <a class="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-canvas no-underline hover:bg-brand-strong" routerLink="/getting-started">
                         Get started
-                        <i class="pi pi-arrow-right text-[11px]"></i>
+                        <i class="pi pi-arrow-right text-[11px]" aria-hidden="true"></i>
                     </a>
                     @if (firstDocumented(); as first) {
                         <a
@@ -54,7 +54,7 @@ import { HomePreview } from './home-preview';
                         class="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-ink no-underline hover:bg-surface"
                         href="https://github.com/anguless-com/angulux"
                     >
-                        <i class="pi pi-github text-[13px]"></i>
+                        <i class="pi pi-github text-[13px]" aria-hidden="true"></i>
                         GitHub
                     </a>
                 </div>
