@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 import { hydrated } from './hydrated';
 
 /**
@@ -25,9 +25,16 @@ import { hydrated } from './hydrated';
  *     leave room for the next regression. `AXE_PRUNE=1` lowers it; it takes the smaller of
  *     the two numbers and can never raise or add an entry.
  *
- * WHAT IT DOES NOT COVER: the dark colour scheme, any state reached by interacting (an open
- * overlay, a focused field, an error message), and anything axe marks "incomplete" because it
- * could not decide. This is the page as it loads, in light.
+ * BOTH COLOUR SCHEMES, ONE BASELINE. Each page is swept in light and then in dark, inside one
+ * test, and each sweep is held to the same per-page entry. Measured on 2026-11-25, dark had
+ * exactly light's findings and nothing of its own, so no entry had to be added for it. One test
+ * rather than two keeps `AXE_PRUNE` honest: it lowers an entry to what the page needs in its
+ * worse scheme, which it can only know if both were measured in the same worker.
+ *
+ * WHAT IT DOES NOT COVER: any state reached by interacting (an open overlay, a focused field, an
+ * error message), and anything axe marks "incomplete" because it could not decide. That is a lot
+ * of colour contrast: about 5,200 elements on the site in either scheme, mostly text partly
+ * covered by another element, or one or two characters long. This is the page as it loads.
  */
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -69,26 +76,57 @@ test('axe can fail: an image with no alternative text is reported', async ({ pag
     expect(result.violations.map((v) => v.id)).toContain('image-alt');
 });
 
+/**
+ * Load a page in one colour scheme and run axe on it.
+ *
+ * The scheme is the one the reader's system asks for: with nothing stored, the inline script in
+ * index.html follows `prefers-color-scheme` and sets the `dark` class before the first paint. The
+ * class is checked, because a dark sweep of a light page would pass and prove nothing.
+ */
+async function sweep(page: Page, path: string, scheme: 'light' | 'dark') {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.goto(path);
+    await page.waitForLoadState('networkidle');
+    await hydrated(page);
+    expect(await page.evaluate(() => document.documentElement.classList.contains('dark')), `${path} is in the ${scheme} scheme`).toBe(scheme === 'dark');
+
+    return new AxeBuilder({ page }).withTags(TAGS).analyze();
+}
+
+test('the dark sweep is dark: contrast broken only under .dark is reported in dark and not in light', async ({ page }) => {
+    // Dark grey on the dark canvas (#0a0c10), about 1.7:1, set only under the dark class. Not the
+    // canvas colour itself: at 1:1 axe reports "incomplete", since equal colours may mean text
+    // hidden on purpose, and the test would prove nothing.
+    const unreadable = '.dark main h1 { color: #333a46 !important; }';
+
+    await sweep(page, '/getting-started', 'dark');
+    await page.addStyleTag({ content: unreadable });
+    expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toContain('color-contrast');
+
+    await sweep(page, '/getting-started', 'light');
+    await page.addStyleTag({ content: unreadable });
+    expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).not.toContain('color-contrast');
+});
+
 for (const path of PAGES) {
-    test(`${path} — no accessibility violation beyond the frozen baseline`, async ({ page }) => {
-        await page.goto(path);
-        await page.waitForLoadState('networkidle');
-        await hydrated(page);
-
-        const result = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-
-        // An engine that ran no rule reports no violation. Every page has at least a document
-        // title and a language, so "nothing passed" means "nothing ran".
-        expect(result.passes.length, 'axe ran no rule on this page').toBeGreaterThan(0);
-
+    test(`${path} — no accessibility violation beyond the frozen baseline, in light or in dark`, async ({ page }) => {
         const counts: Counts = {};
         const over: string[] = [];
         const allowed = baseline[path] ?? {};
 
-        for (const v of result.violations) {
-            counts[v.id] = v.nodes.length;
-            if (v.nodes.length > (allowed[v.id] ?? 0)) {
-                over.push(`${v.id} (${v.impact}): ${v.nodes.length} element(s), ${allowed[v.id] ?? 0} frozen — ${v.help}\n` + v.nodes.map((n) => `      ${n.target.join(' ')}`).join('\n'));
+        for (const scheme of ['light', 'dark'] as const) {
+            const result = await sweep(page, path, scheme);
+
+            // An engine that ran no rule reports no violation. Every page has at least a document
+            // title and a language, so "nothing passed" means "nothing ran".
+            expect(result.passes.length, `axe ran no rule on this page in ${scheme}`).toBeGreaterThan(0);
+
+            for (const v of result.violations) {
+                // The page needs what its worse scheme needs; that is what the entry is compared with.
+                counts[v.id] = Math.max(counts[v.id] ?? 0, v.nodes.length);
+                if (v.nodes.length > (allowed[v.id] ?? 0)) {
+                    over.push(`${v.id} (${v.impact}), in ${scheme}: ${v.nodes.length} element(s), ${allowed[v.id] ?? 0} frozen — ${v.help}\n` + v.nodes.map((n) => `      ${n.target.join(' ')}`).join('\n'));
+                }
             }
         }
         found[path] = counts;
