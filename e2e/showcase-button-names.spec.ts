@@ -24,6 +24,18 @@ test('the icon beside a label stays out of the button name, in every icon positi
     }
 });
 
+test('a ToggleButton is named by its label, not by its on or off icon', async ({ page }) => {
+    await page.goto('/togglebutton');
+    await hydrated(page);
+
+    // onLabel="Locked" offLabel="Unlocked" onIcon="pi pi-lock" offIcon="pi pi-lock-open"
+    const toggle = page.locator('agl-togglebutton-icons-doc').getByRole('button');
+
+    await expect(toggle).toHaveAccessibleName('Unlocked');
+    await toggle.click();
+    await expect(toggle).toHaveAccessibleName('Locked');
+});
+
 test('the icon an app marks with aglButtonIcon stays out of the button name', async ({ page }) => {
     await page.goto('/button');
     await hydrated(page);
