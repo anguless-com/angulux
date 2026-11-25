@@ -56,7 +56,7 @@ interface LoadedSection {
                                     class="flex h-7 items-center gap-1.5 rounded-md border border-line px-2 hover:bg-surface hover:text-ink"
                                     (click)="copyMarkdown(api.name)"
                                 >
-                                    <i class="pi text-[11px]" [class.pi-copy]="markdown() !== 'copied'" [class.pi-check]="markdown() === 'copied'"></i>
+                                    <i class="pi text-[11px]" [class.pi-copy]="markdown() !== 'copied'" [class.pi-check]="markdown() === 'copied'" aria-hidden="true"></i>
                                     {{ markdown() === 'copied' ? 'Copied' : markdown() === 'failed' ? 'Copy failed: open the file' : 'Copy as Markdown' }}
                                 </button>
                                 <a class="flex h-7 items-center rounded-md px-2 font-mono text-muted no-underline hover:bg-surface hover:text-ink" [href]="api.name + '.md'">{{ api.name }}.md</a>

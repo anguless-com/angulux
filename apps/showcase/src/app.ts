@@ -46,7 +46,7 @@ import { ColorSchemeToggle } from './theme';
                     aria-label="Toggle navigation"
                     (click)="navOpen.set(!navOpen())"
                 >
-                    <i class="pi" [class.pi-bars]="!navOpen()" [class.pi-times]="navOpen()"></i>
+                    <i class="pi" [class.pi-bars]="!navOpen()" [class.pi-times]="navOpen()" aria-hidden="true"></i>
                 </button>
 
                 <a routerLink="/" class="flex items-center gap-2.5 text-ink no-underline">
@@ -97,7 +97,7 @@ import { ColorSchemeToggle } from './theme';
                         aria-label="GitHub repository"
                         class="grid size-9 place-items-center rounded-lg text-muted no-underline hover:bg-surface hover:text-ink"
                     >
-                        <i class="pi pi-github"></i>
+                        <i class="pi pi-github" aria-hidden="true"></i>
                     </a>
                     <button
                         type="button"
@@ -105,7 +105,7 @@ import { ColorSchemeToggle } from './theme';
                         [attr.aria-label]="theme.scheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
                         (click)="theme.toggle()"
                     >
-                        <i class="pi" [class.pi-moon]="theme.scheme() === 'light'" [class.pi-sun]="theme.scheme() === 'dark'"></i>
+                        <i class="pi" [class.pi-moon]="theme.scheme() === 'light'" [class.pi-sun]="theme.scheme() === 'dark'" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -137,7 +137,7 @@ import { ColorSchemeToggle } from './theme';
                          single input, which is also the one a keyboard user reaches for first.
                          (No backticks in template comments: they end the TypeScript template literal.) -->
                     <div class="relative">
-                        <i class="pi pi-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-faint"></i>
+                        <i class="pi pi-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-faint" aria-hidden="true"></i>
                         <input
                             #filterBox
                             type="search"
