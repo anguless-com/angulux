@@ -27,6 +27,8 @@ import { settled, waitUntil } from '../spec-helpers';
             [resetFilterOnHide]="resetFilterOnHide"
             [ariaLabel]="ariaLabel"
             [ariaLabelledBy]="ariaLabelledBy"
+            [ariaFilterLabel]="ariaFilterLabel"
+            [filterPlaceholder]="filterPlaceholder"
             [autofocus]="autofocus"
             [styleClass]="styleClass"
             (onChange)="onSelectionChange($event)"
@@ -57,6 +59,8 @@ class TestBasicSelectComponent {
     resetFilterOnHide = false;
     ariaLabel: string | undefined;
     ariaLabelledBy: string | undefined;
+    ariaFilterLabel: string | undefined;
+    filterPlaceholder: string | undefined;
     autofocus = false;
     styleClass: string | undefined;
 
@@ -1322,6 +1326,51 @@ describe('Select', () => {
             } else {
                 expect(selectInstance.autofocus).toBe(true);
             }
+        });
+    });
+
+    // The search box in the overlay is a field of its own and needs a name (axe label, WCAG
+    // 4.1.2). It had one only when the app set ariaFilterLabel; axe reported it on the showcase.
+    describe('The filter box is named', () => {
+        async function filterBox(): Promise<HTMLInputElement> {
+            component.filter = true;
+            fixture.detectChanges();
+            selectInstance.show();
+            fixture.detectChanges();
+            await fixture.whenStable();
+            return fixture.debugElement.query(By.css('input[role="searchbox"]')).nativeElement as HTMLInputElement;
+        }
+
+        it('takes ariaFilterLabel when it is given', async () => {
+            component.ariaFilterLabel = 'Search options';
+            component.ariaLabel = 'Option';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-label')).toBe('Search options');
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
+        });
+
+        it('leaves the name to the filter placeholder when there is one', async () => {
+            component.filterPlaceholder = 'Search';
+            component.ariaLabel = 'Option';
+            const box = await filterBox();
+            expect(box.getAttribute('placeholder')).toBe('Search');
+            expect(box.hasAttribute('aria-label')).toBe(false);
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
+        });
+
+        it('otherwise takes what labels the Select: aria-labelledby first', async () => {
+            component.ariaLabelledBy = 'label-id';
+            component.ariaLabel = 'Option';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-labelledby')).toBe('label-id');
+            expect(box.hasAttribute('aria-label')).toBe(false);
+        });
+
+        it('otherwise takes the Select ariaLabel', async () => {
+            component.ariaLabel = 'Option';
+            const box = await filterBox();
+            expect(box.getAttribute('aria-label')).toBe('Option');
+            expect(box.hasAttribute('aria-labelledby')).toBe(false);
         });
     });
 

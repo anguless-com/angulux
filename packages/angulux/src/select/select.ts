@@ -311,6 +311,11 @@ export class SelectItem extends BaseComponent {
                         </ng-container>
                         <ng-template #builtInFilterElement>
                             <agl-iconfield [pt]="ptm('pcFilterContainer')" [unstyled]="unstyled()">
+                                <!-- The search box needs a name of its own (axe label, WCAG 4.1.2). In order:
+                                     ariaFilterLabel; else the filter placeholder, which browsers already use
+                                     as a name; else what names the Select itself, ariaLabelledBy or ariaLabel.
+                                     Written here rather than in a method so the class gains no public member
+                                     while the API is frozen. -->
                                 <input
                                     #filter
                                     aglInputText
@@ -324,7 +329,8 @@ export class SelectItem extends BaseComponent {
                                     [attr.placeholder]="filterPlaceholder"
                                     [attr.aria-owns]="id + '_list'"
                                     (input)="onFilterInputChange($event)"
-                                    [attr.aria-label]="ariaFilterLabel"
+                                    [attr.aria-label]="ariaFilterLabel || (filterPlaceholder || ariaLabelledBy ? undefined : ariaLabel)"
+                                    [attr.aria-labelledby]="ariaFilterLabel || filterPlaceholder ? undefined : ariaLabelledBy"
                                     [attr.aria-activedescendant]="focusedOptionId"
                                     (keydown)="onFilterKeyDown($event)"
                                     (blur)="onFilterBlur($event)"
