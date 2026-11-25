@@ -60,7 +60,9 @@ export const TOGGLEBUTTON_VALUE_ACCESSOR: any = {
         @if (!contentTemplate()) {
             @if (!iconTemplate()) {
                 @if (onIcon || offIcon) {
-                    <span [class]="cn(cx('icon'), checked ? this.onIcon : this.offIcon, iconPos === 'left' ? cx('iconLeft') : cx('iconRight'))" [aglBind]="ptm('icon')"></span>
+                    <!-- Hidden from assistive technology: an icon font's glyph is generated content and
+                         would otherwise enter the button's name ("<glyph> Unlocked" instead of "Unlocked"). -->
+                    <span [class]="cn(cx('icon'), checked ? this.onIcon : this.offIcon, iconPos === 'left' ? cx('iconLeft') : cx('iconRight'))" [aglBind]="ptm('icon')" [attr.aria-hidden]="true"></span>
                 }
             } @else {
                 <ng-container *ngTemplateOutlet="iconTemplate(); context: { $implicit: checked }"></ng-container>

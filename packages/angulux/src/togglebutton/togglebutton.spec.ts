@@ -523,6 +523,22 @@ describe('ToggleButton', () => {
             const iconElement = iconFixture.debugElement.query(By.css('[data-pc-section="icon"]'));
             expect(iconElement.nativeElement.className).toContain('p-togglebutton-icon-right');
         });
+
+        // An icon font draws its glyph in ::before, and that private-use character enters the
+        // button's accessible name unless the icon is hidden: "<glyph> Unlocked" instead of "Unlocked".
+        it('should hide the on and off icons from assistive technology, not the label', () => {
+            const icon = () => iconFixture.debugElement.query(By.css('[data-pc-section="icon"]')).nativeElement as HTMLElement;
+            const label = iconFixture.debugElement.query(By.css('[data-pc-section="label"]')).nativeElement as HTMLElement;
+
+            expect(icon().getAttribute('aria-hidden')).toBe('true');
+            expect(label.getAttribute('aria-hidden')).not.toBe('true');
+
+            iconToggleButton.nativeElement.click();
+            iconFixture.detectChanges();
+
+            expect(icon().className).toContain('pi-check');
+            expect(icon().getAttribute('aria-hidden')).toBe('true');
+        });
     });
 
     describe('Keyboard Navigation', () => {
