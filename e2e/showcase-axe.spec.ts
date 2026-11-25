@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { hydrated } from './hydrated';
+import { showcasePages } from './showcase-pages';
 
 /**
  * axe-core over every page of the showcase, against a baseline that only shrinks.
@@ -44,15 +45,7 @@ type Counts = Record<string, number>;
 const baselineDoc = JSON.parse(readFileSync(BASELINE_FILE, 'utf8')) as { $comment: string[]; pages: Record<string, Counts> };
 const baseline = baselineDoc.pages;
 
-/** Every page the site has: the three written pages and one per module in the registry. */
-function readPages(): string[] {
-    const src = readFileSync(join(__dirname, '../apps/showcase/src/doc/registry.ts'), 'utf8');
-    const modules = [...src.matchAll(/^ {4}([a-z][\w]*): \[$/gm)].map((m) => m[1]);
-
-    return ['/', '/getting-started', '/theming', ...modules.map((m) => `/${m}`)];
-}
-
-const PAGES = readPages();
+const PAGES = showcasePages();
 const found: Record<string, Counts> = {};
 
 test('the sweep covers the whole site, and every baseline entry is a page that exists', () => {
