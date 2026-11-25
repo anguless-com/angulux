@@ -38,11 +38,28 @@ interface LoadedSection {
                         @if (api.description) {
                             <p class="mt-2 text-[15px] text-muted">{{ api.description }}</p>
                         }
-                        <div class="mt-2 flex flex-wrap gap-2 text-xs text-muted">
+                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
                             <span class="rounded-full border border-line px-2 py-0.5">{{ api.declarations.length }} declarations</span>
                             @if (sections().length) {
                                 <span class="rounded-full bg-brand-soft px-2 py-0.5 text-brand">{{ sections().length }} demos</span>
                             }
+
+                            <!-- The module's Markdown page: the API reference as an assistant reads it,
+                                 published beside llms.txt. Copy fetches it only when pressed, so it
+                                 costs nothing on load; the link is the way to it when the clipboard
+                                 is refused. -->
+                            <span class="ml-auto flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    class="flex h-7 items-center gap-1.5 rounded-md border border-line px-2 hover:bg-surface hover:text-ink"
+                                    (click)="copyMarkdown(api.name)"
+                                >
+                                    <i class="pi text-[11px]" [class.pi-copy]="markdown() !== 'copied'" [class.pi-check]="markdown() === 'copied'"></i>
+                                    {{ markdown() === 'copied' ? 'Copied' : markdown() === 'failed' ? 'Copy failed: open the file' : 'Copy as Markdown' }}
+                                </button>
+                                <a class="flex h-7 items-center rounded-md px-2 font-mono text-muted no-underline hover:bg-surface hover:text-ink" [href]="api.name + '.md'">{{ api.name }}.md</a>
+                            </span>
+                            <span class="sr-only" role="status">{{ markdown() === 'copied' ? 'Markdown copied' : markdown() === 'failed' ? 'Copying failed' : '' }}</span>
                         </div>
                     </header>
 
@@ -137,6 +154,43 @@ export class ModulePage {
 
         return entries;
     });
+
+    /** What the Copy as Markdown button last did, shown for two seconds. */
+    readonly markdown = signal<'idle' | 'copied' | 'failed'>('idle');
+
+    private markdownTimer: ReturnType<typeof setTimeout> | undefined;
+
+    /**
+     * Put `<module>.md` on the clipboard.
+     *
+     * The text is handed to the clipboard as a promise, inside the click. Safari refuses a write
+     * that starts after an await, so fetching first and writing afterwards would work in
+     * Chromium and fail there. Where a `ClipboardItem` cannot take a promise, the plain write
+     * after the fetch is tried instead.
+     */
+    copyMarkdown(name: string): void {
+        const text = fetch(`${name}.md`).then((response) => {
+            if (!response.ok) throw new Error(`${name}.md: ${response.status}`);
+
+            return response.text();
+        });
+        const plain = () => text.then((markdown) => navigator.clipboard.writeText(markdown));
+        const written =
+            typeof ClipboardItem === 'function' && navigator.clipboard?.write
+                ? navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then((markdown) => new Blob([markdown], { type: 'text/plain' })) })]).catch(plain)
+                : plain();
+
+        written.then(
+            () => this.showMarkdown('copied'),
+            () => this.showMarkdown('failed')
+        );
+    }
+
+    private showMarkdown(state: 'copied' | 'failed'): void {
+        clearTimeout(this.markdownTimer);
+        this.markdown.set(state);
+        this.markdownTimer = setTimeout(() => this.markdown.set('idle'), 2000);
+    }
 
     /** Captured here: an effect body is not an injection context. */
     private readonly pending = inject(PendingTasks);
