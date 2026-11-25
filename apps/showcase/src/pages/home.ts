@@ -4,6 +4,7 @@ import { ApiIndexEntry, GuidePayload, loadApiIndex, loadGuide } from '../data';
 import { CodeBlock } from '../components/code-block';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS } from '../doc/registry';
+import { moduleTitle } from '../nav';
 import { HomePreview } from './home-preview';
 
 /**
@@ -171,7 +172,7 @@ import { HomePreview } from './home-preview';
                             class="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-sm no-underline hover:border-brand hover:bg-surface"
                             [routerLink]="['/', module.name]"
                         >
-                            <span class="truncate text-ink">{{ module.name }}</span>
+                            <span class="truncate text-ink">{{ label(module) }}</span>
                             <span class="shrink-0 rounded-full bg-brand-soft px-1.5 text-[11px] text-brand">{{ demoCount(module.name) }}</span>
                         </a>
                     }
@@ -243,5 +244,10 @@ export class HomePage {
 
     demoCount(name: string): number {
         return DEMO_SECTIONS[name]?.length ?? 0;
+    }
+
+    /** The name the sidebar gives the module (nav.ts). */
+    label(module: ApiIndexEntry): string {
+        return moduleTitle(module) ?? module.name;
     }
 }

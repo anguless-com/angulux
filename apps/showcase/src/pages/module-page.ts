@@ -6,6 +6,7 @@ import { DemoCode } from '../components/demo-code';
 import { DemoHost } from '../components/demo-host';
 import { Toc, TocEntry } from '../components/toc';
 import { DEMO_SECTIONS, DemoSection } from '../doc/registry';
+import { moduleTitle } from '../nav';
 
 interface LoadedSection {
     section: DemoSection;
@@ -33,7 +34,7 @@ interface LoadedSection {
                 } @else if (api(); as api) {
                     <header>
                         <div class="font-mono text-xs text-faint">{{ api.entrypoint }}</div>
-                        <h1 class="mt-1 text-3xl font-semibold tracking-tight">{{ api.name }}</h1>
+                        <h1 class="mt-1 text-3xl font-semibold tracking-tight">{{ title() ?? api.name }}</h1>
                         @if (api.description) {
                             <p class="mt-2 text-[15px] text-muted">{{ api.description }}</p>
                         }
@@ -100,6 +101,13 @@ export class ModulePage {
     readonly palette = signal<[string, string][]>([]);
 
     readonly notFound = signal(false);
+
+    /** The class the module is named after, as the sidebar and the browser tab say it (nav.ts). */
+    readonly title = computed(() => {
+        const api = this.api();
+
+        return api && moduleTitle({ name: api.name, declares: api.declarations.map((declaration) => declaration.name) });
+    });
 
     /** The module's own declarations, each followed by the ancestors it inherits from. */
     readonly groups = signal<ApiGroup[]>([]);

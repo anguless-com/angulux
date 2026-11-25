@@ -1,8 +1,9 @@
-import { Component, ElementRef, PendingTasks, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, PendingTasks, afterRenderEffect, computed, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ApiIndexEntry, LibraryVersion, loadApiIndex, loadVersion } from './data';
 import { DEMO_SECTIONS } from './doc/registry';
+import { moduleTitle, navSections } from './nav';
 import { ColorSchemeToggle } from './theme';
 
 /**
@@ -104,12 +105,17 @@ import { ColorSchemeToggle } from './theme';
                 <div class="fixed inset-0 top-14 z-30 bg-ink/20 lg:hidden" aria-hidden="true" (click)="navOpen.set(false)"></div>
             }
 
+            <!-- The filter sits above the scrolling list rather than stuck over it. Stuck over it,
+                 a link scrolled halfway under the filter stayed half-clickable, which axe reports
+                 as a touch target under 24px, and once the list is scrolled to the current page
+                 (below) that is the state many pages load in. -->
             <aside
                 id="agl-nav"
-                class="thin-scroll fixed bottom-0 left-0 top-14 z-30 w-72 shrink-0 overflow-y-auto border-r border-line bg-canvas px-3 pb-16 lg:sticky lg:bottom-auto lg:block lg:h-[calc(100dvh-3.5rem)]"
+                class="fixed bottom-0 left-0 top-14 z-30 w-72 shrink-0 flex-col border-r border-line bg-canvas lg:sticky lg:bottom-auto lg:flex lg:h-[calc(100dvh-3.5rem)]"
                 [class.hidden]="!navOpen()"
+                [class.flex]="navOpen()"
             >
-                <div class="sticky top-0 z-10 -mx-3 bg-canvas px-3 pb-3 pt-4">
+                <div class="px-3 pb-3 pt-4">
                     <!-- The input carries a focus RING, not just a border tint. With outline-none and
                          only a border-colour change on focus, this was the one focusable element on
                          the site without a visible ring — 13 of 14 had one, and the exception was the
@@ -129,53 +135,50 @@ import { ColorSchemeToggle } from './theme';
                     </div>
                 </div>
 
-                <!-- Always visible, and deliberately not filtered: the filter narrows the 64
-                     modules, and hiding "Getting started" because someone typed a component
-                     name would take the guide away at the moment a newcomer most needs it. -->
-                <div class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-faint">Guide</div>
-                @for (page of GUIDE; track page.path) {
-                    <a
-                        class="block truncate rounded-lg px-2 py-1.5 text-sm text-ink no-underline hover:bg-surface"
-                        [routerLink]="page.path"
-                        routerLinkActive="bg-brand-soft! text-brand! font-medium"
-                        (click)="navOpen.set(false)"
-                    >
-                        {{ page.label }}
-                    </a>
-                }
-
-                @if (matchCount() === 0) {
-                    <p class="px-2 py-6 text-sm text-muted">No module matches “{{ query() }}”.</p>
-                }
-
-                @if (withDemos().length) {
-                    <div class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-faint">With demos · {{ withDemos().length }}</div>
-                    @for (module of withDemos(); track module.name) {
+                <div #nav class="thin-scroll relative min-h-0 flex-1 overflow-y-auto px-3 pb-16">
+                    <!-- Always visible, and deliberately not filtered: the filter narrows the 64
+                         modules, and hiding "Getting started" because someone typed a component
+                         name would take the guide away at the moment a newcomer most needs it. -->
+                    <div class="px-2 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-faint">Guide</div>
+                    @for (page of GUIDE; track page.path) {
                         <a
-                            class="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-ink no-underline hover:bg-surface"
-                            [routerLink]="['/', module.name]"
+                            class="block truncate rounded-lg px-2 py-1.5 text-sm text-ink no-underline hover:bg-surface"
+                            [routerLink]="page.path"
                             routerLinkActive="bg-brand-soft! text-brand! font-medium"
+                            ariaCurrentWhenActive="page"
                             (click)="navOpen.set(false)"
                         >
-                            <span class="truncate">{{ module.name }}</span>
-                            <span class="shrink-0 rounded-full border border-line px-1.5 text-[11px] text-muted">{{ demoCount(module.name) }}</span>
+                            {{ page.label }}
                         </a>
                     }
-                }
 
-                @if (apiOnly().length) {
-                    <div class="px-2 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-faint">API only · {{ apiOnly().length }}</div>
-                    @for (module of apiOnly(); track module.name) {
-                        <a
-                            class="block truncate rounded-lg px-2 py-1.5 text-sm text-muted no-underline hover:bg-surface hover:text-ink"
-                            [routerLink]="['/', module.name]"
-                            routerLinkActive="bg-brand-soft! text-brand! font-medium"
-                            (click)="navOpen.set(false)"
-                        >
-                            {{ module.name }}
-                        </a>
+                    @if (matchCount() === 0) {
+                        <p class="px-2 py-6 text-sm text-muted">No module matches “{{ query() }}”.</p>
                     }
-                }
+
+                    <!-- Grouped by what a module is for (nav.ts), each link named after the class it
+                         exports. A module with demos carries their count; one without is muted, so the
+                         pages that only have an API reference still read as such. -->
+                    @for (section of sections(); track section.label) {
+                        <div class="px-2 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-faint">{{ section.label }}</div>
+                        @for (item of section.items; track item.entry.name) {
+                            <a
+                                class="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm no-underline hover:bg-surface hover:text-ink"
+                                [class.text-ink]="demoCount(item.entry.name)"
+                                [class.text-muted]="!demoCount(item.entry.name)"
+                                [routerLink]="['/', item.entry.name]"
+                                routerLinkActive="bg-brand-soft! text-brand! font-medium"
+                                ariaCurrentWhenActive="page"
+                                (click)="navOpen.set(false)"
+                            >
+                                <span [class]="item.code ? 'truncate font-mono text-[13px]' : 'truncate'">{{ item.label }}</span>
+                                @if (demoCount(item.entry.name); as count) {
+                                    <span class="shrink-0 rounded-full border border-line px-1.5 text-[11px] text-muted">{{ count }}</span>
+                                }
+                            </a>
+                        }
+                    }
+                </div>
             </aside>
 
             <!-- tabindex="-1" so the skip link can actually MOVE FOCUS here. Without it the browser
@@ -198,6 +201,11 @@ export class AppComponent {
 
     private readonly filterBox = viewChild<ElementRef<HTMLInputElement>>('filterBox');
 
+    private readonly navElement = viewChild<ElementRef<HTMLElement>>('nav');
+
+    /** The current URL, so the sidebar can bring the current page's link into sight once per navigation. */
+    private readonly url = signal('');
+
     readonly theme = inject(ColorSchemeToggle);
 
     readonly version = signal<LibraryVersion | null>(null);
@@ -208,17 +216,16 @@ export class AppComponent {
 
     readonly modules = computed(() => this.modulesAll());
 
+    /** Matches the entry-point name and the class name, so "date" and "DatePicker" both find it. */
     private readonly matching = computed(() => {
         const query = this.query().trim().toLowerCase();
 
-        return query ? this.modulesAll().filter((module) => module.name.toLowerCase().includes(query)) : this.modulesAll();
+        return query ? this.modulesAll().filter((module) => module.name.includes(query) || (moduleTitle(module) ?? '').toLowerCase().includes(query)) : this.modulesAll();
     });
 
     readonly matchCount = computed(() => this.matching().length);
 
-    readonly withDemos = computed(() => this.matching().filter((module) => module.name in DEMO_SECTIONS));
-
-    readonly apiOnly = computed(() => this.matching().filter((module) => !(module.name in DEMO_SECTIONS)));
+    readonly sections = computed(() => navSections(this.matching()));
 
     constructor() {
         // Declared to Angular, not merely started. Prerendering serialises as soon as the
@@ -232,7 +239,33 @@ export class AppComponent {
         // A slide-over that survives navigation covers the page the reader just asked for.
         inject(Router)
             .events.pipe(filter((event) => event instanceof NavigationEnd))
-            .subscribe(() => this.navOpen.set(false));
+            .subscribe((event) => {
+                this.navOpen.set(false);
+                this.url.set(event.urlAfterRedirects);
+            });
+
+        // The current page's link is kept in sight. In groups, a page such as /utils sits at the
+        // bottom of the list, and arriving there left its highlighted link below the fold, so
+        // the sidebar said nothing about where the reader was. Runs after rendering, so only in
+        // the browser, and only when the page, the list or the phone slide-over changes, not on
+        // every keystroke in the filter. A link already in sight is left where it is.
+        afterRenderEffect(() => {
+            this.url();
+            this.modulesAll();
+            this.navOpen();
+
+            const nav = this.navElement()?.nativeElement;
+            const active = nav?.querySelector<HTMLElement>('a[aria-current="page"]');
+
+            if (!nav || !active || !nav.clientHeight) return;
+
+            // Measured against the list, which is positioned so that it is the link's offsetParent.
+            const top = active.offsetTop;
+
+            if (top < nav.scrollTop || top + active.offsetHeight > nav.scrollTop + nav.clientHeight) {
+                nav.scrollTop = Math.max(0, top - nav.clientHeight / 2);
+            }
+        });
     }
 
     demoCount(name: string): number {
