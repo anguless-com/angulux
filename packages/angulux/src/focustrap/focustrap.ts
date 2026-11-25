@@ -58,12 +58,15 @@ export class FocusTrap extends BaseComponent {
     createHiddenFocusableElements() {
         const tabindex = '0';
 
+        // The two edges take focus, so they are not aria-hidden: an element hidden from assistive
+        // technology must not be focusable (axe aria-hidden-focus, WCAG 4.1.2). They have no
+        // content and pass focus on as soon as they get it, so a screen reader never stops on one.
+        // The overlay edges in Select and MultiSelect are built the same way.
         const createFocusableElement = (onFocus) => {
             return createElement('span', {
                 class: 'p-hidden-accessible p-hidden-focusable',
                 tabindex,
                 role: 'presentation',
-                'aria-hidden': true,
                 'data-p-hidden-accessible': true,
                 'data-p-hidden-focusable': true,
                 onFocus: onFocus?.bind(this)

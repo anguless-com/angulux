@@ -4,9 +4,5 @@
         "It only shrinks. When a fix lowers a count the gate fails until this file is lowered to match: AXE_PRUNE=1 does that and cannot raise or add an entry.",
         "Raising a number or adding an entry by hand lowers the accessibility bar and needs a maintainer to agree in review."
     ],
-    "pages": {
-        "/focustrap": {
-            "aria-hidden-focus": 2
-        }
-    }
+    "pages": {}
 }

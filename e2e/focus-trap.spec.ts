@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 
 /**
@@ -92,4 +93,13 @@ test('turned off, Tab leaves at either end; turned back on, it holds again', asy
 
 test('to a screen reader the trap is its three controls and nothing else', async ({ page }) => {
     expect(await page.locator('#trap').ariaSnapshot(), 'the accessibility tree inside the trap').toBe(['- textbox "First"', '- textbox "Second"', '- button "Submit"'].join('\n'));
+});
+
+test('nothing in the trap that takes focus is hidden from assistive technology', async ({ page }) => {
+    // The edges used to be aria-hidden while taking focus: axe aria-hidden-focus, two elements.
+    expect(await page.locator('#trap [data-p-hidden-focusable]').count(), 'the edges are there to be checked').toBe(2);
+
+    const result = await new AxeBuilder({ page }).include('#trap').withRules(['aria-hidden-focus']).analyze();
+
+    expect(result.violations.flatMap((v) => v.nodes.map((n) => `${v.id}: ${n.target.join(' ')}`))).toEqual([]);
 });
