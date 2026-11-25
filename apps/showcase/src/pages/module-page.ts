@@ -323,7 +323,7 @@ export class ModulePage {
                 if (!ancestor) break;
 
                 if (ancestor.inputs.length || ancestor.outputs.length || ancestor.slots.length) {
-                    groups.push({ declaration: ancestor, inherited: true });
+                    groups.push({ declaration: ancestor, inherited: true, owner: declaration.name });
                 }
 
                 parent = ancestor.extends;

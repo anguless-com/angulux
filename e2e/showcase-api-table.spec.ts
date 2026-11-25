@@ -148,6 +148,27 @@ for (const [label, viewport] of [
     });
 }
 
+test('every API section has an id of its own, and Angular reports no duplicate key', async ({ page }) => {
+    // Most of Table's declarations extend BaseComponent, so its inherited inputs are shown many
+    // times on /table. Named by the base alone, those sections shared one id and one @for key
+    // (NG0955), and a link to the id could only ever reach the first of them.
+    const duplicateKeys: string[] = [];
+
+    page.on('console', (message) => {
+        if (message.text().includes('NG0955')) duplicateKeys.push(message.text().slice(0, 160));
+    });
+
+    await page.goto('/table');
+    await hydrated(page);
+
+    const ids = await page.locator('agl-api-table section[id]').evaluateAll((sections) => sections.map((s) => s.id));
+    const repeated = ids.filter((id, i) => ids.indexOf(id) !== i);
+
+    expect(ids.filter((id) => id.includes('-inherited-BaseComponent')).length, 'BaseComponent is inherited by several declarations here').toBeGreaterThan(1);
+    expect(repeated, 'API section ids used more than once').toEqual([]);
+    expect(duplicateKeys, 'NG0955 in the console').toEqual([]);
+});
+
 test('on a desktop the table boxes add no tab stops', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/datepicker');
