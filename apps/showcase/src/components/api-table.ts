@@ -88,10 +88,10 @@ export function declarationAnchor(group: ApiGroup): string {
                                 @for (member of group.declaration.inputs; track member.name) {
                                     <tr class="border-b border-line-soft last:border-0">
                                         <td class="px-3 py-2 align-top font-mono break-words">
-                                            <span class="text-ink">{{ member.name }}</span>
+                                            <span class="text-ink">@for (part of humps(member.name); track $index) {@if (!$first) {<wbr />}{{ part }}}</span>
                                             @if (member.field !== member.name) {
                                                 <!-- Quieter than the published name on purpose: it is the one a reader must NOT write in a template. -->
-                                                <div class="text-[11px] text-faint">property {{ member.field }}</div>
+                                                <div class="text-[11px] text-faint">property @for (part of humps(member.field); track $index) {@if (!$first) {<wbr />}{{ part }}}</div>
                                             }
                                             @if (member.deprecated) {
                                                 <div class="font-sans text-[11px] text-caution">deprecated — {{ member.deprecated }}</div>
@@ -138,9 +138,9 @@ export function declarationAnchor(group: ApiGroup): string {
                                 @for (member of group.declaration.outputs; track member.name) {
                                     <tr class="border-b border-line-soft last:border-0">
                                         <td class="px-3 py-2 align-top font-mono break-words">
-                                            <span class="text-ink">{{ member.name }}</span>
+                                            <span class="text-ink">@for (part of humps(member.name); track $index) {@if (!$first) {<wbr />}{{ part }}}</span>
                                             @if (member.field !== member.name) {
-                                                <div class="text-[11px] text-faint">property {{ member.field }}</div>
+                                                <div class="text-[11px] text-faint">property @for (part of humps(member.field); track $index) {@if (!$first) {<wbr />}{{ part }}}</div>
                                             }
                                         </td>
                                         <td class="px-3 py-2 align-top font-mono text-muted break-words">{{ member.type }}</td>
@@ -189,4 +189,17 @@ export class ApiTable {
     readonly groups = input.required<ApiGroup[]>();
 
     readonly anchor = declarationAnchor;
+
+    /**
+     * A member name cut where its words meet, for the template to put a `<wbr>` between the
+     * pieces: `todayButtonStyleClass` → today · Button · Style · Class, `URLField` → URL · Field.
+     *
+     * The name column is a fifth of the table, and a long name used to break wherever the line
+     * ran out: "todayButtonStyleCl / ass". A `<wbr>` is a place the line may break and nothing
+     * else: it adds no character, so the name reads, copies and searches as one word. A single
+     * piece longer than the column still breaks inside, through the cell's `break-words`.
+     */
+    humps(name: string): string[] {
+        return name.split(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/);
+    }
 }
