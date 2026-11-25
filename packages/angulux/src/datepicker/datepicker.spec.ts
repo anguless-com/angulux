@@ -2089,4 +2089,34 @@ describe('DatePicker', () => {
             expect(button(root, 'month').textContent!.trim()).toBe('April');
         });
     });
+
+    // WCAG 4.1.2: the time picker's buttons show only an icon, so their name is all a screen
+    // reader has. The name was bound to the agl-button host, never reached the <button> inside,
+    // and axe reported every one of them on the showcase's time picker (button-name).
+    describe('Time picker buttons are named', () => {
+        async function inlineTime(): Promise<HTMLElement> {
+            testComponent.inline = true;
+            testComponent.showTime = true;
+            testComponent.showSeconds = true;
+            testComponent.hourFormat = '12';
+            testFixture.changeDetectorRef.markForCheck();
+            await testFixture.whenStable();
+            return testFixture.nativeElement as HTMLElement;
+        }
+
+        it('names each button by the translation for what it does', async () => {
+            const root = await inlineTime();
+            const names = Array.from(root.querySelectorAll('[data-pc-group-section="timepickerbutton"] button')).map((b) => b.getAttribute('aria-label'));
+
+            expect(names).toEqual(['Next Hour', 'Previous Hour', 'Next Minute', 'Previous Minute', 'Next Second', 'Previous Second', 'am', 'pm']);
+        });
+
+        it('leaves no name on the agl-button host, where it reaches no one', async () => {
+            const root = await inlineTime();
+            const hosts = Array.from(root.querySelectorAll('agl-button[data-pc-group-section="timepickerbutton"]'));
+
+            expect(hosts.length).toBe(8);
+            expect(hosts.filter((h) => h.hasAttribute('aria-label')).length).toBe(0);
+        });
+    });
 });
