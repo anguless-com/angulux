@@ -19,7 +19,9 @@ const AVATAR_INSTANCE = new InjectionToken<Avatar>('AVATAR_INSTANCE');
     template: `
         <ng-content></ng-content>
         <span [aglBind]="ptm('label')" [class]="cx('label')" *ngIf="label; else iconTemplate" [attr.data-p]="dataP">{{ label }}</span>
-        <ng-template #iconTemplate><span [aglBind]="ptm('icon')" [class]="icon" [ngClass]="cx('icon')" *ngIf="icon; else imageTemplate" [attr.data-p]="dataP"></span></ng-template>
+        <!-- The icon's PrimeIcons glyph is generated content, which a screen reader read out. A name
+             for an icon avatar comes from ariaLabel or ariaLabelledBy on the host. -->
+        <ng-template #iconTemplate><span [aglBind]="ptm('icon')" [class]="icon" [ngClass]="cx('icon')" *ngIf="icon; else imageTemplate" [attr.data-p]="dataP" [attr.aria-hidden]="true"></span></ng-template>
         <ng-template #imageTemplate><img [aglBind]="ptm('image')" [src]="image" *ngIf="image" (error)="imageError($event)" [attr.aria-label]="ariaLabel" [attr.data-p]="dataP" /></ng-template>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
