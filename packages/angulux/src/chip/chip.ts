@@ -34,7 +34,10 @@ const CHIP_INSTANCE = new InjectionToken<Chip>('CHIP_INSTANCE');
     template: `
         <ng-content></ng-content>
         <img [aglBind]="ptm('image')" [class]="cx('image')" [src]="image" *ngIf="image; else iconTemplate" (error)="imageError($event)" [alt]="alt" />
-        <ng-template #iconTemplate><span [aglBind]="ptm('icon')" *ngIf="icon" [class]="icon" [ngClass]="cx('icon')"></span></ng-template>
+        <!-- The icon is decoration beside the label. Its PrimeIcons glyph is generated content, which a
+             screen reader read out before the label. The remove icon is a button named by
+             removeAriaLabel, so its glyph is not read and it stays as it is. -->
+        <ng-template #iconTemplate><span [aglBind]="ptm('icon')" *ngIf="icon" [class]="icon" [ngClass]="cx('icon')" [attr.aria-hidden]="true"></span></ng-template>
         <div [aglBind]="ptm('label')" [class]="cx('label')" *ngIf="label">{{ label }}</div>
         <ng-container *ngIf="removable">
             <ng-container *ngIf="!removeIconTemplate()">
