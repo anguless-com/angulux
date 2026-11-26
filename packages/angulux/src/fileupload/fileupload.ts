@@ -62,7 +62,7 @@ const FILEUPLOAD_INSTANCE = new InjectionToken<FileUpload>('FILEUPLOAD_INSTANCE'
             </div>
             <agl-badge [value]="badgeValue()" [severity]="badgeSeverity()" [class]="cx('pcFileBadge')" [pt]="$pcFileUpload.ptm('pcFileBadge')" [unstyled]="unstyled()" />
             <div [class]="cx('fileActions')" [aglBind]="$pcFileUpload.ptm('fileActions')">
-                <agl-button (onClick)="onRemoveClick($event, index)" [styleClass]="cx('pcFileRemoveButton')" text rounded severity="danger" [pt]="$pcFileUpload.ptm('pcFileRemoveButton')" [unstyled]="unstyled()">
+                <agl-button (onClick)="onRemoveClick($event, index)" [styleClass]="cx('pcFileRemoveButton')" text rounded severity="danger" [ariaLabel]="removeLabel" [pt]="$pcFileUpload.ptm('pcFileRemoveButton')" [unstyled]="unstyled()">
                     <ng-template #icon let-iconClass="class">
                         @if (fileRemoveIconTemplate()) {
                             <ng-template *ngTemplateOutlet="fileRemoveIconTemplate(); context: { class: iconClass, file: file, index: index }"></ng-template>
@@ -94,6 +94,28 @@ export class FileContent extends BaseComponent {
     previewWidth = input<number>(50);
 
     fileRemoveIconTemplate = input<any>();
+
+    private translationSubscription: Subscription | undefined;
+
+    /**
+     * The name of each file's remove button. The button shows only an icon, so without a name a
+     * screen reader announced just "button" (WCAG 4.1.2). Chip names its remove icon the same way.
+     */
+    get removeLabel(): string | undefined {
+        return this.config.getTranslation(TranslationKeys.ARIA)?.['removeLabel'];
+    }
+
+    onInit() {
+        // This view is OnPush and none of its inputs change with the language, so it re-reads the
+        // name only when it is marked.
+        this.translationSubscription = this.config.translationObserver.subscribe(() => {
+            this.cd.markForCheck();
+        });
+    }
+
+    onDestroy() {
+        this.translationSubscription?.unsubscribe();
+    }
 
     onRemoveClick(event: any, index: number) {
         this.onRemove.emit({ event, index });
