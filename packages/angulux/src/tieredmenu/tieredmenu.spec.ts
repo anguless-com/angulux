@@ -303,6 +303,23 @@ describe('TieredMenu', () => {
     });
 
     describe('Menu Display and Interaction', () => {
+        // Only a router-link item's icon was hidden. The others' PrimeIcons glyphs (generated
+        // content) were read out as part of each item, in SplitButton's menu too.
+        it('keeps the icon of an item without a router link out of what assistive technology reads', async () => {
+            // Root items: a closed submenu renders nothing.
+            component.model = [
+                { label: 'New', icon: 'pi pi-plus' },
+                { label: 'Open', icon: 'pi pi-download' },
+                { label: 'Edit', icon: 'pi pi-copy', items: [{ label: 'Copy' }] }
+            ];
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+
+            const icons = Array.from(tieredMenuElement.querySelectorAll('span.pi-plus, span.pi-download, span.pi-copy')) as HTMLElement[];
+            expect(icons.length).toBe(3);
+            for (const icon of icons) expect(icon.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should render menu items', () => {
             const menuItems = fixture.debugElement.queryAll(By.css('li[role="menuitem"]'));
             expect(menuItems.length).toBeGreaterThan(0);
