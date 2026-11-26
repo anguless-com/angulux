@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { hydrated } from './hydrated';
+import { pixelPng } from './pixel-png';
 
 /**
  * A button with an icon and a label is named by its label alone.
@@ -50,4 +51,26 @@ test("FileUpload's Choose button is named by its label, not by its icon", async 
 
     // Not a glyph this time: the icon carried aria-label="true", and the button was "true Choose".
     await expect(page.locator('agl-fileupload-advanced-doc').getByRole('button', { name: /Choose/ })).toHaveAccessibleName('Choose');
+});
+
+test("FileUpload's chooseIcon, uploadIcon and cancelIcon stay out of the button names, in both modes", async ({ page }) => {
+    await page.goto('/fileupload');
+    await hydrated(page);
+
+    // Each icon input is set to a PrimeIcons class. The basic control comes first, then the advanced
+    // control's Choose, Upload and Cancel (the last two disabled until a file is chosen).
+    const demo = page.locator('agl-fileupload-icons-doc');
+    const buttons = demo.getByRole('button');
+    const names = ['Choose an image', 'Choose', 'Upload', 'Cancel'];
+
+    await expect(buttons).toHaveCount(names.length);
+    for (const [i, name] of names.entries()) {
+        await expect(buttons.nth(i), `button ${i + 1}`).toHaveAccessibleName(name);
+    }
+
+    // With a file chosen, the basic button swaps its icon for uploadIcon and keeps its label. The basic
+    // control's file input is the first in the demo.
+    await demo.locator('input[type="file"]').first().setInputFiles(pixelPng());
+    await expect(buttons.first().locator('[class~="pi-cloud-upload"]')).toHaveCount(1);
+    await expect(buttons.first()).toHaveAccessibleName('Choose an image');
 });

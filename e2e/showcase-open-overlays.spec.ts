@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { glyphNames } from './glyph-names';
 import { hydrated } from './hydrated';
+import { pixelPng } from './pixel-png';
 
 /**
  * Overlays opened on the showcase, then scanned with axe.
@@ -28,9 +29,6 @@ type Case = {
      */
     rules?: string[];
 };
-
-/** A one-pixel PNG, for a file input that accepts images. */
-const PIXEL_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 /** Clicks the button with this name inside one demo. */
 const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name, exact: true }).click();
@@ -200,11 +198,7 @@ const CASES: Case[] = [
         path: '/fileupload',
         // FileUpload renders two file inputs, one at its root and one in the Choose button, and reads
         // a choice from either the same way. The demo accepts images only.
-        open: (page) =>
-            page
-                .locator('agl-fileupload-advanced-doc input[type="file"]')
-                .first()
-                .setInputFiles({ name: 'photo.png', mimeType: 'image/png', buffer: Buffer.from(PIXEL_PNG, 'base64') }),
+        open: (page) => page.locator('agl-fileupload-advanced-doc input[type="file"]').first().setInputFiles(pixelPng()),
         panel: 'agl-fileupload-advanced-doc [data-pc-section="filelist"]',
         // The remove button.
         holds: { selector: 'button', count: 1 }

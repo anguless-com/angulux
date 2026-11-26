@@ -860,6 +860,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Advanced',
             description: 'The full control adds drag and drop, a file list and progress.',
             load: () => import('./fileupload/advanced-doc').then((m) => m.AdvancedDoc)
+        },
+        {
+            id: 'fileupload-icons',
+            label: 'Icons',
+            description: 'chooseIcon, uploadIcon and cancelIcon put an icon class of your own on each button. In basic mode the one button shows uploadIcon once a file is chosen. The icons are decorative: each button is named by its label.',
+            load: () => import('./fileupload/icons-doc').then((m) => m.IconsDoc)
         }
     ],
     chart: [
