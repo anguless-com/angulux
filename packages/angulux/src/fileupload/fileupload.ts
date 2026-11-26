@@ -172,11 +172,12 @@ export class FileContent extends BaseComponent {
                             [attr.title]="''"
                             [aglBind]="ptm('input')"
                         />
+                        <!-- Hidden, not named: an aria-label here became part of the button's name, which read "true Choose". -->
                         <ng-template #icon>
-                            <span *ngIf="chooseIcon" [class]="chooseIcon" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon"></span>
+                            <span *ngIf="chooseIcon" [class]="chooseIcon" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!chooseIcon">
-                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate()" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon" />
-                                <span *ngIf="chooseIconTemplate()" [attr.aria-label]="true" [aglBind]="ptm('pcChooseButton')?.icon">
+                                <svg data-p-icon="plus" *ngIf="!chooseIconTemplate()" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon" />
+                                <span *ngIf="chooseIconTemplate()" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon">
                                     <ng-template *ngTemplateOutlet="chooseIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
