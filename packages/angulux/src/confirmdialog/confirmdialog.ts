@@ -92,7 +92,9 @@ const CONFIRMDIALOG_INSTANCE = new InjectionToken<ConfirmDialog>('CONFIRMDIALOG_
                     @if (iconTemplate()) {
                         <ng-template *ngTemplateOutlet="iconTemplate()"></ng-template>
                     } @else if (!iconTemplate() && !messageTemplate()) {
-                        <i [ngClass]="cx('icon')" [class]="option('icon')" [aglBind]="ptm('icon')" *ngIf="option('icon')"></i>
+                        <!-- Decoration beside the message: its PrimeIcons glyph is generated content,
+                             which a screen reader read out before the question. -->
+                        <i [ngClass]="cx('icon')" [class]="option('icon')" [aglBind]="ptm('icon')" *ngIf="option('icon')" [attr.aria-hidden]="true"></i>
                     }
                     @if (messageTemplate()) {
                         <ng-template *ngTemplateOutlet="messageTemplate(); context: { $implicit: confirmation }"></ng-template>

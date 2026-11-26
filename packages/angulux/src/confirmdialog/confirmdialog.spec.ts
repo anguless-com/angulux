@@ -772,6 +772,22 @@ describe('ConfirmDialog', () => {
             openFixture.destroy();
         });
 
+        // The glyph is generated content, and a screen reader read it out before the question.
+        it('keeps the icon out of what assistive technology reads', async () => {
+            const openFixture = TestBed.createComponent(TestConfirmationServiceComponent);
+            openFixture.changeDetectorRef.markForCheck();
+            await openFixture.whenStable();
+            openFixture.componentInstance.confirm();
+            openFixture.changeDetectorRef.markForCheck();
+            await openFixture.whenStable();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
+            const icon = document.querySelector('[role="alertdialog"] i.pi-info-circle') as HTMLElement | null;
+            expect(icon).toBeTruthy();
+            expect(icon!.getAttribute('aria-hidden')).toBe('true');
+            openFixture.destroy();
+        });
+
         it('should handle aria labels for buttons', async () => {
             const accessibilityFixture = TestBed.createComponent(TestAccessibilityConfirmDialogComponent);
             accessibilityFixture.changeDetectorRef.markForCheck();
