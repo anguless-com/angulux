@@ -846,6 +846,55 @@ describe('Dialog', () => {
         });
     });
 
+    // WCAG 2.4.3: a dialog that closed left focus on the page body, so the next Tab started from the
+    // top of the page. Focus now goes back to the element that had it when the dialog opened, as the
+    // dialog pattern expects, unless the user has put it somewhere else meanwhile.
+    describe('focus when the dialog closes', () => {
+        const dialogRoot = () => document.querySelector<HTMLElement>('[role="dialog"]');
+        const trigger = () => fixture.nativeElement.querySelector('button.trigger-btn') as HTMLButtonElement;
+
+        async function openFromTrigger() {
+            trigger().focus();
+            trigger().click();
+            fixture.changeDetectorRef.markForCheck();
+            await waitUntil(() => !!dialogRoot()?.contains(document.activeElement), fixture, 3000);
+            expect(dialogRoot()?.contains(document.activeElement)).withContext('focus moves into the open dialog').toBe(true);
+        }
+
+        it('goes back to the opener on Escape', async () => {
+            await openFromTrigger();
+
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' }));
+            await waitUntil(() => document.activeElement === trigger(), fixture, 3000);
+
+            expect(document.activeElement).toBe(trigger());
+        });
+
+        it('goes back to the opener when the close button is pressed', async () => {
+            await openFromTrigger();
+
+            dialogRoot()!.querySelector<HTMLButtonElement>('button[aria-label="Close"]')!.click();
+            await waitUntil(() => document.activeElement === trigger(), fixture, 3000);
+
+            expect(document.activeElement).toBe(trigger());
+        });
+
+        it('stays where the user put it while the dialog was open', async () => {
+            component.modal = false;
+            await openFromTrigger();
+            const elsewhere = document.createElement('input');
+            document.body.appendChild(elsewhere);
+            elsewhere.focus();
+
+            component.visible = false;
+            fixture.changeDetectorRef.markForCheck();
+            await waitUntil(() => !dialogRoot(), fixture, 3000);
+
+            expect(document.activeElement).toBe(elsewhere);
+            elsewhere.remove();
+        });
+    });
+
     describe('Keyboard Navigation', () => {
         it('should close dialog on Escape key when closeOnEscape is true', async () => {
             component.closeOnEscape = true;
