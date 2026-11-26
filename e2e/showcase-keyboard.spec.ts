@@ -35,6 +35,67 @@ test('SplitButton: closing its menu from the keyboard puts focus back on the dro
     await expect(dropdown).toBeFocused();
 });
 
+test('Dialog: closing it puts focus back on the button that opened it', async ({ page }) => {
+    await page.goto('/dialog');
+    await hydrated(page);
+
+    const show = page.locator('agl-dialog-basic-doc').getByRole('button', { name: 'Show' });
+    const dialog = page.getByRole('dialog');
+
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(show).toBeFocused();
+});
+
+test('Dialog, modal: closing it, by Escape or by its Cancel button, puts focus back on the button that opened it', async ({ page }) => {
+    await page.goto('/dialog');
+    await hydrated(page);
+
+    const show = page.locator('agl-dialog-modal-doc').getByRole('button', { name: 'Show modal' });
+    const dialog = page.getByRole('dialog');
+
+    // Escape.
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(show).toBeFocused();
+
+    // Cancel, which has focus when the dialog opens.
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(dialog).toBeHidden();
+    await expect(show).toBeFocused();
+});
+
+test('ConfirmDialog: answering or dismissing it puts focus back on the button that opened it', async ({ page }) => {
+    await page.goto('/confirmdialog');
+    await hydrated(page);
+
+    const del = page.locator('agl-confirmdialog-basic-doc').getByRole('button', { name: 'Delete' });
+    const dialog = page.getByRole('alertdialog').or(page.getByRole('dialog'));
+
+    // Escape.
+    await del.focus();
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'No' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(del).toBeFocused();
+
+    // No, which has focus when the dialog opens.
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'No' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(dialog).toBeHidden();
+    await expect(del).toBeFocused();
+});
+
 test('TieredMenu popup: closing it from the keyboard puts focus back on the button that opened it', async ({ page }) => {
     await page.goto('/tieredmenu');
     await hydrated(page);
