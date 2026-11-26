@@ -409,7 +409,6 @@
             "@angular-eslint/template/prefer-class-binding": 4,
             "@angular-eslint/template/prefer-control-flow": 27,
             "@angular-eslint/template/prefer-style-binding": 1,
-            "@angular-eslint/template/valid-aria": 3,
             "@typescript-eslint/no-explicit-any": 16,
             "no-restricted-imports": 1,
             "no-restricted-syntax/redundant-onpush": 2,

@@ -1585,6 +1585,46 @@ describe('FileUpload Accessibility', () => {
             expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual(['Supprimer']);
         });
     });
+
+    // The Choose button's icon carried aria-label="true" where aria-hidden="true" was meant, so the
+    // button was named "true Choose". Each of the three icons it can show is checked.
+    describe('the icon of the Choose button', () => {
+        const chooseButton = (root: HTMLElement) => root.querySelector('agl-button:has(input[type="file"])')!;
+
+        function expectHidden(icon: Element | null) {
+            expect(icon).withContext('the icon is rendered').not.toBeNull();
+            expect(icon!.getAttribute('aria-hidden')).toBe('true');
+            expect(icon!.hasAttribute('aria-label')).withContext('a name on the icon becomes part of the button name').toBe(false);
+        }
+
+        it('is hidden from assistive technology when it is the default icon', () => {
+            expectHidden(chooseButton(fixture.nativeElement).querySelector('svg[data-p-icon="plus"]'));
+        });
+
+        it('is hidden from assistive technology when the app sets chooseIcon', async () => {
+            component.chooseIcon = 'pi pi-images';
+            component.cd.markForCheck();
+            await fixture.whenStable();
+
+            expectHidden(chooseButton(fixture.nativeElement).querySelector('span[class~="pi-images"]'));
+        });
+
+        it('is hidden from assistive technology when the app supplies a #chooseicon template', async () => {
+            TestBed.resetTestingModule();
+            await TestBed.configureTestingModule({
+                imports: [FileUpload, HttpClientTestingModule],
+                declarations: [TestPTemplateIconsComponent],
+                providers: [provideZonelessChangeDetection()]
+            }).compileComponents();
+            const host = TestBed.createComponent(TestPTemplateIconsComponent);
+
+            host.detectChanges();
+            await host.whenStable();
+
+            // The span the component wraps around the app's template.
+            expectHidden(chooseButton(host.nativeElement).querySelector('.custom-choose-icon')!.parentElement);
+        });
+    });
 });
 
 // Performance and Edge Cases

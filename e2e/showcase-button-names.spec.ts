@@ -43,3 +43,11 @@ test('the icon an app marks with aglButtonIcon stays out of the button name', as
     // <button aglButton><i class="pi pi-check" aglButtonIcon></i><span aglButtonLabel>Save</span></button>
     await expect(page.locator('agl-button-directive-doc').getByRole('button')).toHaveAccessibleName('Save');
 });
+
+test("FileUpload's Choose button is named by its label, not by its icon", async ({ page }) => {
+    await page.goto('/fileupload');
+    await hydrated(page);
+
+    // Not a glyph this time: the icon carried aria-label="true", and the button was "true Choose".
+    await expect(page.locator('agl-fileupload-advanced-doc').getByRole('button', { name: /Choose/ })).toHaveAccessibleName('Choose');
+});
