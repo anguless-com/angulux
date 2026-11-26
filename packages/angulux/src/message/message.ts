@@ -27,7 +27,9 @@ const MESSAGE_INSTANCE = new InjectionToken<Message>('MESSAGE_INSTANCE');
                     <ng-container *ngTemplateOutlet="iconTemplate()"></ng-container>
                 }
                 @if (icon) {
-                    <i [aglBind]="ptm('icon')" [class]="cn(cx('icon'), icon)" [attr.data-p]="dataP"></i>
+                    <!-- Decoration beside the text. Its PrimeIcons glyph is generated content, which a
+                         screen reader read out at the start of the message. -->
+                    <i [aglBind]="ptm('icon')" [class]="cn(cx('icon'), icon)" [attr.data-p]="dataP" [attr.aria-hidden]="true"></i>
                 }
 
                 @if (containerTemplate()) {

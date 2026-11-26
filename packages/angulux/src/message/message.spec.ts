@@ -458,6 +458,16 @@ describe('Message', () => {
             expect(iconElement).toBeTruthy();
         });
 
+        // The glyph is generated content, and a screen reader read it out at the start of the message.
+        it('keeps the icon out of what assistive technology reads', () => {
+            component.icon = 'pi pi-info-circle';
+            fixture.detectChanges();
+
+            const icon = fixture.nativeElement.querySelector('i.pi-info-circle') as HTMLElement;
+            expect(icon).toBeTruthy();
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should display close icon when closeIcon property is set', () => {
             component.closable = true;
             component.closeIcon = 'pi pi-times-circle';
