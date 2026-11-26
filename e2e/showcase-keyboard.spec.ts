@@ -153,6 +153,38 @@ test('DatePicker: once Escape has closed it, ArrowDown or Alt+ArrowDown opens it
     await expect(input).toBeFocused();
 });
 
+test('ColorPicker: Space opens it, and Escape, Space or Tab closes it', async ({ page }) => {
+    await page.goto('/colorpicker');
+    await hydrated(page);
+
+    const input = page.locator('agl-colorpicker-basic-doc').getByRole('textbox');
+    // The inline demo's panel is on screen all the time, so only the popup one is counted. A sweep
+    // that counted both once reported this picker as one that no key closes.
+    const panel = page.locator('.p-colorpicker-panel:not(agl-colorpicker-inline-doc *)');
+
+    // Escape, with focus left on the input.
+    await input.focus();
+    await page.keyboard.press('Space');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(input).toBeFocused();
+
+    // Space again.
+    await page.keyboard.press('Space');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Space');
+    await expect(panel).toBeHidden();
+    await expect(input).toBeFocused();
+
+    // Tab, which moves on.
+    await page.keyboard.press('Space');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Tab');
+    await expect(panel).toBeHidden();
+    await expect(input).not.toBeFocused();
+});
+
 test('TieredMenu popup: closing it from the keyboard puts focus back on the button that opened it', async ({ page }) => {
     await page.goto('/tieredmenu');
     await hydrated(page);
