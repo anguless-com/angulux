@@ -50,3 +50,12 @@ for (const path of ['/', '/getting-started', '/button', '/tag', '/avatar', '/chi
         expect(await glyphLines(page)).toEqual([]);
     });
 }
+
+test('no icon glyph is read in the open ConfirmDialog', async ({ page }) => {
+    await page.goto('/confirmdialog');
+    await hydrated(page);
+
+    await page.locator('agl-confirmdialog-basic-doc').getByRole('button', { name: 'Delete' }).click();
+    await expect(page.getByRole('alertdialog')).toBeVisible();
+    expect(await glyphLines(page)).toEqual([]);
+});
