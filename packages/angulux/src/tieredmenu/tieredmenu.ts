@@ -116,11 +116,15 @@ const TIEREDMENUSUB_INSTANCE = new InjectionToken<TieredMenuSub>('TIEREDMENUSUB_
                                     [aglBind]="getPTOptions(processedItem, index, 'itemLink')"
                                     aglRipple
                                 >
+                                    <!-- Hidden as the router-link item's icon below already was: its
+                                         PrimeIcons glyph is generated content, which a screen reader
+                                         read out as part of the item. -->
                                     <span
                                         *ngIf="getItemProp(processedItem, 'icon')"
                                         [class]="cn(cx('itemIcon'), getItemProp(processedItem, 'icon'), getItemProp(processedItem, 'iconClass'))"
                                         [ngStyle]="getItemProp(processedItem, 'iconStyle')"
                                         [aglBind]="getPTOptions(processedItem, index, 'itemIcon')"
+                                        [attr.aria-hidden]="true"
                                         [attr.tabindex]="-1"
                                     >
                                     </span>
