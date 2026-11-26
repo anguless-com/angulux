@@ -38,6 +38,43 @@ class TestStyledInputIconComponent {
     customClass: string = 'custom-icon';
 }
 
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [IconField, InputIcon, InputText],
+    template: `
+        <agl-iconfield>
+            <agl-inputicon><button type="button" aria-label="Clear">x</button></agl-inputicon>
+            <input type="text" aglInputText aria-label="Search" />
+        </agl-iconfield>
+    `
+})
+class TestContentInputIconComponent {}
+
+// Used with an icon class and nothing inside, the host is the icon, and a screen reader read its
+// PrimeIcons glyph (generated content). Content the app put inside is the app's, and stays readable.
+describe('InputIcon and assistive technology', () => {
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [TestBasicInputIconComponent, TestContentInputIconComponent],
+            providers: [provideZonelessChangeDetection()]
+        }).compileComponents();
+    });
+
+    it('hides an InputIcon that is only an icon class', async () => {
+        const fixture = TestBed.createComponent(TestBasicInputIconComponent);
+        await fixture.whenStable();
+        const host = fixture.debugElement.query(By.directive(InputIcon)).nativeElement as HTMLElement;
+        expect(host.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('leaves an InputIcon that holds content of its own readable', async () => {
+        const fixture = TestBed.createComponent(TestContentInputIconComponent);
+        await fixture.whenStable();
+        const host = fixture.debugElement.query(By.directive(InputIcon)).nativeElement as HTMLElement;
+        expect(host.hasAttribute('aria-hidden')).toBe(false);
+    });
+});
+
 describe('InputIcon', () => {
     describe('Basic Functionality', () => {
         let component: TestBasicInputIconComponent;
