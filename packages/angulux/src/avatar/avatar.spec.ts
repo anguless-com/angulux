@@ -283,6 +283,13 @@ describe('Avatar', () => {
             element = fixture.debugElement.query(By.directive(Avatar)).nativeElement;
         });
 
+        // The glyph is generated content, and a screen reader read it out.
+        it('keeps the icon out of what assistive technology reads', () => {
+            const icon = element.querySelector('span.pi-user') as HTMLElement;
+            expect(icon).toBeTruthy();
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should display icon', () => {
             const iconElement = fixture.debugElement.query(By.css('.p-avatar-icon'));
             expect(iconElement).toBeTruthy();
