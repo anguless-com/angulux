@@ -28,7 +28,31 @@ type Case = {
      * question. The case says which, and why; without `rules` every WCAG rule applies.
      */
     rules?: string[];
+    /**
+     * Every WCAG rule but these, for an overlay that breaks a rule as a documented, known limit.
+     * The case says which, and where the limit is documented.
+     */
+    disable?: string[];
 };
+
+/**
+ * Waits until an open overlay has finished its enter motion. The motion can run on the panel,
+ * inside it, or on a wrapper around it (an overlay's, as with Password); a fade written frame by
+ * frame into style.opacity (Tooltip's) is in no animation list, so the opacity of the panel and of
+ * every element around it has to reach 1 as well.
+ */
+const settled = (page: Page, panel: string) =>
+    page.waitForFunction((selector) => {
+        const open = document.querySelector(selector)!;
+        const chain: Element[] = [];
+
+        for (let el: Element | null = open; el; el = el.parentElement) chain.push(el);
+
+        const moving = [...open.getAnimations({ subtree: true }), ...chain.flatMap((el) => el.getAnimations())].some((a) => a.playState === 'running');
+        const opacity = chain.reduce((product, el) => product * Number(getComputedStyle(el).opacity), 1);
+
+        return !moving && opacity === 1;
+    }, panel);
 
 /** Clicks the button with this name inside one demo. */
 const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name, exact: true }).click();
@@ -58,23 +82,25 @@ const CASES: Case[] = [
     {
         // MultiSelect shows a filter by default. This demo sets no ariaFilterLabel, so the box
         // takes the name of the MultiSelect itself (its ariaLabel).
-        // Only `label`: each option holds a checkbox, reported as a control nested in a control
-        // (nested-interactive). Whether to change that is still open.
+        // Each option used to hold a checkbox that assistive technology saw as a control nested in
+        // the option (nested-interactive). The option says it is selected; the checkbox only shows it.
         name: 'MultiSelect',
         path: '/multiselect',
         open: (page) => page.locator('agl-multiselect-basic-doc agl-multiselect').click(),
         panel: '.p-multiselect-overlay',
-        holds: { selector: 'input[role="searchbox"]', count: 1 },
-        rules: ['label']
+        holds: { selector: 'input[role="searchbox"]', count: 1 }
     },
     {
-        // This demo sets ariaFilterLabel. Only `label`, for the reason above.
+        // This demo sets ariaFilterLabel. Its five options overflow the list, which axe reports as a
+        // scroll region the keyboard cannot reach (scrollable-region-focusable). Focus stays in the
+        // filter and the arrow keys scroll the list, as in Select, whose documentation records it as
+        // a known limit. The checkboxes' inputs used to hide it: axe counted them as focusable.
         name: 'MultiSelect with a named filter',
         path: '/multiselect',
         open: (page) => page.locator('agl-multiselect-filter-doc agl-multiselect').click(),
         panel: '.p-multiselect-overlay',
         holds: { selector: 'input[role="searchbox"]', count: 1 },
-        rules: ['label']
+        disable: ['scrollable-region-focusable']
     },
 
     // The overlays below broke no rule when they were added. Each case keeps its overlay that way.
@@ -217,7 +243,7 @@ const CASES: Case[] = [
 
 for (const c of CASES) {
     for (const scheme of ['light', 'dark'] as const) {
-        test(`${c.name}, open, in ${scheme}: no ${c.rules ? c.rules.join(', ') + ' ' : 'accessibility '}violation inside it`, async ({ page }) => {
+        test(`${c.name}, open, in ${scheme}: no ${c.rules ? c.rules.join(', ') + ' ' : 'accessibility '}violation inside it${c.disable ? ` but ${c.disable.join(', ')}` : ''}`, async ({ page }) => {
             await page.emulateMedia({ colorScheme: scheme });
             await page.goto(c.path);
             await hydrated(page);
@@ -228,24 +254,11 @@ for (const c of CASES) {
 
             await expect(panel).toBeVisible();
             await expect(panel.locator(c.holds.selector)).toHaveCount(c.holds.count);
-            // Scanned once the enter motion has finished, not halfway through a fade. The motion can
-            // run on the panel, inside it, or on a wrapper around it (an overlay's, as with Password);
-            // a fade written frame by frame into style.opacity (Tooltip's) is in no animation list,
-            // so the opacity of the panel and of every element around it has to reach 1 as well.
-            await page.waitForFunction((selector) => {
-                const open = document.querySelector(selector)!;
-                const chain: Element[] = [];
-
-                for (let el: Element | null = open; el; el = el.parentElement) chain.push(el);
-
-                const moving = [...open.getAnimations({ subtree: true }), ...chain.flatMap((el) => el.getAnimations())].some((a) => a.playState === 'running');
-                const opacity = chain.reduce((product, el) => product * Number(getComputedStyle(el).opacity), 1);
-
-                return !moving && opacity === 1;
-            }, c.panel);
+            // Scanned once the enter motion has finished, not halfway through a fade.
+            await settled(page, c.panel);
 
             const axe = new AxeBuilder({ page }).include(c.panel);
-            const result = await (c.rules ? axe.withRules(c.rules) : axe.withTags(TAGS)).analyze();
+            const result = await (c.rules ? axe.withRules(c.rules) : axe.withTags(TAGS).disableRules(c.disable ?? [])).analyze();
 
             // Violations first: when the only element a rule applies to breaks it, axe records no
             // pass either, and the failure should name the violation rather than the empty pass list.
@@ -256,3 +269,30 @@ for (const c of CASES) {
         });
     }
 }
+
+// Each option's checkbox is inert, so that assistive technology meets the option alone. A click on
+// the checkbox then lands on the option underneath, which has to choose it as it always did.
+test('MultiSelect: a click on an option checkbox chooses the option, and a second click clears it', async ({ page }) => {
+    await page.goto('/multiselect');
+    await hydrated(page);
+    await page.locator('agl-multiselect-basic-doc agl-multiselect').click();
+
+    const panel = '.p-multiselect-overlay';
+    await expect(page.locator(panel)).toBeVisible();
+    // Measured once the panel has stopped moving: a box read during the enter motion is not
+    // where the checkbox ends up.
+    await settled(page, panel);
+
+    const option = page.locator(`${panel} [role="option"]`).first();
+    const clickTheCheckbox = async () => {
+        const box = await option.locator('agl-checkbox').boundingBox();
+        expect(box, 'the checkbox is on screen').not.toBeNull();
+        await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    };
+
+    await expect(option).toHaveAttribute('aria-selected', 'false');
+    await clickTheCheckbox();
+    await expect(option).toHaveAttribute('aria-selected', 'true');
+    await clickTheCheckbox();
+    await expect(option).toHaveAttribute('aria-selected', 'false');
+});

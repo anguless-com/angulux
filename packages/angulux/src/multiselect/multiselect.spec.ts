@@ -505,6 +505,24 @@ describe('MultiSelect', () => {
             expect(multiSelect.overlayVisible).toBe(true);
         });
 
+        // The option is what assistive technology reads, with aria-selected. Its checkbox only shows
+        // that state; left exposed it was a control nested in a control (axe: nested-interactive),
+        // and a tabindex="-1" input still counts as one that can take focus.
+        it("makes each option's checkbox inert, so it can neither take focus nor be read", async () => {
+            multiSelect.show();
+            await fixture.whenStable();
+            fixture.detectChanges();
+
+            const checkboxes = Array.from(document.querySelectorAll('li[role="option"] agl-checkbox')) as HTMLElement[];
+            expect(checkboxes.length).toBeGreaterThan(0);
+            for (const checkbox of checkboxes) {
+                expect(checkbox.inert).toBe(true);
+                const input = checkbox.querySelector('input') as HTMLInputElement;
+                input.focus();
+                expect(document.activeElement).not.toBe(input);
+            }
+        });
+
         it('should hide panel programmatically', async () => {
             // Test show functionality first
             expect(multiSelect.overlayVisible).toBe(false);

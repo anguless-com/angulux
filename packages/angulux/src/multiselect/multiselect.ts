@@ -80,7 +80,23 @@ export const MULTISELECT_VALUE_ACCESSOR: any = {
     standalone: true,
     imports: [CommonModule, Checkbox, FormsModule, SharedModule],
     template: `
-        <agl-checkbox [ngModel]="selected" [ngModelOptions]="{ standalone: true }" [binary]="true" [tabindex]="-1" [variant]="variant" [ariaLabel]="label" [pt]="getPTOptions('pcOptionCheckbox')" [unstyled]="unstyled()">
+        <!-- The checkbox only shows the option's state: the option itself is what assistive
+             technology reads, with aria-selected. Left exposed, it was a control nested in a
+             control (axe: nested-interactive). aria-hidden is not enough: its input, though out of
+             the tab order, could still take focus, and axe counts a tabindex="-1" control as
+             reachable. inert takes it out of focus and of the accessibility tree, and a click on
+             it lands on the option underneath, which chooses it as before. -->
+        <agl-checkbox
+            [ngModel]="selected"
+            [ngModelOptions]="{ standalone: true }"
+            [binary]="true"
+            [tabindex]="-1"
+            [variant]="variant"
+            [ariaLabel]="label"
+            [pt]="getPTOptions('pcOptionCheckbox')"
+            [unstyled]="unstyled()"
+            inert
+        >
             <ng-container *ngIf="itemCheckboxIconTemplate">
                 <ng-template #icon let-klass="class">
                     <ng-template *ngTemplateOutlet="itemCheckboxIconTemplate; context: { checked: selected, class: klass }"></ng-template>
