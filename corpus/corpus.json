@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "78cf59cc755f51aacad12491b53a7fcc85616fa5415ecd4738503c656b2fc6cd",
+        "sourceHash": "b1d66d58307e76e237c8a9493a0e57a421beb224a4095c2d1f534535a2b05cd3",
         "closureCount": 65
     },
     "modules": [
@@ -7848,7 +7848,7 @@
                     "kind": "component",
                     "selector": "agl-multiSelect, agl-multiselect, agl-multi-select",
                     "extends": "BaseEditableHolder",
-                    "description": "MultiSelect is used to select multiple items from a collection.",
+                    "description": "MultiSelect is used to select multiple items from a collection.\n\nAccessibility, a known limit: when there are more options than fit in the panel, axe reports the\nscrolling list as a region the keyboard cannot reach (scrollable-region-focusable). The keyboard\ndoes reach it, as in Select: focus stays on the combobox, or in the filter, and the arrow keys move\nthrough the options with aria-activedescendant and scroll the list as they go. A tab stop on the\nlist would only add a stop that does nothing, so the list has none.",
                     "inputs": [
                         {
                             "name": "id",
@@ -11044,7 +11044,7 @@
                     "kind": "component",
                     "selector": "agl-select",
                     "extends": "BaseInput",
-                    "description": "Select is used to choose an item from a collection of options.",
+                    "description": "Select is used to choose an item from a collection of options.\n\nAccessibility, a known limit: when there are more options than fit in the panel, axe reports the\nscrolling list as a region the keyboard cannot reach (scrollable-region-focusable). The keyboard\ndoes reach it. Focus stays on the combobox, or in the filter, and the arrow keys move through the\noptions with aria-activedescendant and scroll the list as they go. A tab stop on the list would\nonly add a stop that does nothing, so the list has none.",
                     "inputs": [
                         {
                             "name": "id",
@@ -15824,7 +15824,7 @@
                     "kind": "component",
                     "selector": "agl-tieredMenu, agl-tieredmenu, agl-tiered-menu",
                     "extends": "BaseComponent",
-                    "description": "TieredMenu displays submenus in nested overlays.",
+                    "description": "TieredMenu displays submenus in nested overlays.\n\nAccessibility, a known limit: while a submenu is open, its list sits inside the item that opened\nit, so the item's name (its label) is only part of the text the item contains. axe reports this as\nlabel-content-name-mismatch. A screen reader still announces the item by its label, and the arrow\nkeys move into the submenu and back. Moving the submenu out of the item would change the menu's\nDOM, which styles and pass-through options depend on, so it waits for the next major version.",
                     "inputs": [
                         {
                             "name": "model",

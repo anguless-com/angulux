@@ -433,6 +433,12 @@ export class TieredMenuSub extends BaseComponent<TieredMenuPassThrough> {
 }
 /**
  * TieredMenu displays submenus in nested overlays.
+ *
+ * Accessibility, a known limit: while a submenu is open, its list sits inside the item that opened
+ * it, so the item's name (its label) is only part of the text the item contains. axe reports this as
+ * label-content-name-mismatch. A screen reader still announces the item by its label, and the arrow
+ * keys move into the submenu and back. Moving the submenu out of the item would change the menu's
+ * DOM, which styles and pass-through options depend on, so it waits for the next major version.
  * @group Components
  */
 @Component({

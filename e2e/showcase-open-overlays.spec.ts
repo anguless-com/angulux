@@ -71,7 +71,8 @@ const CASES: Case[] = [
         // The filter box had no name unless the app set ariaFilterLabel. This demo sets it.
         // Only `label`: the list scrolling inside the overlay is reported as a scroll region the
         // keyboard cannot reach (scrollable-region-focusable), though focus stays in the filter
-        // and the arrow keys scroll it. Whether to change that is still open.
+        // and the arrow keys scroll it. That is a known limit, not a fault: Select's own
+        // documentation says why the list gets no tab stop.
         name: 'Select with a filter',
         path: '/select',
         open: (page) => page.locator('agl-select-filter-doc agl-select').click(),

@@ -169,6 +169,12 @@ export class SelectItem extends BaseComponent {
 
 /**
  * Select is used to choose an item from a collection of options.
+ *
+ * Accessibility, a known limit: when there are more options than fit in the panel, axe reports the
+ * scrolling list as a region the keyboard cannot reach (scrollable-region-focusable). The keyboard
+ * does reach it. Focus stays on the combobox, or in the filter, and the arrow keys move through the
+ * options with aria-activedescendant and scroll the list as they go. A tab stop on the list would
+ * only add a stop that does nothing, so the list has none.
  * @group Components
  */
 
