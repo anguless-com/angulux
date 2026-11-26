@@ -193,6 +193,12 @@ export class MultiSelectItem extends BaseComponent {
 
 /**
  * MultiSelect is used to select multiple items from a collection.
+ *
+ * Accessibility, a known limit: when there are more options than fit in the panel, axe reports the
+ * scrolling list as a region the keyboard cannot reach (scrollable-region-focusable). The keyboard
+ * does reach it, as in Select: focus stays on the combobox, or in the filter, and the arrow keys move
+ * through the options with aria-activedescendant and scroll the list as they go. A tab stop on the
+ * list would only add a stop that does nothing, so the list has none.
  * @group Components
  */
 @Component({
