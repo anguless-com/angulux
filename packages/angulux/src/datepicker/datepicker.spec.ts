@@ -812,6 +812,49 @@ describe('DatePicker', () => {
 
             expect(inputElement).toBeTruthy();
         });
+
+        // Once Escape had closed the panel, focus stayed on the input and only a click opened it
+        // again (WCAG 2.1.1). ArrowDown, with or without Alt, now opens it the way the click does.
+        describe('ArrowDown on the input opens a closed panel again', () => {
+            const arrowDown = (input: HTMLInputElement, altKey = false) => {
+                const event = new KeyboardEvent('keydown', { key: 'ArrowDown', keyCode: 40, altKey, bubbles: true, cancelable: true });
+                input.dispatchEvent(event);
+                return event;
+            };
+
+            it('opens it after Escape has closed it, and cancels the caret move', async () => {
+                const input = testFixture.debugElement.query(By.css('input')).nativeElement as HTMLInputElement;
+                const datePicker = testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+
+                datePicker.showOverlay();
+                input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true, cancelable: true }));
+                expect(datePicker.overlayVisible).toBe(false);
+
+                const event = arrowDown(input);
+                expect(datePicker.overlayVisible).toBe(true);
+                expect(event.defaultPrevented).toBe(true);
+            });
+
+            it('opens it with Alt+ArrowDown too', () => {
+                const input = testFixture.debugElement.query(By.css('input')).nativeElement as HTMLInputElement;
+                const datePicker = testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+
+                expect(datePicker.overlayVisible).toBeFalsy();
+                arrowDown(input, true);
+                expect(datePicker.overlayVisible).toBe(true);
+            });
+
+            it('leaves it closed when showOnFocus is off, where only the button opens it', async () => {
+                testComponent.showOnFocus = false;
+                testFixture.changeDetectorRef.markForCheck();
+                await testFixture.whenStable();
+                const input = testFixture.debugElement.query(By.css('input')).nativeElement as HTMLInputElement;
+                const datePicker = testFixture.debugElement.query(By.css('agl-datepicker')).componentInstance as DatePicker;
+
+                arrowDown(input);
+                expect(datePicker.overlayVisible).toBeFalsy();
+            });
+        });
     });
 
     describe('Locale and Internationalization', () => {

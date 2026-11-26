@@ -9,6 +9,9 @@ import { hydrated } from './hydrated';
  * When focus is dropped instead, it lands on the page body and the next Tab starts from the top of
  * the page (WCAG 2.4.3, Focus Order; the WAI-ARIA menu button and dialog patterns both return focus
  * to the opener).
+ *
+ * The other way round, too: an overlay that a click opens again once it has been closed opens again
+ * from the keyboard (WCAG 2.1.1, Keyboard).
  */
 
 test('SplitButton: closing its menu from the keyboard puts focus back on the dropdown button', async ({ page }) => {
@@ -117,6 +120,37 @@ test('ConfirmDialog: answering or dismissing it puts focus back on the button th
     await page.keyboard.press('Enter');
     await expect(dialog).toBeHidden();
     await expect(del).toBeFocused();
+});
+
+test('DatePicker: once Escape has closed it, ArrowDown or Alt+ArrowDown opens it again', async ({ page }) => {
+    await page.goto('/datepicker');
+    await hydrated(page);
+
+    const input = page.locator('agl-datepicker-basic-doc').getByRole('combobox', { name: 'Date' });
+    const panel = page.getByRole('dialog', { name: 'Choose Date' });
+
+    // Focus opens it; Escape closes it and leaves focus on the input. A click opens it again from
+    // here, and until now no key did: the keyboard had to leave the input and come back.
+    await input.focus();
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(input).toBeFocused();
+
+    await page.keyboard.press('ArrowDown');
+    await expect(panel).toBeVisible();
+    await expect(input).toBeFocused();
+
+    // With it open, ArrowDown goes on into the calendar, as it did when focus opened it.
+    await page.keyboard.press('ArrowDown');
+    await expect(panel.locator(':focus')).toHaveCount(1);
+
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(input).toBeFocused();
+    await page.keyboard.press('Alt+ArrowDown');
+    await expect(panel).toBeVisible();
+    await expect(input).toBeFocused();
 });
 
 test('TieredMenu popup: closing it from the keyboard puts focus back on the button that opened it', async ({ page }) => {
