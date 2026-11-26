@@ -2164,7 +2164,14 @@ export class DatePicker extends BaseInput<DatePickerPassThrough> {
 
     onInputKeydown(event: any) {
         this.isKeydown = true;
-        if (event.keyCode === 40 && this.contentViewChild) {
+        if (event.keyCode === 40 && this.showOnFocus && !this.overlayVisible && !this.inline) {
+            // The keyboard's way to do what onInputClick does: once Escape has closed the panel,
+            // focus stays on the input, and only a click opened it again. ArrowDown (with or without
+            // Alt) now does too, under the same condition, and the next ArrowDown moves into the
+            // calendar as before. With showOnFocus off nothing changes: the button opens the panel.
+            this.showOverlay();
+            event.preventDefault();
+        } else if (event.keyCode === 40 && this.contentViewChild) {
             this.trapFocus(event);
         } else if (event.keyCode === 27) {
             if (this.overlayVisible) {
