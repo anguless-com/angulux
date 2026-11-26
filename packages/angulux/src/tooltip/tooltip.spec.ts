@@ -108,10 +108,19 @@ class FakeComponentHost {}
 })
 class TestComponentHostTooltipComponent {}
 
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Tooltip],
+    template: `<input #inputElement aglTooltip="Name" aria-label="Name" />`
+})
+class TestDefaultEventTooltipComponent {
+    @ViewChild('inputElement') inputElement!: ElementRef;
+}
+
 describe('Tooltip', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [Tooltip],
+            imports: [Tooltip, TestDefaultEventTooltipComponent],
             declarations: [TestBasicTooltipComponent, TestTemplateTooltipComponent, TestTooltipOptionsComponent, FakeComponentHost, TestComponentHostTooltipComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
@@ -437,6 +446,28 @@ describe('Tooltip', () => {
 
             expect(tooltipDirective.showTimeout).toBeNull();
             expect(tooltipDirective.hideTimeout).toBeNull();
+        });
+    });
+
+    // With hover alone as the default, a keyboard user never saw a tooltip (WCAG 2.1.1).
+    describe('The default event', () => {
+        it('shows the tooltip on keyboard focus as well as on hover, and hides it on blur', () => {
+            const fixture = TestBed.createComponent(TestDefaultEventTooltipComponent);
+            fixture.detectChanges();
+            const tooltip = fixture.debugElement.query(By.directive(Tooltip)).injector.get(Tooltip);
+            const input = fixture.componentInstance.inputElement.nativeElement as HTMLInputElement;
+
+            expect(tooltip.tooltipEvent).toBe('both');
+            spyOn(tooltip, 'activate');
+            spyOn(tooltip, 'deactivate');
+
+            input.dispatchEvent(new FocusEvent('focus'));
+            expect(tooltip.activate).toHaveBeenCalledTimes(1);
+            input.dispatchEvent(new FocusEvent('blur'));
+            expect(tooltip.deactivate).toHaveBeenCalledTimes(1);
+
+            input.dispatchEvent(new MouseEvent('mouseenter'));
+            expect(tooltip.activate).toHaveBeenCalledTimes(2);
         });
     });
 
