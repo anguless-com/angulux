@@ -153,6 +153,24 @@ test('DatePicker: once Escape has closed it, ArrowDown or Alt+ArrowDown opens it
     await expect(input).toBeFocused();
 });
 
+test('Tooltip: keyboard focus shows it and describes the field with it, and moving on hides it', async ({ page }) => {
+    await page.goto('/tooltip');
+    await hydrated(page);
+
+    // Shown on hover only, the tooltip never reached a keyboard user (WCAG 2.1.1).
+    const input = page.locator('agl-tooltip-basic-doc input');
+    const tooltip = page.getByRole('tooltip');
+    await expect(tooltip).toHaveCount(0);
+
+    await input.focus();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toHaveText('Enter your username');
+    await expect(input).toHaveAccessibleDescription('Enter your username');
+
+    await page.keyboard.press('Tab');
+    await expect(tooltip).toHaveCount(0);
+});
+
 test('ColorPicker: Space opens it, and Escape, Space or Tab closes it', async ({ page }) => {
     await page.goto('/colorpicker');
     await hydrated(page);

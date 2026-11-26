@@ -138,10 +138,12 @@ interface City {
 
             <!-- Tooltip (22.1.5): a tooltip inside an open modal dialog. -->
             @case ('tooltip-dialog') {
+                <!-- Hover only: the scene times a hovered tooltip. The dialog puts focus on its button
+                     when it opens, and with the default event a focused target shows its tooltip too. -->
                 <section id="sec-tooltip-dialog">
-                    <button id="tt-plain-outside" type="button" aglTooltip="Outside tip">outside</button>
+                    <button id="tt-plain-outside" type="button" aglTooltip="Outside tip" tooltipEvent="hover">outside</button>
                     <agl-dialog header="Dialog with a tooltip" [visible]="true" [modal]="false" [closable]="false" [draggable]="false" position="bottom">
-                        <button id="tt-in-dialog" type="button" aglTooltip="Dialog tip">in the dialog</button>
+                        <button id="tt-in-dialog" type="button" aglTooltip="Dialog tip" tooltipEvent="hover">in the dialog</button>
                     </agl-dialog>
                 </section>
             }

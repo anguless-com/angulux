@@ -17,7 +17,7 @@ const TOOLTIP_INSTANCE = new InjectionToken<Tooltip>('TOOLTIP_INSTANCE');
 const TOOLTIP_DEFAULTS = {
     tooltipLabel: null,
     tooltipPosition: 'right',
-    tooltipEvent: 'hover',
+    tooltipEvent: 'both',
     appendTo: 'body',
     positionStyle: null,
     tooltipStyleClass: null,
@@ -66,10 +66,11 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
      */
     @Input() tooltipPosition: 'right' | 'left' | 'top' | 'bottom' | string | undefined;
     /**
-     * Event to show the tooltip.
+     * Event to show the tooltip. The default shows it on hover and on keyboard focus alike: with
+     * hover alone, a keyboard user never saw it (WCAG 2.1.1). Set 'hover' to show it on hover only.
      * @group Props
      */
-    @Input() tooltipEvent: 'hover' | 'focus' | 'both' = 'hover';
+    @Input() tooltipEvent: 'hover' | 'focus' | 'both' = 'both';
     /**
      * Type of CSS position.
      * @group Props

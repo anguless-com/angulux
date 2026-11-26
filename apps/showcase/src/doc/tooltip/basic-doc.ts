@@ -8,7 +8,7 @@ import { InputTextModule } from '@anguless/angulux/inputtext';
     imports: [FormsModule, TooltipModule, InputTextModule],
     template: `
         <div class="card">
-            <input aglInputText aglTooltip="Enter your username" placeholder="Hover me" />
+            <input aglInputText aglTooltip="Enter your username" placeholder="Hover or focus me" />
         </div>
     `
 })
