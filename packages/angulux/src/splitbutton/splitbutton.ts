@@ -97,6 +97,7 @@ type SplitButtonIconPosition = 'left' | 'right';
             ></button>
         </ng-template>
         <button
+            #dropdownbtn
             type="button"
             aglButton
             aglRipple
@@ -345,6 +346,8 @@ export class SplitButton extends BaseComponent<SplitButtonPassThrough> {
 
     @ViewChild('defaultbtn') buttonViewChild: ElementRef | undefined;
 
+    @ViewChild('dropdownbtn') private dropdownButtonViewChild: ElementRef<HTMLButtonElement> | undefined;
+
     @ViewChild('menu') menu: TieredMenu | undefined;
     /**
      * Custom content template.
@@ -379,7 +382,10 @@ export class SplitButton extends BaseComponent<SplitButtonPassThrough> {
 
     onDropdownButtonClick(event?: MouseEvent) {
         this.onDropdownClick.emit(event);
-        this.menu?.toggle({ currentTarget: this.el?.nativeElement, relativeAlign: this.$appendTo() == 'self' });
+        // The menu is placed against the whole SplitButton (currentTarget), which cannot take focus.
+        // relatedTarget is where the menu hands focus back when the keyboard closes it, as the
+        // menu-button pattern expects: the dropdown button that opened it.
+        this.menu?.toggle({ currentTarget: this.el?.nativeElement, relatedTarget: this.dropdownButtonViewChild?.nativeElement, relativeAlign: this.$appendTo() == 'self' });
     }
 
     onDropdownButtonKeydown(event: KeyboardEvent) {

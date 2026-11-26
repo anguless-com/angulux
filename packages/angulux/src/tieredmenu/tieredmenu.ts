@@ -826,6 +826,10 @@ export class TieredMenu extends BaseComponent<TieredMenuPassThrough> {
         } else {
             if (grouped) {
                 this.onItemChange(event);
+            } else if (this.popup) {
+                // A popup is closing, so focus goes back to what opened it, as on Escape. Focusing the
+                // menu list here, which is on its way out, dropped focus on the page body.
+                this.hide(originalEvent, true);
             } else {
                 const rootProcessedItem = root ? processedItem : this.activeItemPath().find((p) => p.parentKey === '');
                 this.hide(originalEvent);

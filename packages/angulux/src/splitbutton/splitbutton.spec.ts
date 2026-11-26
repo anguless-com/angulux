@@ -6,6 +6,7 @@ import { MenuItem } from '@anguless/angulux/api';
 import { ButtonDirective } from '@anguless/angulux/button';
 import { TieredMenu } from '@anguless/angulux/tieredmenu';
 import { SplitButton } from './splitbutton';
+import { waitUntil } from '../spec-helpers';
 
 // Basic SplitButton Test Component
 @Component({
@@ -660,6 +661,40 @@ describe('SplitButton', () => {
             await fixture.whenStable();
 
             expect(preventDefaultSpy).not.toHaveBeenCalled();
+        });
+
+        // WCAG 2.4.3: the menu is anchored at the SplitButton host, which cannot take focus, and the
+        // menu handed focus back to its anchor when it closed. Closing it from the keyboard dropped
+        // focus on the page body, and the next Tab started from the top of the page.
+        describe('focus when the menu closes', () => {
+            const menu = () => document.querySelector<HTMLElement>('[role="menu"]');
+            const press = (target: HTMLElement, code: string) => target.dispatchEvent(new KeyboardEvent('keydown', { code, key: code, bubbles: true }));
+
+            async function openFromDropdownButton(): Promise<HTMLElement> {
+                dropdownButton.focus();
+                dropdownButton.click();
+                await waitUntil(() => !!menu() && document.activeElement === menu(), fixture);
+                expect(document.activeElement).withContext('focus moves into the open menu').toBe(menu());
+                return menu()!;
+            }
+
+            it('goes back to the dropdown button on Escape', async () => {
+                press(await openFromDropdownButton(), 'Escape');
+                await waitUntil(() => document.activeElement === dropdownButton, fixture);
+
+                expect(document.activeElement).toBe(dropdownButton);
+            });
+
+            it('goes back to the dropdown button when an item is chosen with Enter', async () => {
+                const list = await openFromDropdownButton();
+
+                press(list, 'ArrowDown');
+                await fixture.whenStable();
+                press(list, 'Enter');
+                await waitUntil(() => document.activeElement === dropdownButton, fixture);
+
+                expect(document.activeElement).toBe(dropdownButton);
+            });
         });
     });
 
