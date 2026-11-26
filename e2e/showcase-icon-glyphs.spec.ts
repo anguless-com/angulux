@@ -42,7 +42,7 @@ test('the Copy buttons are named by their text', async ({ page }) => {
     await expect(buttonWithText(page, 'Copy').first()).toHaveAccessibleName('Copy');
 });
 
-for (const path of ['/', '/getting-started', '/button', '/tag', '/avatar', '/chip', '/message', '/iconfield']) {
+for (const path of ['/', '/getting-started', '/button', '/tag', '/avatar', '/chip', '/message', '/iconfield', '/menu']) {
     test(`no icon glyph is read anywhere on ${path}`, async ({ page }) => {
         await page.goto(path);
         await hydrated(page);

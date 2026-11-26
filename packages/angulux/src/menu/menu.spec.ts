@@ -486,6 +486,16 @@ describe('Menu', () => {
             expect(nonSeparatorItems.length).toBe(3);
         });
 
+        // The glyph is generated content, and a screen reader read it out as part of each item.
+        it('keeps item icons out of what assistive technology reads', async () => {
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+
+            const icons = Array.from(fixture.nativeElement.querySelectorAll('span.pi-file, span.pi-pencil, span.pi-cog')) as HTMLElement[];
+            expect(icons.length).toBe(3);
+            for (const icon of icons) expect(icon.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should render item icons when provided', async () => {
             // Verify items have icons in model
             const itemsWithIcons = menuInstance.model!.filter((item) => item.icon);

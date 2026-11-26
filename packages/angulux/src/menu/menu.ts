@@ -113,7 +113,9 @@ export class SafeHtmlPipe implements PipeTransform {
         </ng-container>
 
         <ng-template #itemContent>
-            <span [class]="cn(cx('itemIcon', { item }), item.iconClass)" [aglBind]="getPTOptions('itemIcon')" *ngIf="item.icon" [ngStyle]="item.iconStyle" [attr.data-pc-section]="'itemicon'"></span>
+            <!-- Decoration beside the label: its PrimeIcons glyph is generated content, which a screen
+                 reader read out as part of the item (TieredMenu hides its item icons the same way). -->
+            <span [class]="cn(cx('itemIcon', { item }), item.iconClass)" [aglBind]="getPTOptions('itemIcon')" *ngIf="item.icon" [ngStyle]="item.iconStyle" [attr.data-pc-section]="'itemicon'" [attr.aria-hidden]="true"></span>
             <span [class]="cn(cx('itemLabel'), item.labelClass)" [ngStyle]="item.labelStyle" [aglBind]="getPTOptions('itemLabel')" [attr.data-pc-section]="'itemlabel'" *ngIf="item.escape !== false; else htmlLabel">{{ item.label }}</span>
             <ng-template #htmlLabel><span [class]="cn(cx('itemLabel'), item.labelClass)" [ngStyle]="item.labelStyle" [attr.data-pc-section]="'itemlabel'" [innerHTML]="item.label | safeHtml" [aglBind]="getPTOptions('itemLabel')"></span></ng-template>
             <agl-badge *ngIf="item.badge" [styleClass]="item.badgeStyleClass" [value]="item.badge" [pt]="getPTOptions('pcBadge')" [unstyled]="unstyled()" />
