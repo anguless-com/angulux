@@ -570,6 +570,74 @@ describe('Drawer', () => {
         });
     });
 
+    // WCAG 2.4.3: a drawer that closed left focus on the page body, so the next Tab started from the
+    // top of the page. Focus now goes back to the element that had it when the drawer opened, unless
+    // the user has put it somewhere else meanwhile.
+    describe('focus when the drawer closes', () => {
+        let host: ComponentFixture<TestDrawerBasicComponent>;
+        let opener: HTMLButtonElement;
+        const drawerRoot = () => document.querySelector<HTMLElement>('[data-p-open]');
+
+        beforeEach(async () => {
+            host = TestBed.createComponent(TestDrawerBasicComponent);
+            host.changeDetectorRef.markForCheck();
+            await host.whenStable();
+            opener = document.createElement('button');
+            opener.textContent = 'Open';
+            document.body.appendChild(opener);
+        });
+
+        afterEach(() => opener.remove());
+
+        async function openFromOpener() {
+            opener.focus();
+            host.componentInstance.visible = true;
+            host.changeDetectorRef.markForCheck();
+            await waitUntil(() => !!drawerRoot()?.contains(document.activeElement), host, 3000);
+            expect(drawerRoot()?.contains(document.activeElement)).withContext('focus moves into the open drawer').toBe(true);
+        }
+
+        it('goes back to the opener on Escape', async () => {
+            await openFromOpener();
+
+            const escape = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true });
+            Object.defineProperty(escape, 'which', { value: 27 });
+            document.dispatchEvent(escape);
+            await waitUntil(() => document.activeElement === opener, host, 3000);
+
+            expect(document.activeElement).toBe(opener);
+        });
+
+        it('goes back to the opener when the close button is pressed', async () => {
+            await openFromOpener();
+
+            drawerRoot()!.querySelector<HTMLButtonElement>('button')!.click();
+            await waitUntil(() => document.activeElement === opener, host, 3000);
+
+            expect(document.activeElement).toBe(opener);
+        });
+
+        it('stays where the user put it while the drawer was open', async () => {
+            host.componentInstance.modal = false;
+            host.changeDetectorRef.markForCheck();
+            await host.whenStable();
+            opener.focus();
+            host.componentInstance.visible = true;
+            host.changeDetectorRef.markForCheck();
+            await waitUntil(() => !!drawerRoot(), host, 3000);
+            const elsewhere = document.createElement('input');
+            document.body.appendChild(elsewhere);
+            elsewhere.focus();
+
+            host.componentInstance.visible = false;
+            host.changeDetectorRef.markForCheck();
+            await waitUntil(() => !drawerRoot(), host, 3000);
+
+            expect(document.activeElement).toBe(elsewhere);
+            elsewhere.remove();
+        });
+    });
+
     describe('Template Support', () => {
         it('should support aglTemplate header template', async () => {
             const testFixture = TestBed.createComponent(TestDrawerTemplatesComponent);

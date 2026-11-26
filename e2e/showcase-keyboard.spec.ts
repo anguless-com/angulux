@@ -73,6 +73,29 @@ test('Dialog, modal: closing it, by Escape or by its Cancel button, puts focus b
     await expect(show).toBeFocused();
 });
 
+test('Drawer: closing it, by Escape or by its close button, puts focus back on the button that opened it', async ({ page }) => {
+    await page.goto('/drawer');
+    await hydrated(page);
+
+    const open = page.locator('agl-drawer-basic-doc').getByRole('button', { name: 'Open' });
+    const drawer = page.getByRole('dialog');
+
+    // Escape.
+    await open.focus();
+    await page.keyboard.press('Enter');
+    await expect(drawer.getByRole('button', { name: 'Close' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(open).toBeFocused();
+
+    // The close button, which has focus when the drawer opens.
+    await page.keyboard.press('Enter');
+    await expect(drawer.getByRole('button', { name: 'Close' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(drawer).toBeHidden();
+    await expect(open).toBeFocused();
+});
+
 test('ConfirmDialog: answering or dismissing it puts focus back on the button that opened it', async ({ page }) => {
     await page.goto('/confirmdialog');
     await hydrated(page);
