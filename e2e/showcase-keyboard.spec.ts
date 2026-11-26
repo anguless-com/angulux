@@ -185,6 +185,121 @@ test('ColorPicker: Space opens it, and Escape, Space or Tab closes it', async ({
     await expect(input).not.toBeFocused();
 });
 
+test('Select: Enter, Space, ArrowDown and Alt+ArrowDown open it, the arrows move the active option, Enter chooses, Escape closes', async ({ page }) => {
+    await page.goto('/select');
+    await hydrated(page);
+
+    const combobox = page.locator('agl-select-basic-doc [role="combobox"]');
+    const panel = page.locator('.p-select-overlay');
+    await expect(panel).toHaveCount(0);
+
+    // Each key opens it; Escape closes it; focus never leaves the combobox.
+    await combobox.focus();
+    for (const key of ['Enter', 'Space', 'ArrowDown', 'Alt+ArrowDown']) {
+        await page.keyboard.press(key);
+        await expect(panel, `${key} opens it`).toBeVisible();
+        await expect(combobox).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(panel, `Escape closes it after ${key}`).toBeHidden();
+        await expect(combobox).toBeFocused();
+    }
+
+    // The arrows move the active option, which the combobox names; Enter chooses it and closes.
+    await page.keyboard.press('Enter');
+    await expect(panel).toBeVisible();
+    const before = await combobox.getAttribute('aria-activedescendant');
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => combobox.getAttribute('aria-activedescendant'), 'ArrowDown moves the active option').not.toBe(before);
+    const activeId = await combobox.getAttribute('aria-activedescendant');
+    expect(activeId).toBeTruthy();
+    const chosen = (await page.locator(`[id="${activeId}"]`).textContent())?.trim() ?? '';
+    expect(chosen).not.toBe('');
+    await page.keyboard.press('Enter');
+    await expect(panel).toBeHidden();
+    await expect(combobox).toBeFocused();
+    await expect(combobox).toHaveText(chosen);
+});
+
+test('MultiSelect: Enter opens it and Escape closes it, with focus back on the combobox', async ({ page }) => {
+    await page.goto('/multiselect');
+    await hydrated(page);
+
+    // Only opening, closing and where focus ends up. What each option exposes is not checked here:
+    // its nested checkbox is an open question (see the MultiSelect case in showcase-open-overlays).
+    const combobox = page.locator('agl-multiselect-basic-doc [role="combobox"]');
+    const panel = page.locator('.p-multiselect-overlay');
+    await expect(panel).toHaveCount(0);
+
+    await combobox.focus();
+    await page.keyboard.press('Enter');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(combobox).toBeFocused();
+});
+
+test('Menu popup: focus moves into it, and Escape or an item chosen with Enter puts it back on the button', async ({ page }) => {
+    await page.goto('/menu');
+    await hydrated(page);
+
+    const show = page.locator('agl-menu-popup-doc').getByRole('button', { name: 'Show' });
+    // The page also shows an inline menu, which is a role="menu" list all the time.
+    const menu = page.locator('.p-menu-overlay [role="menu"]');
+    await expect(menu).toHaveCount(0);
+
+    // Escape.
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(show).toBeFocused();
+
+    // An item chosen with Enter.
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeHidden();
+    await expect(show).toBeFocused();
+});
+
+test('Popover: Escape closes it, with focus still on the button that opened it', async ({ page }) => {
+    await page.goto('/popover');
+    await hydrated(page);
+
+    const show = page.locator('agl-popover-basic-doc').getByRole('button', { name: 'Show' });
+    const panel = page.locator('.p-popover');
+    await expect(panel).toHaveCount(0);
+
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(panel).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(show).toBeFocused();
+});
+
+test('Dialog, modal: Tab and Shift+Tab keep focus inside it', async ({ page }) => {
+    await page.goto('/dialog');
+    await hydrated(page);
+
+    const show = page.locator('agl-dialog-modal-doc').getByRole('button', { name: 'Show modal' });
+    const dialog = page.getByRole('dialog');
+
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+
+    // Twelve presses each way go round the dialog's three buttons several times.
+    for (const key of ['Tab', 'Shift+Tab']) {
+        for (let i = 1; i <= 12; i++) {
+            await page.keyboard.press(key);
+            await expect(dialog.locator(':focus'), `${key} ×${i} keeps focus inside`).toHaveCount(1);
+        }
+    }
+});
+
 test('TieredMenu popup: closing it from the keyboard puts focus back on the button that opened it', async ({ page }) => {
     await page.goto('/tieredmenu');
     await hydrated(page);
