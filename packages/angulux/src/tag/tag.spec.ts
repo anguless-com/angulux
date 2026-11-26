@@ -301,6 +301,22 @@ describe('Tag', () => {
     });
 
     describe('Icon Display', () => {
+        // The icon is decoration: its glyph is generated content, and a screen reader read it out
+        // before the value.
+        it('keeps the icon out of what assistive technology reads, from the icon input and from the #icon slot', async () => {
+            const iconFixture = TestBed.createComponent(TestIconTagComponent);
+            await iconFixture.whenStable();
+            const icon = iconFixture.nativeElement.querySelector('span.pi-check') as HTMLElement;
+            expect(icon).toBeTruthy();
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+
+            const templateFixture = TestBed.createComponent(TestIconTemplateTagComponent);
+            await templateFixture.whenStable();
+            const slot = (templateFixture.nativeElement.querySelector('i.custom-icon') as HTMLElement).parentElement as HTMLElement;
+            expect(slot.tagName).toBe('SPAN');
+            expect(slot.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should display icon when icon property is set', () => {
             const iconFixture = TestBed.createComponent(TestIconTagComponent);
             iconFixture.detectChanges();

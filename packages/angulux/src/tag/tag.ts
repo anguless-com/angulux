@@ -18,10 +18,12 @@ const TAG_INSTANCE = new InjectionToken<Tag>('TAG_INSTANCE');
     imports: [CommonModule, SharedModule, Bind],
     template: `
         <ng-content></ng-content>
+        <!-- The icon is decoration beside the value. PrimeIcons draw it as a private-use glyph in
+             ::before, which a screen reader read out before the value. -->
         <ng-container *ngIf="!iconTemplate()">
-            <span [class]="cx('icon')" [ngClass]="icon" [aglBind]="ptm('icon')" *ngIf="icon"></span>
+            <span [class]="cx('icon')" [ngClass]="icon" [aglBind]="ptm('icon')" *ngIf="icon" [attr.aria-hidden]="true"></span>
         </ng-container>
-        <span [class]="cx('icon')" [aglBind]="ptm('icon')" *ngIf="iconTemplate()">
+        <span [class]="cx('icon')" [aglBind]="ptm('icon')" *ngIf="iconTemplate()" [attr.aria-hidden]="true">
             <ng-template *ngTemplateOutlet="iconTemplate()"></ng-template>
         </span>
         <span [class]="cx('label')" [aglBind]="ptm('label')">{{ value }}</span>
