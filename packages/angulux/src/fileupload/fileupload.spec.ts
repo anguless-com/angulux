@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
 import { MessageService } from '@anguless/angulux/api';
+import { AnguluxConfig } from '@anguless/angulux/config';
 import { BehaviorSubject, delay, of, timer } from 'rxjs';
 import { FileUpload } from './fileupload';
 
@@ -1552,6 +1553,37 @@ describe('FileUpload Accessibility', () => {
 
         const fileInput = fixture.debugElement.query(By.css('input[type="file"]'));
         expect(fileInput.nativeElement.getAttribute('data-pc-section')).toBe('input');
+    });
+
+    // WCAG 4.1.2: the button that takes a file off the list shows only an icon, so its name is all a
+    // screen reader has, and it had none. The list appears only once files are chosen, which is why
+    // the showcase sweep, scanning each page as it loads, never reported it.
+    describe('the remove button beside each chosen file', () => {
+        const removeButtons = () => Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[aglFileContent] agl-button button'));
+
+        async function choose(...names: string[]) {
+            component.multiple = true;
+            component.onFileSelect({ target: { files: names.map((name) => new File(['x'], name, { type: 'text/plain' })) } });
+            // The component's own view: it is OnPush, and marking the fixture does not reach it.
+            component.cd.markForCheck();
+            await fixture.whenStable();
+        }
+
+        it('is named by the aria.removeLabel translation', async () => {
+            await choose('a.txt', 'b.txt');
+
+            expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual(['Remove', 'Remove']);
+        });
+
+        it('follows a change of language while the list is on screen', async () => {
+            await choose('a.txt');
+            const config = TestBed.inject(AnguluxConfig);
+
+            config.setTranslation({ aria: { ...config.translation.aria, removeLabel: 'Supprimer' } });
+            await fixture.whenStable();
+
+            expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual(['Supprimer']);
+        });
     });
 });
 

@@ -29,6 +29,9 @@ type Case = {
     rules?: string[];
 };
 
+/** A one-pixel PNG, for a file input that accepts images. */
+const PIXEL_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
 /** Clicks the button with this name inside one demo. */
 const press = (demo: string, name: string) => (page: Page) => page.locator(demo).getByRole('button', { name, exact: true }).click();
 
@@ -188,6 +191,23 @@ const CASES: Case[] = [
         open: press('agl-overlay-basic-doc', 'Toggle'),
         panel: '.p-overlay',
         holds: { selector: 'p', count: 1 }
+    },
+    {
+        // Not an overlay, but hidden from the page sweep the same way: FileUpload lists the files only
+        // once some are chosen. The button beside each one, which takes it off the list, shows only an
+        // icon and had no name (button-name).
+        name: 'FileUpload file list',
+        path: '/fileupload',
+        // FileUpload renders two file inputs, one at its root and one in the Choose button, and reads
+        // a choice from either the same way. The demo accepts images only.
+        open: (page) =>
+            page
+                .locator('agl-fileupload-advanced-doc input[type="file"]')
+                .first()
+                .setInputFiles({ name: 'photo.png', mimeType: 'image/png', buffer: Buffer.from(PIXEL_PNG, 'base64') }),
+        panel: 'agl-fileupload-advanced-doc [data-pc-section="filelist"]',
+        // The remove button.
+        holds: { selector: 'button', count: 1 }
     }
 ];
 
