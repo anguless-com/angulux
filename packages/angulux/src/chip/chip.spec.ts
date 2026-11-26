@@ -321,6 +321,13 @@ describe('Chip', () => {
             await fixture.whenStable();
         });
 
+        // The glyph is generated content, and a screen reader read it out before the label.
+        it('keeps the icon out of what assistive technology reads', () => {
+            const icon = fixture.nativeElement.querySelector('span.pi-user') as HTMLElement;
+            expect(icon).toBeTruthy();
+            expect(icon.getAttribute('aria-hidden')).toBe('true');
+        });
+
         it('should display icon', async () => {
             const iconElement = fixture.debugElement.query(By.css('.p-chip-icon'));
             expect(iconElement).toBeTruthy();
