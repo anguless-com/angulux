@@ -484,7 +484,35 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
         this.mask = null;
     }
 
+    /**
+     * The element that had focus when the drawer opened. Focus goes back to it when the drawer closes
+     * (WCAG 2.4.3); without this it fell to the page body, and the next Tab started from the top of
+     * the page.
+     */
+    private opener: HTMLElement | null = null;
+
+    private rememberOpener(container: HTMLElement) {
+        const active = this.document.activeElement as HTMLElement | null;
+
+        this.opener = active && active !== this.document.body && !container.contains(active) ? active : null;
+    }
+
+    /**
+     * Only when focus is lost: still in the closing drawer, or already on the body. Focus the user has
+     * put somewhere else while the drawer was open stays there.
+     */
+    private restoreOpenerFocus() {
+        const opener = this.opener;
+        const active = this.document.activeElement;
+
+        this.opener = null;
+        if (opener?.isConnected && (!active || active === this.document.body || this.container?.contains(active))) {
+            opener.focus();
+        }
+    }
+
     onBeforeEnter(event: MotionEvent) {
+        this.rememberOpener(event.element as HTMLElement);
         this.container = event.element as HTMLDivElement;
         this.appendContainer();
         this.show();
@@ -501,6 +529,8 @@ export class Drawer extends BaseComponent<DrawerPassThrough> {
     }
 
     onAfterLeave() {
+        // While the container is still here, so focus still inside it counts as lost.
+        this.restoreOpenerFocus();
         this.hide(false);
         ZIndexUtils.clear(this.container);
         this.unbindGlobalListeners();
