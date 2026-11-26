@@ -1625,7 +1625,74 @@ describe('FileUpload Accessibility', () => {
             expectHidden(chooseButton(host.nativeElement).querySelector('.custom-choose-icon')!.parentElement);
         });
     });
+
+    // An icon class the app passes is drawn by its font in ::before, and generated content takes part
+    // in the accessible name. These icons were not hidden, so with a PrimeIcons class the button was
+    // named "<glyph> Cancel", "<glyph> Choose" or "<glyph> Upload".
+    describe('an icon class the app sets on another button', () => {
+        function expectHidden(icon: Element | null) {
+            expect(icon).withContext('the icon is rendered').not.toBeNull();
+            expect(icon!.getAttribute('aria-hidden')).toBe('true');
+        }
+
+        async function render(changes: Partial<FileUpload>) {
+            Object.assign(component, changes);
+            component.cd.markForCheck();
+            await fixture.whenStable();
+        }
+
+        async function choose() {
+            component.onFileSelect({ target: { files: [new File(['x'], 'a.txt', { type: 'text/plain' })] } });
+            component.cd.markForCheck();
+            await fixture.whenStable();
+        }
+
+        it('is hidden on the Cancel button (cancelIcon)', async () => {
+            await render({ cancelIcon: 'pi pi-ban' });
+
+            expectHidden(fixture.nativeElement.querySelector('span[class~="pi-ban"]'));
+        });
+
+        it('is hidden on the basic button before a file is chosen (chooseIcon)', async () => {
+            await render({ mode: 'basic', chooseIcon: 'pi pi-image' });
+
+            expectHidden(fixture.nativeElement.querySelector('span[class~="pi-image"]'));
+        });
+
+        it('is hidden on the basic button once a file is chosen (uploadIcon)', async () => {
+            await render({ mode: 'basic', uploadIcon: 'pi pi-cloud-upload' });
+            await choose();
+
+            expectHidden(fixture.nativeElement.querySelector('span[class~="pi-cloud-upload"]'));
+        });
+
+        it('is hidden on the basic button once a file is chosen, around a #uploadicon template', async () => {
+            const host = TestBed.createComponent(BasicUploadIconHost);
+
+            await host.whenStable();
+            const fileUpload = host.debugElement.query(By.directive(FileUpload)).componentInstance as FileUpload;
+
+            fileUpload.onFileSelect({ target: { files: [new File(['x'], 'a.txt', { type: 'text/plain' })] } });
+            fileUpload.cd.markForCheck();
+            await host.whenStable();
+
+            // The span the component wraps around the app's template.
+            expectHidden(host.nativeElement.querySelector('.custom-upload-icon')!.parentElement);
+        });
+    });
 });
+
+@Component({
+    imports: [FileUpload],
+    template: `
+        <agl-fileupload mode="basic">
+            <ng-template #uploadicon>
+                <i class="custom-upload-icon pi pi-upload"></i>
+            </ng-template>
+        </agl-fileupload>
+    `
+})
+class BasicUploadIconHost {}
 
 // Performance and Edge Cases
 describe('FileUpload Performance and Edge Cases', () => {

@@ -215,7 +215,7 @@ export class FileContent extends BaseComponent {
                         [unstyled]="unstyled()"
                     >
                         <ng-template #icon>
-                            <span *ngIf="cancelIcon" [ngClass]="cancelIcon"></span>
+                            <span *ngIf="cancelIcon" [ngClass]="cancelIcon" [attr.aria-hidden]="true"></span>
                             <ng-container *ngIf="!cancelIcon">
                                 <svg data-p-icon="times" *ngIf="!cancelIconTemplate()" [attr.aria-hidden]="true" />
                                 <span *ngIf="cancelIconTemplate()" [attr.aria-hidden]="true">
@@ -318,17 +318,18 @@ export class FileContent extends BaseComponent {
                     [pt]="ptm('pcChooseButton')"
                     [unstyled]="unstyled()"
                 >
+                    <!-- An icon class is drawn by its font in ::before, which would otherwise enter the button's name. -->
                     <ng-template #icon>
                         @if (hasFiles() && !auto) {
-                            <span *ngIf="uploadIcon" class="p-button-icon p-button-icon-left" [ngClass]="uploadIcon" [aglBind]="ptm('pcChooseButton')?.icon"></span>
+                            <span *ngIf="uploadIcon" class="p-button-icon p-button-icon-left" [ngClass]="uploadIcon" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!uploadIcon">
                                 <svg data-p-icon="upload" *ngIf="!uploadIconTemplate()" [class]="'p-button-icon p-button-icon-left'" [aglBind]="ptm('pcChooseButton')?.icon" />
-                                <span *ngIf="uploadIconTemplate()" class="p-button-icon p-button-icon-left" [aglBind]="ptm('pcChooseButton')?.icon">
+                                <span *ngIf="uploadIconTemplate()" class="p-button-icon p-button-icon-left" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon">
                                     <ng-template *ngTemplateOutlet="uploadIconTemplate()"></ng-template>
                                 </span>
                             </ng-container>
                         } @else {
-                            <span *ngIf="chooseIcon" class="p-button-icon p-button-icon-left pi" [ngClass]="chooseIcon" [aglBind]="ptm('pcChooseButton')?.icon"></span>
+                            <span *ngIf="chooseIcon" class="p-button-icon p-button-icon-left pi" [ngClass]="chooseIcon" [attr.aria-hidden]="true" [aglBind]="ptm('pcChooseButton')?.icon"></span>
                             <ng-container *ngIf="!chooseIcon">
                                 <svg data-p-icon="plus" *ngIf="!chooseIconTemplate()" [aglBind]="ptm('pcChooseButton')?.icon" />
                                 <ng-template *ngTemplateOutlet="chooseIconTemplate()"></ng-template>
