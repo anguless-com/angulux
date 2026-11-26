@@ -8,6 +8,7 @@ import { MenuItem } from '@anguless/angulux/api';
 import { provideAngulux } from '@anguless/angulux/config';
 import { Tooltip } from '@anguless/angulux/tooltip';
 import { TieredMenu } from './tieredmenu';
+import { waitUntil } from '../spec-helpers';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -363,6 +364,45 @@ describe('TieredMenu', () => {
         it('should create popup menu', () => {
             expect(popupTieredMenu.popup).toBe(true);
             expect(popupTieredMenu.visible).toBeFalsy();
+        });
+
+        // WCAG 2.4.3: choosing an item closed the popup and then focused the menu list, which was on
+        // its way out, so focus fell to the page body. It now goes back to what opened the menu, as it
+        // already did on Escape.
+        describe('focus when the popup closes', () => {
+            const menu = () => document.querySelector<HTMLElement>('[role="menu"]');
+            const press = (target: HTMLElement, code: string) => target.dispatchEvent(new KeyboardEvent('keydown', { code, key: code, bubbles: true }));
+            const opener = () => popupComponent.toggleButton.nativeElement as HTMLButtonElement;
+
+            async function openFromButton(): Promise<HTMLElement> {
+                opener().focus();
+                opener().click();
+                await waitUntil(() => !!menu() && document.activeElement === menu(), popupFixture);
+                expect(document.activeElement).withContext('focus moves into the open menu').toBe(menu());
+                return menu()!;
+            }
+
+            it('goes back to the opener on Escape', async () => {
+                press(await openFromButton(), 'Escape');
+                await waitUntil(() => document.activeElement === opener(), popupFixture);
+
+                expect(document.activeElement).toBe(opener());
+            });
+
+            it('goes back to the opener when an item is chosen with Enter', async () => {
+                const list = await openFromButton();
+
+                // Actions, then into its submenu (Save), then choose it.
+                press(list, 'ArrowDown');
+                await popupFixture.whenStable();
+                press(list, 'ArrowRight');
+                await waitUntil(() => document.querySelectorAll('[role="menu"]').length > 1, popupFixture);
+                press(list, 'Enter');
+                await waitUntil(() => document.activeElement === opener(), popupFixture);
+
+                expect(popupComponent.saveClicked).withContext('the item ran its command').toBe(true);
+                expect(document.activeElement).toBe(opener());
+            });
         });
 
         it('should toggle menu visibility', async () => {
