@@ -214,6 +214,7 @@ export class SelectItem extends BaseComponent {
                 <span *ngIf="isSelectedOptionEmpty()">{{ label() === 'p-emptylabel' ? '&nbsp;' : label() }}</span>
             </ng-template>
         </span>
+        <!-- The placeholder stays once the input has a value: it may be the input's only name, and a browser shows it only while the input is empty. -->
         <input
             *ngIf="editable"
             #editableInput
@@ -226,7 +227,7 @@ export class SelectItem extends BaseComponent {
             [attr.aria-haspopup]="'listbox'"
             [attr.aria-expanded]="overlayVisible ?? false"
             [attr.aria-controls]="overlayVisible ? id + '_list' : null"
-            [attr.placeholder]="modelValue() === undefined || modelValue() === null || modelValue() === '' ? placeholder() : undefined"
+            [attr.placeholder]="placeholder()"
             [attr.aria-label]="ariaLabel"
             [attr.aria-labelledby]="ariaLabelledBy"
             (input)="onEditableInput($event)"

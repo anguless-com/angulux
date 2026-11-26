@@ -23,6 +23,7 @@ import { settled, waitUntil } from '../spec-helpers';
             [disabled]="disabled"
             [filter]="filter"
             [showClear]="showClear"
+            [editable]="editable"
             [checkmark]="checkmark"
             [resetFilterOnHide]="resetFilterOnHide"
             [ariaLabel]="ariaLabel"
@@ -55,6 +56,7 @@ class TestBasicSelectComponent {
     disabled = false;
     filter = false;
     showClear = false;
+    editable = false;
     checkmark = false;
     resetFilterOnHide = false;
     ariaLabel: string | undefined;
@@ -1371,6 +1373,51 @@ describe('Select', () => {
             const box = await filterBox();
             expect(box.getAttribute('aria-label')).toBe('Option');
             expect(box.hasAttribute('aria-labelledby')).toBe(false);
+        });
+    });
+
+    // WCAG 4.1.2: the editable input dropped its placeholder once the model had a value. With no label
+    // and no ariaLabel the placeholder is the input's only name, so typing into it removed the name.
+    // A browser shows a placeholder only while the input is empty, so keeping it changes nothing on
+    // screen.
+    describe('The editable input keeps its placeholder', () => {
+        // A change to the host is marked and left to settle, as the tests above do: a detectChanges
+        // straight after it can race the ngModel write (NG0100).
+        async function render() {
+            fixture.changeDetectorRef.markForCheck();
+            await fixture.whenStable();
+            fixture.detectChanges();
+        }
+
+        async function editableInput(): Promise<HTMLInputElement> {
+            component.editable = true;
+            await render();
+            return fixture.debugElement.query(By.css('input[role="combobox"]')).nativeElement as HTMLInputElement;
+        }
+
+        it('while it is empty', async () => {
+            expect((await editableInput()).getAttribute('placeholder')).toBe('Select an option');
+        });
+
+        it('once text is typed into it', async () => {
+            const input = await editableInput();
+
+            input.value = 'Rome';
+            input.dispatchEvent(new Event('input'));
+            await render();
+
+            expect(selectInstance.modelValue()).withContext('the model holds the typed text').toBe('Rome');
+            expect(input.getAttribute('placeholder')).toBe('Select an option');
+        });
+
+        it('once an option is chosen', async () => {
+            const input = await editableInput();
+
+            component.selectedValue = 'opt2';
+            await render();
+
+            expect(input.value).withContext('the input shows the chosen option').toBe('Option 2');
+            expect(input.getAttribute('placeholder')).toBe('Select an option');
         });
     });
 
