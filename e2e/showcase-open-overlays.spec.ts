@@ -202,6 +202,16 @@ const CASES: Case[] = [
         panel: 'agl-fileupload-advanced-doc [data-pc-section="filelist"]',
         // The remove button.
         holds: { selector: 'button', count: 1 }
+    },
+    {
+        // Not an overlay either: the editable Select once text is typed into it. Its input dropped
+        // the placeholder when the model had a value, and the demo names it by its placeholder alone,
+        // so typing left it with no name (label).
+        name: 'Select, editable, after typing',
+        path: '/select',
+        open: (page) => page.locator('agl-select-editable-doc input[role="combobox"]').fill('Rome'),
+        panel: 'agl-select-editable-doc agl-select',
+        holds: { selector: 'input[role="combobox"]', count: 1 }
     }
 ];
 
