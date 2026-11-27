@@ -132,6 +132,10 @@ export interface Aria {
     rotateLeft?: string;
     listLabel?: string;
     selectColor?: string;
+    /** ColorPicker's colour area, a slider on two axes: saturation across, brightness up and down. Without it: 'Saturation and brightness'. */
+    saturationBrightness?: string;
+    /** ColorPicker's hue bar. Without it: 'Hue'. */
+    hue?: string;
     removeLabel?: string;
     browseFiles?: string;
     maximizeLabel?: string;

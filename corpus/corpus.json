@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "56b3b3820a32bc67d7902ba92ea44247b79fc45abd95fbbf7456e500527d6c9c",
+        "sourceHash": "b2368608b88ce4c6af3fdde67cbe64f8fc07e10fc0c789753568ee17cf6bb7ec",
         "closureCount": 65
     },
     "modules": [
@@ -2062,7 +2062,7 @@
                     "kind": "component",
                     "selector": "agl-colorPicker, agl-colorpicker, agl-color-picker",
                     "extends": "BaseEditableHolder",
-                    "description": "ColorPicker groups a collection of contents in tabs.",
+                    "description": "ColorPicker is an input to choose a colour, in a popup panel or inline.\n\nKeyboard: on the input, Space opens or closes the panel, ArrowDown opens it and then moves into\nit, and Escape or Tab closes it. The colour area is a slider: ArrowLeft and ArrowRight set the\nsaturation, ArrowUp and ArrowDown the brightness, by 1 or by 10 with Shift. The hue bar is a\nvertical slider: the arrow keys move the hue by 1, or by 10 with Shift, and Home and End go to\n0 and 360. In the popup panel, Tab goes between the two, and Escape closes it with focus back\non the input.",
                     "inputs": [
                         {
                             "name": "styleClass",

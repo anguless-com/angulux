@@ -207,9 +207,15 @@ const CASES: Case[] = [
         panel: '.p-password-overlay',
         holds: { selector: '.p-password-meter', count: 1 }
     },
-    // ColorPicker is not here. Its open panel holds no text and no element with a role, so axe has
-    // no rule to run on it, and the check that axe ran one would fail the case. Its colour area and
-    // hue bar take the pointer only, which no axe rule looks for.
+    {
+        // Its colour area and hue bar are sliders the keyboard reaches, each with a name and a value.
+        // The inline demo's panel is on screen all the time; only the popup one is scanned.
+        name: 'ColorPicker',
+        path: '/colorpicker',
+        open: (page) => page.locator('agl-colorpicker-basic-doc input').click(),
+        panel: '.p-colorpicker-panel:not(agl-colorpicker-inline-doc *)',
+        holds: { selector: '[role="slider"]', count: 2 }
+    },
     {
         name: 'Overlay',
         path: '/overlay',
