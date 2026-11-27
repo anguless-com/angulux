@@ -458,3 +458,25 @@ test('TieredMenu popup: closing it from the keyboard puts focus back on the butt
     await expect(menu).toBeHidden();
     await expect(show).toBeFocused();
 });
+
+test('Toast: keyboard focus on a message keeps it past its life, and it closes once focus leaves', async ({ page }) => {
+    await page.goto('/toast');
+    await hydrated(page);
+
+    const demo = page.locator('agl-toast-basic-doc');
+    const show = demo.getByRole('button', { name: 'Show' });
+    const message = demo.locator('[role="alert"]');
+
+    await show.focus();
+    await page.keyboard.press('Enter');
+    await expect(message).toHaveCount(1);
+    await page.keyboard.press('Shift+Tab');
+    await expect(message.getByRole('button')).toBeFocused();
+
+    // The demo's life is the default 3000 ms; with focus in the message it has to outlast that.
+    await page.waitForTimeout(4000);
+    await expect(message).toHaveCount(1);
+
+    await show.focus();
+    await expect(message).toHaveCount(0, { timeout: 6000 });
+});

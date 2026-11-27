@@ -51,6 +51,8 @@ const TOAST_INSTANCE = new InjectionToken<Toast>('TOAST_INSTANCE');
             [class]="cn(cx('message'), message?.styleClass)"
             (mouseenter)="onMouseEnter()"
             (mouseleave)="onMouseLeave()"
+            (focusin)="onFocusIn()"
+            (focusout)="onFocusOut()"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
@@ -173,6 +175,11 @@ export class ToastItem extends BaseComponent<ToastPassThrough> {
 
     private isClosing = false;
 
+    /** The pointer is over the message, or keyboard focus is in it: either one holds the timer. */
+    private hovered = false;
+
+    private focused = false;
+
     constructor(private zone: NgZone) {
         super();
 
@@ -211,11 +218,27 @@ export class ToastItem extends BaseComponent<ToastPassThrough> {
     }
 
     onMouseEnter() {
+        this.hovered = true;
         this.clearTimeout();
     }
 
     onMouseLeave() {
-        if (!this.isClosing) {
+        this.hovered = false;
+        this.resumeTimeout();
+    }
+
+    onFocusIn() {
+        this.focused = true;
+        this.clearTimeout();
+    }
+
+    onFocusOut() {
+        this.focused = false;
+        this.resumeTimeout();
+    }
+
+    private resumeTimeout() {
+        if (!this.isClosing && !this.isDestroyed && !this.hovered && !this.focused) {
             this.initTimeout();
         }
     }
@@ -306,6 +329,9 @@ export class Toast extends BaseComponent<ToastPassThrough> {
     @Input({ transform: numberAttribute }) baseZIndex: number = 0;
     /**
      * The default time to display messages for in milliseconds.
+     *
+     * The pointer over a message, or keyboard focus in it, pauses its timer; once both have left,
+     * the message gets its full time again.
      * @group Props
      */
     @Input({ transform: numberAttribute }) life: number = 3000;

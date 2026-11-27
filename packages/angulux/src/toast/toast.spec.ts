@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -2290,5 +2290,62 @@ describe('ToastItem', () => {
             expect(at('top-left').right).toBeNull();
             expect(at('center').bottom).toBeNull();
         });
+    });
+});
+
+@Component({
+    imports: [Toast],
+    providers: [MessageService],
+    template: `<button id="outside" type="button">outside</button><agl-toast />`
+})
+class FocusPauseToastHost {
+    messages = inject(MessageService);
+}
+
+describe('Toast: keyboard focus in a message pauses its timer, as hover does', () => {
+    let fixture: ComponentFixture<FocusPauseToastHost>;
+    const host = () => fixture.nativeElement as HTMLElement;
+    const message = () => host().querySelector('[role="alert"]') as HTMLElement | null;
+    const closeButton = () => message()?.querySelector('button') as HTMLButtonElement;
+    const outside = () => host().querySelector('#outside') as HTMLButtonElement;
+    const item = () => fixture.debugElement.query(By.directive(ToastItem)).componentInstance as ToastItem;
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(FocusPauseToastHost);
+        await fixture.whenStable();
+        fixture.componentInstance.messages.add({ severity: 'info', summary: 'Saved', life: 300 });
+        await waitUntil(() => !!closeButton(), fixture);
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('stops the timer while focus is on the close button, and closes the message once focus leaves', async () => {
+        expect(item().timeout).withContext('running before focus').not.toBeNull();
+
+        closeButton().focus();
+        expect(item().timeout).withContext('still running with focus in the message').toBeNull();
+
+        outside().focus();
+        expect(item().timeout).withContext('restarted once focus left').not.toBeNull();
+        await waitUntil(() => !message(), fixture, 3000);
+        expect(message()).toBeNull();
+    });
+
+    it('restarts the timer only once both the pointer and focus have left', async () => {
+        message()!.dispatchEvent(new MouseEvent('mouseenter'));
+        closeButton().focus();
+        message()!.dispatchEvent(new MouseEvent('mouseleave'));
+        expect(item().timeout).withContext('restarted when the pointer left while focus stayed').toBeNull();
+
+        outside().focus();
+        expect(item().timeout).not.toBeNull();
+        await waitUntil(() => !message(), fixture, 3000);
+        expect(message()).toBeNull();
+    });
+
+    it('still closes by itself when nothing holds it', async () => {
+        await waitUntil(() => !message(), fixture, 3000);
+        expect(message()).toBeNull();
     });
 });
