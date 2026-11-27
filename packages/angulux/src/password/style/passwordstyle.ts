@@ -26,6 +26,11 @@ agl-password.ng-invalid.ng-dirty .p-inputtext::placeholder {
     width: 100%;
 }
 
+.p-password-toggle-mask-icon:focus-visible {
+    outline: dt('focus.ring.width') dt('focus.ring.style') dt('focus.ring.color');
+    outline-offset: dt('focus.ring.offset');
+}
+
 /* Animations */
 .p-password-enter {
     animation: p-animate-password-enter 300ms cubic-bezier(.19,1,.22,1);

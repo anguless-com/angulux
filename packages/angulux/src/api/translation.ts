@@ -136,6 +136,8 @@ export interface Aria {
     saturationBrightness?: string;
     /** ColorPicker's hue bar. Without it: 'Hue'. */
     hue?: string;
+    /** Password's toggle that shows what was typed, a button with aria-pressed. Without it: 'Show password'. */
+    showPassword?: string;
     removeLabel?: string;
     browseFiles?: string;
     maximizeLabel?: string;

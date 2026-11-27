@@ -811,8 +811,8 @@
         "packages/angulux/src/password/password.ts": {
             "@angular-eslint/prefer-host-metadata-property": 4,
             "@angular-eslint/prefer-inject": 1,
-            "@angular-eslint/template/click-events-have-key-events": 7,
-            "@angular-eslint/template/interactive-supports-focus": 7,
+            "@angular-eslint/template/click-events-have-key-events": 3,
+            "@angular-eslint/template/interactive-supports-focus": 3,
             "@angular-eslint/template/prefer-control-flow": 10,
             "@angular-eslint/template/prefer-style-binding": 2,
             "@typescript-eslint/no-explicit-any": 9,

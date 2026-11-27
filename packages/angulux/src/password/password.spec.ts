@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectionStrategy, Component, provideZonelessChangeDetection, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 import { CommonModule } from '@angular/common';
 import { SharedModule } from '@anguless/angulux/api';
-import { provideAngulux } from '@anguless/angulux/config';
+import { AnguluxConfig, provideAngulux } from '@anguless/angulux/config';
 import { forceNonTouchDevice, forceTouchDevice, waitUntil } from '../spec-helpers';
 import { MapperPipe, Password, PasswordDirective, PasswordModule } from './password';
 
@@ -1268,6 +1268,120 @@ describe('Password', () => {
             // Ensure first password is weaker than or equal to last
             expect(results[0]).toBeLessThanOrEqual(results[3]);
         });
+    });
+});
+
+@Component({
+    imports: [PasswordModule],
+    template: `<agl-password [toggleMask]="true" [feedback]="false" [disabled]="disabled()" />`
+})
+class KeyboardTogglePasswordHost {
+    disabled = signal(false);
+}
+
+@Component({
+    imports: [PasswordModule],
+    template: `
+        <agl-password [toggleMask]="true" [feedback]="false">
+            <ng-template #showicon><i class="custom-show"></i></ng-template>
+            <ng-template #hideicon><i class="custom-hide"></i></ng-template>
+        </agl-password>
+    `
+})
+class KeyboardToggleTemplatePasswordHost {}
+
+describe('Password, keyboard: the show-password control', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k === ' ' ? 'Space' : k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+    });
+
+    describe('with the default icons', () => {
+        let fixture: ComponentFixture<KeyboardTogglePasswordHost>;
+        const input = () => fixture.nativeElement.querySelector('input') as HTMLInputElement;
+        const toggle = () => fixture.nativeElement.querySelector('[aria-pressed]') as HTMLElement;
+
+        beforeEach(async () => {
+            fixture = TestBed.createComponent(KeyboardTogglePasswordHost);
+            await fixture.whenStable();
+        });
+
+        afterEach(() => fixture.destroy());
+
+        it('is a named button in the tab order, not pressed while the password is hidden', () => {
+            expect(toggle().getAttribute('role')).toBe('button');
+            expect(toggle().getAttribute('tabindex')).toBe('0');
+            expect(toggle().getAttribute('aria-label')).toBe('Show password');
+            expect(toggle().getAttribute('aria-pressed')).toBe('false');
+            expect(input().getAttribute('type')).toBe('password');
+        });
+
+        it('shows the password with Enter and hides it with Space, keeping focus on the control', async () => {
+            toggle().focus();
+            const enter = key(toggle(), 'Enter');
+            await fixture.whenStable();
+            expect(enter.defaultPrevented).toBe(true);
+            expect(input().getAttribute('type')).toBe('text');
+            expect(toggle().getAttribute('aria-pressed')).toBe('true');
+            expect(toggle().getAttribute('aria-label')).toBe('Show password');
+            expect(document.activeElement).toBe(toggle());
+
+            const space = key(toggle(), ' ');
+            await fixture.whenStable();
+            expect(space.defaultPrevented).toBe(true);
+            expect(input().getAttribute('type')).toBe('password');
+            expect(toggle().getAttribute('aria-pressed')).toBe('false');
+            expect(document.activeElement).toBe(toggle());
+        });
+
+        it('leaves other keys alone, and Enter in the field itself, which submits a form', async () => {
+            const tab = key(toggle(), 'Tab');
+            const letter = key(toggle(), 'a');
+            const enterInField = key(input(), 'Enter');
+            await fixture.whenStable();
+            expect(tab.defaultPrevented).toBe(false);
+            expect(letter.defaultPrevented).toBe(false);
+            expect(enterInField.defaultPrevented).toBe(false);
+            expect(input().getAttribute('type')).toBe('password');
+        });
+
+        it('takes the name from the aria.showPassword translation', async () => {
+            const aria: Record<string, string> = { showPassword: 'Mostrar contraseña' };
+            TestBed.inject(AnguluxConfig).setTranslation({ aria });
+            await fixture.whenStable();
+            expect(toggle().getAttribute('aria-label')).toBe('Mostrar contraseña');
+        });
+
+        it('works as a click does when the field is disabled: what was typed can still be shown', async () => {
+            fixture.componentInstance.disabled.set(true);
+            await fixture.whenStable();
+            expect(toggle().getAttribute('tabindex')).toBe('0');
+            key(toggle(), 'Enter');
+            await fixture.whenStable();
+            expect(input().getAttribute('type')).toBe('text');
+        });
+    });
+
+    it('gives the same button to custom show and hide icons', async () => {
+        const fixture = TestBed.createComponent(KeyboardToggleTemplatePasswordHost);
+        await fixture.whenStable();
+        const control = () => (fixture.nativeElement.querySelector('.custom-show, .custom-hide') as HTMLElement).parentElement as HTMLElement;
+
+        expect(control().getAttribute('role')).toBe('button');
+        expect(control().getAttribute('tabindex')).toBe('0');
+        expect(control().getAttribute('aria-label')).toBe('Show password');
+        control().focus();
+        key(control(), 'Enter');
+        await fixture.whenStable();
+        expect(fixture.nativeElement.querySelector('.custom-hide')).not.toBeNull();
+        expect(control().getAttribute('aria-pressed')).toBe('true');
+        expect(document.activeElement).toBe(control());
+        fixture.destroy();
     });
 });
 
