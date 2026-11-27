@@ -107,6 +107,10 @@ export class UIChart extends BaseComponent<ChartPassThrough> {
     }
     /**
      * Callback to execute when an element on chart is clicked.
+     *
+     * Accessibility, a known limit: the chart is drawn on a canvas, and a data point can be chosen
+     * with the pointer only (WCAG 2.1.1). Where choosing one matters, offer the same choice outside
+     * the chart too, for example a table of the data with a button in each row.
      * @group Emits
      */
     @Output() onDataSelect: EventEmitter<any> = new EventEmitter<any>();

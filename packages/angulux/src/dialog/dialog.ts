@@ -185,11 +185,19 @@ export class Dialog extends BaseComponent<DialogPassThrough> implements OnInit, 
     @Input() header: string | undefined;
     /**
      * Enables dragging to change the position using header.
+     *
+     * Accessibility, a known limit: the dialog moves with the pointer only, and no key moves it.
+     * Everything inside it works from the keyboard, and nothing depends on where it sits, so a
+     * keyboard user loses a convenience, not a function.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) draggable: boolean = true;
     /**
      * Enables resizing of the content.
+     *
+     * Accessibility, a known limit: the dialog resizes with the pointer only, and no key resizes it.
+     * Give it a size that fits its content; `maximizable` adds a button, which the keyboard reaches,
+     * that makes it fill the viewport.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) resizable: boolean = true;
