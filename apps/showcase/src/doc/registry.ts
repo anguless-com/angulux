@@ -918,6 +918,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Double-click selection',
             description: 'aglSelectableRowDblClick selects a row on a double click, or on Enter or Space once the row has focus. The arrow keys move between rows, and with aglSelectableRowIndex set, the selected row is their one tab stop.',
             load: () => import('./table/doubleclick-doc').then((m) => m.DoubleClickDoc)
+        },
+        {
+            id: 'table-resize',
+            label: 'Column resizing',
+            description: 'With resizableColumns, aglResizableColumn adds a resizer to a header: drag it, or Tab to it and press ArrowRight or ArrowLeft to change the width by 10 pixels. In the default fit mode, the next column gives or takes the difference, so the last column shows no resizer.',
+            load: () => import('./table/resize-doc').then((m) => m.ResizeDoc)
         }
     ],
     treetable: [
@@ -938,6 +944,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Double-click selection',
             description: 'ttSelectableRowDblClick selects a row on a double click, or on Enter or Space on the focused row; ttRow puts the rows in the tab order and moves between them with the arrow keys.',
             load: () => import('./treetable/doubleclick-doc').then((m) => m.DoubleClickDoc)
+        },
+        {
+            id: 'treetable-resize',
+            label: 'Column resizing',
+            description: 'ttResizableColumn does the same for TreeTable. With columnResizeMode set to expand, the table grows or shrinks instead, so the last column has a resizer too.',
+            load: () => import('./treetable/resize-doc').then((m) => m.ResizeDoc)
         }
     ]
 };

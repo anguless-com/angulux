@@ -619,3 +619,59 @@ test('TreeTable, double-click selection: Enter or Space on a focused row selects
     await row('Documents').dblclick();
     await expect(selected).toHaveText('Selected: Documents');
 });
+
+test('Table, column resizing: each resizer is a named tab stop that reports its column width, and the arrow keys resize the column by 10 px', async ({ page }) => {
+    await page.goto('/table');
+    await hydrated(page);
+
+    const demo = page.locator('agl-table-resize-doc');
+    const code = demo.getByRole('columnheader', { name: /^Code / });
+    const name = demo.getByRole('columnheader', { name: /^Name / });
+    const codeResizer = code.getByRole('separator', { name: 'Resize column' });
+    const nameResizer = name.getByRole('separator', { name: 'Resize column' });
+    const width = async () => (await code.boundingBox())!.width;
+
+    // Tab goes from one resizer to the next, and shows the focus ring.
+    await codeResizer.focus();
+    await page.keyboard.press('Tab');
+    await expect(nameResizer).toBeFocused();
+    await expect(nameResizer).not.toHaveCSS('outline-style', 'none');
+    await page.keyboard.press('Shift+Tab');
+    await expect(codeResizer).toBeFocused();
+    expect(Number(await codeResizer.getAttribute('aria-valuenow'))).toBeCloseTo(await width(), -1);
+    expect(await axeViolations(page, 'agl-table-resize-doc')).toEqual([]);
+
+    const before = await width();
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(width).toBeCloseTo(before + 10, 0);
+    expect(Number(await codeResizer.getAttribute('aria-valuenow'))).toBeCloseTo(before + 10, -1);
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(width).toBeCloseTo(before, 0);
+
+    // In fit mode the last column has no next column to give or take width, so its resizer is hidden and takes no focus.
+    await expect(demo.getByRole('columnheader', { name: /^Category/ }).getByRole('separator', { includeHidden: true })).toBeHidden();
+});
+
+test('TreeTable, column resizing: each resizer is a named tab stop, and the arrow keys widen and narrow its column by 10 px', async ({ page }) => {
+    await page.goto('/treetable');
+    await hydrated(page);
+
+    const demo = page.locator('agl-treetable-resize-doc');
+    const name = demo.getByRole('columnheader', { name: /^Name / });
+    const size = demo.getByRole('columnheader', { name: /^Size / });
+    const nameResizer = name.getByRole('separator', { name: 'Resize column' });
+    const sizeResizer = size.getByRole('separator', { name: 'Resize column' });
+    const width = async () => (await size.boundingBox())!.width;
+
+    await nameResizer.focus();
+    await page.keyboard.press('Tab');
+    await expect(sizeResizer).toBeFocused();
+    await expect(sizeResizer).not.toHaveCSS('outline-style', 'none');
+    expect(await axeViolations(page, 'agl-treetable-resize-doc')).toEqual([]);
+
+    const before = await width();
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(width).toBeCloseTo(before + 10, 0);
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(width).toBeCloseTo(before, 0);
+});
