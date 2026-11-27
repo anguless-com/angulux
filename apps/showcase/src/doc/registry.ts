@@ -906,6 +906,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Selection',
             description: 'Selection is two-way bound, and aglSelectableRow marks what can be selected.',
             load: () => import('./table/selection-doc').then((m) => m.SelectionDoc)
+        },
+        {
+            id: 'table-celledit',
+            label: 'Cell editing',
+            description: 'aglEditableColumn opens a cell editor on a click, or on Enter or F2 once Tab has reached the cell. Enter closes it with onEditComplete and Escape with onEditCancel, and both put focus back on the cell.',
+            load: () => import('./table/celledit-doc').then((m) => m.CellEditDoc)
         }
     ],
     treetable: [
@@ -914,6 +920,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Basic',
             description: 'TreeTable is Table over a TreeNode hierarchy, with a toggler for each branch.',
             load: () => import('./treetable/basic-doc').then((m) => m.BasicDoc)
+        },
+        {
+            id: 'treetable-celledit',
+            label: 'Cell editing',
+            description: 'ttEditableColumn works the same way: a click, or Enter or F2 on the focused cell, opens the editor, and Enter or Escape closes it and puts focus back on the cell.',
+            load: () => import('./treetable/celledit-doc').then((m) => m.CellEditDoc)
         }
     ]
 };

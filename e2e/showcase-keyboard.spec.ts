@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { type Page, expect, test } from '@playwright/test';
 import { hydrated } from './hydrated';
 
 /**
@@ -479,4 +480,87 @@ test('Toast: keyboard focus on a message keeps it past its life, and it closes o
 
     await show.focus();
     await expect(message).toHaveCount(0, { timeout: 6000 });
+});
+
+/** axe over one demo, with the state a key has just put it in: what the sweep at rest cannot see. */
+async function axeViolations(page: Page, demo: string) {
+    const result = await new AxeBuilder({ page }).include(demo).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+
+    return result.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
+}
+
+test('Table, cell editing: Tab reaches each editable cell, Enter or F2 opens its editor, and Enter or Escape closes it with focus back on the cell', async ({ page }) => {
+    await page.goto('/table');
+    await hydrated(page);
+
+    const demo = page.locator('agl-table-celledit-doc');
+    const name = demo.getByRole('cell', { name: 'Bamboo Watch' });
+    const quantity = name.locator('xpath=following-sibling::td[1]');
+
+    // An editable cell is a tab stop and the code cell is not, so Tab goes from one editable cell to the next.
+    // (Not from a click on the code cell: on the site, a click there focuses the page's main element.)
+    await expect(demo.getByRole('cell', { name: 'f230fh0g3' })).not.toHaveAttribute('tabindex');
+    await name.focus();
+    await page.keyboard.press('Tab');
+    await expect(quantity).toBeFocused();
+    await expect(quantity).not.toHaveCSS('outline-style', 'none');
+
+    // F2 opens the quantity editor; Enter closes it with the new value.
+    await page.keyboard.press('F2');
+    const quantityInput = demo.getByRole('spinbutton', { name: 'Quantity' });
+    await expect(quantityInput).toBeFocused();
+    await quantityInput.fill('30');
+    await page.keyboard.press('Enter');
+    await expect(quantityInput).toHaveCount(0);
+    await expect(quantity).toBeFocused();
+    await expect(quantity).toHaveText('30');
+
+    // Enter opens the name editor, which axe finds named; Escape closes it.
+    await page.keyboard.press('Shift+Tab');
+    await expect(name).toBeFocused();
+    await page.keyboard.press('Enter');
+    const nameInput = demo.getByRole('textbox', { name: 'Name' });
+    await expect(nameInput).toBeFocused();
+    expect(await axeViolations(page, 'agl-table-celledit-doc')).toEqual([]);
+    await page.keyboard.press('Escape');
+    await expect(nameInput).toHaveCount(0);
+    await expect(name).toBeFocused();
+});
+
+test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens its editor, and Enter or Escape closes it with focus back on the cell', async ({ page }) => {
+    await page.goto('/treetable');
+    await hydrated(page);
+
+    const demo = page.locator('agl-treetable-celledit-doc');
+    const row = demo.getByRole('row', { name: /Documents/ });
+    const size = row.getByRole('gridcell').nth(1);
+    const type = row.getByRole('gridcell').nth(2);
+
+    // From the row's toggler, Tab lands on the size cell, then on the type cell.
+    await expect(size).toHaveText('75kb');
+    await row.getByRole('button').focus();
+    await page.keyboard.press('Tab');
+    await expect(size).toBeFocused();
+    await expect(size).not.toHaveCSS('outline-style', 'none');
+
+    // Enter opens the size editor; Enter closes it with the new value.
+    await page.keyboard.press('Enter');
+    const sizeInput = demo.getByRole('textbox', { name: 'Size' });
+    await expect(sizeInput).toBeFocused();
+    await sizeInput.fill('80kb');
+    await page.keyboard.press('Enter');
+    await expect(sizeInput).toHaveCount(0);
+    await expect(size).toBeFocused();
+    await expect(size).toHaveText('80kb');
+
+    // F2 opens the type editor, which axe finds named; Escape closes it.
+    await page.keyboard.press('Tab');
+    await expect(type).toBeFocused();
+    await page.keyboard.press('F2');
+    const typeInput = demo.getByRole('textbox', { name: 'Type' });
+    await expect(typeInput).toBeFocused();
+    expect(await axeViolations(page, 'agl-treetable-celledit-doc')).toEqual([]);
+    await page.keyboard.press('Escape');
+    await expect(typeInput).toHaveCount(0);
+    await expect(type).toBeFocused();
 });
