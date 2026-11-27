@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "fe92433b8ca1b4f6078235679f01d9c7bb8640bff593a51388cb832265411dbc",
+        "sourceHash": "96eb7fd029291ee736b584ab8f11ca8d49c304efcd48e79fe71addb3c4e740a2",
         "closureCount": 65
     },
     "modules": [
@@ -1628,7 +1628,7 @@
                             "name": "onDataSelect",
                             "field": "onDataSelect",
                             "type": "EventEmitter<any>",
-                            "description": "Callback to execute when an element on chart is clicked.",
+                            "description": "Callback to execute when an element on chart is clicked.\n\nAccessibility, a known limit: the chart is drawn on a canvas, and a data point can be chosen\nwith the pointer only (WCAG 2.1.1). Where choosing one matters, offer the same choice outside\nthe chart too, for example a table of the data with a button in each row.",
                             "group": "Emits",
                             "deprecated": null,
                             "signal": false
@@ -3606,7 +3606,7 @@
                             "name": "draggable",
                             "field": "draggable",
                             "type": "boolean",
-                            "description": "Enables dragging to change the position using header.",
+                            "description": "Enables dragging to change the position using header.\n\nAccessibility, a known limit: the dialog moves with the pointer only, and no key moves it.\nEverything inside it works from the keyboard, and nothing depends on where it sits, so a\nkeyboard user loses a convenience, not a function.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -3617,7 +3617,7 @@
                             "name": "resizable",
                             "field": "resizable",
                             "type": "boolean",
-                            "description": "Enables resizing of the content.",
+                            "description": "Enables resizing of the content.\n\nAccessibility, a known limit: the dialog resizes with the pointer only, and no key resizes it.\nGive it a size that fits its content; `maximizable` adds a button, which the keyboard reaches,\nthat makes it fill the viewport.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -13098,7 +13098,7 @@
                             "name": "reorderableColumns",
                             "field": "reorderableColumns",
                             "type": "boolean | undefined",
-                            "description": "When enabled, columns can be reordered using drag and drop.",
+                            "description": "When enabled, columns can be reordered using drag and drop.\n\nAccessibility, a known limit: a column moves by drag and drop only, and no key moves it\n(WCAG 2.1.1). Where the order matters to the task, offer another way to change it, for\nexample a list of the columns with Move up and Move down buttons that sets `columns`.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
@@ -14591,7 +14591,7 @@
                     "kind": "directive",
                     "selector": "[aglReorderableRow]",
                     "extends": "BaseComponent",
-                    "description": "",
+                    "description": "Lets a row move by dragging its aglReorderableRowHandle.\n\nAccessibility, a known limit: a row moves by drag and drop only, and no key moves it (WCAG 2.1.1).\nWhere the order matters to the task, offer another way to change it, for example Move up and Move\ndown buttons in each row that reorder `value`.",
                     "inputs": [
                         {
                             "name": "aglReorderableRow",
@@ -17616,7 +17616,7 @@
                             "name": "reorderableColumns",
                             "field": "reorderableColumns",
                             "type": "boolean | undefined",
-                            "description": "When enabled, columns can be reordered using drag and drop.",
+                            "description": "When enabled, columns can be reordered using drag and drop.\n\nAccessibility, a known limit: a column moves by drag and drop only, and no key moves it\n(WCAG 2.1.1). Where the order matters to the task, offer another way to change it, for\nexample a list of the columns with Move up and Move down buttons that sets `columns`.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,

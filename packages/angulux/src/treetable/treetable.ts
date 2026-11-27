@@ -518,6 +518,10 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
     @Input() columnResizeMode: string = 'fit';
     /**
      * When enabled, columns can be reordered using drag and drop.
+     *
+     * Accessibility, a known limit: a column moves by drag and drop only, and no key moves it
+     * (WCAG 2.1.1). Where the order matters to the task, offer another way to change it, for
+     * example a list of the columns with Move up and Move down buttons that sets `columns`.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) reorderableColumns: boolean | undefined;
