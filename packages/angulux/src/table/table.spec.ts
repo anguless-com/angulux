@@ -1706,3 +1706,84 @@ describe('Table, keyboard: an editable cell', () => {
         expect(editor()).toBeNull();
     });
 });
+
+@Component({
+    imports: [TableModule],
+    template: `
+        <agl-table [value]="products" dataKey="id" selectionMode="single" [(selection)]="selected">
+            <ng-template #body let-product let-rowIndex="rowIndex">
+                <tr [aglSelectableRowDblClick]="product" [aglSelectableRowIndex]="rowIndex">
+                    <td>{{ product.name }}</td>
+                    <td><button type="button" class="row-action">Act</button></td>
+                </tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class KeyboardDblClickRowTableHost {
+    products = [
+        { id: 1, name: 'Laptop' },
+        { id: 2, name: 'Mouse' },
+        { id: 3, name: 'Keyboard' }
+    ];
+    selected: { id: number; name: string } | null = null;
+}
+
+describe('Table, keyboard: a row selected by double click', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k === ' ' ? 'Space' : k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardDblClickRowTableHost>;
+    const rows = () => Array.from(fixture.nativeElement.querySelectorAll('tbody tr')) as HTMLElement[];
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardDblClickRowTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('is a tab stop until a row is selected, then only the selected row is', async () => {
+        expect(rows().map((r) => r.tabIndex)).toEqual([0, 0, 0]);
+        rows()[1].focus();
+        key(rows()[1], 'Enter');
+        await fixture.whenStable();
+        expect(rows().map((r) => r.tabIndex)).toEqual([-1, 0, -1]);
+    });
+
+    it('selects the focused row with Enter or Space, as a double click does', async () => {
+        const enter = key(rows()[0], 'Enter');
+        await fixture.whenStable();
+        expect(enter.defaultPrevented).toBe(true);
+        expect(fixture.componentInstance.selected?.name).toBe('Laptop');
+
+        key(rows()[2], ' ');
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected?.name).toBe('Keyboard');
+    });
+
+    it('moves focus to the next and the previous row with the arrow keys', () => {
+        rows()[0].focus();
+        key(rows()[0], 'ArrowDown');
+        expect(document.activeElement).toBe(rows()[1]);
+        key(rows()[1], 'ArrowUp');
+        expect(document.activeElement).toBe(rows()[0]);
+    });
+
+    it('leaves a key from a control inside the row to that control', async () => {
+        const button = rows()[0].querySelector('button.row-action') as HTMLButtonElement;
+        const enter = key(button, 'Enter');
+        await fixture.whenStable();
+        expect(enter.defaultPrevented).toBe(false);
+        expect(fixture.componentInstance.selected).toBeNull();
+    });
+
+    it('still selects on a double click', async () => {
+        rows()[1].dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected?.name).toBe('Mouse');
+    });
+});

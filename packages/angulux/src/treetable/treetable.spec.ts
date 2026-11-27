@@ -3951,3 +3951,60 @@ describe('TreeTable, keyboard: an editable cell', () => {
         expect(editor()).toBeNull();
     });
 });
+
+@Component({
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes" selectionMode="single" [(selection)]="selected">
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode" [ttSelectableRowDblClick]="rowNode">
+                    <td>{{ rowData.name }}</td>
+                    <td><button type="button" class="row-action">Act</button></td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class KeyboardDblClickRowTreeTableHost {
+    nodes: TreeNode[] = [
+        { key: 'a', data: { name: 'Documents' } },
+        { key: 'b', data: { name: 'Pictures' } }
+    ];
+    selected: TreeNode | null = null;
+}
+
+describe('TreeTable, keyboard: a row selected by double click', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k === ' ' ? 'Space' : k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardDblClickRowTreeTableHost>;
+    const rows = () => Array.from(fixture.nativeElement.querySelectorAll('tbody tr')) as HTMLElement[];
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardDblClickRowTreeTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('selects the focused row with Enter or Space, as a double click does', async () => {
+        const enter = key(rows()[0], 'Enter');
+        await fixture.whenStable();
+        expect(enter.defaultPrevented).toBe(true);
+        expect(fixture.componentInstance.selected?.key).toBe('a');
+
+        key(rows()[1], ' ');
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected?.key).toBe('b');
+    });
+
+    it('leaves a key from a control inside the row to that control', async () => {
+        const button = rows()[0].querySelector('button.row-action') as HTMLButtonElement;
+        key(button, 'Enter');
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected).toBeNull();
+    });
+});

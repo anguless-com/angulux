@@ -3075,7 +3075,8 @@ export class TTSelectableRow extends BaseComponent {
     selector: '[ttSelectableRowDblClick]',
     standalone: false,
     host: {
-        '[class]': 'cx("row")'
+        '[class]': 'cx("row")',
+        '(keydown)': 'onKeyDown($event)'
     },
     providers: [TreeTableStyle]
 })
@@ -3115,6 +3116,14 @@ export class TTSelectableRowDblClick extends BaseComponent {
                 originalEvent: event,
                 rowNode: this.rowNode
             });
+        }
+    }
+
+    /** Enter or Space on the row selects it, as a double click does. The row takes focus from ttRow. */
+    onKeyDown(event: KeyboardEvent) {
+        if ((event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget) {
+            this.onClick(event);
+            event.preventDefault();
         }
     }
 
