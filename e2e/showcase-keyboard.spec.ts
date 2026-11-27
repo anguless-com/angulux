@@ -171,6 +171,32 @@ test('Tooltip: keyboard focus shows it and describes the field with it, and movi
     await expect(tooltip).toHaveCount(0);
 });
 
+test('Tooltip: focus a script moves after a mouse click shows none, and keyboard focus does', async ({ page }) => {
+    await page.goto('/tooltip');
+    await hydrated(page);
+
+    // A dialog or overlay that focuses a control as it opens moves focus by script. After a mouse
+    // click that is not keyboard focus (the control does not match :focus-visible), and the control's
+    // tooltip appeared in front of a mouse user who never asked for it.
+    const demo = page.locator('agl-tooltip-position-doc');
+    const right = demo.getByRole('button', { name: 'Right' });
+    const top = demo.getByRole('button', { name: 'Top' });
+    const tooltip = page.getByRole('tooltip');
+
+    await demo.locator('.card').click({ position: { x: 4, y: 4 } });
+    await right.evaluate((el) => (el as HTMLElement).focus());
+    await expect(right).toBeFocused();
+    expect(await right.evaluate((el) => el.matches(':focus-visible')), 'the browser counts this focus as not from the keyboard').toBe(false);
+    // With no showDelay a tooltip is shown while the focus event is handled, so it would be here now.
+    await expect(tooltip).toHaveCount(0);
+
+    // Tab is keyboard focus: the next button shows its tooltip.
+    await page.keyboard.press('Tab');
+    await expect(top).toBeFocused();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toHaveText('Add');
+});
+
 test('ColorPicker: Space opens it, and Escape, Space or Tab closes it', async ({ page }) => {
     await page.goto('/colorpicker');
     await hydrated(page);

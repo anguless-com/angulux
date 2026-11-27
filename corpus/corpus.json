@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "bd113c7c578d741c78a62cae63c9eabed7e142380a537d7eb7e76e19cea775a6",
+        "sourceHash": "56b3b3820a32bc67d7902ba92ea44247b79fc45abd95fbbf7456e500527d6c9c",
         "closureCount": 65
     },
     "modules": [
@@ -16869,7 +16869,7 @@
                             "name": "tooltipEvent",
                             "field": "tooltipEvent",
                             "type": "'hover' | 'focus' | 'both'",
-                            "description": "Event to show the tooltip. The default shows it on hover and on keyboard focus alike: with\nhover alone, a keyboard user never saw it (WCAG 2.1.1). Set 'hover' to show it on hover only.",
+                            "description": "Event to show the tooltip. The default, 'both', shows it on hover and on keyboard focus: with\nhover alone, a keyboard user never saw it (WCAG 2.1.1). Focus moved by a script after a mouse\nclick, as when a dialog focuses a control as it opens, does not show it. 'focus' shows it on\nany focus; 'hover' on hover only.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,

@@ -66,8 +66,10 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
      */
     @Input() tooltipPosition: 'right' | 'left' | 'top' | 'bottom' | string | undefined;
     /**
-     * Event to show the tooltip. The default shows it on hover and on keyboard focus alike: with
-     * hover alone, a keyboard user never saw it (WCAG 2.1.1). Set 'hover' to show it on hover only.
+     * Event to show the tooltip. The default, 'both', shows it on hover and on keyboard focus: with
+     * hover alone, a keyboard user never saw it (WCAG 2.1.1). Focus moved by a script after a mouse
+     * click, as when a dialog focuses a control as it opens, does not show it. 'focus' shows it on
+     * any focus; 'hover' on hover only.
      * @group Props
      */
     @Input() tooltipEvent: 'hover' | 'focus' | 'both' = 'both';
@@ -452,7 +454,24 @@ export class Tooltip extends BaseComponent<TooltipPassThroughOptions> {
     }
 
     onFocus(e: Event) {
+        // With 'both', the default, only keyboard focus shows the tooltip: a dialog or overlay that
+        // focuses a control as it opens after a mouse click put that control's tooltip in front of a
+        // mouse user who never asked for it. The browser's own test for keyboard focus is
+        // :focus-visible. 'focus', an app's explicit choice, still shows it on any focus.
+        if (this.getOption('tooltipEvent') === 'both' && !this.isKeyboardFocus(e.target)) {
+            return;
+        }
         this.activate();
+    }
+
+    /** Whether the element took focus from the keyboard; true where :focus-visible is unknown. */
+    private isKeyboardFocus(target: EventTarget | null): boolean {
+        if (!(target instanceof Element)) return true;
+        try {
+            return target.matches(':focus-visible');
+        } catch {
+            return true;
+        }
     }
 
     onBlur(e: Event) {

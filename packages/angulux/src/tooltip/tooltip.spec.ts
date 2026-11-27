@@ -117,10 +117,23 @@ class TestDefaultEventTooltipComponent {
     @ViewChild('inputElement') inputElement!: ElementRef;
 }
 
+@Component({
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [Tooltip],
+    template: `<input #inputElement aglTooltip="Name" aria-label="Name" tooltipEvent="focus" />`
+})
+class TestFocusEventTooltipComponent {
+    @ViewChild('inputElement') inputElement!: ElementRef;
+}
+
+/** Makes the element answer :focus-visible as given, so a test decides whether focus came from the keyboard. */
+const focusVisible = (el: HTMLElement, visible: boolean) =>
+    (spyOn(el, 'matches') as jasmine.Spy<(selector: string) => boolean>).and.callFake((selector: string) => (selector === ':focus-visible' ? visible : Element.prototype.matches.call(el, selector)));
+
 describe('Tooltip', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [Tooltip, TestDefaultEventTooltipComponent],
+            imports: [Tooltip, TestDefaultEventTooltipComponent, TestFocusEventTooltipComponent],
             declarations: [TestBasicTooltipComponent, TestTemplateTooltipComponent, TestTooltipOptionsComponent, FakeComponentHost, TestComponentHostTooltipComponent],
             providers: [provideZonelessChangeDetection()]
         }).compileComponents();
@@ -460,6 +473,7 @@ describe('Tooltip', () => {
             expect(tooltip.tooltipEvent).toBe('both');
             spyOn(tooltip, 'activate');
             spyOn(tooltip, 'deactivate');
+            focusVisible(input, true);
 
             input.dispatchEvent(new FocusEvent('focus'));
             expect(tooltip.activate).toHaveBeenCalledTimes(1);
@@ -468,6 +482,32 @@ describe('Tooltip', () => {
 
             input.dispatchEvent(new MouseEvent('mouseenter'));
             expect(tooltip.activate).toHaveBeenCalledTimes(2);
+        });
+
+        // A dialog or overlay that focuses a control as it opens, after a mouse click: not keyboard
+        // focus, so the control's tooltip stays away from a mouse user who never asked for it.
+        it('does not show it for focus that did not come from the keyboard', () => {
+            const fixture = TestBed.createComponent(TestDefaultEventTooltipComponent);
+            fixture.detectChanges();
+            const tooltip = fixture.debugElement.query(By.directive(Tooltip)).injector.get(Tooltip);
+            const input = fixture.componentInstance.inputElement.nativeElement as HTMLInputElement;
+            spyOn(tooltip, 'activate');
+            focusVisible(input, false);
+
+            input.dispatchEvent(new FocusEvent('focus'));
+            expect(tooltip.activate).not.toHaveBeenCalled();
+        });
+
+        it("still shows it on any focus when the app chose 'focus'", () => {
+            const fixture = TestBed.createComponent(TestFocusEventTooltipComponent);
+            fixture.detectChanges();
+            const tooltip = fixture.debugElement.query(By.directive(Tooltip)).injector.get(Tooltip);
+            const input = fixture.componentInstance.inputElement.nativeElement as HTMLInputElement;
+            spyOn(tooltip, 'activate');
+            focusVisible(input, false);
+
+            input.dispatchEvent(new FocusEvent('focus'));
+            expect(tooltip.activate).toHaveBeenCalledTimes(1);
         });
     });
 
