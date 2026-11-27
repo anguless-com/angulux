@@ -4085,7 +4085,10 @@ export class SelectableRow extends BaseComponent {
     selector: '[aglSelectableRowDblClick]',
     standalone: false,
     host: {
-        '[class]': 'cx("selectableRow")'
+        '[class]': 'cx("selectableRow")',
+        '[tabindex]': 'setRowTabIndex()',
+        '[attr.data-p-selectable-row]': 'true',
+        '(keydown)': 'onKeyDown($event)'
     },
     providers: [TableStyle]
 })
@@ -4129,6 +4132,38 @@ export class SelectableRowDblClick extends BaseComponent {
                 rowIndex: this.index
             });
         }
+    }
+
+    /** The same tab stop as a row selected by a single click: every row until one is selected, then that one. */
+    setRowTabIndex() {
+        if (this.dataTable.selectionMode === 'single' || this.dataTable.selectionMode === 'multiple') {
+            return !this.dataTable.selection ? 0 : this.dataTable.anchorRowIndex === this.index ? 0 : -1;
+        }
+    }
+
+    /**
+     * Enter or Space selects the row, as a double click does, and ArrowDown and ArrowUp move to the
+     * next or previous row. A key from a control inside the row is left to that control.
+     */
+    onKeyDown(event: KeyboardEvent) {
+        const row = event.currentTarget as HTMLElement;
+        if (event.target !== row || !this.isEnabled()) return;
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            this.onClick(event);
+        } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            const step = event.key === 'ArrowDown' ? 'nextElementSibling' : 'previousElementSibling';
+            let next = row[step] as HTMLElement | null;
+            while (next && next.getAttribute('data-p-selectable-row') !== 'true') next = next[step] as HTMLElement | null;
+            if (next) {
+                row.tabIndex = -1;
+                next.tabIndex = 0;
+                next.focus();
+            }
+        } else {
+            return;
+        }
+        event.preventDefault();
     }
 
     isEnabled() {
