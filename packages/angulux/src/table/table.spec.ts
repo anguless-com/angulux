@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 
 import { SharedModule } from '@anguless/angulux/api';
 import { Select } from '@anguless/angulux/select';
+import { waitUntil } from '../spec-helpers';
 import { Table, TableModule, TableService } from './table';
 
 describe('Table', () => {
@@ -1622,5 +1623,86 @@ describe('Table', () => {
             component.onChanges({ value: change(three, undefined, true) });
             expect(component.totalRecords).toBe(3);
         });
+    });
+});
+
+@Component({
+    imports: [TableModule],
+    template: `
+        <agl-table [value]="products" dataKey="id" editMode="cell">
+            <ng-template #body let-product let-rowIndex="rowIndex">
+                <tr>
+                    <td [aglEditableColumn]="product" aglEditableColumnField="name" [aglEditableColumnRowIndex]="rowIndex" class="name-cell">
+                        <agl-cellEditor>
+                            <ng-template #input><input class="name-input" aria-label="Name" [value]="product.name" /></ng-template>
+                            <ng-template #output>{{ product.name }}</ng-template>
+                        </agl-cellEditor>
+                    </td>
+                    <td [aglEditableColumn]="product" aglEditableColumnField="price" [aglEditableColumnRowIndex]="rowIndex" [aglEditableColumnDisabled]="true" class="off-cell">{{ product.price }}</td>
+                </tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class KeyboardCellEditTableHost {
+    products = [
+        { id: 1, name: 'Laptop', price: 10 },
+        { id: 2, name: 'Mouse', price: 5 }
+    ];
+}
+
+describe('Table, keyboard: an editable cell', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardCellEditTableHost>;
+    const cells = () => Array.from(fixture.nativeElement.querySelectorAll('td.name-cell')) as HTMLElement[];
+    const editor = () => fixture.nativeElement.querySelector('input.name-input') as HTMLInputElement | null;
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardCellEditTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('is in the tab order, and a disabled one is not', () => {
+        expect(cells().map((c) => c.getAttribute('tabindex'))).toEqual(['0', '0']);
+        expect((fixture.nativeElement.querySelector('td.off-cell') as HTMLElement).hasAttribute('tabindex')).toBe(false);
+    });
+
+    it('opens its editor with Enter, focus in it, and Enter there closes it with focus back on the cell', async () => {
+        cells()[0].focus();
+        const open = key(cells()[0], 'Enter');
+        expect(open.defaultPrevented).toBe(true);
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(document.activeElement).toBe(editor());
+
+        key(editor()!, 'Enter');
+        await waitUntil(() => !editor(), fixture);
+        expect(editor()).toBeNull();
+        expect(document.activeElement).toBe(cells()[0]);
+    });
+
+    it('opens with F2 as well, and Escape closes it with focus back on the cell', async () => {
+        cells()[1].focus();
+        key(cells()[1], 'F2');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(document.activeElement).toBe(editor());
+
+        key(editor()!, 'Escape');
+        await waitUntil(() => !editor(), fixture);
+        expect(document.activeElement).toBe(cells()[1]);
+    });
+
+    it('leaves Tab and the arrow keys on a closed cell to the page', async () => {
+        for (const k of ['Tab', 'ArrowRight', 'ArrowDown']) {
+            expect(key(cells()[0], k).defaultPrevented).withContext(k).toBe(false);
+        }
+        await fixture.whenStable();
+        expect(editor()).toBeNull();
     });
 });

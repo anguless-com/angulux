@@ -3379,7 +3379,10 @@ export class TTHeaderCheckbox extends BaseComponent {
 
 @Directive({
     selector: '[ttEditableColumn]',
-    standalone: false
+    standalone: false,
+    host: {
+        '[attr.tabindex]': 'isEnabled() ? 0 : null'
+    }
 })
 export class TTEditableColumn extends BaseComponent {
     @Input('ttEditableColumn') data: any;
@@ -3446,6 +3449,22 @@ export class TTEditableColumn extends BaseComponent {
 
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
+        // A key on the cell itself rather than in its editor: Enter or F2 opens the editor, as a
+        // click does, and every other key is left to the page, so Tab moves on.
+        if (event.target === this.el.nativeElement) {
+            if ((event.key === 'Enter' || event.key === 'F2') && this.isEnabled() && this.tt.editingCell !== this.el.nativeElement) {
+                if (this.tt.editingCell) {
+                    if (!this.tt.isEditingCellValid()) return;
+                    !this.$unstyled() && removeClass(this.tt.editingCell, 'p-cell-editing');
+                }
+                this.openCell();
+                // Nothing to swallow: no click follows a key, so the next outside click must close.
+                this.tt.editingCellClick = false;
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            return;
+        }
         if (this.isEnabled()) {
             //enter
             if (event.keyCode == 13 && !event.shiftKey) {
@@ -3456,6 +3475,7 @@ export class TTEditableColumn extends BaseComponent {
                     }
                     this.closeEditingCell();
                     this.tt.onEditComplete.emit({ field: this.field, data: this.data });
+                    this.el.nativeElement.focus();
                 }
 
                 event.preventDefault();
@@ -3470,6 +3490,7 @@ export class TTEditableColumn extends BaseComponent {
                     }
                     this.closeEditingCell();
                     this.tt.onEditCancel.emit({ field: this.field, data: this.data });
+                    this.el.nativeElement.focus();
                 }
 
                 event.preventDefault();

@@ -3,6 +3,12 @@ import { BaseStyle } from '@anguless/angulux/base';
 
 const style = /*css*/ `
 /* For AnguluxConfig */
+/* An editable cell takes keyboard focus (Enter or F2 opens its editor), so it shows the row's focus ring. */
+.p-treetable-tbody > tr > td.p-editable-column:focus-visible {
+    outline: dt('treetable.row.focus.ring.width') dt('treetable.row.focus.ring.style') dt('treetable.row.focus.ring.color');
+    outline-offset: dt('treetable.row.focus.ring.offset');
+}
+
 .p-treetable {
     position: relative;
 }

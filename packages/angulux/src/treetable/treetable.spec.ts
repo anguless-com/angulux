@@ -3869,3 +3869,85 @@ describe('TreeTable Inline PT', () => {
         expect(host?.classList.contains('INLINE_HOST_CLASS')).toBe(true);
     });
 });
+
+@Component({
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes" dataKey="key">
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode">
+                    <td [ttEditableColumn]="rowData" ttEditableColumnField="name" class="name-cell">
+                        <agl-treeTableCellEditor>
+                            <ng-template #input><input class="name-input" aria-label="Name" [value]="rowData.name" /></ng-template>
+                            <ng-template #output>{{ rowData.name }}</ng-template>
+                        </agl-treeTableCellEditor>
+                    </td>
+                    <td [ttEditableColumn]="rowData" ttEditableColumnField="size" [ttEditableColumnDisabled]="true" class="off-cell">{{ rowData.size }}</td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class KeyboardCellEditTreeTableHost {
+    nodes: TreeNode[] = [
+        { key: 'a', data: { name: 'Documents', size: 1 } },
+        { key: 'b', data: { name: 'Pictures', size: 2 } }
+    ];
+}
+
+describe('TreeTable, keyboard: an editable cell', () => {
+    // TreeTable's editor reads keyCode, so a synthetic event has to carry it, as a real one does.
+    const keyCodes: Record<string, number> = { Enter: 13, Escape: 27, Tab: 9, F2: 113 };
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k, keyCode: keyCodes[k], bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardCellEditTreeTableHost>;
+    const cells = () => Array.from(fixture.nativeElement.querySelectorAll('td.name-cell')) as HTMLElement[];
+    const editor = () => fixture.nativeElement.querySelector('input.name-input') as HTMLInputElement | null;
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardCellEditTreeTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('is in the tab order, and a disabled one is not', () => {
+        expect(cells().map((c) => c.getAttribute('tabindex'))).toEqual(['0', '0']);
+        expect((fixture.nativeElement.querySelector('td.off-cell') as HTMLElement).hasAttribute('tabindex')).toBe(false);
+    });
+
+    it('opens its editor with Enter, focus in it, and Enter there closes it with focus back on the cell', async () => {
+        cells()[0].focus();
+        const open = key(cells()[0], 'Enter');
+        expect(open.defaultPrevented).toBe(true);
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(document.activeElement).toBe(editor());
+
+        key(editor()!, 'Enter');
+        await waitUntil(() => !editor(), fixture);
+        expect(editor()).toBeNull();
+        expect(document.activeElement).toBe(cells()[0]);
+    });
+
+    it('opens with F2 as well, and Escape closes it with focus back on the cell', async () => {
+        cells()[1].focus();
+        key(cells()[1], 'F2');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(document.activeElement).toBe(editor());
+
+        key(editor()!, 'Escape');
+        await waitUntil(() => !editor(), fixture);
+        expect(document.activeElement).toBe(cells()[1]);
+    });
+
+    // The arrow keys stay with the row, which moves focus between rows; Tab is the page's.
+    it('leaves Tab on a closed cell to the page', async () => {
+        expect(key(cells()[0], 'Tab').defaultPrevented).toBe(false);
+        await fixture.whenStable();
+        expect(editor()).toBeNull();
+    });
+});
