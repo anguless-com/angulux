@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 import { provideAngulux } from '@anguless/angulux/config';
 import { ColorPickerChangeEvent } from '@anguless/angulux/types/colorpicker';
 import { ColorPicker } from './colorpicker';
+import { waitUntil } from '../spec-helpers';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -319,6 +320,146 @@ describe('ColorPicker', () => {
             expect(testComponent.hexColor).toBe(newColor);
             // The modelValue might not be immediately updated in this test scenario
             expect(hexPickerInstance.modelValue() || testComponent.hexColor).toBeTruthy();
+        });
+    });
+
+    // The colour area and the hue bar took the pointer only (WCAG 2.1.1). Both are sliders now.
+    describe('Keyboard', () => {
+        const key = (el: HTMLElement, k: string, shiftKey = false) => {
+            const event = new KeyboardEvent('keydown', { key: k, code: k, shiftKey, bubbles: true, cancelable: true });
+            el.dispatchEvent(event);
+            return event;
+        };
+
+        describe('inline', () => {
+            let fixture: ComponentFixture<TestInlineColorPickerComponent>;
+            let picker: ColorPicker;
+            let area: HTMLElement;
+            let hue: HTMLElement;
+
+            beforeEach(async () => {
+                fixture = TestBed.createComponent(TestInlineColorPickerComponent);
+                await fixture.whenStable();
+                picker = fixture.debugElement.query(By.directive(ColorPicker)).componentInstance;
+                [area, hue] = Array.from(fixture.nativeElement.querySelectorAll('[role="slider"]')) as HTMLElement[];
+            });
+
+            it('makes the colour area and the hue bar named sliders the keyboard can reach', () => {
+                expect(area.getAttribute('aria-label')).toBe('Saturation and brightness');
+                expect(area.getAttribute('tabindex')).toBe('0');
+                expect(area.getAttribute('aria-valuetext')).toBe('#ff0000');
+                expect(area.getAttribute('aria-valuenow')).toBe('100');
+
+                expect(hue.getAttribute('aria-label')).toBe('Hue');
+                expect(hue.getAttribute('tabindex')).toBe('0');
+                expect(hue.getAttribute('aria-orientation')).toBe('vertical');
+                expect(hue.getAttribute('aria-valuemin')).toBe('0');
+                expect(hue.getAttribute('aria-valuemax')).toBe('360');
+                expect(hue.getAttribute('aria-valuenow')).toBe('0');
+            });
+
+            it('sets saturation and brightness from the colour area, and tells the form', async () => {
+                const event = key(area, 'ArrowLeft');
+                expect(event.defaultPrevented).toBe(true);
+                expect(picker.value.s).toBe(99);
+
+                key(area, 'ArrowDown', true);
+                expect(picker.value.b).toBe(90);
+                key(area, 'Home');
+                expect(picker.value.s).toBe(0);
+                key(area, 'End');
+                expect(picker.value.s).toBe(100);
+                key(area, 'PageDown');
+                expect(picker.value.b).toBe(80);
+
+                await fixture.whenStable();
+                expect(fixture.componentInstance.color).toBe(picker.inputBgColor as string);
+                expect(fixture.componentInstance.changeEvent?.value).toBe(picker.inputBgColor as string);
+                expect(area.getAttribute('aria-valuetext')).toBe(picker.inputBgColor as string);
+            });
+
+            it('sets the hue from the hue bar, within 0 and 360', async () => {
+                key(hue, 'ArrowUp');
+                expect(picker.value.h).toBe(1);
+                key(hue, 'ArrowRight', true);
+                expect(picker.value.h).toBe(11);
+                key(hue, 'ArrowDown');
+                expect(picker.value.h).toBe(10);
+                key(hue, 'End');
+                expect(picker.value.h).toBe(360);
+                key(hue, 'ArrowUp');
+                expect(picker.value.h).toBe(360);
+                key(hue, 'Home');
+                expect(picker.value.h).toBe(0);
+
+                key(hue, 'PageUp');
+                await fixture.whenStable();
+                expect(hue.getAttribute('aria-valuenow')).toBe('10');
+            });
+
+            it('leaves Tab and Escape to the page when inline', () => {
+                expect(key(area, 'Tab').defaultPrevented).toBe(false);
+                expect(key(hue, 'Escape').defaultPrevented).toBe(false);
+            });
+
+            it('takes neither handle into the tab order, and ignores keys, when disabled', async () => {
+                fixture.componentInstance.disabled = true;
+                fixture.changeDetectorRef.markForCheck();
+                await fixture.whenStable();
+
+                expect(area.hasAttribute('tabindex')).toBe(false);
+                expect(hue.hasAttribute('tabindex')).toBe(false);
+                expect(area.getAttribute('aria-disabled')).toBe('true');
+                key(area, 'ArrowLeft');
+                expect(picker.value.s).toBe(100);
+            });
+        });
+
+        describe('popup', () => {
+            let fixture: ComponentFixture<TestBasicColorPickerComponent>;
+            let picker: ColorPicker;
+            let input: HTMLInputElement;
+
+            beforeEach(async () => {
+                fixture = TestBed.createComponent(TestBasicColorPickerComponent);
+                await fixture.whenStable();
+                picker = fixture.debugElement.query(By.directive(ColorPicker)).componentInstance;
+                input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+            });
+
+            // The panel may be attached to the body, so the handles are looked for in the whole document.
+            const handles = () => Array.from(document.querySelectorAll('[role="slider"]')) as HTMLElement[];
+
+            it('opens with ArrowDown, moves into the panel with a second ArrowDown, and keeps Tab between the two handles', async () => {
+                input.focus();
+                key(input, 'ArrowDown');
+                expect(picker.overlayVisible).toBe(true);
+                // Focus reaches a handle once the panel's enter motion lets it show.
+                await waitUntil(() => handles().length === 2 && !!picker.colorHandleViewChild && handles()[0].checkVisibility({ visibilityProperty: true, opacityProperty: false }), fixture);
+                expect(document.activeElement).toBe(input);
+
+                key(input, 'ArrowDown');
+                const [area, hue] = handles();
+                expect(document.activeElement).toBe(area);
+
+                expect(key(area, 'Tab').defaultPrevented).toBe(true);
+                expect(document.activeElement).toBe(hue);
+                key(hue, 'Tab');
+                expect(document.activeElement).toBe(area);
+            });
+
+            it('closes with Escape from a handle and gives focus back to the input', async () => {
+                picker.show();
+                fixture.changeDetectorRef.markForCheck();
+                await fixture.whenStable();
+                const [area] = handles();
+                area.focus();
+
+                const event = key(area, 'Escape');
+                expect(event.defaultPrevented).toBe(true);
+                expect(picker.overlayVisible).toBe(false);
+                expect(document.activeElement).toBe(input);
+            });
         });
     });
 

@@ -229,6 +229,69 @@ test('ColorPicker: Space opens it, and Escape, Space or Tab closes it', async ({
     await expect(input).not.toBeFocused();
 });
 
+// The colour area and the hue bar used to take the pointer only (WCAG 2.1.1). Both are sliders now.
+test('ColorPicker: ArrowDown moves into the open panel, the arrow keys set the colour and the hue, and Escape goes back to the input', async ({ page }) => {
+    await page.goto('/colorpicker');
+    await hydrated(page);
+
+    const demo = page.locator('agl-colorpicker-basic-doc');
+    const input = demo.getByRole('textbox');
+    const value = demo.locator('span');
+    const panel = page.locator('.p-colorpicker-panel:not(agl-colorpicker-inline-doc *)');
+    const area = panel.getByRole('slider', { name: 'Saturation and brightness' });
+    const hue = panel.getByRole('slider', { name: 'Hue' });
+    const start = (await value.textContent())!.trim();
+
+    // ArrowDown opens it, as in DatePicker, and a second ArrowDown moves into it.
+    await input.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(panel).toBeVisible();
+    await expect(input).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(area).toBeFocused();
+
+    // Saturation down by 10: the colour changes, and the slider reads it out as its hex code.
+    await page.keyboard.press('Shift+ArrowLeft');
+    await expect(value).not.toHaveText(start);
+    const afterArea = (await value.textContent())!.trim();
+    await expect(area).toHaveAttribute('aria-valuetext', afterArea.startsWith('#') ? afterArea : `#${afterArea}`);
+
+    // Tab moves to the hue bar; Shift+ArrowUp raises the hue by 10.
+    await page.keyboard.press('Tab');
+    await expect(hue).toBeFocused();
+    const hueBefore = Number(await hue.getAttribute('aria-valuenow'));
+    await page.keyboard.press('Shift+ArrowUp');
+    await expect(hue).toHaveAttribute('aria-valuenow', String(hueBefore + 10));
+    await expect(value).not.toHaveText(afterArea);
+
+    // Tab stays in the open panel; Escape closes it with focus back on the input.
+    await page.keyboard.press('Tab');
+    await expect(area).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(panel).toBeHidden();
+    await expect(input).toBeFocused();
+});
+
+test('ColorPicker, inline: Tab reaches its colour area and hue bar, and the arrow keys change the colour', async ({ page }) => {
+    await page.goto('/colorpicker');
+    await hydrated(page);
+
+    const inline = page.locator('agl-colorpicker-inline-doc');
+    const area = inline.getByRole('slider', { name: 'Saturation and brightness' });
+    const hue = inline.getByRole('slider', { name: 'Hue' });
+
+    await area.focus();
+    const before = await area.getAttribute('aria-valuetext');
+    await page.keyboard.press('ArrowUp');
+    await expect(area).not.toHaveAttribute('aria-valuetext', before ?? '');
+
+    await page.keyboard.press('Tab');
+    await expect(hue).toBeFocused();
+    const hueBefore = Number(await hue.getAttribute('aria-valuenow'));
+    await page.keyboard.press('ArrowDown');
+    await expect(hue).toHaveAttribute('aria-valuenow', String(hueBefore - 1));
+});
+
 test('Select: Enter, Space, ArrowDown and Alt+ArrowDown open it, the arrows move the active option, Enter chooses, Escape closes', async ({ page }) => {
     await page.goto('/select');
     await hydrated(page);

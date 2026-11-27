@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, EventEmitter, forwardRef, inject, InjectionToken, input, Input, NgModule, Output, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { MotionOptions } from '@anguless/angulux-motion';
 import { OverlayOptions, OverlayService, SharedModule, TranslationKeys } from '@anguless/angulux/api';
 import { AutoFocusModule } from '@anguless/angulux/autofocus';
@@ -22,10 +23,29 @@ export const COLORPICKER_VALUE_ACCESSOR: any = {
     multi: true
 };
 
+/** A handle key's step on the colour area's saturation and brightness, and on the hue bar. */
+const HANDLE_KEYS: Record<string, number[]> = {
+    ArrowRight: [1, 0, 1],
+    ArrowLeft: [-1, 0, -1],
+    ArrowUp: [0, 1, 1],
+    ArrowDown: [0, -1, -1],
+    PageUp: [0, 10, 10],
+    PageDown: [0, -10, -10],
+    Home: [-100, 0, -360],
+    End: [100, 0, 360]
+};
+
 const COLORPICKER_INSTANCE = new InjectionToken<ColorPicker>('COLORPICKER_INSTANCE');
 
 /**
- * ColorPicker groups a collection of contents in tabs.
+ * ColorPicker is an input to choose a colour, in a popup panel or inline.
+ *
+ * Keyboard: on the input, Space opens or closes the panel, ArrowDown opens it and then moves into
+ * it, and Escape or Tab closes it. The colour area is a slider: ArrowLeft and ArrowRight set the
+ * saturation, ArrowUp and ArrowDown the brightness, by 1 or by 10 with Shift. The hue bar is a
+ * vertical slider: the arrow keys move the hue by 1, or by 10 with Shift, and Home and End go to
+ * 0 and 360. In the popup panel, Tab goes between the two, and Escape closes it with focus back
+ * on the input.
  * @group Components
  */
 @Component({
@@ -73,11 +93,41 @@ const COLORPICKER_INSTANCE = new InjectionToken<ColorPicker>('COLORPICKER_INSTAN
                     <div [class]="cx('content')" [aglBind]="ptm('content')">
                         <div #colorSelector [class]="cx('colorSelector')" (touchstart)="onColorDragStart($event)" (touchmove)="onDrag($event)" (touchend)="onDragEnd()" (mousedown)="onColorMousedown($event)" [aglBind]="ptm('colorSelector')">
                             <div [class]="cx('colorBackground')" [aglBind]="ptm('colorBackground')">
-                                <div #colorHandle [class]="cx('colorHandle')" [aglBind]="ptm('colorHandle')"></div>
+                                <!-- Both handles are sliders the keyboard can reach; without them the colour
+                                     area and the hue bar took the pointer only (WCAG 2.1.1). The area moves on
+                                     two axes, so its value is read as the colour it gives, as a hex code
+                                     that reads the same in any language. -->
+                                <div
+                                    #colorHandle
+                                    [class]="cx('colorHandle')"
+                                    [aglBind]="ptm('colorHandle')"
+                                    role="slider"
+                                    [attr.tabindex]="$disabled() ? null : 0"
+                                    [attr.aria-label]="saturationBrightnessLabel"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    [attr.aria-valuenow]="value.s"
+                                    [attr.aria-valuetext]="inputBgColor"
+                                    [attr.aria-disabled]="$disabled() || null"
+                                    (keydown)="onHandleKeydown($event, false)"
+                                ></div>
                             </div>
                         </div>
                         <div #hue [class]="cx('hue')" (mousedown)="onHueMousedown($event)" (touchstart)="onHueDragStart($event)" (touchmove)="onDrag($event)" (touchend)="onDragEnd()" [aglBind]="ptm('hue')">
-                            <div #hueHandle [class]="cx('hueHandle')" [aglBind]="ptm('hueHandle')"></div>
+                            <div
+                                #hueHandle
+                                [class]="cx('hueHandle')"
+                                [aglBind]="ptm('hueHandle')"
+                                role="slider"
+                                aria-orientation="vertical"
+                                [attr.tabindex]="$disabled() ? null : 0"
+                                [attr.aria-label]="hueLabel"
+                                aria-valuemin="0"
+                                aria-valuemax="360"
+                                [attr.aria-valuenow]="hueValue"
+                                [attr.aria-disabled]="$disabled() || null"
+                                (keydown)="onHandleKeydown($event, true)"
+                            ></div>
                         </div>
                     </div>
                 </div>
@@ -248,6 +298,27 @@ export class ColorPicker extends BaseEditableHolder<ColorPickerPassThrough> impl
 
     get ariaLabel() {
         return this.config?.getTranslation(TranslationKeys.ARIA)[TranslationKeys.SELECT_COLOR];
+    }
+
+    // The English fallbacks live here rather than in the shared default translation, which every
+    // entry point ships: an app translates them with aria.saturationBrightness and aria.hue.
+    get saturationBrightnessLabel(): string {
+        return this.config?.getTranslation(TranslationKeys.ARIA)?.saturationBrightness ?? 'Saturation and brightness';
+    }
+
+    get hueLabel(): string {
+        return this.config?.getTranslation(TranslationKeys.ARIA)?.hue ?? 'Hue';
+    }
+
+    get hueValue(): number {
+        return Math.round(this.value.h);
+    }
+
+    private translationSubscription: Subscription | undefined;
+
+    onInit() {
+        // The labels come from the translation; OnPush needs telling when it changes.
+        this.translationSubscription = this.config.translationObserver.subscribe(() => this.cd.markForCheck());
     }
 
     onHueMousedown(event: MouseEvent) {
@@ -436,6 +507,16 @@ export class ColorPicker extends BaseEditableHolder<ColorPickerPassThrough> impl
                 event.preventDefault();
                 break;
 
+            // As in DatePicker: ArrowDown opens the panel, and once it is open moves into it.
+            case 'ArrowDown':
+                if (this.overlayVisible) {
+                    this.colorHandleViewChild?.nativeElement.focus();
+                } else {
+                    this.show();
+                }
+                event.preventDefault();
+                break;
+
             case 'Escape':
             case 'Tab':
                 this.hide();
@@ -444,6 +525,41 @@ export class ColorPicker extends BaseEditableHolder<ColorPickerPassThrough> impl
             default:
                 //NoOp
                 break;
+        }
+    }
+
+    /**
+     * The colour area and the hue bar from the keyboard. On the area, ArrowLeft and ArrowRight set
+     * the saturation, ArrowUp and ArrowDown the brightness; on the hue bar, the arrow keys move the
+     * hue, up and right raising it. A step is 1, or 10 with Shift; PageUp and PageDown move 10, and
+     * Home and End go to the ends. In the popup panel, Escape closes it with focus back on the input,
+     * and Tab and Shift+Tab go from one handle to the other, so focus stays in the open panel
+     * wherever it is attached. An inline picker leaves those two keys alone.
+     */
+    onHandleKeydown(event: KeyboardEvent, hue: boolean) {
+        const move = HANDLE_KEYS[event.key];
+
+        if (this.$disabled()) {
+            return;
+        }
+
+        if (move) {
+            const n = event.shiftKey ? 10 : 1;
+            const { h, s, b } = this.value;
+            this.value = this.validateHSB(hue ? { h: h + move[2] * n, s, b } : { h, s: s + move[0] * n, b: b + move[1] * n });
+            hue && this.updateColorSelector();
+            this.updateUI();
+            this.updateModel();
+            this.onChange.emit({ originalEvent: event, value: this.getValueToUpdate() });
+            event.preventDefault();
+        } else if (!this.inline && event.key === 'Escape') {
+            this.hide();
+            this.inputViewChild?.nativeElement.focus();
+            event.preventDefault();
+            event.stopPropagation();
+        } else if (!this.inline && event.key === 'Tab') {
+            (hue ? this.colorHandleViewChild : this.hueHandleViewChild)?.nativeElement.focus();
+            event.preventDefault();
         }
     }
 
@@ -676,6 +792,8 @@ export class ColorPicker extends BaseEditableHolder<ColorPickerPassThrough> impl
     }
 
     onDestroy() {
+        this.translationSubscription?.unsubscribe();
+
         if (this.scrollHandler) {
             this.scrollHandler.destroy();
             this.scrollHandler = null;
