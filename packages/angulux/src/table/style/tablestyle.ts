@@ -28,6 +28,12 @@ ${String(datatable_style).replace(SIBLING_HAS_RULE, ROW_BEFORE_SELECTED_RULE)}
     outline-offset: dt('datatable.row.focus.ring.offset');
 }
 
+/* A column resizer takes keyboard focus (the arrow keys resize the column), so it shows the header's focus ring. */
+.p-datatable-column-resizer:focus-visible {
+    outline: dt('datatable.header.cell.focus.ring.width') dt('datatable.header.cell.focus.ring.style') dt('datatable.header.cell.focus.ring.color');
+    outline-offset: dt('datatable.header.cell.focus.ring.offset');
+}
+
 .p-datatable-scrollable-table > .p-datatable-thead {
     top: 0;
     z-index: 2;

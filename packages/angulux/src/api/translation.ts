@@ -138,6 +138,8 @@ export interface Aria {
     hue?: string;
     /** Password's toggle that shows what was typed, a button with aria-pressed. Without it: 'Show password'. */
     showPassword?: string;
+    /** The separator that resizes a Table or TreeTable column, from the keyboard too. Without it: 'Resize column'. */
+    resizeColumn?: string;
     removeLabel?: string;
     browseFiles?: string;
     maximizeLabel?: string;

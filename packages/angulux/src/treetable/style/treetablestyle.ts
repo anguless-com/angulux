@@ -9,6 +9,12 @@ const style = /*css*/ `
     outline-offset: dt('treetable.row.focus.ring.offset');
 }
 
+/* A column resizer takes keyboard focus (the arrow keys resize the column), so it shows the header's focus ring. */
+.p-treetable .p-column-resizer:focus-visible {
+    outline: dt('treetable.header.cell.focus.ring.width') dt('treetable.header.cell.focus.ring.style') dt('treetable.header.cell.focus.ring.color');
+    outline-offset: dt('treetable.header.cell.focus.ring.offset');
+}
+
 .p-treetable {
     position: relative;
 }

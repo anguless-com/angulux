@@ -4008,3 +4008,72 @@ describe('TreeTable, keyboard: a row selected by double click', () => {
         expect(fixture.componentInstance.selected).toBeNull();
     });
 });
+
+@Component({
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes" [resizableColumns]="true" columnResizeMode="expand" (onColResize)="resized.push($event.delta)">
+            <ng-template #header>
+                <tr>
+                    <th ttResizableColumn class="first">Name</th>
+                    <th>Size</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode">
+                    <td>{{ rowData.name }}</td>
+                    <td>{{ rowData.size }}</td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class KeyboardResizeTreeTableHost {
+    nodes: TreeNode[] = [{ key: 'a', data: { name: 'Documents', size: 1 } }];
+    resized: number[] = [];
+}
+
+describe('TreeTable, keyboard: a column resizer', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardResizeTreeTableHost>;
+    const th = () => fixture.nativeElement.querySelector('th.first') as HTMLElement;
+    const resizer = () => th().querySelector('[data-pc-section="columnresizer"]') as HTMLElement;
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardResizeTreeTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('is a named, focusable vertical separator whose value, once focused, is the width of its column', () => {
+        expect(resizer().getAttribute('role')).toBe('separator');
+        expect(resizer().getAttribute('tabindex')).toBe('0');
+        expect(resizer().getAttribute('aria-orientation')).toBe('vertical');
+        expect(resizer().getAttribute('aria-label')).toBe('Resize column');
+        resizer().focus();
+        expect(resizer().getAttribute('aria-valuenow')).toBe(String(th().offsetWidth));
+    });
+
+    it('widens its column by 10 pixels with ArrowRight and narrows it with ArrowLeft, as a drag does', () => {
+        const before = th().offsetWidth;
+
+        const right = key(resizer(), 'ArrowRight');
+        expect(right.defaultPrevented).toBe(true);
+        expect(th().offsetWidth).toBe(before + 10);
+        expect(resizer().getAttribute('aria-valuenow')).toBe(String(before + 10));
+
+        key(resizer(), 'ArrowLeft');
+        expect(th().offsetWidth).toBe(before);
+        expect(fixture.componentInstance.resized).toEqual([10, -10]);
+    });
+
+    it('leaves every other key alone', () => {
+        expect(key(resizer(), 'Enter').defaultPrevented).toBe(false);
+    });
+});
