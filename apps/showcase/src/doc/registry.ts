@@ -912,6 +912,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Cell editing',
             description: 'aglEditableColumn opens a cell editor on a click, or on Enter or F2 once Tab has reached the cell. Enter closes it with onEditComplete and Escape with onEditCancel, and both put focus back on the cell.',
             load: () => import('./table/celledit-doc').then((m) => m.CellEditDoc)
+        },
+        {
+            id: 'table-doubleclick',
+            label: 'Double-click selection',
+            description: 'aglSelectableRowDblClick selects a row on a double click, or on Enter or Space once the row has focus. The arrow keys move between rows, and with aglSelectableRowIndex set, the selected row is their one tab stop.',
+            load: () => import('./table/doubleclick-doc').then((m) => m.DoubleClickDoc)
         }
     ],
     treetable: [
@@ -926,6 +932,12 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
             label: 'Cell editing',
             description: 'ttEditableColumn works the same way: a click, or Enter or F2 on the focused cell, opens the editor, and Enter or Escape closes it and puts focus back on the cell.',
             load: () => import('./treetable/celledit-doc').then((m) => m.CellEditDoc)
+        },
+        {
+            id: 'treetable-doubleclick',
+            label: 'Double-click selection',
+            description: 'ttSelectableRowDblClick selects a row on a double click, or on Enter or Space on the focused row; ttRow puts the rows in the tab order and moves between them with the arrow keys.',
+            load: () => import('./treetable/doubleclick-doc').then((m) => m.DoubleClickDoc)
         }
     ]
 };

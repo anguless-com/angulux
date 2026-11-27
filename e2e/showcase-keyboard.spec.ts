@@ -564,3 +564,58 @@ test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens
     await expect(typeInput).toHaveCount(0);
     await expect(type).toBeFocused();
 });
+
+test('Table, double-click selection: the rows take focus, the arrows move between them, and Enter or Space selects one, as a double click does', async ({ page }) => {
+    await page.goto('/table');
+    await hydrated(page);
+
+    const demo = page.locator('agl-table-doubleclick-doc');
+    const row = (name: string) => demo.getByRole('row', { name: new RegExp(`^${name} `) });
+    const selected = demo.getByText(/^Selected:/);
+
+    await row('Bamboo Watch').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(row('Black Watch')).toBeFocused();
+    await expect(row('Black Watch')).not.toHaveCSS('outline-style', 'none');
+    await page.keyboard.press('Enter');
+    await expect(selected).toHaveText('Selected: Black Watch');
+
+    await page.keyboard.press('ArrowDown');
+    await expect(row('Blue Band')).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(selected).toHaveText('Selected: Blue Band');
+    expect(await axeViolations(page, 'agl-table-doubleclick-doc')).toEqual([]);
+
+    // Once a row is selected, it is the one tab stop among the rows.
+    await expect(row('Blue Band')).toHaveAttribute('tabindex', '0');
+    await expect(row('Bamboo Watch')).toHaveAttribute('tabindex', '-1');
+    await expect(row('Bracelet')).toHaveAttribute('tabindex', '-1');
+
+    // A double click still selects.
+    await row('Bracelet').dblclick();
+    await expect(selected).toHaveText('Selected: Bracelet');
+});
+
+test('TreeTable, double-click selection: Enter or Space on a focused row selects it, as a double click does', async ({ page }) => {
+    await page.goto('/treetable');
+    await hydrated(page);
+
+    const demo = page.locator('agl-treetable-doubleclick-doc');
+    const row = (name: string) => demo.getByRole('row', { name: new RegExp(`${name} `) });
+    const selected = demo.getByText(/^Selected:/);
+
+    await row('Documents').focus();
+    await page.keyboard.press('Enter');
+    await expect(selected).toHaveText('Selected: Documents');
+
+    await page.keyboard.press('ArrowDown');
+    await expect(row('Pictures')).toBeFocused();
+    await expect(row('Pictures')).not.toHaveCSS('outline-style', 'none');
+    await page.keyboard.press('Space');
+    await expect(selected).toHaveText('Selected: Pictures');
+    expect(await axeViolations(page, 'agl-treetable-doubleclick-doc')).toEqual([]);
+
+    // A double click still selects.
+    await row('Documents').dblclick();
+    await expect(selected).toHaveText('Selected: Documents');
+});
