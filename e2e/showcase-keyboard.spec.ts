@@ -292,6 +292,30 @@ test('ColorPicker, inline: Tab reaches its colour area and hue bar, and the arro
     await expect(hue).toHaveAttribute('aria-valuenow', String(hueBefore - 1));
 });
 
+test('Password: Tab reaches the show-password toggle after the field, and Enter and Space show and hide what was typed', async ({ page }) => {
+    await page.goto('/password');
+    await hydrated(page);
+
+    const demo = page.locator('agl-password-togglemask-doc');
+    const input = demo.locator('input');
+    const toggle = demo.getByRole('button', { name: 'Show password' });
+
+    await input.focus();
+    await page.keyboard.type('secret');
+    await page.keyboard.press('Tab');
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    await page.keyboard.press('Enter');
+    await expect(input).toHaveAttribute('type', 'text');
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+    await page.keyboard.press('Space');
+    await expect(input).toHaveAttribute('type', 'password');
+    await expect(toggle).toBeFocused();
+});
+
 test('Select: Enter, Space, ArrowDown and Alt+ArrowDown open it, the arrows move the active option, Enter chooses, Escape closes', async ({ page }) => {
     await page.goto('/select');
     await hydrated(page);

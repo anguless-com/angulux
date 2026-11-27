@@ -471,16 +471,17 @@ export const Password_VALUE_ACCESSOR: any = {
             </span>
         </ng-container>
 
+        <!-- The control is a toggle button: one name, "Show password", and aria-pressed for its state. -->
         <ng-container *ngIf="toggleMask">
             <ng-container *ngIf="unmasked">
-                <svg data-p-icon="eyeslash" [class]="cx('maskIcon')" [aglBind]="ptm('maskIcon')" *ngIf="!hideIconTemplate()" (click)="onMaskToggle()" />
-                <span *ngIf="hideIconTemplate()" (click)="onMaskToggle()" [aglBind]="ptm('maskIcon')">
+                <svg data-p-icon="eyeslash" [class]="cx('maskIcon')" [aglBind]="ptm('maskIcon')" *ngIf="!hideIconTemplate()" role="button" tabindex="0" [attr.aria-label]="maskLabel" aria-pressed="true" (click)="onMaskToggle()" />
+                <span *ngIf="hideIconTemplate()" [aglBind]="ptm('maskIcon')" role="button" tabindex="0" [attr.aria-label]="maskLabel" aria-pressed="true" (click)="onMaskToggle()">
                     <ng-template *ngTemplateOutlet="hideIconTemplate(); context: { class: cx('maskIcon') }"></ng-template>
                 </span>
             </ng-container>
             <ng-container *ngIf="!unmasked">
-                <svg data-p-icon="eye" *ngIf="!showIconTemplate()" [class]="cx('unmaskIcon')" [aglBind]="ptm('unmaskIcon')" (click)="onMaskToggle()" />
-                <span *ngIf="showIconTemplate()" (click)="onMaskToggle()" [aglBind]="ptm('unmaskIcon')">
+                <svg data-p-icon="eye" *ngIf="!showIconTemplate()" [class]="cx('unmaskIcon')" [aglBind]="ptm('unmaskIcon')" role="button" tabindex="0" [attr.aria-label]="maskLabel" aria-pressed="false" (click)="onMaskToggle()" />
+                <span *ngIf="showIconTemplate()" [aglBind]="ptm('unmaskIcon')" role="button" tabindex="0" [attr.aria-label]="maskLabel" aria-pressed="false" (click)="onMaskToggle()">
                     <ng-template *ngTemplateOutlet="showIconTemplate(); context: { class: cx('unmaskIcon') }"></ng-template>
                 </span>
             </ng-container>
@@ -512,7 +513,8 @@ export const Password_VALUE_ACCESSOR: any = {
     host: {
         '[class]': "cn(cx('root'), styleClass)",
         '[style]': "sx('root')",
-        '[attr.data-p]': 'containerDataP'
+        '[attr.data-p]': 'containerDataP',
+        '(keydown)': 'onMaskKeydown($event)'
     },
     hostDirectives: [Bind]
 })
@@ -590,6 +592,10 @@ export class Password extends BaseInput<PasswordPassThrough> {
     @Input({ transform: booleanAttribute }) feedback: boolean = true;
     /**
      * Whether to show an icon to display the password as plain text.
+     *
+     * The icon is a toggle button in the tab order, named by the `aria.showPassword` translation
+     * ("Show password" without one), with `aria-pressed` set while the password shows. Enter or
+     * Space toggles it, as a click does, and focus stays on it.
      * @group Props
      */
     @Input({ transform: booleanAttribute }) toggleMask: boolean | undefined;
@@ -763,6 +769,7 @@ export class Password extends BaseInput<PasswordPassThrough> {
         this.strongCheckRegExp = new RegExp(this.strongRegex);
         this.translationSubscription = this.config.translationObserver.subscribe(() => {
             this.updateUI(this.value || '');
+            this.cd.markForCheck();
         });
     }
 
@@ -848,6 +855,20 @@ export class Password extends BaseInput<PasswordPassThrough> {
 
     onMaskToggle() {
         this.unmasked = !this.unmasked;
+    }
+
+    /** Enter or Space on the show-password toggle; every other key, and every other target, is left alone. */
+    onMaskKeydown(event: KeyboardEvent) {
+        if ((event.key !== 'Enter' && event.key !== ' ') || !(event.target as Element).hasAttribute('aria-pressed')) return;
+        event.preventDefault();
+        this.onMaskToggle();
+        // The icon is swapped for the other one; render now and give focus to the new one.
+        this.cd.detectChanges();
+        this.$el.querySelector('[aria-pressed]')?.focus();
+    }
+
+    get maskLabel(): string {
+        return this.config.getTranslation(TranslationKeys.ARIA)?.showPassword ?? 'Show password';
     }
 
     onOverlayClick(event: Event) {

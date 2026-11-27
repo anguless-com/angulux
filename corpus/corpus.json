@@ -1,7 +1,7 @@
 {
     "generator": {
         "version": "4",
-        "sourceHash": "b2368608b88ce4c6af3fdde67cbe64f8fc07e10fc0c789753568ee17cf6bb7ec",
+        "sourceHash": "ee3809d3b44d5b906ebe30ff905832866d041cbc8d44666c7473b47941599220",
         "closureCount": 65
     },
     "modules": [
@@ -9705,7 +9705,7 @@
                             "name": "toggleMask",
                             "field": "toggleMask",
                             "type": "boolean | undefined",
-                            "description": "Whether to show an icon to display the password as plain text.",
+                            "description": "Whether to show an icon to display the password as plain text.\n\nThe icon is a toggle button in the tab order, named by the `aria.showPassword` translation\n(\"Show password\" without one), with `aria-pressed` set while the password shows. Enter or\nSpace toggles it, as a click does, and focus stays on it.",
                             "group": "Props",
                             "default": null,
                             "defaultDeclared": false,
