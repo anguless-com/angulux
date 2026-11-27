@@ -22,6 +22,12 @@ const style = /*css*/ `
 ${String(datatable_style).replace(SIBLING_HAS_RULE, ROW_BEFORE_SELECTED_RULE)}
 
 /* For AnguluxConfig */
+/* An editable cell takes keyboard focus (Enter or F2 opens its editor), so it shows the row's focus ring. */
+.p-datatable-tbody > tr > td.p-editable-column:focus-visible {
+    outline: dt('datatable.row.focus.ring.width') dt('datatable.row.focus.ring.style') dt('datatable.row.focus.ring.color');
+    outline-offset: dt('datatable.row.focus.ring.offset');
+}
+
 .p-datatable-scrollable-table > .p-datatable-thead {
     top: 0;
     z-index: 2;

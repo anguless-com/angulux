@@ -118,6 +118,42 @@ test('treetable scroll + cell edit — the remaining 2 risky decorators', async 
     expect(errors).toEqual([]);
 });
 
+test('table and treetable cell edit from the keyboard — Tab reaches an editable cell, Enter opens it, Enter closes it', async ({ page }) => {
+    const errors = watchErrors(page);
+
+    // Table: the column filter is the stop before the first row's editable cell.
+    const qtyCell = page.locator('#sec-table-adv tr[data-adv-code="P-001"] .qty-cell');
+    const qtyInput = page.locator('#sec-table-adv .qty-input');
+    await page.locator('#sec-table-adv agl-columnfilter input').focus();
+    await page.keyboard.press('Tab');
+    await expect(qtyCell).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(qtyInput).toBeFocused();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type('7');
+    await page.keyboard.press('Enter');
+    await expect(qtyInput).toHaveCount(0);
+    await expect(qtyCell).toBeFocused();
+    await expect(qtyCell.locator('.qty-output')).toHaveText('7');
+
+    // TreeTable: the row is the stop before its editable cell.
+    const noteCell = page.locator('#sec-treetable-scroll tr[data-scroll-key="n1"] .note-cell');
+    const noteInput = page.locator('#sec-treetable-scroll .note-input');
+    await page.locator('#sec-treetable-scroll tr[data-scroll-key="n1"]').focus();
+    await page.keyboard.press('Tab');
+    await expect(noteCell).toBeFocused();
+    await page.keyboard.press('F2');
+    await expect(noteInput).toBeFocused();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type('BY_KEYBOARD');
+    await page.keyboard.press('Enter');
+    await expect(noteInput).toHaveCount(0);
+    await expect(noteCell).toBeFocused();
+    await expect(page.locator('#probe-treetable-scroll')).toHaveText('note=BY_KEYBOARD');
+
+    expect(errors).toEqual([]);
+});
+
 test('menu — clicking an item runs its command and updates the view', async ({ page }) => {
     const errors = watchErrors(page);
     await expect(page.locator('#probe-menu')).toHaveText('clicked=none');

@@ -4469,7 +4469,9 @@ export class ReorderableColumn extends BaseComponent {
     selector: '[aglEditableColumn]',
     standalone: false,
     host: {
-        '[attr.data-p-editable-column]': 'true'
+        '[attr.data-p-editable-column]': 'true',
+        '[attr.tabindex]': 'isEnabled() ? 0 : null',
+        '(keydown.f2)': 'onF2KeyDown($event)'
     }
 })
 export class EditableColumn extends BaseComponent {
@@ -4588,17 +4590,43 @@ export class EditableColumn extends BaseComponent {
 
     @HostListener('keydown.enter', ['$event'])
     onEnterKeyDown(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled() && !event.shiftKey) {
             if (this.dataTable.isEditingCellValid()) {
                 this.closeEditingCell(true, event);
+                this.el.nativeElement.focus();
             }
 
             event.preventDefault();
         }
     }
 
+    onF2KeyDown(event: KeyboardEvent) {
+        this.keyOnCell(event);
+    }
+
+    /**
+     * A key on the cell itself rather than in its editor. Enter or F2 opens the editor there, as a
+     * click does; every other key is left to the page, so Tab moves on. Returns whether the key
+     * was on the cell, for the editor's handlers to stand aside.
+     */
+    keyOnCell(event: KeyboardEvent): boolean {
+        if (event.target !== this.el.nativeElement) return false;
+        if ((event.key === 'Enter' || event.key === 'F2') && this.isEnabled() && this.dataTable.editingCell !== this.el.nativeElement) {
+            if (this.dataTable.editingCell) {
+                if (!this.dataTable.isEditingCellValid()) return true;
+                this.closeEditingCell(true, event);
+            }
+            this.openCell();
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        return true;
+    }
+
     @HostListener('keydown.tab', ['$event'])
     onTabKeyDown(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             if (this.dataTable.isEditingCellValid()) {
                 this.closeEditingCell(true, event);
@@ -4610,9 +4638,11 @@ export class EditableColumn extends BaseComponent {
 
     @HostListener('keydown.escape', ['$event'])
     onEscapeKeyDown(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             if (this.dataTable.isEditingCellValid()) {
                 this.closeEditingCell(false, event);
+                this.el.nativeElement.focus();
             }
 
             event.preventDefault();
@@ -4623,6 +4653,7 @@ export class EditableColumn extends BaseComponent {
     @HostListener('keydown.shift.tab', ['$event'])
     @HostListener('keydown.meta.tab', ['$event'])
     onShiftKeyDown(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             if (event.shiftKey) this.moveToPreviousCell(event);
             else {
@@ -4632,6 +4663,7 @@ export class EditableColumn extends BaseComponent {
     }
     @HostListener('keydown.arrowdown', ['$event'])
     onArrowDown(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             let currentCell = this.findCell(event.target);
             if (currentCell) {
@@ -4654,6 +4686,7 @@ export class EditableColumn extends BaseComponent {
 
     @HostListener('keydown.arrowup', ['$event'])
     onArrowUp(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             let currentCell = this.findCell(event.target);
             if (currentCell) {
@@ -4676,6 +4709,7 @@ export class EditableColumn extends BaseComponent {
 
     @HostListener('keydown.arrowleft', ['$event'])
     onArrowLeft(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             this.moveToPreviousCell(event);
         }
@@ -4683,6 +4717,7 @@ export class EditableColumn extends BaseComponent {
 
     @HostListener('keydown.arrowright', ['$event'])
     onArrowRight(event: KeyboardEvent) {
+        if (this.keyOnCell(event)) return;
         if (this.isEnabled()) {
             this.moveToNextCell(event);
         }
