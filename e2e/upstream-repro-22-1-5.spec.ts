@@ -411,6 +411,27 @@ test('22.1.5 · table · resizer click — a click on a column resizer without a
     expect(sortAfter).toBe(sortBefore);
 });
 
+test('table · column resizer from the keyboard — Tab reaches it after its header, and the arrow keys resize the column by 10 px', async ({ page }) => {
+    await open(page, 'table-resize');
+    const th = page.locator('#th-name');
+    const resizer = page.getByRole('separator', { name: 'Resize column' }).first();
+    const sortBefore = await th.getAttribute('aria-sort');
+
+    await th.focus();
+    await page.keyboard.press('Tab');
+    await expect(resizer).toBeFocused();
+    const before = (await th.boundingBox())!.width;
+    await expect(resizer).toHaveAttribute('aria-valuenow', String(Math.round(before)));
+
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => Math.round((await th.boundingBox())!.width - before)).toBe(10);
+    await expect(resizer).toHaveAttribute('aria-valuenow', String(Math.round(before) + 10));
+
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(async () => Math.abs((await th.boundingBox())!.width - before)).toBeLessThan(1);
+    expect(await th.getAttribute('aria-sort')).toBe(sortBefore);
+});
+
 for (const variant of ['row-empty-string', 'row-null', 'menu-null', 'menu-empty-list', 'row-value']) {
     test(`22.1.5 · table · empty filter state — ${variant}: a table restoring a cleared filter renders`, async ({ page }) => {
         const errors = watchErrors(page);

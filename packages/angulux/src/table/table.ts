@@ -2607,7 +2607,18 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
     onColumnResizeEnd() {
         const isRTL = getComputedStyle(this.el?.nativeElement ?? document.documentElement).direction === 'rtl';
         const rawDelta = this.resizeHelperViewChild?.nativeElement.offsetLeft - <number>this.lastResizerHelperX;
-        const delta = isRTL ? -rawDelta : rawDelta;
+        this.resizeColumnBy(this.resizeColumnElement, isRTL ? -rawDelta : rawDelta);
+
+        (<ElementRef>this.resizeHelperViewChild).nativeElement.style.display = 'none';
+        ɵremoveClass(this.el?.nativeElement, 'p-unselectable-text');
+    }
+
+    /**
+     * Widens a column by `delta` pixels, or narrows it when `delta` is negative, as a drag of its
+     * resizer does: the same minimum width, the same column resize mode, the same `onColResize`.
+     */
+    resizeColumnBy(column: HTMLElement, delta: number) {
+        this.resizeColumnElement = column;
         const columnWidth = this.resizeColumnElement.offsetWidth;
         const newColumnWidth = columnWidth + delta;
         const elementMinWidth = this.resizeColumnElement.style.minWidth.replace(/[^\d.]/g, '');
@@ -2638,9 +2649,6 @@ export class Table<RowData = any> extends BaseComponent<TablePassThrough> implem
                 this.saveState();
             }
         }
-
-        (<ElementRef>this.resizeHelperViewChild).nativeElement.style.display = 'none';
-        ɵremoveClass(this.el?.nativeElement, 'p-unselectable-text');
     }
 
     private _totalTableWidth(): number[] {
@@ -4279,6 +4287,10 @@ export class ResizableColumn extends BaseComponent {
 
     resizerTouchStartListener: VoidListener;
 
+    resizerKeyDownListener: VoidListener;
+
+    resizerFocusListener: VoidListener;
+
     resizerTouchMoveListener: VoidListener;
 
     resizerTouchEndListener: VoidListener;
@@ -4302,11 +4314,18 @@ export class ResizableColumn extends BaseComponent {
                 this.resizer = this.renderer.createElement('span');
                 setAttribute(this.resizer as HTMLElement, 'data-pc-column-resizer', 'true');
                 !this.$unstyled() && this.renderer.addClass(this.resizer, 'p-datatable-column-resizer');
+                // A focusable separator, which ArrowLeft and ArrowRight move as a drag does.
+                setAttribute(this.resizer as HTMLElement, 'role', 'separator');
+                setAttribute(this.resizer as HTMLElement, 'aria-orientation', 'vertical');
+                setAttribute(this.resizer as HTMLElement, 'tabindex', '0');
                 this.renderer.appendChild(this.el.nativeElement, this.resizer);
+                this.describeResizer();
 
                 this.zone.runOutsideAngular(() => {
                     this.resizerMouseDownListener = this.renderer.listen(this.resizer, 'mousedown', this.onMouseDown.bind(this));
                     this.resizerTouchStartListener = this.renderer.listen(this.resizer, 'touchstart', this.onTouchStart.bind(this));
+                    this.resizerKeyDownListener = this.renderer.listen(this.resizer, 'keydown', this.onKeyDown.bind(this));
+                    this.resizerFocusListener = this.renderer.listen(this.resizer, 'focus', this.describeResizer.bind(this));
                 });
             }
         }
@@ -4369,6 +4388,23 @@ export class ResizableColumn extends BaseComponent {
         this.unbindDocumentEvents();
     }
 
+    /** The separator's name, and its value: the column's width in pixels. Refreshed on focus and after each key. */
+    describeResizer() {
+        const width = this.el.nativeElement.offsetWidth;
+        setAttribute(this.resizer as HTMLElement, 'aria-label', this.config.getTranslation(TranslationKeys.ARIA)?.resizeColumn ?? 'Resize column');
+        setAttribute(this.resizer as HTMLElement, 'aria-valuenow', width);
+        setAttribute(this.resizer as HTMLElement, 'aria-valuetext', width + 'px');
+    }
+
+    /** ArrowRight widens the column by 10 pixels and ArrowLeft narrows it, mirrored right to left. */
+    onKeyDown(event: KeyboardEvent) {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        const rtl = getComputedStyle(this.el.nativeElement).direction === 'rtl';
+        this.dataTable.resizeColumnBy(this.el.nativeElement, (event.key === 'ArrowRight') !== rtl ? 10 : -10);
+        this.describeResizer();
+        event.preventDefault();
+    }
+
     isEnabled() {
         return this.aglResizableColumnDisabled !== true;
     }
@@ -4378,6 +4414,8 @@ export class ResizableColumn extends BaseComponent {
             this.resizerMouseDownListener();
             this.resizerMouseDownListener = null;
         }
+        this.resizerKeyDownListener?.();
+        this.resizerFocusListener?.();
 
         this.unbindDocumentEvents();
     }

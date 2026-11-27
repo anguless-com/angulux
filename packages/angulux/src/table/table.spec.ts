@@ -1787,3 +1787,93 @@ describe('Table, keyboard: a row selected by double click', () => {
         expect(fixture.componentInstance.selected?.name).toBe('Mouse');
     });
 });
+
+@Component({
+    imports: [TableModule],
+    template: `
+        <agl-table [value]="rows" [resizableColumns]="true" [columnResizeMode]="mode" [tableStyle]="{ width: '30rem' }" (onColResize)="resized.push($event.delta)">
+            <ng-template #header>
+                <tr>
+                    <th aglResizableColumn class="first">Name</th>
+                    <th aglResizableColumn class="second">Code</th>
+                    <th>Note</th>
+                </tr>
+            </ng-template>
+            <ng-template #body let-row>
+                <tr>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.code }}</td>
+                    <td>{{ row.note }}</td>
+                </tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class KeyboardResizeTableHost {
+    mode: 'expand' | 'fit' = 'expand';
+    rows = [{ name: 'Laptop', code: 'L1', note: 'A' }];
+    resized: number[] = [];
+}
+
+describe('Table, keyboard: a column resizer', () => {
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardResizeTableHost>;
+    const th = (cls: string) => fixture.nativeElement.querySelector(`th.${cls}`) as HTMLElement;
+    const resizer = (cls: string) => th(cls).querySelector('[data-pc-column-resizer]') as HTMLElement;
+
+    const create = async (mode: 'expand' | 'fit') => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardResizeTableHost);
+        fixture.componentInstance.mode = mode;
+        await fixture.whenStable();
+    };
+
+    afterEach(() => fixture.destroy());
+
+    it('is a named, focusable vertical separator whose value, once focused, is the width of its column', async () => {
+        await create('expand');
+        expect(resizer('first').getAttribute('role')).toBe('separator');
+        expect(resizer('first').getAttribute('tabindex')).toBe('0');
+        expect(resizer('first').getAttribute('aria-orientation')).toBe('vertical');
+        expect(resizer('first').getAttribute('aria-label')).toBe('Resize column');
+        resizer('first').focus();
+        expect(resizer('first').getAttribute('aria-valuenow')).toBe(String(th('first').offsetWidth));
+    });
+
+    it('widens its column by 10 pixels with ArrowRight and narrows it with ArrowLeft, as a drag does', async () => {
+        await create('expand');
+        const before = th('first').offsetWidth;
+
+        const right = key(resizer('first'), 'ArrowRight');
+        expect(right.defaultPrevented).toBe(true);
+        expect(th('first').offsetWidth).toBe(before + 10);
+        expect(resizer('first').getAttribute('aria-valuenow')).toBe(String(before + 10));
+
+        key(resizer('first'), 'ArrowLeft');
+        expect(th('first').offsetWidth).toBe(before);
+        expect(fixture.componentInstance.resized).toEqual([10, -10]);
+    });
+
+    it('takes the width from the next column in fit mode', async () => {
+        await create('fit');
+        const first = th('first').offsetWidth;
+        const second = th('second').offsetWidth;
+
+        key(resizer('first'), 'ArrowRight');
+        expect(th('first').offsetWidth).toBe(first + 10);
+        expect(th('second').offsetWidth).toBe(second - 10);
+    });
+
+    it('leaves every other key alone', async () => {
+        await create('expand');
+        const before = th('first').offsetWidth;
+        for (const k of ['Enter', 'ArrowUp', 'Tab']) {
+            expect(key(resizer('first'), k).defaultPrevented).withContext(k).toBe(false);
+        }
+        expect(th('first').offsetWidth).toBe(before);
+    });
+});

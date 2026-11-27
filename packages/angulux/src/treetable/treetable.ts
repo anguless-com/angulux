@@ -46,7 +46,7 @@ import {
     reorderArray,
     resolveFieldData
 } from '@anguless/angulux-utils';
-import { BlockableUI, FilterMetadata, FilterService, ScrollerOptions, SharedModule, SortMeta, TreeNode, TreeTableNode } from '@anguless/angulux/api';
+import { BlockableUI, FilterMetadata, FilterService, ScrollerOptions, SharedModule, SortMeta, TranslationKeys, TreeNode, TreeTableNode } from '@anguless/angulux/api';
 import { BadgeModule } from '@anguless/angulux/badge';
 import { BaseComponent, PARENT_INSTANCE } from '@anguless/angulux/basecomponent';
 import { Bind, BindModule } from '@anguless/angulux/bind';
@@ -1318,8 +1318,11 @@ export class TreeTable extends BaseComponent<TreeTablePassThrough> implements Bl
         (<ElementRef>this.resizeHelperViewChild).nativeElement.style.display = 'block';
     }
 
-    onColumnResizeEnd(event: MouseEvent, column: any) {
-        let delta = (<ElementRef>this.resizeHelperViewChild).nativeElement.offsetLeft - <number>this.lastResizerHelperX;
+    /**
+     * Ends a resize: widens the column by `delta` pixels, or narrows it when `delta` is negative.
+     * A drag measures `delta` from the resize helper; the resizer's arrow keys pass it.
+     */
+    onColumnResizeEnd(event: MouseEvent | KeyboardEvent, column: any, delta: number = (<ElementRef>this.resizeHelperViewChild).nativeElement.offsetLeft - <number>this.lastResizerHelperX) {
         let columnWidth = column.offsetWidth;
         let newColumnWidth = columnWidth + delta;
         let minWidth = column.style.minWidth || 15;
@@ -2801,6 +2804,10 @@ export class TTResizableColumn extends BaseComponent {
 
     resizerMouseDownListener: VoidListener;
 
+    resizerKeyDownListener: VoidListener;
+
+    resizerFocusListener: VoidListener;
+
     documentMouseMoveListener: VoidListener;
 
     documentMouseUpListener: VoidListener;
@@ -2819,10 +2826,17 @@ export class TTResizableColumn extends BaseComponent {
                 this.resizer = this.renderer.createElement('span');
                 !this.$unstyled() && this.renderer.addClass(this.resizer, 'p-column-resizer');
                 (this.resizer as HTMLElement).setAttribute('data-pc-section', 'columnresizer');
+                // A focusable separator, which ArrowLeft and ArrowRight move as a drag does.
+                (this.resizer as HTMLElement).setAttribute('role', 'separator');
+                (this.resizer as HTMLElement).setAttribute('aria-orientation', 'vertical');
+                (this.resizer as HTMLElement).setAttribute('tabindex', '0');
                 this.renderer.appendChild(this.el.nativeElement, this.resizer);
+                this.describeResizer();
 
                 this.zone.runOutsideAngular(() => {
                     this.resizerMouseDownListener = this.renderer.listen(this.resizer, 'mousedown', this.onMouseDown.bind(this));
+                    this.resizerKeyDownListener = this.renderer.listen(this.resizer, 'keydown', this.onKeyDown.bind(this));
+                    this.resizerFocusListener = this.renderer.listen(this.resizer, 'focus', this.describeResizer.bind(this));
                 });
             }
         }
@@ -2861,6 +2875,24 @@ export class TTResizableColumn extends BaseComponent {
         this.unbindDocumentEvents();
     }
 
+    /** The separator's name, and its value: the column's width in pixels. Refreshed on focus and after each key. */
+    describeResizer() {
+        const resizer = this.resizer as HTMLElement;
+        const width = this.el.nativeElement.offsetWidth;
+        resizer.setAttribute('aria-label', this.config.getTranslation(TranslationKeys.ARIA)?.resizeColumn ?? 'Resize column');
+        resizer.setAttribute('aria-valuenow', String(width));
+        resizer.setAttribute('aria-valuetext', width + 'px');
+    }
+
+    /** ArrowRight widens the column by 10 pixels and ArrowLeft narrows it, mirrored right to left. */
+    onKeyDown(event: KeyboardEvent) {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        const rtl = getComputedStyle(this.el.nativeElement).direction === 'rtl';
+        this.tt.onColumnResizeEnd(event, this.el.nativeElement, (event.key === 'ArrowRight') !== rtl ? 10 : -10);
+        this.describeResizer();
+        event.preventDefault();
+    }
+
     isEnabled() {
         return this.ttResizableColumnDisabled !== true;
     }
@@ -2870,6 +2902,8 @@ export class TTResizableColumn extends BaseComponent {
             this.resizerMouseDownListener();
             this.resizerMouseDownListener = null;
         }
+        this.resizerKeyDownListener?.();
+        this.resizerFocusListener?.();
 
         this.unbindDocumentEvents();
     }
