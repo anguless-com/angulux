@@ -576,6 +576,42 @@ test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens
     await expect(type).toBeFocused();
 });
 
+test('Table, selection: the arrows move between rows, Enter or Space selects one, and the selected row is then the one tab stop among them', async ({ page }) => {
+    await page.goto('/table');
+    await hydrated(page);
+
+    const demo = page.locator('agl-table-selection-doc');
+    const row = (name: string) => demo.getByRole('row', { name: new RegExp(`^${name} `) });
+    const selected = demo.getByText(/^Selected:/);
+    const stops = () => demo.locator('tbody tr').evaluateAll((rows) => rows.map((r) => r.getAttribute('tabindex')));
+
+    // Until a row is selected, every row is a tab stop.
+    expect(await stops()).toEqual(['0', '0', '0', '0', '0']);
+
+    await row('Bamboo Watch').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(row('Black Watch')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(selected).toHaveText('Selected: Black Watch');
+
+    await page.keyboard.press('ArrowDown');
+    await expect(row('Blue Band')).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(selected).toHaveText('Selected: Blue Band');
+    expect(await axeViolations(page, 'agl-table-selection-doc')).toEqual([]);
+
+    // Then the selected row is the one tab stop, so Tab leaves the table from it.
+    await expect.poll(stops).toEqual(['-1', '-1', '0', '-1', '-1']);
+    await page.keyboard.press('Tab');
+    await expect(row('Blue Band')).not.toBeFocused();
+    expect(await page.evaluate(() => !!document.activeElement?.closest('agl-table-selection-doc tbody'))).toBe(false);
+
+    // A click selects too, and moves the tab stop with it.
+    await row('Bracelet').click();
+    await expect(selected).toHaveText('Selected: Bracelet');
+    await expect.poll(stops).toEqual(['-1', '-1', '-1', '-1', '0']);
+});
+
 test('Table, double-click selection: the rows take focus, the arrows move between them, and Enter or Space selects one, as a double click does', async ({ page }) => {
     await page.goto('/table');
     await hydrated(page);
