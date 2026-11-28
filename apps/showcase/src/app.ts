@@ -31,6 +31,7 @@ import { ColorSchemeToggle } from './theme';
              sitting over the header. -->
         <a
             href="#content"
+            (click)="skipToContent($event)"
             class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-canvas"
         >
             Skip to content
@@ -196,10 +197,10 @@ import { ColorSchemeToggle } from './theme';
                 </div>
             </aside>
 
-            <!-- tabindex="-1" so the skip link can actually MOVE FOCUS here. Without it the browser
-                 scrolls to the anchor and leaves focus where it was, so the next Tab goes straight
-                 back into the nav — the link appears to work and does nothing. -->
-            <main id="content" tabindex="-1" class="min-w-0 flex-1 outline-none">
+            <!-- Focusable only while the skip link has put focus here (skipToContent). A main that
+                 is always tabindex="-1" takes focus on every click in the page, so the next Tab
+                 starts again from the top of the content instead of from the clicked spot. -->
+            <main #content id="content" class="min-w-0 flex-1 outline-none">
                 <router-outlet />
             </main>
         </div>
@@ -220,6 +221,8 @@ export class AppComponent {
     private readonly filterBox = viewChild<ElementRef<HTMLInputElement>>('filterBox');
 
     private readonly navElement = viewChild<ElementRef<HTMLElement>>('nav');
+
+    private readonly content = viewChild<ElementRef<HTMLElement>>('content');
 
     /** The current URL, so the sidebar can bring the current page's link into sight once per navigation. */
     private readonly url = signal('');
@@ -299,6 +302,24 @@ export class AppComponent {
         this.navOpen.set(false);
         this.searchRequested.set(true);
         this.searchOpen.set(true);
+    }
+
+    /**
+     * The skip link moves focus to the content, so the next Tab goes to the page's first control
+     * and not back into the nav. The content is focusable for that moment only: once focus leaves
+     * it, a click in the page no longer focuses it, and Tab carries on from where the reader clicked.
+     */
+    skipToContent(event: Event): void {
+        const main = this.content()?.nativeElement;
+
+        if (!main) {
+            return;
+        }
+
+        event.preventDefault();
+        main.tabIndex = -1;
+        main.focus();
+        main.addEventListener('blur', () => main.removeAttribute('tabindex'), { once: true });
     }
 
     /**
