@@ -3788,7 +3788,7 @@ export class TTRow extends BaseComponent {
 
     onArrowRightKey(event: KeyboardEvent) {
         const currentTarget = <HTMLElement>event.currentTarget;
-        const isHiddenIcon = (findSingle(currentTarget, 'button') as any).style.visibility === 'hidden';
+        const isHiddenIcon = (findSingle(currentTarget, 'button') as any)?.style.visibility === 'hidden';
 
         if (!isHiddenIcon && !this.expanded && this.rowNode.node['children']) {
             this.expand(event);

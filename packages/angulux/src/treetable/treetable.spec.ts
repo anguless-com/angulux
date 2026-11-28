@@ -3982,6 +3982,14 @@ describe('TreeTable, keyboard: an editable cell', () => {
         key(control, 'ArrowDown');
         expect(document.activeElement).toBe(cells()[0]);
     });
+
+    // These rows have no toggle button, as a flat TreeTable's rows do not.
+    it('takes ArrowRight on a row with no toggle button without an error', () => {
+        const row = fixture.nativeElement.querySelector('tbody tr') as HTMLElement;
+        row.focus();
+        expect(key(row, 'ArrowRight').defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(row);
+    });
 });
 
 @Component({
