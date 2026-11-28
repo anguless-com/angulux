@@ -3956,8 +3956,14 @@ export class TreeTableToggler extends BaseComponent {
         super();
     }
 
+    /**
+     * Names the button for its row's state, as `aria.selectRow` and `aria.unselectRow` name a row
+     * checkbox in Table: `aria.expandRow` ("Row Expanded") while the row is open and
+     * `aria.collapseRow` ("Row Collapsed") while it is closed.
+     */
     get toggleButtonAriaLabel() {
-        return this.config.translation ? (this.rowNode.expanded ? this.config.translation?.aria?.collapseRow : this.config.translation?.aria?.expandRow) : undefined;
+        const aria = this.config.translation?.aria;
+        return this.rowNode.node.expanded ? aria?.expandRow : aria?.collapseRow;
     }
 
     onClick(event: Event) {

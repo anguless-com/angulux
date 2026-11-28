@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 import { TreeNode } from '@anguless/angulux/api';
-import { provideAngulux } from '@anguless/angulux/config';
+import { AnguluxConfig, provideAngulux } from '@anguless/angulux/config';
 import { of } from 'rxjs';
 import { waitUntil } from '../spec-helpers';
 import { TreeTable, TreeTableModule } from './treetable';
@@ -4107,5 +4107,58 @@ describe('TreeTable, keyboard: a column resizer', () => {
 
     it('leaves every other key alone', () => {
         expect(key(resizer(), 'Enter').defaultPrevented).toBe(false);
+    });
+});
+
+@Component({
+    imports: [TreeTableModule],
+    template: `
+        <agl-treetable [value]="nodes">
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode">
+                    <td><agl-treeTableToggler [rowNode]="rowNode" />{{ rowData.name }}</td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class TogglerTreeTableHost {
+    nodes: TreeNode[] = [{ key: 'a', data: { name: 'Documents' }, children: [{ key: 'a1', data: { name: 'Work' } }] }];
+}
+
+describe('TreeTable, a row toggle button', () => {
+    let fixture: ComponentFixture<TogglerTreeTableHost>;
+    const toggle = () => fixture.nativeElement.querySelector('tbody tr button') as HTMLButtonElement;
+    const named = (name: string) => waitUntil(() => toggle().getAttribute('aria-label') === name, fixture);
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('is named for its row state: "Row Collapsed" while the row is closed, "Row Expanded" while it is open', async () => {
+        fixture = TestBed.createComponent(TogglerTreeTableHost);
+        await fixture.whenStable();
+        expect(toggle().getAttribute('aria-label')).toBe('Row Collapsed');
+
+        toggle().click();
+        await named('Row Expanded');
+        expect(toggle().getAttribute('aria-label')).toBe('Row Expanded');
+
+        toggle().click();
+        await named('Row Collapsed');
+        expect(toggle().getAttribute('aria-label')).toBe('Row Collapsed');
+    });
+
+    it('takes both names from the translation', async () => {
+        TestBed.inject(AnguluxConfig).setTranslation({ aria: { expandRow: 'Open', collapseRow: 'Closed' } });
+        fixture = TestBed.createComponent(TogglerTreeTableHost);
+        await fixture.whenStable();
+        expect(toggle().getAttribute('aria-label')).toBe('Closed');
+
+        toggle().click();
+        await named('Open');
+        expect(toggle().getAttribute('aria-label')).toBe('Open');
     });
 });
