@@ -1791,6 +1791,120 @@ describe('Table, keyboard: a row selected by double click', () => {
 @Component({
     imports: [TableModule],
     template: `
+        <agl-table [value]="products" dataKey="id" selectionMode="multiple" [(selection)]="selected" editMode="cell">
+            <ng-template #body let-product let-rowIndex="rowIndex">
+                <tr [aglSelectableRow]="product" [aglSelectableRowIndex]="rowIndex">
+                    <td>{{ product.name }}</td>
+                    <td><input class="note" aria-label="Note" /></td>
+                    <td [aglEditableColumn]="product" aglEditableColumnField="name" [aglEditableColumnRowIndex]="rowIndex" class="name-cell">
+                        <agl-cellEditor>
+                            <ng-template #input><input class="name-input" aria-label="Name" [value]="product.name" /></ng-template>
+                            <ng-template #output>{{ product.name }}</ng-template>
+                        </agl-cellEditor>
+                    </td>
+                    <td><button type="button" class="row-action">Act</button></td>
+                </tr>
+            </ng-template>
+        </agl-table>
+    `
+})
+class KeyboardSelectableRowTableHost {
+    products = [
+        { id: 1, name: 'Laptop' },
+        { id: 2, name: 'Mouse' },
+        { id: 3, name: 'Keyboard' }
+    ];
+    selected: { id: number; name: string }[] | null = null;
+}
+
+describe('Table, keyboard: a field inside a selectable row', () => {
+    const key = (el: Element, k: string, init: KeyboardEventInit = {}) => {
+        const code = k === ' ' ? 'Space' : k === 'a' ? 'KeyA' : k;
+        const event = new KeyboardEvent('keydown', { key: k, code, bubbles: true, cancelable: true, ...init });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardSelectableRowTableHost>;
+    const rows = () => Array.from(fixture.nativeElement.querySelectorAll('tbody tr')) as HTMLElement[];
+    const note = (i: number) => rows()[i].querySelector('input.note') as HTMLInputElement;
+    const editor = () => fixture.nativeElement.querySelector('input.name-input') as HTMLInputElement | null;
+
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardSelectableRowTableHost);
+        await fixture.whenStable();
+    });
+
+    afterEach(() => fixture.destroy());
+
+    it('leaves the arrow keys, Home and End in a text field to the field, so the caret moves and focus stays', () => {
+        note(1).focus();
+        for (const k of ['ArrowDown', 'ArrowUp', 'Home', 'End']) {
+            expect(key(note(1), k).defaultPrevented).withContext(k).toBe(false);
+            expect(document.activeElement).withContext(k).toBe(note(1));
+        }
+    });
+
+    it('leaves Ctrl+A and Cmd+A in a text field to the field, so they select its text and not every row', async () => {
+        note(0).focus();
+        expect(key(note(0), 'a', { ctrlKey: true }).defaultPrevented).toBe(false);
+        expect(key(note(0), 'a', { metaKey: true }).defaultPrevented).toBe(false);
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected).toBeNull();
+    });
+
+    it('leaves Space and Enter on a button inside the row to the button, so it can be pressed and the row is not selected', async () => {
+        const button = rows()[0].querySelector('button.row-action') as HTMLButtonElement;
+        expect(key(button, ' ').defaultPrevented).withContext('Space').toBe(false);
+        expect(key(button, 'Enter').defaultPrevented).withContext('Enter').toBe(false);
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected).toBeNull();
+    });
+
+    it('leaves a key that a control inside the row has already handled to that control', () => {
+        const button = rows()[0].querySelector('button.row-action') as HTMLButtonElement;
+        button.addEventListener('keydown', (event) => event.preventDefault());
+        button.focus();
+        key(button, 'ArrowDown');
+        expect(document.activeElement).toBe(button);
+    });
+
+    it('moves from an open cell editor to the editor below with ArrowDown, as before', async () => {
+        const cell = rows()[0].querySelector('td.name-cell') as HTMLElement;
+        cell.focus();
+        key(cell, 'Enter');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+
+        key(editor()!, 'ArrowDown');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(editor()!.value).toBe('Mouse');
+        expect(document.activeElement).toBe(editor());
+    });
+
+    it('moves between rows from the row itself, as before', () => {
+        rows()[0].focus();
+        expect(key(rows()[0], 'ArrowDown').defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(rows()[1]);
+        key(rows()[1], 'End');
+        expect(document.activeElement).toBe(rows()[2]);
+        key(rows()[2], 'Home');
+        expect(document.activeElement).toBe(rows()[0]);
+    });
+
+    it('selects from the row itself with Space, and every row with Ctrl+A, as before', async () => {
+        key(rows()[1], ' ');
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected?.map((p) => p.name)).toEqual(['Mouse']);
+
+        expect(key(rows()[1], 'a', { ctrlKey: true }).defaultPrevented).toBe(true);
+        await fixture.whenStable();
+        expect(fixture.componentInstance.selected?.map((p) => p.name)).toEqual(['Laptop', 'Mouse', 'Keyboard']);
+    });
+});
+
+@Component({
+    imports: [TableModule],
+    template: `
         <agl-table [value]="rows" [resizableColumns]="true" [columnResizeMode]="mode" [tableStyle]="{ width: '30rem' }" (onColResize)="resized.push($event.delta)">
             <ng-template #header>
                 <tr>
