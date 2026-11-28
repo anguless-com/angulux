@@ -4052,6 +4052,116 @@ describe('TreeTable, keyboard: a row selected by double click', () => {
 @Component({
     imports: [TreeTableModule],
     template: `
+        <agl-treetable [value]="nodes" dataKey="key" [selectionMode]="mode" [(selection)]="selected">
+            <ng-template #body let-rowNode let-rowData="rowData">
+                <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+                    <td>{{ rowData.name }}</td>
+                    <td><input class="note" aria-label="Note" /></td>
+                    <td [ttEditableColumn]="rowData" ttEditableColumnField="name" class="name-cell">
+                        <agl-treeTableCellEditor>
+                            <ng-template #input><input class="name-input" aria-label="Name" [value]="rowData.name" /></ng-template>
+                            <ng-template #output>{{ rowData.name }}</ng-template>
+                        </agl-treeTableCellEditor>
+                    </td>
+                    <td><button type="button" class="row-action">Act</button></td>
+                </tr>
+            </ng-template>
+        </agl-treetable>
+    `
+})
+class KeyboardSelectableRowTreeTableHost {
+    nodes: TreeNode[] = [
+        { key: 'a', data: { name: 'Documents' } },
+        { key: 'b', data: { name: 'Pictures' } }
+    ];
+    mode: 'single' | 'checkbox' = 'single';
+    selected: TreeNode | TreeNode[] | null = null;
+}
+
+describe('TreeTable, keyboard: a field inside a selectable row', () => {
+    // TreeTable's editor reads keyCode, so a synthetic event has to carry it, as a real one does.
+    const key = (el: Element, k: string) => {
+        const event = new KeyboardEvent('keydown', { key: k, code: k === ' ' ? 'Space' : k, keyCode: k === ' ' ? 32 : k === 'Enter' ? 13 : 0, bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+        return event;
+    };
+    let fixture: ComponentFixture<KeyboardSelectableRowTreeTableHost>;
+    const rows = () => Array.from(fixture.nativeElement.querySelectorAll('tbody tr')) as HTMLElement[];
+    const note = () => rows()[0].querySelector('input.note') as HTMLInputElement;
+    const editor = () => fixture.nativeElement.querySelector('input.name-input') as HTMLInputElement | null;
+    const name = (k: string) => (k === ' ' ? 'Space' : k);
+    const selectedKeys = () => {
+        const selected = fixture.componentInstance.selected;
+        return selected ? [selected].flat().map((node) => node.key) : [];
+    };
+    const create = async (mode: 'single' | 'checkbox') => {
+        await TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] }).compileComponents();
+        fixture = TestBed.createComponent(KeyboardSelectableRowTreeTableHost);
+        fixture.componentInstance.mode = mode;
+        await fixture.whenStable();
+    };
+
+    afterEach(() => fixture.destroy());
+
+    for (const mode of ['single', 'checkbox'] as const) {
+        it(`leaves Space and Enter in a text field to the field, so a space is typed and the row is not selected (${mode})`, async () => {
+            await create(mode);
+            note().focus();
+            for (const k of [' ', 'Enter']) {
+                expect(key(note(), k).defaultPrevented).withContext(name(k)).toBe(false);
+                await fixture.whenStable();
+                expect(selectedKeys()).withContext(name(k)).toEqual([]);
+            }
+        });
+
+        it(`leaves Space and Enter on a button inside the row to the button, so it can be pressed and the row is not selected (${mode})`, async () => {
+            await create(mode);
+            const button = rows()[0].querySelector('button.row-action') as HTMLButtonElement;
+            for (const k of [' ', 'Enter']) {
+                expect(key(button, k).defaultPrevented).withContext(name(k)).toBe(false);
+                await fixture.whenStable();
+                expect(selectedKeys()).withContext(name(k)).toEqual([]);
+            }
+        });
+
+        it(`selects the row with Space and Enter on the row itself, as before (${mode})`, async () => {
+            await create(mode);
+            expect(key(rows()[1], ' ').defaultPrevented).toBe(true);
+            await fixture.whenStable();
+            expect(selectedKeys()).toEqual(['b']);
+        });
+    }
+
+    it('leaves Space and Enter in an open cell editor to the editor, so a space is typed and Enter closes it without selecting the row (checkbox)', async () => {
+        await create('checkbox');
+        const cell = rows()[0].querySelector('td.name-cell') as HTMLElement;
+        cell.focus();
+        key(cell, 'Enter');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+        expect(key(editor()!, ' ').defaultPrevented).withContext('Space').toBe(false);
+        await fixture.whenStable();
+        expect(selectedKeys()).withContext('Space').toEqual([]);
+
+        key(editor()!, 'Enter');
+        await waitUntil(() => !editor(), fixture);
+        expect(document.activeElement).toBe(cell);
+        expect(selectedKeys()).withContext('Enter').toEqual([]);
+    });
+
+    it('leaves a key that a control inside the row has already handled to that control (checkbox)', async () => {
+        await create('checkbox');
+        const control = rows()[0].querySelector('td') as HTMLElement;
+        control.tabIndex = -1;
+        control.addEventListener('keydown', (event) => event.preventDefault());
+        key(control, ' ');
+        await fixture.whenStable();
+        expect(selectedKeys()).toEqual([]);
+    });
+});
+
+@Component({
+    imports: [TreeTableModule],
+    template: `
         <agl-treetable [value]="nodes" [resizableColumns]="true" columnResizeMode="expand" (onColResize)="resized.push($event.delta)">
             <ng-template #header>
                 <tr>

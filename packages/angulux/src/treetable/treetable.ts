@@ -3066,8 +3066,16 @@ export class TTSelectableRow extends BaseComponent {
         }
     }
 
+    /**
+     * Enter and Space select the row, from the row itself, a cell or a row checkbox. A text field,
+     * a button or a link inside the row keeps them, so a space can be typed and the button pressed,
+     * and a key that a control inside the row has already handled is left to that control.
+     */
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
+        const target = event.target as HTMLInputElement;
+        const control = target.isContentEditable || /^(TEXTAREA|SELECT|BUTTON|A)$/.test(target.nodeName) || (target.nodeName === 'INPUT' && !/^(checkbox|radio)$/.test(target.type));
+        if (control || event.defaultPrevented) return;
         switch (event.code) {
             case 'Enter':
             case 'Space':
