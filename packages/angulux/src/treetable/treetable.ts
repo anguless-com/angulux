@@ -3723,8 +3723,17 @@ export class TTRow extends BaseComponent {
         super();
     }
 
+    /**
+     * The arrow keys, Home and End move between rows and open or close them. A text field inside
+     * the row, such as a cell editor, keeps them for its caret, and a key that a control inside
+     * the row has already handled is left to that control. Tab always reaches the row.
+     */
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
+        const target = event.target as HTMLInputElement;
+        const textField = target.isContentEditable || target.nodeName === 'TEXTAREA' || target.nodeName === 'SELECT' || (target.nodeName === 'INPUT' && !/^(checkbox|radio|button|submit|reset|image)$/.test(target.type));
+        if (event.code !== 'Tab' && (textField || event.defaultPrevented)) return;
+
         switch (event.code) {
             case 'ArrowDown':
                 this.onArrowDownKey(event);

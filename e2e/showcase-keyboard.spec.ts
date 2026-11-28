@@ -527,7 +527,7 @@ test('Table, cell editing: Tab reaches each editable cell, Enter or F2 opens its
     await expect(name).toBeFocused();
 });
 
-test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens its editor, and Enter or Escape closes it with focus back on the cell', async ({ page }) => {
+test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens its editor, the caret keys stay in it, and Enter or Escape closes it with focus back on the cell', async ({ page }) => {
     await page.goto('/treetable');
     await hydrated(page);
 
@@ -548,10 +548,21 @@ test('TreeTable, cell editing: Tab reaches each editable cell, Enter or F2 opens
     const sizeInput = demo.getByRole('textbox', { name: 'Size' });
     await expect(sizeInput).toBeFocused();
     await sizeInput.fill('80kb');
+
+    // The caret keys stay in the editor rather than moving between rows.
+    await page.keyboard.press('End');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.type('X');
+    await expect(sizeInput).toHaveValue('80Xkb');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Home');
+    await expect(sizeInput).toBeFocused();
+
     await page.keyboard.press('Enter');
     await expect(sizeInput).toHaveCount(0);
     await expect(size).toBeFocused();
-    await expect(size).toHaveText('80kb');
+    await expect(size).toHaveText('80Xkb');
 
     // F2 opens the type editor, which axe finds named; Escape closes it.
     await page.keyboard.press('Tab');

@@ -3950,6 +3950,38 @@ describe('TreeTable, keyboard: an editable cell', () => {
         await fixture.whenStable();
         expect(editor()).toBeNull();
     });
+
+    it('leaves the arrow keys, Home and End in its editor to the editor, so the caret moves and focus stays', async () => {
+        cells()[0].focus();
+        key(cells()[0], 'Enter');
+        await waitUntil(() => !!editor() && document.activeElement === editor(), fixture);
+
+        // ArrowLeft on the row hands focus back to it 25 ms later, so step the clock past that.
+        jasmine.clock().install();
+        try {
+            for (const k of ['ArrowLeft', 'ArrowRight', 'Home', 'End', 'ArrowDown', 'ArrowUp']) {
+                expect(key(editor()!, k).defaultPrevented).toBe(false);
+            }
+            jasmine.clock().tick(60);
+        } finally {
+            jasmine.clock().uninstall();
+        }
+        expect(document.activeElement).toBe(editor());
+    });
+
+    it('moves to the next row with ArrowDown from a closed cell, as before', () => {
+        cells()[0].focus();
+        expect(key(cells()[0], 'ArrowDown').defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(fixture.nativeElement.querySelectorAll('tbody tr')[1]);
+    });
+
+    it('leaves a key that a control inside the row has already handled to that control', () => {
+        const control = fixture.nativeElement.querySelector('td.off-cell') as HTMLElement;
+        control.addEventListener('keydown', (event) => event.preventDefault());
+        cells()[0].focus();
+        key(control, 'ArrowDown');
+        expect(document.activeElement).toBe(cells()[0]);
+    });
 });
 
 @Component({
