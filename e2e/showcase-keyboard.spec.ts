@@ -686,3 +686,35 @@ test('TreeTable, column resizing: each resizer is a named tab stop, and the arro
     await page.keyboard.press('ArrowLeft');
     await expect.poll(width).toBeCloseTo(before, 0);
 });
+
+test('TreeTable, row toggle: ArrowRight and ArrowLeft open and close a row, and its toggle button is named for the row state', async ({ page }) => {
+    await page.goto('/treetable');
+    await hydrated(page);
+
+    const demo = page.locator('agl-treetable-basic-doc');
+    const documents = demo.getByRole('row', { name: /Documents/ });
+    const toggle = documents.getByRole('button');
+    const work = demo.getByRole('row', { name: /Work/ });
+
+    await expect(toggle).toHaveAccessibleName('Row Collapsed');
+    await expect(work).toHaveCount(0);
+
+    // ArrowRight opens the row and moves to its first child; ArrowLeft there goes back to the parent, and once more closes it.
+    await documents.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(work).toBeFocused();
+    await expect(documents).toHaveAttribute('aria-expanded', 'true');
+    await expect(toggle).toHaveAccessibleName('Row Expanded');
+    expect(await axeViolations(page, 'agl-treetable-basic-doc')).toEqual([]);
+
+    await page.keyboard.press('ArrowLeft');
+    await expect(documents).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(work).toHaveCount(0);
+    await expect(toggle).toHaveAccessibleName('Row Collapsed');
+
+    // A click on the button opens it as well.
+    await toggle.click();
+    await expect(work).toHaveCount(1);
+    await expect(toggle).toHaveAccessibleName('Row Expanded');
+});

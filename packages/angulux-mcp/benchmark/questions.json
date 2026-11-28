@@ -1,6 +1,6 @@
 {
     "_comment": "A FIXED benchmark set, derived once from corpus/corpus.json and then committed. questions.test.mjs re-verifies every expectation against the corpus on each run, so a library change turns the suite red instead of letting the benchmark quietly measure nothing.",
-    "corpusSourceHash": "eb13392aeb25b00c363898f6f27531eddb0ff43441832e87a813691c946f8e6d",
+    "corpusSourceHash": "c2c9cf099b958800c0163cfa2d3e6b290b4f6658dddf0e932b36ffcedf0708ec",
     "count": 24,
     "questions": [
         {
