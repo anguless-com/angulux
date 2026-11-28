@@ -15,8 +15,8 @@ import { TableModule } from '@anguless/angulux/table';
                             <th>Category</th>
                         </tr>
                     </ng-template>
-                    <ng-template #body let-product>
-                        <tr [aglSelectableRow]="product">
+                    <ng-template #body let-product let-rowIndex="rowIndex">
+                        <tr [aglSelectableRow]="product" [aglSelectableRowIndex]="rowIndex">
                             <td>{{ product.name }}</td>
                             <td>{{ product.category }}</td>
                         </tr>

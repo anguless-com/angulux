@@ -904,7 +904,7 @@ export const DEMO_SECTIONS: Record<string, DemoSection[]> = {
         {
             id: 'table-selection',
             label: 'Selection',
-            description: 'Selection is two-way bound, and aglSelectableRow marks what can be selected.',
+            description: 'Selection is two-way bound, and aglSelectableRow marks what can be selected. A click, Enter or Space selects a row, and the arrow keys move between rows. With aglSelectableRowIndex set, the selected row is their one tab stop.',
             load: () => import('./table/selection-doc').then((m) => m.SelectionDoc)
         },
         {
