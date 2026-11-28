@@ -184,7 +184,12 @@ test('Tooltip: focus a script moves after a mouse click shows none, and keyboard
     const top = demo.getByRole('button', { name: 'Top' });
     const tooltip = page.getByRole('tooltip');
 
-    await demo.locator('.card').click({ position: { x: 4, y: 4 } });
+    // The click has to put focus somewhere, as a click on the button that opens a dialog does. The
+    // card is made focusable for that: a click on text in the page focuses nothing.
+    const card = demo.locator('.card');
+    await card.evaluate((el) => el.setAttribute('tabindex', '-1'));
+    await card.click({ position: { x: 4, y: 4 } });
+    await expect(card).toBeFocused();
     await right.evaluate((el) => (el as HTMLElement).focus());
     await expect(right).toBeFocused();
     expect(await right.evaluate((el) => el.matches(':focus-visible')), 'the browser counts this focus as not from the keyboard').toBe(false);
@@ -753,4 +758,32 @@ test('TreeTable, row toggle: ArrowRight and ArrowLeft open and close a row, and 
     await toggle.click();
     await expect(work).toHaveCount(1);
     await expect(toggle).toHaveAccessibleName('Row Expanded');
+});
+
+test('Site: the skip link moves focus to the content, and a click in the page does not, so Tab carries on from the clicked spot', async ({ page }) => {
+    await page.goto('/table');
+    await hydrated(page);
+
+    const main = page.locator('main#content');
+    const copy = main.getByRole('button', { name: 'Copy as Markdown' }).first();
+
+    // The skip link is the first tab stop, and Enter on it moves focus to this page's content. The
+    // page has <base href="/">, so following the link as a plain "#content" would load the home page.
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/table$/);
+    await expect(main).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(copy).toBeFocused();
+
+    // Once focus has left it, the content is no longer focusable, so a click in the page leaves
+    // focus where the reader clicked and the next Tab goes to the next control after that spot.
+    await expect(main).not.toHaveAttribute('tabindex');
+    const text = page.locator('agl-table-selection-doc').getByText(/^Selected:/);
+    await text.click();
+    await expect(main).not.toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(copy).not.toBeFocused();
+    expect(await text.evaluate((clicked) => !!(clicked.compareDocumentPosition(document.activeElement!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
 });
