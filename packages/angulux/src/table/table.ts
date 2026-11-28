@@ -3901,8 +3901,16 @@ export class SelectableRow extends BaseComponent {
         }
     }
 
+    /**
+     * The arrow keys, Home, End, Space, Enter and Ctrl+A or Cmd+A move between rows and select them.
+     * A text field inside the row, such as a cell editor, keeps them for its caret and its text, and
+     * a key that a control inside the row has already handled is left to that control.
+     */
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
+        const target = event.target as HTMLInputElement;
+        const textField = target.isContentEditable || target.nodeName === 'TEXTAREA' || target.nodeName === 'SELECT' || (target.nodeName === 'INPUT' && !/^(checkbox|radio|button|submit|reset|image)$/.test(target.type));
+        if (textField || event.defaultPrevented) return;
         switch (event.code) {
             case 'ArrowDown':
                 this.onArrowDownKey(event);
@@ -4014,7 +4022,8 @@ export class SelectableRow extends BaseComponent {
     }
 
     onSpaceKey(event) {
-        const isInput = event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement || event.target instanceof HTMLTextAreaElement;
+        // A button inside the row is pressed with Space, as a checkbox is ticked with it.
+        const isInput = event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLButtonElement;
         if (isInput) {
             return;
         } else {
